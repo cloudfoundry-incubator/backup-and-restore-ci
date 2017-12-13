@@ -41,6 +41,14 @@ resources:
     region_name: eu-west-1
     access_key_id: {{aws-access-key-id}}
     secret_access_key: {{aws-secret-access-key}}
+- name: external-blobstore-sdk-release
+  type: s3
+  source:
+    bucket: external-blobstore-sdk-releases
+    regexp: external-blobstore-sdk-(.*).tgz
+    region_name: eu-west-1
+    access_key_id: {{aws-access-key-id}}
+    secret_access_key: {{aws-secret-access-key}}
 - name: github-release
   type: github-release
   source:
@@ -556,6 +564,15 @@ jobs:
       tag: version/number
       tag_prefix: v
   - get: backup-and-restore-sdk-release-master-for-rebase
+  - task: create-external-blobstore-release-tarball
+    file: backup-and-restore-sdk-release/ci/tasks/create-release.yml
+    params:
+      AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
+      AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
+      RELEASE_NAME: external-blobstore-sdk
+  - put: external-blobstore-sdk-release
+    params:
+      file: backup-and-restore-sdk-release-build/external-blobstore-sdk-*.tgz
   - put: backup-and-restore-sdk-release
     params:
       repository: backup-and-restore-sdk-release-master-for-rebase
@@ -601,6 +618,15 @@ jobs:
       tag: version/number
       tag_prefix: v
   - get: backup-and-restore-sdk-release-master-for-rebase
+  - task: create-external-blobstore-release-tarball
+    file: backup-and-restore-sdk-release/ci/tasks/create-release.yml
+    params:
+      AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
+      AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
+      RELEASE_NAME: external-blobstore-sdk
+  - put: external-blobstore-sdk-release
+    params:
+      file: backup-and-restore-sdk-release-build/external-blobstore-sdk-*.tgz
   - put: backup-and-restore-sdk-release
     params:
       repository: backup-and-restore-sdk-release-master-for-rebase
@@ -646,6 +672,15 @@ jobs:
       tag: version/number
       tag_prefix: v
   - get: backup-and-restore-sdk-release-master-for-rebase
+  - task: create-external-blobstore-release-tarball
+    file: backup-and-restore-sdk-release/ci/tasks/create-release.yml
+    params:
+      AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
+      AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
+      RELEASE_NAME: external-blobstore-sdk
+  - put: external-blobstore-sdk-release
+    params:
+      file: backup-and-restore-sdk-release-build/external-blobstore-sdk-*.tgz
   - put: backup-and-restore-sdk-release
     params:
       repository: backup-and-restore-sdk-release-master-for-rebase
