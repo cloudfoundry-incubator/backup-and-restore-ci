@@ -1,0 +1,147 @@
+---
+
+
+resources:
+- name: cf-deployment-concourse-tasks
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
+    tag_filter: v4.*
+- name: cf-deployment-release-candidate
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/cf-deployment.git
+    branch: release-candidate
+- name: bosh-backup-and-restore-meta
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: {{git-private-key}}
+    branch: master
+- name: russian-blue-large-blobstore-bbl-state
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: {{git-private-key}}
+    branch: master
+- name: russian-blue-large-blobstore-vars-store
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: {{git-private-key}}
+    branch: master
+#- name: bbr-cf-benchmark
+#  type: git
+#  source:
+#    uri: git@github.com:pivotal-cf-experimental/bbr-cf-benchmark.git
+#    private_key: {{git-private-key}}
+#    branch: master
+- name: spring-music
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-samples/spring-music
+    private_key: {{git-private-key}}
+    branch: master
+
+#- name: bbr-binary-release
+#  type: github-release
+#  source:
+#      owner: cloudfoundry-incubator
+#      repository: bosh-backup-and-restore
+
+jobs:
+
+### DEPLOY CF
+
+- name: deploy-cf-russian-blue-large-blobstore
+  serial: true
+  serial_groups: [russian-blue-large-blobstore]
+  plan:
+  - aggregate:
+    - get: bosh-backup-and-restore-meta
+    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment-release-candidate
+    - get: russian-blue-large-blobstore-bbl-state
+    - get: russian-blue-large-blobstore-vars-store
+  - task: upload-stemcell
+    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
+    input_mapping:
+      bbl-state: russian-blue-large-blobstore-bbl-state
+      cf-deployment: cf-deployment-release-candidate
+    params:
+      INFRASTRUCTURE: google
+      BBL_STATE_DIR: russian-blue-large-blobstore/
+  - task: collect-ops-files
+    file: cf-deployment-concourse-tasks/collect-ops-files/task.yml
+    input_mapping:
+      base-ops-files: cf-deployment-release-candidate
+      new-ops-files: bosh-backup-and-restore-meta
+    params:
+     BASE_OPS_FILE_DIR: operations
+     NEW_OPS_FILES: "russian-blue-large-blobstore/scale-up.yml"
+  - task: deploy-cf
+    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
+    input_mapping:
+      bbl-state: russian-blue-large-blobstore-bbl-state
+      cf-deployment: cf-deployment-release-candidate
+      ops-files: collected-ops-files
+      vars-store: russian-blue-large-blobstore-vars-store
+      vars-files: russian-blue-large-blobstore-vars-store
+    params:
+      BBL_IAAS: gcp
+      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_PROJECT_ID: cf-backup-and-restore
+      BBL_STATE_DIR: russian-blue-large-blobstore/
+      SYSTEM_DOMAIN: russian-blue-large-blobstore.cf-app.com
+      OPS_FILES: "operations/scale-up.yml operations/use-compiled-releases.yml operations/experimental/enable-backup-restore.yml"
+      VARS_STORE_FILE: russian-blue-large-blobstore/cf-deployment-variables.yml
+      GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
+      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+    ensure:
+      put: russian-blue-large-blobstore-vars-store
+      params:
+        repository: updated-vars-store
+        rebase: true
+
+#- name: build-spring-music
+#  plan:
+#  - get: spring-music
+#  - get: bbr-cf-benchmark
+#  - task: build
+#    file: bbr-cf-benchmark/ci/tasks/build-spring-music.yml
+#  - put: spring-music-builds
+#    params: {file: spring-music-builds/*.jar}
+
+- name: push-spring-music-bulk
+  serial: true
+  serial_groups: [push-test-apps]
+  plan:
+  - get: bosh-backup-and-restore-meta
+  - get: spring-music
+  - task: push-spring-music-bulk
+    file: bosh-backup-and-restore-meta/ci/tasks/push-spring-music-bulk.yml
+    params:
+      CF_API: api.russian-blue-large-blobstore.cf-app.com
+      CF_USERNAME: admin
+      CF_PASSWORD: {{russian-blue-large-blobstore-cf-admin-password}}
+      APP_SPACE: lot-of-apps
+      APP_ORG: lot-of-apps
+      NUMBER_OF_INSTANCES: 100
+      NUMBER_OF_INSTANCES_AT_A_TIME: 10
+
+- name: delete-cf-russian-blue-large-blobstore
+  serial: true
+  serial_groups: [russian-blue-large-blobstore]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: russian-blue-large-blobstore-bbl-state
+  - task: bosh-delete-deployment
+    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+    input_mapping:
+      bbl-state: russian-blue-large-blobstore-bbl-state
+    params:
+      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_PROJECT_ID: cf-backup-and-restore
+      BBL_STATE_DIR: russian-blue-large-blobstore/

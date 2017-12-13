@@ -1,0 +1,123 @@
+---
+resources:
+- name: cfops-repo
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: {{git-private-key}}
+    branch: master
+    paths: ["ci-docker-images/cfops/*"]
+- name: cfops-docs-repo
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: {{git-private-key}}
+    branch: master
+    paths: ["ci-docker-images/cfops-docs/*"]
+- name: backup-and-restore-minimal-repo
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-incubator/disaster-recovery-acceptance-tests.git
+    branch: master
+    paths: ["docker-images/backup-and-restore-minimal/*"]
+- name: bosh-backup-and-restore-repo
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: {{git-private-key}}
+    branch: master
+    paths: ["ci-docker-images/bosh-backup-and-restore/*"]
+- name: backup-and-restore-node-with-ssh-repo
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: {{git-private-key}}
+    branch: master
+    paths: ["ci-docker-images/backup-and-restore-node-with-ssh/*"]
+
+- name: cfops-docker-image
+  type: docker-image
+  source:
+    repository: cloudfoundrylondon/cfops
+    username: {{dockerhub-username}}
+    password: {{dockerhub-password}}
+
+- name: cfops-docs-docker-image
+  type: docker-image
+  source:
+    repository: cloudfoundrylondon/cfops-docs
+    username: {{dockerhub-username}}
+    password: {{dockerhub-password}}
+
+- name: backup-and-restore-minimal-docker-image
+  type: docker-image
+  source:
+    repository: cloudfoundrylondon/backup-and-restore-minimal
+    username: {{dockerhub-username}}
+    password: {{dockerhub-password}}
+
+- name: bosh-backup-and-restore-docker-image
+  type: docker-image
+  source:
+    repository: cloudfoundrylondon/backup-and-restore
+    username: {{dockerhub-username}}
+    password: {{dockerhub-password}}
+
+- name: backup-and-restore-node-with-ssh-docker-image
+  type: docker-image
+  source:
+    repository: cloudfoundrylondon/backup-and-restore-node-with-ssh
+    username: {{dockerhub-username}}
+    password: {{dockerhub-password}}
+
+jobs:
+
+- name: build-cfops
+  public: true
+  serial: true
+  plan:
+  - get: cfops-repo
+    trigger: true
+  - put: cfops-docker-image
+    params:
+      build: cfops-repo/ci-docker-images/cfops/
+
+- name: build-cfops-docs
+  public: true
+  serial: true
+  plan:
+  - get: cfops-docs-repo
+    trigger: true
+  - put: cfops-docs-docker-image
+    params:
+      build: cfops-docs-repo/ci-docker-images/cfops-docs/
+
+- name: build-backup-and-restore-minimal
+  public: true
+  serial: true
+  plan:
+  - get: backup-and-restore-minimal-repo
+    trigger: true
+  - put: backup-and-restore-minimal-docker-image
+    params:
+      build: backup-and-restore-minimal-repo/docker-images/backup-and-restore-minimal/
+
+- name: build-bosh-backup-and-restore
+  public: true
+  serial: true
+  plan:
+  - get: bosh-backup-and-restore-repo
+    trigger: true
+  - put: bosh-backup-and-restore-docker-image
+    params:
+      build: bosh-backup-and-restore-repo/ci-docker-images/bosh-backup-and-restore/
+
+- name: build-backup-and-restore-node-with-ssh
+  public: true
+  serial: true
+  plan:
+  - get: backup-and-restore-node-with-ssh-repo
+    trigger: true
+  - put: backup-and-restore-node-with-ssh-docker-image
+    params:
+      build: backup-and-restore-node-with-ssh-repo/ci-docker-images/backup-and-restore-node-with-ssh/
