@@ -1,0 +1,37 @@
+#backup-and-restore-minimal is defined in the disaster-recovery-acceptance-tests repo
+FROM cloudfoundrylondon/backup-and-restore-minimal
+
+RUN \
+  apt-get update && \
+  apt-get install -y ruby ruby-dev file libssl-dev wbritish awscli lsb-release openjdk-8-jdk apt-transport-https && \
+  rm -rf /var/lib/apt/lists/*
+RUN gem install bundler
+RUN gem install bosh_cli
+
+RUN go get github.com/Masterminds/glide
+RUN cd src/github.com/Masterminds/glide
+
+RUN git clone https://github.com/AGWA/git-crypt.git && \
+ cd git-crypt/ && \
+ make && sudo make install
+
+RUN git config --global url."git@github.com:".insteadOf "https://github.com/"
+RUN mkdir -p ~/.ssh && ssh-keyscan -H github.com > ~/.ssh/known_hosts
+
+RUN wget https://get.docker.com/builds/Linux/x86_64/docker-1.11.0.tgz && \
+  tar xvf docker-1.11.0.tgz && \
+  sudo cp docker/docker /bin
+
+RUN (wget https://releases.hashicorp.com/terraform/0.10.8/terraform_0.10.8_linux_386.zip && unzip terraform_0.10.8_linux_386.zip -d /bin/)
+
+RUN wget https://services.gradle.org/distributions/gradle-3.4.1-bin.zip && \
+  mkdir /opt/gradle && unzip -d /opt/gradle gradle-3.4.1-bin.zip
+
+ENV PATH="${PATH}:/opt/gradle/gradle-3.4.1/bin"
+
+ENV CLOUD_SDK_VERSION 178.0.0
+
+RUN export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
+    echo "deb https://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" > /etc/apt/sources.list.d/google-cloud-sdk.list && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
+    apt-get update && apt-get install -y google-cloud-sdk=${CLOUD_SDK_VERSION}-0 $INSTALL_COMPONENTS
