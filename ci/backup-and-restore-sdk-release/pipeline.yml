@@ -62,21 +62,27 @@ resources:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
     tag_filter: v4.*
-- name: cf-deployment-master
+- name: cf-deployment-release-candidate
   type: git
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
-    branch: master
-- name: cf-deployment-sdk-fork
-  type: git
-  source:
-    uri: https://github.com/ChunyiLyu/cf-deployment.git
-    branch: s3-blobstore-backups
+    branch: release-candidate
 - name: aws-s3-bbl-state
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: {{git-private-key}}
+    branch: master
+
+- name: bbr-binary-release
+  type: github-release
+  source:
+      owner: cloudfoundry-incubator
+      repository: bosh-backup-and-restore
+- name: disaster-recovery-acceptance-tests
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-incubator/disaster-recovery-acceptance-tests.git
     branch: master
 
 jobs:
@@ -464,10 +470,12 @@ jobs:
 
 - name: deploy-cf-with-external-s3-blobstore
   serial: true
+  serial_groups: [bbr-s3]
   plan:
   - aggregate:
-    - get: cf-deployment-sdk-fork
+    - get: cf-deployment-release-candidate
     - get: backup-and-restore-sdk-release
+      trigger: true
       passed:
       - s3-blobstore-backuper-system-tests
     - get: release-tarball
@@ -477,58 +485,32 @@ jobs:
       - mysql-system-tests
       - s3-blobstore-backuper-system-tests
     - get: cf-deployment-concourse-tasks
-    - get: cf-deployment-master
     - get: aws-s3-bbl-state
     - get: bosh-backup-and-restore-meta
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     input_mapping:
       bbl-state: aws-s3-bbl-state
-      cf-deployment: cf-deployment-master
+      cf-deployment: cf-deployment-release-candidate
     params:
       INFRASTRUCTURE: google
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
-  - task: upload-latest-sdk-release
-    file: bosh-backup-and-restore-meta/ci/tasks/upload-release.yml
-    input_mapping:
-      release-tarball: release-tarball
-      bbl-state: aws-s3-bbl-state
-      meta: bosh-backup-and-restore-meta
-    params:
-      BBL_STATE_DIR: external-blobstore-directors/aws-s3
-      RELEASE_TARBALL_PATH: backup-and-restore-sdk-*.tgz
-  - task: collect-ops-files-from-sdk-release
-    file: cf-deployment-concourse-tasks/collect-ops-files/task.yml
-    input_mapping:
-      base-ops-files: cf-deployment-master
-      new-ops-files: backup-and-restore-sdk-release
-    params:
-      BASE_OPS_FILE_DIR: operations
-      NEW_OPS_FILES:  "opsfiles/use-latest-backup-and-restore-sdk.yml"
-  - task: collect-ops-files-from-cf-deployment-fork
-    file: cf-deployment-concourse-tasks/collect-ops-files/task.yml
-    input_mapping:
-      base-ops-files: collected-ops-files
-      new-ops-files: cf-deployment-sdk-fork
-    params:
-      BASE_OPS_FILE_DIR: operations
-      NEW_OPS_FILES:  "operations/experimental/enable-backup-restore-s3.yml"
   - task: deploy-cf-with-external-s3
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     input_mapping:
       bbl-state: aws-s3-bbl-state
-      cf-deployment: cf-deployment-master
-      ops-files: collected-ops-files
+      cf-deployment: cf-deployment-release-candidate
+      ops-files: cf-deployment-release-candidate
       vars-store: bosh-backup-and-restore-meta
       vars-files: bosh-backup-and-restore-meta
-      release: cf-deployment-sdk-fork
+      release: backup-and-restore-sdk-release
     params:
       BBL_IAAS: gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
       SYSTEM_DOMAIN: bbr-s3.cf-app.com
-      OPS_FILES: "operations/scale-to-one-az.yml operations/experimental/enable-backup-restore.yml operations/use-s3-blobstore.yml operations/use-compiled-releases.yml operations/enable-backup-restore-s3.yml operations/use-latest-backup-and-restore-sdk.yml"
+      OPS_FILES: "operations/scale-to-one-az.yml operations/experimental/enable-backup-restore.yml operations/use-s3-blobstore.yml operations/use-compiled-releases.yml operations/experimental/enable-backup-restore-s3.yml"
       VARS_STORE_FILE: external-blobstore-directors/aws-s3/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
@@ -537,6 +519,43 @@ jobs:
       params:
         repository: updated-vars-store
         rebase: true
+
+- name: run-drats-external-s3-blobstore
+  serial: true
+  serial_groups: [bbr-s3]
+  plan:
+  - get: cf-deployment-release-candidate
+    passed: [deploy-cf-with-external-s3-blobstore]
+    trigger: true
+  - get: backup-and-restore-sdk-release
+    trigger: true
+    passed: [deploy-cf-with-external-s3-blobstore]
+  - get: disaster-recovery-acceptance-tests
+    trigger: true
+  - get: bbr-binary-release
+    trigger: true
+  - task: unit-tests
+    file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
+    params:
+      GITHUB_SSH_KEY: {{github-ssh-key}}
+  - task: acceptance-tests
+    file: disaster-recovery-acceptance-tests/ci/drats/task.yml
+    privileged: true
+    params:
+      CF_DEPLOYMENT_NAME: cf
+      CF_API_URL: https://api.bbr-s3.cf-app.com
+      CF_ADMIN_USERNAME: admin
+      CF_ADMIN_PASSWORD: {{bbr-s3-cf-admin-password}}
+      BOSH_CA_CERT: {{bbr-s3-bosh-cert}}
+      BOSH_CLIENT: admin
+      BOSH_CLIENT_SECRET: {{bbr-s3-bosh-client-secret}}
+      BOSH_ENVIRONMENT: {{bbr-s3-bosh-url}}
+      BOSH_GW_USER: jumpbox
+      BOSH_GW_HOST: {{bbr-s3-ssh-gateway-host}}
+      BOSH_GW_PRIVATE_KEY: {{bbr-s3-ssh-gateway-key}}
+      SSH_DESTINATION_CIDR: "10.0.0.0/8"
+      DEFAULT_TIMEOUT_MINS: 30
+      SKIP_SUITE_NAME: credhub|nfs
 
 - name: create-final-major
   serial: true
