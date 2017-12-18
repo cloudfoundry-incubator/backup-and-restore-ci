@@ -19,6 +19,7 @@ resources:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: {{git-private-key}}
     branch: master
+
 - name: russian-blue-large-blobstore-bbl-state
   type: git
   source:
@@ -31,12 +32,20 @@ resources:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: {{git-private-key}}
     branch: master
-#- name: bbr-cf-benchmark
-#  type: git
-#  source:
-#    uri: git@github.com:pivotal-cf-experimental/bbr-cf-benchmark.git
-#    private_key: {{git-private-key}}
-#    branch: master
+
+- name: validation-snowshoe-bbl-state
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: {{git-private-key}}
+    branch: master
+- name: validation-snowshoe-vars-store
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: {{git-private-key}}
+    branch: master
+
 - name: spring-music
   type: git
   source:
@@ -44,16 +53,9 @@ resources:
     private_key: {{git-private-key}}
     branch: master
 
-#- name: bbr-binary-release
-#  type: github-release
-#  source:
-#      owner: cloudfoundry-incubator
-#      repository: bosh-backup-and-restore
-
 jobs:
 
 ### DEPLOY CF
-
 - name: deploy-cf-russian-blue-large-blobstore
   serial: true
   serial_groups: [russian-blue-large-blobstore]
@@ -104,14 +106,47 @@ jobs:
         repository: updated-vars-store
         rebase: true
 
-#- name: build-spring-music
-#  plan:
-#  - get: spring-music
-#  - get: bbr-cf-benchmark
-#  - task: build
-#    file: bbr-cf-benchmark/ci/tasks/build-spring-music.yml
-#  - put: spring-music-builds
-#    params: {file: spring-music-builds/*.jar}
+- name: deploy-cf-validation-snowshoe
+  serial: true
+  serial_groups: [validation-snowshoe]
+  plan:
+  - aggregate:
+    - get: bosh-backup-and-restore-meta
+    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment-release-candidate
+    - get: validation-snowshoe-bbl-state
+    - get: validation-snowshoe-vars-store
+  - task: upload-stemcell
+    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
+    input_mapping:
+      bbl-state: validation-snowshoe-bbl-state
+      cf-deployment: cf-deployment-release-candidate
+    params:
+      INFRASTRUCTURE: google
+      BBL_STATE_DIR: validation-snowshoe/
+  - task: deploy-cf
+    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
+    input_mapping:
+      bbl-state: validation-snowshoe-bbl-state
+      cf-deployment: cf-deployment-release-candidate
+      ops-files: cf-deployment-release-candidate
+      vars-store: validation-snowshoe-vars-store
+      vars-files: validation-snowshoe-vars-store
+    params:
+      BBL_IAAS: gcp
+      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_PROJECT_ID: cf-backup-and-restore
+      BBL_STATE_DIR: validation-snowshoe/
+      SYSTEM_DOMAIN: validation-snowshoe.cf-app.com
+      OPS_FILES: "operations/use-compiled-releases.yml operations/experimental/enable-backup-restore.yml operations/experimental/enable-instance-identity-credentials.yml operations/experimental/secure-service-credentials.yml operations/experimental/disable-interpolate-service-bindings.yml operations/experimental/enable-backup-restore-credhub.yml operations/experimental/enable-traffic-to-internal-networks.yml operations/experimental/use-bosh-dns.yml operations/experimental/use-bosh-dns-for-containers.yml"
+      VARS_STORE_FILE: validation-snowshoe/cf-deployment-variables.yml
+      GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
+      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+    ensure:
+      put: validation-snowshoe-vars-store
+      params:
+        repository: updated-vars-store
+        rebase: true
 
 - name: push-spring-music-bulk
   serial: true
