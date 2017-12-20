@@ -138,7 +138,7 @@ jobs:
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: validation-snowshoe/
       SYSTEM_DOMAIN: validation-snowshoe.cf-app.com
-      OPS_FILES: "operations/use-compiled-releases.yml operations/experimental/enable-backup-restore.yml operations/experimental/enable-instance-identity-credentials.yml operations/experimental/secure-service-credentials.yml operations/experimental/disable-interpolate-service-bindings.yml operations/experimental/enable-backup-restore-credhub.yml operations/experimental/enable-traffic-to-internal-networks.yml operations/experimental/use-bosh-dns.yml operations/experimental/use-bosh-dns-for-containers.yml"
+      OPS_FILES: "operations/use-compiled-releases.yml operations/experimental/enable-backup-restore.yml"
       VARS_STORE_FILE: validation-snowshoe/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
@@ -180,3 +180,19 @@ jobs:
       BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: russian-blue-large-blobstore/
+
+- name: delete-cf-validation-snowshoe
+  serial: true
+  serial_groups: [validation-snowshoe]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: validation-snowshoe-bbl-state
+  - task: bosh-delete-deployment
+    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+    input_mapping:
+      bbl-state: validation-snowshoe-bbl-state
+    params:
+      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_PROJECT_ID: cf-backup-and-restore
+      BBL_STATE_DIR: validation-snowshoe/
