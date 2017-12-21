@@ -62,11 +62,11 @@ resources:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
     tag_filter: v4.*
-- name: cf-deployment-release-candidate
+- name: cf-deployment-master
   type: git
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
-    branch: release-candidate
+    branch: master
 - name: aws-s3-bbl-state
   type: git
   source:
@@ -473,7 +473,7 @@ jobs:
   serial_groups: [bbr-s3]
   plan:
   - aggregate:
-    - get: cf-deployment-release-candidate
+    - get: cf-deployment-master
     - get: backup-and-restore-sdk-release
       trigger: true
       passed:
@@ -491,7 +491,7 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     input_mapping:
       bbl-state: aws-s3-bbl-state
-      cf-deployment: cf-deployment-release-candidate
+      cf-deployment: cf-deployment-master
     params:
       INFRASTRUCTURE: google
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
@@ -499,8 +499,8 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     input_mapping:
       bbl-state: aws-s3-bbl-state
-      cf-deployment: cf-deployment-release-candidate
-      ops-files: cf-deployment-release-candidate
+      cf-deployment: cf-deployment-master
+      ops-files: cf-deployment-master
       vars-store: bosh-backup-and-restore-meta
       vars-files: bosh-backup-and-restore-meta
       release: backup-and-restore-sdk-release
@@ -524,7 +524,7 @@ jobs:
   serial: true
   serial_groups: [bbr-s3]
   plan:
-  - get: cf-deployment-release-candidate
+  - get: cf-deployment-master
     passed: [deploy-cf-with-external-s3-blobstore]
     trigger: true
   - get: backup-and-restore-sdk-release
