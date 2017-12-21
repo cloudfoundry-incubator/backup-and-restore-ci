@@ -20,32 +20,6 @@ resources:
     private_key: {{git-private-key}}
     branch: master
 
-- name: russian-blue-large-blobstore-bbl-state
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: {{git-private-key}}
-    branch: master
-- name: russian-blue-large-blobstore-vars-store
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: {{git-private-key}}
-    branch: master
-
-- name: validation-snowshoe-bbl-state
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: {{git-private-key}}
-    branch: master
-- name: validation-snowshoe-vars-store
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: {{git-private-key}}
-    branch: master
-
 - name: spring-music
   type: git
   source:
@@ -64,12 +38,10 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: cf-deployment-concourse-tasks
     - get: cf-deployment-release-candidate
-    - get: russian-blue-large-blobstore-bbl-state
-    - get: russian-blue-large-blobstore-vars-store
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     input_mapping:
-      bbl-state: russian-blue-large-blobstore-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
       cf-deployment: cf-deployment-release-candidate
     params:
       INFRASTRUCTURE: google
@@ -85,11 +57,11 @@ jobs:
   - task: deploy-cf
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     input_mapping:
-      bbl-state: russian-blue-large-blobstore-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
       cf-deployment: cf-deployment-release-candidate
       ops-files: collected-ops-files
-      vars-store: russian-blue-large-blobstore-vars-store
-      vars-files: russian-blue-large-blobstore-vars-store
+      vars-store: bosh-backup-and-restore-meta
+      vars-files: bosh-backup-and-restore-meta
     params:
       BBL_IAAS: gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
@@ -101,7 +73,7 @@ jobs:
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
     ensure:
-      put: russian-blue-large-blobstore-vars-store
+      put: bosh-backup-and-restore-meta
       params:
         repository: updated-vars-store
         rebase: true
@@ -114,12 +86,10 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: cf-deployment-concourse-tasks
     - get: cf-deployment-release-candidate
-    - get: validation-snowshoe-bbl-state
-    - get: validation-snowshoe-vars-store
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     input_mapping:
-      bbl-state: validation-snowshoe-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
       cf-deployment: cf-deployment-release-candidate
     params:
       INFRASTRUCTURE: google
@@ -127,11 +97,9 @@ jobs:
   - task: deploy-cf
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     input_mapping:
-      bbl-state: validation-snowshoe-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
       cf-deployment: cf-deployment-release-candidate
       ops-files: cf-deployment-release-candidate
-      vars-store: validation-snowshoe-vars-store
-      vars-files: validation-snowshoe-vars-store
     params:
       BBL_IAAS: gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
@@ -143,7 +111,7 @@ jobs:
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
     ensure:
-      put: validation-snowshoe-vars-store
+      put: bosh-backup-and-restore-meta
       params:
         repository: updated-vars-store
         rebase: true
@@ -171,11 +139,11 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
-    - get: russian-blue-large-blobstore-bbl-state
+    - get: bosh-backup-and-restore-meta
   - task: bosh-delete-deployment
     file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
     input_mapping:
-      bbl-state: russian-blue-large-blobstore-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
     params:
       BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
@@ -187,11 +155,11 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
-    - get: validation-snowshoe-bbl-state
+    - get: bosh-backup-and-restore-meta
   - task: bosh-delete-deployment
     file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
     input_mapping:
-      bbl-state: validation-snowshoe-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
     params:
       BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
