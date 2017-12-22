@@ -420,13 +420,11 @@ jobs:
   - aggregate:
     - get: backup-and-restore-sdk-release
       passed:
-      - postgres-system-tests
-      - mysql-system-tests
+      - run-drats-external-s3-blobstore
     - get: release-tarball
       resource: release
       passed:
-      - postgres-system-tests
-      - mysql-system-tests
+      - run-drats-external-s3-blobstore
     - get: bosh-backup-and-restore-meta
   - aggregate:
     - task: deploy-postgres-9.4
@@ -517,6 +515,10 @@ jobs:
   serial: true
   serial_groups: [bbr-s3]
   plan:
+  - get: release-tarball
+    resource: release
+    passed:
+    - deploy-cf-with-external-s3-blobstore
   - get: cf-deployment-master
     passed: [deploy-cf-with-external-s3-blobstore]
     trigger: true
