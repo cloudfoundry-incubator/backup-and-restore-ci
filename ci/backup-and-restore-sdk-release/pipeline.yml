@@ -252,6 +252,7 @@ jobs:
       AWS_ACCESS_KEY: {{aws-access-key-id}}
       AWS_SECRET_KEY: {{aws-secret-access-key}}
       AWS_REGION: eu-west-1
+      MYSQL_5_5_PASSWORD: {{rds-5-5-password}}
       MYSQL_5_6_PASSWORD: {{rds-5-6-password}}
       MYSQL_5_7_PASSWORD: {{rds-5-7-password}}
   - put: bosh-backup-and-restore-meta
@@ -330,6 +331,31 @@ jobs:
       BOSH_CLIENT: {{lite-bosh-director-username}}
       MYSQL_PASSWORD: mysql_password
       MYSQL_HOSTNAME: *mysql-host
+      MYSQL_PORT: 3306
+      MYSQL_USERNAME: root
+      SSH_PROXY_HOST: 104.199.27.23
+      SSH_PROXY_USER: vcap
+      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+- name: rds-mysql-5.5-system-tests
+  serial: true
+  plan:
+  - get: backup-and-restore-sdk-release
+    passed:
+    - deploy-external-rds-mysqls
+    - deploy-backup-restore-sdk
+    trigger: true
+  - get: bosh-backup-and-restore-meta
+  - get: release-tarball
+    resource: release
+    passed: [deploy-mysql]
+  - task: mysql-system-tests
+    file: backup-and-restore-sdk-release/ci/tasks/mysql-system-tests.yml
+    params:
+      TEAM_GPG_KEY: {{team-gpg-key}}
+      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
+      BOSH_CLIENT: {{lite-bosh-director-username}}
+      MYSQL_PASSWORD: {{rds-5-5-password}}
+      MYSQL_HOSTNAME: {{rds-5-5-hostname}}
       MYSQL_PORT: 3306
       MYSQL_USERNAME: root
       SSH_PROXY_HOST: 104.199.27.23
