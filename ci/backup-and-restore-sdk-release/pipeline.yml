@@ -1,5 +1,20 @@
 ---
+resource_types:
+- name: pivnet
+  type: docker-image
+  source:
+    repository: pivotalcf/pivnet-resource
+    tag: latest-final
+
 resources:
+- name: backup-and-restore-sdk-preview-addon-pivnet
+  type: pivnet
+  source:
+    api_token: {{pivnet-api-token}}
+    product_slug: p-bosh-backup-and-restore
+    access_key_id: {{pivnet-aws-access-key-id}}
+    secret_access_key: {{pivnet-aws-secret-access-key}}
+
 - name: backup-and-restore-sdk-release
   type: git
   source:
@@ -41,11 +56,11 @@ resources:
     region_name: eu-west-1
     access_key_id: {{aws-access-key-id}}
     secret_access_key: {{aws-secret-access-key}}
-- name: external-blobstore-sdk-release
+- name: backup-and-restore-sdk-preview-release
   type: s3
   source:
     bucket: external-blobstore-sdk-releases
-    regexp: external-blobstore-sdk-(.*).tgz
+    regexp: backup-and-restore-sdk-preview-(.*).tgz
     region_name: eu-west-1
     access_key_id: {{aws-access-key-id}}
     secret_access_key: {{aws-secret-access-key}}
@@ -613,9 +628,9 @@ jobs:
       AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
       AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
       RELEASE_NAME: external-blobstore-sdk
-  - put: external-blobstore-sdk-release
+  - put: backup-and-restore-sdk-preview-release
     params:
-      file: backup-and-restore-sdk-release-build/external-blobstore-sdk-*.tgz
+      file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-preview-*.tgz
   - put: backup-and-restore-sdk-release
     params:
       repository: backup-and-restore-sdk-release-master-for-rebase
@@ -667,9 +682,9 @@ jobs:
       AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
       AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
       RELEASE_NAME: external-blobstore-sdk
-  - put: external-blobstore-sdk-release
+  - put: backup-and-restore-sdk-preview-release
     params:
-      file: backup-and-restore-sdk-release-build/external-blobstore-sdk-*.tgz
+      file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-preview-*.tgz
   - put: backup-and-restore-sdk-release
     params:
       repository: backup-and-restore-sdk-release-master-for-rebase
@@ -721,9 +736,9 @@ jobs:
       AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
       AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
       RELEASE_NAME: external-blobstore-sdk
-  - put: external-blobstore-sdk-release
+  - put: backup-and-restore-sdk-preview-release
     params:
-      file: backup-and-restore-sdk-release-build/external-blobstore-sdk-*.tgz
+      file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-preview-*.tgz
   - put: backup-and-restore-sdk-release
     params:
       repository: backup-and-restore-sdk-release-master-for-rebase
@@ -742,3 +757,65 @@ jobs:
       - backup-and-restore-sdk-final-release-tarball/backup-and-restore-sdk-*.tgz
   - put: version
     params: {file: version/number}
+
+- name: create-backup-and-restore-sdk-preview-release
+  serial: true
+  serial_groups: [version]
+  plan:
+  - get: backup-and-restore-sdk-release
+    passed:
+    - deploy-to-acceptance
+  - get: release-tarball
+    resource: release
+    passed:
+    - deploy-to-acceptance
+  - get: version
+  - task: create-backup-and-restore-sdk-preview-release-tarball
+    file: backup-and-restore-sdk-release/ci/tasks/create-release.yml
+    params:
+      AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
+      AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
+      RELEASE_NAME: backup-and-restore-sdk-preview
+  - put: backup-and-restore-sdk-preview-release
+    params:
+      file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-preview-*.tgz
+
+- name: upload-backup-and-restore-sdk-preview-pivnet
+  serial: true
+  serial_groups: [version]
+  plan:
+  - get: backup-and-restore-sdk-preview-release
+    passed: [create-backup-and-restore-sdk-preview-release]
+  - get: bosh-backup-and-restore-meta
+  - get: version
+    passed: [create-backup-and-restore-sdk-preview-release]
+  - task: create-that-yml
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: cloudfoundrylondon/backup-and-restore}
+      inputs:
+      - name: bosh-backup-and-restore-meta
+      - name: backup-and-restore-sdk-preview-release
+      - name: version
+      outputs:
+      - name: release-metadata
+      run:
+        path: /bin/bash
+        args:
+        - -c
+        - |-
+          set -eux -o pipefail
+
+          cp backup-and-restore-sdk-preview-release/*.tgz release-metadata/
+          export RELEASE_TAR=$(ls release-metadata/*.tgz)
+          export VERSION=$(cat version/version)
+
+          cd bosh-backup-and-restore-meta
+          erb -T- templates/release-sdk-preview.yml.erb > ../release-metadata/release.yml
+  - put: backup-and-restore-sdk-preview-addon-pivnet
+    params:
+      metadata_file: release-metadata/release.yml
+      s3_filepath_prefix: product-files/bosh-backup-restore
+      file_glob: release-metadata/*.tgz
