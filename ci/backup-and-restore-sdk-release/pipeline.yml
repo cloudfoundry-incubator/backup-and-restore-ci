@@ -328,6 +328,7 @@ jobs:
 
 - name: mariadb-system-tests
   serial: true
+  serial_groups: [mysql-system-tests]
   plan:
   - get: backup-and-restore-sdk-release
     passed:
@@ -353,6 +354,7 @@ jobs:
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
 - name: rds-mysql-5.5-system-tests
   serial: true
+  serial_groups: [mysql-system-tests]
   plan:
   - get: backup-and-restore-sdk-release
     passed:
@@ -378,6 +380,7 @@ jobs:
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
 - name: rds-mysql-5.6-system-tests
   serial: true
+  serial_groups: [mysql-system-tests]
   plan:
   - get: backup-and-restore-sdk-release
     passed:
@@ -403,6 +406,7 @@ jobs:
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
 - name: rds-mysql-5.7-system-tests
   serial: true
+  serial_groups: [mysql-system-tests]
   plan:
   - get: backup-and-restore-sdk-release
     passed:
@@ -426,8 +430,6 @@ jobs:
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
-
-
 
 - name: s3-blobstore-backuper-system-tests
   serial: true
