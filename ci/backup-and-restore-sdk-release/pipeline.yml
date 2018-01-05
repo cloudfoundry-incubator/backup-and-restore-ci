@@ -311,7 +311,7 @@ jobs:
       BOSH_CLIENT: {{lite-bosh-director-username}}
       POSTGRES_PASSWORD: postgres_password
 
-- name: mysql-system-tests
+- name: mariadb-system-tests
   serial: true
   plan:
   - get: backup-and-restore-sdk-release
@@ -500,8 +500,11 @@ jobs:
       resource: release
       passed:
       - postgres-system-tests
-      - mysql-system-tests
+      - mariadb-system-tests
       - s3-blobstore-backuper-system-tests
+      - rds-mysql-5.5-system-tests
+      - rds-mysql-5.6-system-tests
+      - rds-mysql-5.7-system-tests
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: upload-stemcell
