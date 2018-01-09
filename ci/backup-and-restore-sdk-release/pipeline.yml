@@ -614,15 +614,6 @@ jobs:
       merge: true
       tag: version/number
       tag_prefix: v
-  - task: create-backup-and-restore-sdk-preview-release-tarball
-    file: backup-and-restore-sdk-release/ci/tasks/create-release.yml
-    params:
-      AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
-      AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
-      RELEASE_NAME: backup-and-restore-sdk-preview
-  - put: backup-and-restore-sdk-preview-release
-    params:
-      file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-preview-*.tgz
   - put: release
     params:
       file: backup-and-restore-sdk-final-release-tarball/backup-and-restore-sdk-*.tgz
@@ -663,15 +654,6 @@ jobs:
       merge: true
       tag: version/number
       tag_prefix: v
-  - task: create-backup-and-restore-sdk-preview-release-tarball
-    file: backup-and-restore-sdk-release/ci/tasks/create-release.yml
-    params:
-      AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
-      AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
-      RELEASE_NAME: backup-and-restore-sdk-preview
-  - put: backup-and-restore-sdk-preview-release
-    params:
-      file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-preview-*.tgz
   - put: release
     params:
       file: backup-and-restore-sdk-final-release-tarball/backup-and-restore-sdk-*.tgz
@@ -712,15 +694,6 @@ jobs:
       merge: true
       tag: version/number
       tag_prefix: v
-  - task: create-backup-and-restore-sdk-preview-release-tarball
-    file: backup-and-restore-sdk-release/ci/tasks/create-release.yml
-    params:
-      AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
-      AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
-      RELEASE_NAME: backup-and-restore-sdk-preview
-  - put: backup-and-restore-sdk-preview-release
-    params:
-      file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-preview-*.tgz
   - put: release
     params:
       file: backup-and-restore-sdk-final-release-tarball/backup-and-restore-sdk-*.tgz
