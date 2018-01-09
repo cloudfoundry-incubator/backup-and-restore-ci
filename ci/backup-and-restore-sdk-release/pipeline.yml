@@ -28,12 +28,7 @@ resources:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-sdk-release.git
     private_key: {{git-private-key}}
     branch: master
-- name: backup-and-restore-sdk-release-master-for-rebase
-  type: git
-  source:
-    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-sdk-release.git
-    private_key: {{git-private-key}}
-    branch: master
+
 - name: bosh-backup-and-restore-meta
   type: git
   source:
@@ -619,7 +614,6 @@ jobs:
       merge: true
       tag: version/number
       tag_prefix: v
-  - get: backup-and-restore-sdk-release-master-for-rebase
   - task: create-backup-and-restore-sdk-preview-release-tarball
     file: backup-and-restore-sdk-release/ci/tasks/create-release.yml
     params:
@@ -629,10 +623,6 @@ jobs:
   - put: backup-and-restore-sdk-preview-release
     params:
       file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-preview-*.tgz
-  - put: backup-and-restore-sdk-release
-    params:
-      repository: backup-and-restore-sdk-release-master-for-rebase
-      rebase: true
   - put: release
     params:
       file: backup-and-restore-sdk-final-release-tarball/backup-and-restore-sdk-*.tgz
@@ -673,7 +663,6 @@ jobs:
       merge: true
       tag: version/number
       tag_prefix: v
-  - get: backup-and-restore-sdk-release-master-for-rebase
   - task: create-backup-and-restore-sdk-preview-release-tarball
     file: backup-and-restore-sdk-release/ci/tasks/create-release.yml
     params:
@@ -683,10 +672,6 @@ jobs:
   - put: backup-and-restore-sdk-preview-release
     params:
       file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-preview-*.tgz
-  - put: backup-and-restore-sdk-release
-    params:
-      repository: backup-and-restore-sdk-release-master-for-rebase
-      rebase: true
   - put: release
     params:
       file: backup-and-restore-sdk-final-release-tarball/backup-and-restore-sdk-*.tgz
@@ -727,7 +712,6 @@ jobs:
       merge: true
       tag: version/number
       tag_prefix: v
-  - get: backup-and-restore-sdk-release-master-for-rebase
   - task: create-backup-and-restore-sdk-preview-release-tarball
     file: backup-and-restore-sdk-release/ci/tasks/create-release.yml
     params:
@@ -737,10 +721,6 @@ jobs:
   - put: backup-and-restore-sdk-preview-release
     params:
       file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-preview-*.tgz
-  - put: backup-and-restore-sdk-release
-    params:
-      repository: backup-and-restore-sdk-release-master-for-rebase
-      rebase: true
   - put: release
     params:
       file: backup-and-restore-sdk-final-release-tarball/backup-and-restore-sdk-*.tgz
@@ -817,3 +797,15 @@ jobs:
       metadata_file: release-metadata/release.yml
       s3_filepath_prefix: product-files/bosh-backup-restore
       file_glob: release-metadata/*.tgz
+
+- name: merge-master-into-develop
+  serial: true
+  plan:
+  - aggregate:
+    - get: backup-and-restore-sdk-release
+    - get: backup-and-restore-sdk-release-master
+      trigger: true
+  - put: backup-and-restore-sdk-release
+    params:
+      repository: backup-and-restore-sdk-release-master
+      merge: true
