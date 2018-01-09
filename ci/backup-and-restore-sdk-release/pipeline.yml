@@ -59,7 +59,7 @@ resources:
 - name: backup-and-restore-sdk-preview-release
   type: s3
   source:
-    bucket: external-blobstore-sdk-releases
+    bucket: backup-and-restore-sdk-preview-releases
     regexp: backup-and-restore-sdk-preview-(.*).tgz
     region_name: eu-west-1
     access_key_id: {{aws-access-key-id}}
@@ -620,12 +620,12 @@ jobs:
       tag: version/number
       tag_prefix: v
   - get: backup-and-restore-sdk-release-master-for-rebase
-  - task: create-external-blobstore-release-tarball
+  - task: create-backup-and-restore-sdk-preview-release-tarball
     file: backup-and-restore-sdk-release/ci/tasks/create-release.yml
     params:
       AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
       AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
-      RELEASE_NAME: external-blobstore-sdk
+      RELEASE_NAME: backup-and-restore-sdk-preview
   - put: backup-and-restore-sdk-preview-release
     params:
       file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-preview-*.tgz
@@ -674,12 +674,12 @@ jobs:
       tag: version/number
       tag_prefix: v
   - get: backup-and-restore-sdk-release-master-for-rebase
-  - task: create-external-blobstore-release-tarball
+  - task: create-backup-and-restore-sdk-preview-release-tarball
     file: backup-and-restore-sdk-release/ci/tasks/create-release.yml
     params:
       AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
       AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
-      RELEASE_NAME: external-blobstore-sdk
+      RELEASE_NAME: backup-and-restore-sdk-preview
   - put: backup-and-restore-sdk-preview-release
     params:
       file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-preview-*.tgz
@@ -728,12 +728,12 @@ jobs:
       tag: version/number
       tag_prefix: v
   - get: backup-and-restore-sdk-release-master-for-rebase
-  - task: create-external-blobstore-release-tarball
+  - task: create-backup-and-restore-sdk-preview-release-tarball
     file: backup-and-restore-sdk-release/ci/tasks/create-release.yml
     params:
       AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
       AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
-      RELEASE_NAME: external-blobstore-sdk
+      RELEASE_NAME: backup-and-restore-sdk-preview
   - put: backup-and-restore-sdk-preview-release
     params:
       file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-preview-*.tgz
