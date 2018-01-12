@@ -3,7 +3,7 @@ FROM cloudfoundrylondon/backup-and-restore-minimal
 
 RUN \
   apt-get update && \
-  apt-get install -y ruby ruby-dev file libssl-dev wbritish awscli lsb-release openjdk-8-jdk apt-transport-https && \
+  apt-get install -y ruby ruby-dev file libssl-dev wbritish awscli lsb-release openjdk-8-jdk apt-transport-https default-mysql-client && \
   rm -rf /var/lib/apt/lists/*
 RUN gem install bundler
 RUN gem install bosh_cli
