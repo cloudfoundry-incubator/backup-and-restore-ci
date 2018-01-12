@@ -116,6 +116,7 @@ jobs:
   serial: true
   serial_groups: [version]
   plan:
+  - get: bosh-backup-and-restore-meta
   - get: backup-and-restore-sdk-release
     passed: [unit-tests]
     trigger: true
@@ -131,6 +132,13 @@ jobs:
       file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-*.tgz
   - put: version
     params: {file: version/number}
+  - task: upload-release
+    file: backup-and-restore-sdk-release/ci/tasks/upload-release.yml
+    params:
+      TEAM_GPG_KEY: {{team-gpg-key}}
+      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
+      BOSH_CLIENT: {{lite-bosh-director-username}}
+      BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
 
 - name: deploy-backup-restore-sdk
   serial: true
@@ -174,7 +182,7 @@ jobs:
       BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
       DB_PASSWORD: postgres_password
       MANIFEST_NAME: postgres-9.4.yml
-      DB_HOST: 10.244.9.2
+      DB_HOST: &postgres_host_94 10.244.9.2
       AVAILABILITY_ZONE: lite
 
 - name: deploy-postgres-9.6
@@ -326,6 +334,27 @@ jobs:
       BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
       BOSH_CLIENT: {{lite-bosh-director-username}}
       POSTGRES_PASSWORD: postgres_password
+
+- name: new-postgres-system-tests-9.4
+  serial: true
+  plan:
+  - get: backup-and-restore-sdk-release
+    passed:
+    - deploy-postgres-9.4
+    trigger: true
+  - get: bosh-backup-and-restore-meta
+  - get: release-tarball
+    resource: release
+    passed:
+    - deploy-postgres-9.4
+  - task: postgres-system-tests
+    file: backup-and-restore-sdk-release/ci/tasks/new-postgres-system-tests.yml
+    params:
+      TEAM_GPG_KEY: {{team-gpg-key}}
+      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
+      BOSH_CLIENT: {{lite-bosh-director-username}}
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_HOSTNAME: *postgres_host_94
 
 - name: mariadb-system-tests
   serial: true
