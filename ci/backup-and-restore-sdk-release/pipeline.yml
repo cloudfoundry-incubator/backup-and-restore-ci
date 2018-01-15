@@ -355,6 +355,11 @@ jobs:
       BOSH_CLIENT: {{lite-bosh-director-username}}
       POSTGRES_PASSWORD: postgres_password
       POSTGRES_HOSTNAME: *postgres_host_94
+      POSTGRES_USERNAME: test_user
+      POSTGRES_PORT: 5432
+      SSH_PROXY_HOST: 104.199.27.23
+      SSH_PROXY_USER: vcap
+      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
 
 - name: mariadb-system-tests
   serial: true
