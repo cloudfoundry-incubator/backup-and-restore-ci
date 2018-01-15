@@ -408,7 +408,6 @@ jobs:
       MYSQL_HOSTNAME: {{rds-5-5-hostname}}
       MYSQL_PORT: 3306
       MYSQL_USERNAME: root
-      MYSQL_USERNAME_WITH_SSL: ssl_user
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
@@ -434,7 +433,6 @@ jobs:
       MYSQL_HOSTNAME: {{rds-5-6-hostname}}
       MYSQL_PORT: 3306
       MYSQL_USERNAME: root
-      MYSQL_USERNAME_WITH_SSL: ssl_user
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
@@ -460,7 +458,6 @@ jobs:
       MYSQL_HOSTNAME: {{rds-5-7-hostname}}
       MYSQL_PORT: 3306
       MYSQL_USERNAME: root
-      MYSQL_USERNAME_WITH_SSL: ssl_user
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
