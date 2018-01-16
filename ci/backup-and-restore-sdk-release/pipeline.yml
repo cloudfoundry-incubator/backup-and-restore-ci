@@ -206,7 +206,7 @@ jobs:
       BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
       DB_PASSWORD: postgres_password
       MANIFEST_NAME: postgres-9.6.yml
-      DB_HOST: 10.244.9.3
+      DB_HOST: &postgres_host_96 10.244.9.3
       AVAILABILITY_ZONE: lite
 
 - name: deploy-postgres-with-tls
@@ -334,6 +334,32 @@ jobs:
       BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
       BOSH_CLIENT: {{lite-bosh-director-username}}
       POSTGRES_PASSWORD: postgres_password
+
+- name: new-postgres-system-tests-9.6
+  serial: true
+  plan:
+  - get: backup-and-restore-sdk-release
+    passed:
+    - deploy-postgres-9.6
+    trigger: true
+  - get: bosh-backup-and-restore-meta
+  - get: release-tarball
+    resource: release
+    passed:
+    - deploy-postgres-9.6
+  - task: postgres-system-tests
+    file: backup-and-restore-sdk-release/ci/tasks/new-postgres-system-tests.yml
+    params:
+      TEAM_GPG_KEY: {{team-gpg-key}}
+      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
+      BOSH_CLIENT: {{lite-bosh-director-username}}
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_HOSTNAME: *postgres_host_96
+      POSTGRES_USERNAME: test_user
+      POSTGRES_PORT: 5432
+      SSH_PROXY_HOST: 104.199.27.23
+      SSH_PROXY_USER: vcap
+      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
 
 - name: new-postgres-system-tests-9.4
   serial: true
