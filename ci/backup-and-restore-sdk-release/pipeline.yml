@@ -311,44 +311,20 @@ jobs:
       S3_CLONED_BUCKET_NAME: bbr-system-test-bucket-clone
       S3_CLONED_BUCKET_REGION: eu-central-1
 
-- name: postgres-system-tests
+- name: postgres-system-tests-9.6
   serial: true
   plan:
   - get: backup-and-restore-sdk-release
     passed:
-    - deploy-postgres-9.4
     - deploy-postgres-9.6
-    - deploy-postgres-with-tls
     trigger: true
   - get: bosh-backup-and-restore-meta
   - get: release-tarball
     resource: release
     passed:
-    - deploy-postgres-9.4
     - deploy-postgres-9.6
-    - deploy-postgres-with-tls
   - task: postgres-system-tests
     file: backup-and-restore-sdk-release/ci/tasks/postgres-system-tests.yml
-    params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
-      POSTGRES_PASSWORD: postgres_password
-
-- name: new-postgres-system-tests-9.6
-  serial: true
-  plan:
-  - get: backup-and-restore-sdk-release
-    passed:
-    - deploy-postgres-9.6
-    trigger: true
-  - get: bosh-backup-and-restore-meta
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-postgres-9.6
-  - task: postgres-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/new-postgres-system-tests.yml
     params:
       TEAM_GPG_KEY: {{team-gpg-key}}
       BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
@@ -361,7 +337,7 @@ jobs:
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
 
-- name: new-postgres-system-tests-9.4
+- name: postgres-system-tests-9.4
   serial: true
   plan:
   - get: backup-and-restore-sdk-release
@@ -374,7 +350,7 @@ jobs:
     passed:
     - deploy-postgres-9.4
   - task: postgres-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/new-postgres-system-tests.yml
+    file: backup-and-restore-sdk-release/ci/tasks/postgres-system-tests.yml
     params:
       TEAM_GPG_KEY: {{team-gpg-key}}
       BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
@@ -573,7 +549,8 @@ jobs:
     - get: release-tarball
       resource: release
       passed:
-      - postgres-system-tests
+      - postgres-system-tests-9.4
+      - postgres-system-tests-9.6
       - mariadb-system-tests
       - s3-blobstore-backuper-system-tests
       - rds-mysql-5.5-system-tests
