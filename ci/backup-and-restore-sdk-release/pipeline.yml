@@ -463,6 +463,7 @@ jobs:
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      INCLUDE_TLS_TESTS: true
 
 - name: s3-blobstore-backuper-system-tests
   serial: true
