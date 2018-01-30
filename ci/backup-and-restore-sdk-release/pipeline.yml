@@ -184,6 +184,7 @@ jobs:
       MANIFEST_NAME: postgres-9.4.yml
       DB_HOST: &postgres_host_94 10.244.9.2
       AVAILABILITY_ZONE: lite
+      NETWORK_NAME: postgres
 
 - name: deploy-postgres-9.6
   serial: true
@@ -208,6 +209,7 @@ jobs:
       MANIFEST_NAME: postgres-9.6.yml
       DB_HOST: &postgres_host_96 10.244.9.3
       AVAILABILITY_ZONE: lite
+      NETWORK_NAME: postgres
 
 - name: deploy-postgres-with-tls
   serial: true
