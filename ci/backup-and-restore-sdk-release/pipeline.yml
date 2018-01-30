@@ -513,7 +513,10 @@ jobs:
         BOSH_DEPLOYMENT: postgres-9.4-acceptance
         BOSH_ENVIRONMENT: genesis-bosh.backup-and-restore.cf-app.com
         DB_PASSWORD: postgres_password
+        DB_HOST: 10.0.3.13
+        AVAILABILITY_ZONE: z1
         MANIFEST_NAME: postgres-9.4.yml
+        NETWORK_NAME: concourse
     - task: deploy-postgres-9.6
       file: backup-and-restore-sdk-release/ci/tasks/deploy.yml
       params:
@@ -524,6 +527,9 @@ jobs:
         BOSH_ENVIRONMENT: genesis-bosh.backup-and-restore.cf-app.com
         DB_PASSWORD: postgres_password
         MANIFEST_NAME: postgres-9.6.yml
+        DB_HOST: 10.0.3.8
+        AVAILABILITY_ZONE: z1
+        NETWORK_NAME: concourse
     - task: deploy-mysql
       file: backup-and-restore-sdk-release/ci/tasks/deploy.yml
       params:
