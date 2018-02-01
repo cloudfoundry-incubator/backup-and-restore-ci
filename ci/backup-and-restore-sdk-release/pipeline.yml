@@ -286,6 +286,30 @@ jobs:
       repository: bosh-backup-and-restore-meta-output/bosh-backup-and-restore-meta
       rebase: true
 
+- name: deploy-external-gcp-dbs
+  serial: true
+  plan:
+  - aggregate:
+    - get: backup-and-restore-sdk-release
+      passed: [create-release]
+      trigger: true
+    - get: release-tarball
+      resource: release
+      passed: [create-release]
+    - get: bosh-backup-and-restore-meta
+  - task: apply-gcp-cloud-sql
+    file: bosh-backup-and-restore-meta/ci/tasks/apply-gcp-cloud-sql.yml
+    params:
+      TEAM_GPG_KEY: {{team-gpg-key}}
+      MYSQL_5_6_PASSWORD: {{gcp-mysql-5-6-password}}
+      MYSQL_5_7_PASSWORD: {{gcp-mysql-5-7-password}}
+      POSTGRES_9_6_PASSWORD: {{gcp-postgres-9-6-password}}
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: bosh-backup-and-restore-meta-output/bosh-backup-and-restore-meta
+        rebase: true
+
 - name: deploy-aws-blobstore-sdk
   serial: true
   plan:
@@ -466,6 +490,35 @@ jobs:
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
       INCLUDE_TLS_TESTS: true
+      MYSQL_CA_CERT_PATH: {{rds-ca-cert-path}}
+
+- name: gcp-mysql-5.6-system-tests
+  serial: true
+  plan:
+  - get: backup-and-restore-sdk-release
+    passed:
+    - deploy-external-gcp-dbs
+    - deploy-backup-restore-sdk
+    trigger: true
+  - get: bosh-backup-and-restore-meta
+  - get: release-tarball
+    resource: release
+    passed: [deploy-mysql]
+  - task: mysql-system-tests
+    file: backup-and-restore-sdk-release/ci/tasks/mysql-system-tests.yml
+    params:
+      TEAM_GPG_KEY: {{team-gpg-key}}
+      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
+      BOSH_CLIENT: {{lite-bosh-director-username}}
+      MYSQL_PASSWORD: {{gcp-mysql-5-6-password}}
+      MYSQL_HOSTNAME: {{gcp-mysql-5-6-hostname}}
+      MYSQL_PORT: 3306
+      MYSQL_USERNAME: root
+      SSH_PROXY_HOST: 104.199.27.23
+      SSH_PROXY_USER: vcap
+      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      INCLUDE_TLS_TESTS: true
+      MYSQL_CA_CERT_PATH: {{gcp-mysql-5-6-ca-cert-path}}
 
 - name: s3-blobstore-backuper-system-tests
   serial: true
