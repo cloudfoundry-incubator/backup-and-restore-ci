@@ -414,6 +414,9 @@ jobs:
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      TEST_TLS: false
+      TEST_TLS_VERIFY_IDENTITY: false
+
 - name: rds-mysql-5.5-system-tests
   serial: true
   plan:
@@ -439,6 +442,9 @@ jobs:
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      TEST_TLS: false
+      MYSQL_CA_CERT_PATH: {{rds-ca-cert-path}}
+
 - name: rds-mysql-5.6-system-tests
   serial: true
   plan:
@@ -464,6 +470,9 @@ jobs:
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      TEST_TLS: false
+      MYSQL_CA_CERT_PATH: {{rds-ca-cert-path}}
+
 - name: rds-mysql-5.7-system-tests
   serial: true
   plan:
@@ -489,7 +498,6 @@ jobs:
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
-      INCLUDE_TLS_TESTS: true
       MYSQL_CA_CERT_PATH: {{rds-ca-cert-path}}
 
 - name: gcp-mysql-5.6-system-tests
@@ -517,8 +525,8 @@ jobs:
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
-      INCLUDE_TLS_TESTS: true
       MYSQL_CA_CERT_PATH: {{gcp-mysql-5-6-ca-cert-path}}
+      TEST_TLS_VERIFY_IDENTITY: false
 
 - name: s3-blobstore-backuper-system-tests
   serial: true
