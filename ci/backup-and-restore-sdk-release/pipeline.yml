@@ -442,7 +442,6 @@ jobs:
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
-      TEST_TLS: false
       MYSQL_CA_CERT_PATH: {{rds-ca-cert-path}}
 
 - name: rds-mysql-5.6-system-tests
@@ -470,7 +469,6 @@ jobs:
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
-      TEST_TLS: false
       MYSQL_CA_CERT_PATH: {{rds-ca-cert-path}}
 
 - name: rds-mysql-5.7-system-tests
