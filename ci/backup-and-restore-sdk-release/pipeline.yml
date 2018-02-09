@@ -211,31 +211,6 @@ jobs:
       AVAILABILITY_ZONE: lite
       NETWORK_NAME: postgres
 
-- name: deploy-postgres-with-tls
-  serial: true
-  plan:
-  - aggregate:
-    - get: backup-and-restore-sdk-release
-      passed: [create-release]
-      trigger: true
-    - get: release-tarball
-      resource: release
-      passed: [create-release]
-    - get: bosh-backup-and-restore-meta
-  - task: deploy-postgres-with-tls
-    file: backup-and-restore-sdk-release/ci/tasks/deploy.yml
-    params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
-      BOSH_DEPLOYMENT: postgres-with-tls-dev
-      BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
-      DB_PASSWORD: postgres_password
-      MANIFEST_NAME: postgres-with-tls.yml
-      VARS_STORE_PATH: postgres-with-tls/vars.yml
-      DB_HOST: 10.244.9.4
-      AVAILABILITY_ZONE: lite
-
 - name: deploy-mysql
   serial: true
   plan:
