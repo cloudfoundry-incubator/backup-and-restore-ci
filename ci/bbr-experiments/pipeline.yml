@@ -100,6 +100,8 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
       cf-deployment: cf-deployment-release-candidate
       ops-files: cf-deployment-release-candidate
+      vars-store: bosh-backup-and-restore-meta
+      vars-files: bosh-backup-and-restore-meta
     params:
       BBL_IAAS: gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
