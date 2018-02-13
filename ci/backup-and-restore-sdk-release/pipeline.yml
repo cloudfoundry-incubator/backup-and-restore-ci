@@ -352,6 +352,7 @@ jobs:
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      TEST_TLS_VERIFY_IDENTITY: false
 
 - name: postgres-system-tests-9.4
   serial: true
