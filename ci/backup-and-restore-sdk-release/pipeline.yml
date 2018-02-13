@@ -210,6 +210,19 @@ jobs:
       DB_HOST: &postgres_host_96 10.244.9.3
       AVAILABILITY_ZONE: lite
       NETWORK_NAME: postgres
+      VARS_STORE_PATH: ci/backup-and-restore-sdk-release/vars/postgres-96-vars.yml
+  - task: create-ssl-user
+    file: backup-and-restore-sdk-release/ci/tasks/create-ssl-user.yml
+    params:
+      TEAM_GPG_KEY: {{team-gpg-key}}
+      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
+      BOSH_CLIENT: {{lite-bosh-director-username}}
+      BOSH_DEPLOYMENT: postgres-9.6-dev
+      BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
+  - put: bosh-backup-and-restore-meta
+    params:
+      repository: bosh-backup-and-restore-meta-output
+      rebase: true
 
 - name: deploy-mysql
   serial: true
@@ -333,7 +346,9 @@ jobs:
       POSTGRES_PASSWORD: postgres_password
       POSTGRES_HOSTNAME: *postgres_host_96
       POSTGRES_USERNAME: test_user
+      POSTGRES_SSL_USERNAME: ssl_user
       POSTGRES_PORT: 5432
+      POSTGRES_CA_CERT: {{postgres-96-ca-cert}}
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
@@ -363,6 +378,7 @@ jobs:
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      TEST_TLS: false
 
 - name: mariadb-system-tests
   serial: true
