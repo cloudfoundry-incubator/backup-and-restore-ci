@@ -357,6 +357,41 @@ jobs:
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
       TEST_TLS_VERIFY_IDENTITY: false
 
+- name: gcp-postgres-system-tests-9.6
+  serial: true
+  plan:
+  - get: backup-and-restore-sdk-release
+    passed:
+    - deploy-external-gcp-dbs
+    - deploy-backup-restore-sdk
+    trigger: true
+  - get: bosh-backup-and-restore-meta
+  - get: release-tarball
+    resource: release
+    passed:
+    - deploy-external-gcp-dbs
+    - deploy-backup-restore-sdk
+  - task: postgres-system-tests
+    file: backup-and-restore-sdk-release/ci/tasks/postgres-system-tests.yml
+    params:
+      TEAM_GPG_KEY: {{team-gpg-key}}
+      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
+      BOSH_CLIENT: {{lite-bosh-director-username}}
+      POSTGRES_PASSWORD: {{gcp-postgres-9-6-password}}
+      POSTGRES_HOSTNAME: {{gcp-postgres-9-6-hostname}}
+      POSTGRES_USERNAME: root
+      POSTGRES_SSL_USERNAME: ssl_user
+      POSTGRES_MUTUAL_TLS_USERNAME: mutual_tls_user
+      POSTGRES_PORT: 5432
+      POSTGRES_CA_CERT: {{gcp-postgres-9-6-ca-cert-path}}
+      POSTGRES_CLIENT_CERT: {{gcp-postgres-9-6-client-cert-path}}
+      POSTGRES_CLIENT_KEY: {{gcp-postgres-9-6-client-key-path}}
+      SSH_PROXY_HOST: 104.199.27.23
+      SSH_PROXY_USER: vcap
+      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      TEST_TLS_VERIFY_IDENTITY: false
+      TEST_SSL_USER_REQUIRES_SSL: false
+
 - name: postgres-system-tests-9.4
   serial: true
   plan:
