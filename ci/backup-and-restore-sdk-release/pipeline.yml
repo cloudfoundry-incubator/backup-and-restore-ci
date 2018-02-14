@@ -383,9 +383,9 @@ jobs:
       POSTGRES_SSL_USERNAME: ssl_user
       POSTGRES_MUTUAL_TLS_USERNAME: mutual_tls_user
       POSTGRES_PORT: 5432
-      POSTGRES_CA_CERT: {{gcp-postgres-9-6-ca-cert-path}}
-      POSTGRES_CLIENT_CERT: {{gcp-postgres-9-6-client-cert-path}}
-      POSTGRES_CLIENT_KEY: {{gcp-postgres-9-6-client-key-path}}
+      POSTGRES_CA_CERT_PATH: {{gcp-postgres-9-6-ca-cert-path}}
+      POSTGRES_CLIENT_CERT_PATH: {{gcp-postgres-9-6-client-cert-path}}
+      POSTGRES_CLIENT_KEY_PATH: {{gcp-postgres-9-6-client-key-path}}
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
