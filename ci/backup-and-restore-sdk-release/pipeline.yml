@@ -347,8 +347,11 @@ jobs:
       POSTGRES_HOSTNAME: *postgres_host_96
       POSTGRES_USERNAME: test_user
       POSTGRES_SSL_USERNAME: ssl_user
+      POSTGRES_MUTUAL_TLS_USERNAME: mutual_tls_user
       POSTGRES_PORT: 5432
       POSTGRES_CA_CERT: {{postgres-96-ca-cert}}
+      POSTGRES_CLIENT_CERT: {{postgres-96-client-cert}}
+      POSTGRES_CLIENT_KEY: {{postgres-96-client-key}}
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
