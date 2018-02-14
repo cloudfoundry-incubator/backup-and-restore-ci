@@ -859,22 +859,14 @@ jobs:
 
 - name: create-backup-and-restore-sdk-preview-release
   serial: true
-  serial_groups: [version]
   plan:
   - get: backup-and-restore-sdk-release
     passed:
     - deploy-to-acceptance
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-to-acceptance
-  - get: version
+  - get: github-release
+    trigger: true
   - task: create-backup-and-restore-sdk-preview-release-tarball
-    file: backup-and-restore-sdk-release/ci/tasks/create-release.yml
-    params:
-      AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
-      AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
-      RELEASE_NAME: backup-and-restore-sdk-preview
+    file: backup-and-restore-sdk-release/ci/tasks/create-preview-release.yml
   - put: backup-and-restore-sdk-preview-release
     params:
       file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-preview-*.tgz
@@ -886,8 +878,9 @@ jobs:
   - get: backup-and-restore-sdk-preview-release
     passed: [create-backup-and-restore-sdk-preview-release]
   - get: bosh-backup-and-restore-meta
-  - get: version
+  - get: github-release
     passed: [create-backup-and-restore-sdk-preview-release]
+    trigger: true
   - task: create-that-yml
     config:
       platform: linux
@@ -897,7 +890,7 @@ jobs:
       inputs:
       - name: bosh-backup-and-restore-meta
       - name: backup-and-restore-sdk-preview-release
-      - name: version
+      - name: github-release
       outputs:
       - name: release-metadata
       run:
@@ -909,7 +902,7 @@ jobs:
 
           cp backup-and-restore-sdk-preview-release/*.tgz release-metadata/
           export RELEASE_TAR=$(ls release-metadata/*.tgz)
-          export VERSION=$(cat version/version)
+          export VERSION=$(cat github-release/version)
 
           cd bosh-backup-and-restore-meta
           erb -T- templates/release-sdk-preview.yml.erb > ../release-metadata/release.yml
