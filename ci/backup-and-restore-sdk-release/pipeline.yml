@@ -843,6 +843,8 @@ jobs:
       - postgres-system-tests-9.4
       - postgres-system-tests-9.6
       - gcp-postgres-system-tests-9.6
+      - rds-postgres-system-tests-9.4
+      - rds-postgres-system-tests-9.6
       - mariadb-system-tests
       - s3-blobstore-backuper-system-tests
       - rds-mysql-5.5-system-tests
