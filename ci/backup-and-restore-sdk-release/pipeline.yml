@@ -347,7 +347,20 @@ jobs:
       POSTGRES_PASSWORD: postgres_password
       POSTGRES_HOSTNAME: *postgres_host_96
       POSTGRES_USERNAME: test_user
-      POSTGRES_SSL_USERNAME: ssl_user
+      POSTGRES_PORT: 5432
+      SSH_PROXY_HOST: 104.199.27.23
+      SSH_PROXY_USER: vcap
+      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+  - task: postgres-tls-system-tests
+    file: backup-and-restore-sdk-release/ci/tasks/postgres-system-tests.yml
+    params:
+      TEST_SUITE_NAME: postgresql_tls
+      TEAM_GPG_KEY: {{team-gpg-key}}
+      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
+      BOSH_CLIENT: {{lite-bosh-director-username}}
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_HOSTNAME: *postgres_host_96
+      POSTGRES_USERNAME: ssl_user
       POSTGRES_PORT: 5432
       POSTGRES_CA_CERT: {{postgres-96-ca-cert}}
       SSH_PROXY_HOST: 104.199.27.23
@@ -397,7 +410,20 @@ jobs:
       POSTGRES_PASSWORD: {{gcp-postgres-9-6-password}}
       POSTGRES_HOSTNAME: {{gcp-postgres-9-6-hostname}}
       POSTGRES_USERNAME: root
-      POSTGRES_SSL_USERNAME: root
+      POSTGRES_PORT: 5432
+      SSH_PROXY_HOST: 104.199.27.23
+      SSH_PROXY_USER: vcap
+      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+  - task: postgres-tls-system-tests
+    file: backup-and-restore-sdk-release/ci/tasks/postgres-system-tests.yml
+    params:
+      TEST_SUITE_NAME: postgresql_tls
+      TEAM_GPG_KEY: {{team-gpg-key}}
+      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
+      BOSH_CLIENT: {{lite-bosh-director-username}}
+      POSTGRES_PASSWORD: {{gcp-postgres-9-6-password}}
+      POSTGRES_HOSTNAME: {{gcp-postgres-9-6-hostname}}
+      POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
       POSTGRES_CA_CERT_PATH: {{gcp-postgres-9-6-ca-cert-path}}
       SSH_PROXY_HOST: 104.199.27.23
@@ -451,7 +477,6 @@ jobs:
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
-      TEST_TLS: false
 
 - name: mariadb-system-tests
   serial: true
