@@ -269,6 +269,7 @@ jobs:
       MYSQL_5_5_PASSWORD: {{rds-5-5-password}}
       MYSQL_5_6_PASSWORD: {{rds-5-6-password}}
       MYSQL_5_7_PASSWORD: {{rds-5-7-password}}
+      POSTGRES_9_4_PASSWORD: {{rds-postgres-9-4-password}}
       POSTGRES_9_6_PASSWORD: {{rds-postgres-9-6-password}}
   - put: bosh-backup-and-restore-meta
     params:
