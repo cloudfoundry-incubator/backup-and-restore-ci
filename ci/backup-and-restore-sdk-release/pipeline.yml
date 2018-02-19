@@ -247,6 +247,11 @@ jobs:
       MANIFEST_NAME: mysql.yml
       DB_HOST: &mysql-host 10.244.7.9
       AVAILABILITY_ZONE: lite
+      VARS_STORE_PATH: ci/backup-and-restore-sdk-release/vars/mysql-vars.yml
+  - put: bosh-backup-and-restore-meta
+    params:
+      repository: bosh-backup-and-restore-meta-output
+      rebase: true
 
 - name: deploy-external-rds-dbs
   serial: true
@@ -505,9 +510,10 @@ jobs:
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
-      TEST_TLS: false
       TEST_TLS_VERIFY_IDENTITY: false
-      TEST_TLS_MUTUAL_TLS: false
+      MYSQL_CA_CERT: {{mysql-ca-cert}}
+      MYSQL_CLIENT_CERT: {{mysql-client-cert}}
+      MYSQL_CLIENT_KEY: {{mysql-client-key}}
 
 - name: rds-mysql-5.5-system-tests
   serial: true
