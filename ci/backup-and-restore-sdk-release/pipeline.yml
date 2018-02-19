@@ -596,6 +596,36 @@ jobs:
       MYSQL_CLIENT_KEY_PATH: {{gcp-mysql-5-6-client-key-path}}
       TEST_TLS_VERIFY_IDENTITY: false
 
+- name: gcp-mysql-5.7-system-tests
+  serial: true
+  plan:
+  - get: backup-and-restore-sdk-release
+    passed:
+    - deploy-external-gcp-dbs
+    - deploy-backup-restore-sdk
+    trigger: true
+  - get: bosh-backup-and-restore-meta
+  - get: release-tarball
+    resource: release
+    passed: [deploy-external-gcp-dbs]
+  - task: mysql-system-tests
+    file: backup-and-restore-sdk-release/ci/tasks/mysql-system-tests.yml
+    params:
+      TEAM_GPG_KEY: {{team-gpg-key}}
+      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
+      BOSH_CLIENT: {{lite-bosh-director-username}}
+      MYSQL_PASSWORD: {{gcp-mysql-5-7-password}}
+      MYSQL_HOSTNAME: {{gcp-mysql-5-7-hostname}}
+      MYSQL_PORT: 3306
+      MYSQL_USERNAME: root
+      SSH_PROXY_HOST: 104.199.27.23
+      SSH_PROXY_USER: vcap
+      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      MYSQL_CA_CERT_PATH: {{gcp-mysql-5-7-ca-cert-path}}
+      MYSQL_CLIENT_CERT_PATH: {{gcp-mysql-5-7-client-cert-path}}
+      MYSQL_CLIENT_KEY_PATH: {{gcp-mysql-5-7-client-key-path}}
+      TEST_TLS_VERIFY_IDENTITY: false
+
 - name: s3-blobstore-backuper-system-tests
   serial: true
   plan:
