@@ -458,6 +458,51 @@ jobs:
       TEST_TLS_VERIFY_IDENTITY: false
       TEST_SSL_USER_REQUIRES_SSL: false
 
+- name: rds-postgres-system-tests-9.6
+  serial: true
+  plan:
+  - get: backup-and-restore-sdk-release
+    passed:
+    - deploy-external-rds-dbs
+    - deploy-backup-restore-sdk
+    trigger: true
+  - get: bosh-backup-and-restore-meta
+  - get: release-tarball
+    resource: release
+    passed:
+    - deploy-external-rds-dbs
+    - deploy-backup-restore-sdk
+  - task: postgres-system-tests
+    file: backup-and-restore-sdk-release/ci/tasks/postgres-system-tests.yml
+    params:
+      TEST_SUITE_NAME: postgresql
+      TEAM_GPG_KEY: {{team-gpg-key}}
+      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
+      BOSH_CLIENT: {{lite-bosh-director-username}}
+      POSTGRES_PASSWORD: {{rds-postgres-9-6-password}}
+      POSTGRES_HOSTNAME: {{rds-postgres-9-6-hostname}}
+      POSTGRES_USERNAME: root
+      POSTGRES_PORT: 5432
+      SSH_PROXY_HOST: 104.199.27.23
+      SSH_PROXY_USER: vcap
+      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+  - task: postgres-tls-system-tests
+    file: backup-and-restore-sdk-release/ci/tasks/postgres-system-tests.yml
+    params:
+      TEST_SUITE_NAME: postgresql_tls
+      TEAM_GPG_KEY: {{team-gpg-key}}
+      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
+      BOSH_CLIENT: {{lite-bosh-director-username}}
+      POSTGRES_PASSWORD: {{rds-postgres-9-6-password}}
+      POSTGRES_HOSTNAME: {{rds-postgres-9-6-hostname}}
+      POSTGRES_USERNAME: root
+      POSTGRES_PORT: 5432
+      POSTGRES_CA_CERT_PATH: {{rds-ca-cert-path}}
+      SSH_PROXY_HOST: 104.199.27.23
+      SSH_PROXY_USER: vcap
+      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      TEST_SSL_USER_REQUIRES_SSL: false
+
 - name: postgres-system-tests-9.4
   serial: true
   plan:
