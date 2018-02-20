@@ -338,12 +338,14 @@ jobs:
   - get: backup-and-restore-sdk-release
     passed:
     - deploy-postgres-9.6
+    - deploy-backup-restore-sdk
     trigger: true
   - get: bosh-backup-and-restore-meta
   - get: release-tarball
     resource: release
     passed:
     - deploy-postgres-9.6
+    - deploy-backup-restore-sdk
   - task: postgres-system-tests
     file: backup-and-restore-sdk-release/ci/tasks/postgres-system-tests.yml
     params:
@@ -509,12 +511,14 @@ jobs:
   - get: backup-and-restore-sdk-release
     passed:
     - deploy-postgres-9.4
+    - deploy-backup-restore-sdk
     trigger: true
   - get: bosh-backup-and-restore-meta
   - get: release-tarball
     resource: release
     passed:
     - deploy-postgres-9.4
+    - deploy-backup-restore-sdk
   - task: postgres-system-tests
     file: backup-and-restore-sdk-release/ci/tasks/postgres-system-tests.yml
     params:
@@ -586,7 +590,9 @@ jobs:
   - get: bosh-backup-and-restore-meta
   - get: release-tarball
     resource: release
-    passed: [deploy-mysql]
+    passed:
+    - deploy-mysql
+    - deploy-backup-restore-sdk
   - task: mysql-system-tests
     file: backup-and-restore-sdk-release/ci/tasks/mysql-system-tests.yml
     params:
@@ -617,7 +623,9 @@ jobs:
   - get: bosh-backup-and-restore-meta
   - get: release-tarball
     resource: release
-    passed: [deploy-external-rds-dbs]
+    passed:
+    - deploy-external-rds-dbs
+    - deploy-backup-restore-sdk
   - task: mysql-system-tests
     file: backup-and-restore-sdk-release/ci/tasks/mysql-system-tests.yml
     params:
@@ -645,7 +653,9 @@ jobs:
   - get: bosh-backup-and-restore-meta
   - get: release-tarball
     resource: release
-    passed: [deploy-external-rds-dbs]
+    passed:
+    - deploy-external-rds-dbs
+    - deploy-backup-restore-sdk
   - task: mysql-system-tests
     file: backup-and-restore-sdk-release/ci/tasks/mysql-system-tests.yml
     params:
@@ -673,7 +683,9 @@ jobs:
   - get: bosh-backup-and-restore-meta
   - get: release-tarball
     resource: release
-    passed: [deploy-external-rds-dbs]
+    passed:
+    - deploy-external-rds-dbs
+    - deploy-backup-restore-sdk
   - task: mysql-system-tests
     file: backup-and-restore-sdk-release/ci/tasks/mysql-system-tests.yml
     params:
@@ -701,7 +713,9 @@ jobs:
   - get: bosh-backup-and-restore-meta
   - get: release-tarball
     resource: release
-    passed: [deploy-external-gcp-dbs]
+    passed:
+    - deploy-external-gcp-dbs
+    - deploy-backup-restore-sdk
   - task: mysql-system-tests
     file: backup-and-restore-sdk-release/ci/tasks/mysql-system-tests.yml
     params:
@@ -731,7 +745,9 @@ jobs:
   - get: bosh-backup-and-restore-meta
   - get: release-tarball
     resource: release
-    passed: [deploy-external-gcp-dbs]
+    passed:
+    - deploy-external-gcp-dbs
+    - deploy-backup-restore-sdk
   - task: mysql-system-tests
     file: backup-and-restore-sdk-release/ci/tasks/mysql-system-tests.yml
     params:
