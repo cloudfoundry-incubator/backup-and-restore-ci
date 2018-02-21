@@ -831,6 +831,7 @@ jobs:
         DB_HOST: 10.0.3.8
         AVAILABILITY_ZONE: z1
         NETWORK_NAME: concourse
+        VARS_STORE_PATH: ci/backup-and-restore-sdk-release/vars/postgres-96-vars.yml
     - task: deploy-mysql
       file: backup-and-restore-sdk-release/ci/tasks/deploy.yml
       params:
@@ -843,6 +844,11 @@ jobs:
         MANIFEST_NAME: mysql.yml
         DB_HOST: 10.0.7.2
         AVAILABILITY_ZONE: z1
+        VARS_STORE_PATH: ci/backup-and-restore-sdk-release/vars/mysql-vars.yml
+  - put: bosh-backup-and-restore-meta
+    params:
+      repository: bosh-backup-and-restore-meta-output
+      rebase: true
 
 - name: deploy-cf-with-external-s3-blobstore
   serial: true
