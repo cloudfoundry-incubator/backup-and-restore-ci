@@ -2,7 +2,7 @@
 groups:
 - name: BUILD
   jobs:
-  - deploy-systest-releases
+  - upload-systest-releases
   - unit
   - system
   - system-uaa
@@ -91,7 +91,7 @@ resources:
 
 
 jobs:
-- name: deploy-systest-releases
+- name: upload-systest-releases
   serial: true
   plan:
   - get: bosh-backup-and-restore
@@ -102,8 +102,8 @@ jobs:
   - get: bbr-systest-releases
     trigger: true
   - get: bosh-backup-and-restore-meta
-  - task: deploy-redis-test-release
-    file: bosh-backup-and-restore/ci/tasks/deploy-systest-release.yml
+  - task: upload-redis-test-release
+    file: bosh-backup-and-restore/ci/tasks/upload-systest-release.yml
     params:
       BOSH_HOST: lite-bosh.backup-and-restore.cf-app.com
       BOSH_CLIENT: {{garden-bosh-director-username}}
@@ -111,8 +111,8 @@ jobs:
       BOSH_UAA_HOST: lite-bosh-uaa.backup-and-restore.cf-app.com
       BOSH_UAA_CLIENT_SECRET: {{uaa-director-password}}
       RELEASE_NAME: redis-test-release
-  - task: deploy-lock-ordering-release
-    file: bosh-backup-and-restore/ci/tasks/deploy-systest-release.yml
+  - task: upload-lock-ordering-release
+    file: bosh-backup-and-restore/ci/tasks/upload-systest-release.yml
     params:
       BOSH_HOST: lite-bosh.backup-and-restore.cf-app.com
       BOSH_CLIENT: {{garden-bosh-director-username}}
@@ -138,7 +138,7 @@ jobs:
   serial: true
   plan:
   - get: bosh-backup-and-restore
-    passed: [unit, deploy-systest-releases]
+    passed: [unit, upload-systest-releases]
     trigger: true
   - get: bosh-backup-and-restore-meta
   - task: system
@@ -151,7 +151,7 @@ jobs:
   serial: true
   plan:
   - get: bosh-backup-and-restore
-    passed: [unit, deploy-systest-releases]
+    passed: [unit, upload-systest-releases]
     trigger: true
   - get: bosh-backup-and-restore-meta
   - task: system
@@ -166,7 +166,7 @@ jobs:
   serial: true
   plan:
   - get: bosh-backup-and-restore
-    passed: [unit, deploy-systest-releases]
+    passed: [unit, upload-systest-releases]
     trigger: true
   - get: bosh-backup-and-restore-meta
   - task: system-director
