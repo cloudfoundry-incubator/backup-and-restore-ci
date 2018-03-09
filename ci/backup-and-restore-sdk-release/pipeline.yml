@@ -801,6 +801,7 @@ jobs:
   plan:
   - aggregate:
     - get: backup-and-restore-sdk-release
+      trigger: true
       passed:
       - run-drats-external-s3-blobstore
     - get: release-tarball
