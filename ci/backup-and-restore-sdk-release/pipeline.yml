@@ -333,6 +333,8 @@ jobs:
       S3_CLONED_BUCKET_REGION: eu-central-1
       S3_UNVERSIONED_BUCKET_NAME: bbr-system-test-bucket-unversioned
       S3_UNVERSIONED_BUCKET_REGION: eu-west-1
+      MINIO_ACCESS_KEY: {{minio-access-key}}
+      MINIO_SECRET_KEY: {{minio-secret-key}}
 
 - name: postgres-system-tests-9.6
   serial: true
