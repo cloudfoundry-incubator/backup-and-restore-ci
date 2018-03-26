@@ -1,0 +1,20 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source: {repository: cloudfoundrylondon/backup-and-restore}
+
+inputs:
+- name: backup-and-restore-ci
+- name: repo
+- name: template-folder
+
+outputs:
+- name: release-notes
+
+params:
+  TEMPLATE_PATH:
+
+run:
+  path: backup-and-restore-ci/tasks/generate-release-notes/task

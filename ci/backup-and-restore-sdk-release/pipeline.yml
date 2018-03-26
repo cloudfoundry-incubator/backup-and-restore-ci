@@ -35,6 +35,14 @@ resources:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: {{git-private-key}}
     branch: master
+
+- name: backup-and-restore-ci
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
+    private_key: {{git-private-key}}
+    branch: master
+
 - name: version
   type: semver
   source:
@@ -963,6 +971,8 @@ jobs:
   serial: true
   serial_groups: [version]
   plan:
+  - get: bosh-backup-and-restore-meta
+  - get: backup-and-restore-ci
   - get: backup-and-restore-sdk-release
     passed:
     - deploy-to-acceptance
@@ -978,6 +988,13 @@ jobs:
     params:
       AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
       AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
+  - task: generate-release-notes
+    file: backup-and-restore-ci/tasks/generate-release-notes/task.yml
+    input_mapping:
+      repo: backup-and-restore-sdk-release
+      template-folder: bosh-backup-and-restore-meta
+    params:
+      TEMPLATE_PATH: templates/release-notes.md.erb
   - put: backup-and-restore-sdk-release-master
     params:
       repository: backup-and-restore-sdk-final-release
@@ -991,7 +1008,7 @@ jobs:
     params:
       name: version/number
       tag: version/number
-      body: version/number
+      body: release-notes/release-notes.md
       tag_prefix: v
       commitish: backup-and-restore-sdk-release/.git/refs/heads/develop
       globs:
@@ -1003,6 +1020,8 @@ jobs:
   serial: true
   serial_groups: [version]
   plan:
+  - get: bosh-backup-and-restore-meta
+  - get: backup-and-restore-ci
   - get: backup-and-restore-sdk-release
     passed:
     - deploy-to-acceptance
@@ -1018,6 +1037,13 @@ jobs:
     params:
       AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
       AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
+  - task: generate-release-notes
+    file: backup-and-restore-ci/tasks/generate-release-notes/task.yml
+    input_mapping:
+      repo: backup-and-restore-sdk-release
+      template-folder: bosh-backup-and-restore-meta
+    params:
+      TEMPLATE_PATH: templates/release-notes.md.erb
   - put: backup-and-restore-sdk-release-master
     params:
       repository: backup-and-restore-sdk-final-release
@@ -1031,7 +1057,7 @@ jobs:
     params:
       name: version/number
       tag: version/number
-      body: version/number
+      body: release-notes/release-notes.md
       tag_prefix: v
       commitish: backup-and-restore-sdk-release/.git/refs/heads/develop
       globs:
@@ -1043,6 +1069,8 @@ jobs:
   serial: true
   serial_groups: [version]
   plan:
+  - get: bosh-backup-and-restore-meta
+  - get: backup-and-restore-ci
   - get: backup-and-restore-sdk-release
     passed:
     - deploy-to-acceptance
@@ -1058,6 +1086,13 @@ jobs:
     params:
       AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
       AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
+  - task: generate-release-notes
+    file: backup-and-restore-ci/tasks/generate-release-notes/task.yml
+    input_mapping:
+      repo: backup-and-restore-sdk-release
+      template-folder: bosh-backup-and-restore-meta
+    params:
+      TEMPLATE_PATH: templates/release-notes.md.erb
   - put: backup-and-restore-sdk-release-master
     params:
       repository: backup-and-restore-sdk-final-release
@@ -1071,7 +1106,7 @@ jobs:
     params:
       name: version/number
       tag: version/number
-      body: version/number
+      body: release-notes/release-notes.md
       tag_prefix: v
       commitish: backup-and-restore-sdk-release/refs/heads/develop
       globs:
@@ -1100,39 +1135,23 @@ jobs:
   - get: backup-and-restore-sdk-preview-release
     passed: [create-backup-and-restore-sdk-preview-release]
   - get: bosh-backup-and-restore-meta
+  - get: backup-and-restore-ci
   - get: github-release
     passed: [create-backup-and-restore-sdk-preview-release]
     trigger: true
-  - task: create-that-yml
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source: {repository: cloudfoundrylondon/backup-and-restore}
-      inputs:
-      - name: bosh-backup-and-restore-meta
-      - name: backup-and-restore-sdk-preview-release
-      - name: github-release
-      outputs:
-      - name: release-metadata
-      run:
-        path: /bin/bash
-        args:
-        - -c
-        - |-
-          set -eux -o pipefail
-
-          cp backup-and-restore-sdk-preview-release/*.tgz release-metadata/
-          export RELEASE_TAR=$(ls release-metadata/*.tgz)
-          export VERSION=$(cat github-release/version)
-
-          cd bosh-backup-and-restore-meta
-          erb -T- templates/release-sdk-preview.yml.erb > ../release-metadata/release.yml
+  - task: generate-release-metadata
+    file: backup-and-restore-ci/tasks/generate-release-metadata/task.yml
+    input_mapping:
+      release: backup-and-restore-sdk-preview-release
+      version-folder: github-release
+      template-folder: bosh-backup-and-restore-meta
+    params:
+      TEMPLATE_PATH: templates/release-sdk-preview.yml.erb
   - put: backup-and-restore-sdk-preview-addon-pivnet
     params:
-      metadata_file: release-metadata/release.yml
+      metadata_file: release-with-metadata/release.yml
       s3_filepath_prefix: product-files/bosh-backup-restore
-      file_glob: release-metadata/*.tgz
+      file_glob: release-with-metadata/*.tgz
 
 - name: merge-master-into-develop
   serial: true

@@ -45,6 +45,12 @@ resources:
     branch: master
     paths:
     - bbr-current-release/version
+- name: backup-and-restore-ci
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
+    private_key: {{git-private-key}}
+    branch: master
 - name: bbr-pivnet
   type: pivnet
   source:
@@ -312,50 +318,33 @@ jobs:
     - get: release
       passed: [build-final]
       trigger: true
-  - task: create-that-yml
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source: {repository: cloudfoundrylondon/backup-and-restore}
-      inputs:
-      - name: bosh-backup-and-restore-meta
-      - name: bosh-backup-and-restore
-      - name: release
-      outputs:
-      - name: release-metadata
-      run:
-        path: /bin/bash
-        args:
-        - -c
-        - |-
-          set -eux -o pipefail
-
-          cp release/*.tar release-metadata/
-          export RELEASE_TAR=$(ls release-metadata/*.tar)
-
-          cd bosh-backup-and-restore
-          # find latest tag
-          latest_tag=$(git describe --abbrev=0 --tags)
-          # git lg from that tag to current
-          export COMMITS=$(git log ${latest_tag}..HEAD  --format=' %n%B'  | grep -v "Signed-off-by" | grep -v '^$')
-          export STORIES=$(echo -e "$COMMITS" | grep "\[\#" | sort | uniq | awk -F'[^0-9]*' '{print $2}' | xargs -IN echo https://www.pivotaltracker.com/story/show/N)
-
-          cd ../bosh-backup-and-restore-meta
-          export VERSION=$(cat bbr-current-release/version)
-          erb -T- templates/release.yml.erb > ../release-metadata/release.yml
-          erb -T- templates/release-notes.yml.erb > ../release-metadata/release-notes.yml
+    - get: backup-and-restore-ci
+  - task: generate-release-metadata
+    file: backup-and-restore-ci/tasks/generate-release-metadata/task.yml
+    input_mapping:
+      release: bosh-backup-and-restore
+      version-folder: bbr-current-release
+      template-folder: bosh-backup-and-restore-meta
+    params:
+      TEMPLATE_PATH: templates/release.yml.erb
+  - task: generate-release-notes
+    file: backup-and-restore-ci/tasks/generate-release-notes/task.yml
+    input_mapping:
+      repo: bosh-backup-and-restore
+      template-folder: bosh-backup-and-restore-meta
+    params:
+      TEMPLATE_PATH: templates/release-notes.md.erb
   - put: bbr-pivnet
     params:
-      metadata_file: release-metadata/release.yml
+      metadata_file: release-with-metadata/release.yml
       s3_filepath_prefix: product-files/bosh-backup-restore
-      file_glob: release-metadata/*.tar
+      file_glob: release-with-metadata/*.tar
   - put: bbr-release
     params:
       name: bosh-backup-and-restore-meta/bbr-current-release/version
       tag: bosh-backup-and-restore-meta/bbr-current-release/version
       tag_prefix: v
-      body: release-metadata/release-notes.yml
+      body: release-notes/release-notes.md
       commitish: bosh-backup-and-restore/.git/refs/heads/master
       globs:
-      - release-metadata/*.tar
+      - release-with-metadata/*.tar

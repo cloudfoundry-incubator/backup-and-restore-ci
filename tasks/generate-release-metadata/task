@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -eux -o pipefail
+
+cp release/*.tgz release-with-metadata/
+export RELEASE_TAR=$(ls release-with-metadata/*.tgz)
+export VERSION=$(cat version-folder/${VERSION_PATH})
+erb -T- template-folder/${TEMPLATE_PATH} > release-with-metadata/release.yml
