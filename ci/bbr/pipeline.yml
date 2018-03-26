@@ -8,6 +8,8 @@ groups:
   - system-uaa
   - system-director
   - build-rc
+  - install-optional-components-on-pas
+  - run-p-drats-on-pas
   - transfer-bbr-binary-to-jumpbox
 - name: SHIPIT
   jobs:
@@ -88,6 +90,12 @@ resources:
     private_key: {{git-private-key}}
     branch: master
     paths: [redis-test-release/**, lock-ordering-release/**]
+- name: pivotal-disaster-recovery-acceptance-tests
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/pivotal-disaster-recovery-acceptance-tests.git
+    private_key: {{git-private-key}}
+    branch: master
 
 
 jobs:
@@ -196,17 +204,54 @@ jobs:
     params: {file: bbr-build/bbr-*}
   - put: version
     params: {file: version/number}
+- name: install-optional-components-on-pas
+  serial: true
+  plan:
+  - get: pivotal-disaster-recovery-acceptance-tests
+  - get: bosh-backup-and-restore
+    passed: [build-rc]
+    trigger: true
+  - get: rc
+    passed: [build-rc]
+  - task: enable-optional-components
+    file: pivotal-disaster-recovery-acceptance-tests/ci/enable-optional-components-pas/task.yml
+    privileged: true
+    params:
+      OPS_MAN_URL: {{opsman-2-1-url}}
+      OPS_MAN_USER: {{opsman-2-1-username}}
+      OPS_MAN_PASS: {{opsman-2-1-password}}
+      OPS_MAN_VERSION: "2.1"
+- name: run-p-drats-on-pas
+  serial: true
+  plan:
+  - get: pivotal-disaster-recovery-acceptance-tests
+  - get: bosh-backup-and-restore
+    passed: [install-optional-components-on-pas]
+  - get: rc
+    passed: [install-optional-components-on-pas]
+    trigger: true
+  - task: acceptance-tests
+    privileged: true
+    file: pivotal-disaster-recovery-acceptance-tests/ci/p-drats-ops-manager/task.yml
+    input_mapping:
+      bbr-binary-release: rc
+    params:
+      DEFAULT_TIMEOUT_MINS: 30
+      OPS_MAN_PASS: {{opsman-2-1-password}}
+      OPS_MAN_SSH_KEY: {{opsman-2-1-ssh-key}}
+      OPS_MAN_URL: {{opsman-2-1-url}}
+      OPS_MAN_USER: {{opsman-2-1-username}}
 - name: transfer-bbr-binary-to-jumpbox
   serial_groups: [version]
   plan:
     - get: bosh-backup-and-restore
-      passed: [build-rc]
+      passed: [run-p-drats-on-pas]
       params:
         submodules: none
         disable_git_lfs: true
     - get: bosh-backup-and-restore-meta
     - get: rc
-      passed: [build-rc]
+      passed: [run-p-drats-on-pas]
       trigger: true
     - task: transfer-bbr-binary-to-jumpbox
       file: bosh-backup-and-restore/ci/tasks/transfer-bbr-binary-to-jumpbox.yml
@@ -222,7 +267,7 @@ jobs:
     resource: release-trigger
     trigger: true
   - get: bosh-backup-and-restore
-    passed: [build-rc]
+    passed: [run-p-drats-on-pas]
     params:
       submodules: none
       disable_git_lfs: true
