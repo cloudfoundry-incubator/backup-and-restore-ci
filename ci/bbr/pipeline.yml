@@ -311,6 +311,6 @@ jobs:
       tag: bosh-backup-and-restore-meta/bbr-current-release/version
       tag_prefix: v
       body: release-metadata/release-notes.yml
-      commitish: bosh-backup-and-restore/.git/HEAD
+      commitish: bosh-backup-and-restore/.git/refs/heads/master
       globs:
       - release-metadata/*.tar

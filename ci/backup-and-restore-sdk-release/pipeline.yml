@@ -993,7 +993,7 @@ jobs:
       tag: version/number
       body: version/number
       tag_prefix: v
-      commitish: backup-and-restore-sdk-release/.git/HEAD
+      commitish: backup-and-restore-sdk-release/.git/refs/heads/develop
       globs:
       - backup-and-restore-sdk-final-release-tarball/backup-and-restore-sdk-*.tgz
   - put: version
@@ -1033,7 +1033,7 @@ jobs:
       tag: version/number
       body: version/number
       tag_prefix: v
-      commitish: backup-and-restore-sdk-release/.git/HEAD
+      commitish: backup-and-restore-sdk-release/.git/refs/heads/develop
       globs:
       - backup-and-restore-sdk-final-release-tarball/backup-and-restore-sdk-*.tgz
   - put: version
@@ -1073,7 +1073,7 @@ jobs:
       tag: version/number
       body: version/number
       tag_prefix: v
-      commitish: backup-and-restore-sdk-release/.git/HEAD
+      commitish: backup-and-restore-sdk-release/refs/heads/develop
       globs:
       - backup-and-restore-sdk-final-release-tarball/backup-and-restore-sdk-*.tgz
   - put: version
