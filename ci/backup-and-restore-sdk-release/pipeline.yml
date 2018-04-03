@@ -339,8 +339,12 @@ jobs:
       S3_REGION: eu-west-1
       S3_CLONED_BUCKET_NAME: bbr-system-test-bucket-clone
       S3_CLONED_BUCKET_REGION: eu-central-1
-      S3_UNVERSIONED_BUCKET_NAME: bbr-system-test-bucket-unversioned
+      S3_UNVERSIONED_BUCKET_NAME_FOR_VERSIONED_BACKUPER: bbr-system-test-bucket-unversioned
+      S3_UNVERSIONED_BUCKET_REGION_FOR_VERSIONED_BACKUPER: eu-west-1
+      S3_UNVERSIONED_BUCKET_NAME: bbr-system-test-s3-unversioned-bucket
       S3_UNVERSIONED_BUCKET_REGION: eu-west-1
+      S3_UNVERSIONED_BACKUP_BUCKET_NAME: bbr-system-test-s3-unversioned-backup-bucket
+      S3_UNVERSIONED_BACKUP_BUCKET_REGION: us-east-1
       MINIO_ACCESS_KEY: {{minio-access-key}}
       MINIO_SECRET_KEY: {{minio-secret-key}}
 
@@ -805,6 +809,11 @@ jobs:
       AWS_TEST_CLONE_BUCKET_REGION: eu-central-1
       AWS_TEST_UNVERSIONED_BUCKET_NAME: bbr-system-test-bucket-unversioned
       AWS_TEST_UNVERSIONED_BUCKET_REGION: eu-west-1
+      S3_UNVERSIONED_BUCKET_NAME: bbr-system-test-s3-unversioned-bucket
+      S3_UNVERSIONED_BUCKET_REGION: eu-west-1
+      S3_UNVERSIONED_BACKUP_BUCKET_NAME: bbr-system-test-s3-unversioned-backup-bucket
+      S3_UNVERSIONED_BACKUP_BUCKET_REGION: us-east-1
+
 
 - name: deploy-to-acceptance
   serial: true
