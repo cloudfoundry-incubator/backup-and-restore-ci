@@ -13,7 +13,7 @@ inputs:
 
 params:
   TEMPLATE_PATH:
-  VERSION_PATH: version
+  VERSION_PATH:
 
 outputs:
 - name: release-with-metadata

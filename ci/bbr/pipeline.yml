@@ -322,11 +322,12 @@ jobs:
   - task: generate-release-metadata
     file: backup-and-restore-ci/tasks/generate-release-metadata/task.yml
     input_mapping:
-      release: bosh-backup-and-restore
-      version-folder: bbr-current-release
+      release: release
+      version-folder: bosh-backup-and-restore-meta
       template-folder: bosh-backup-and-restore-meta
     params:
       TEMPLATE_PATH: templates/release.yml.erb
+      VERSION_PATH: bbr-current-release/version
   - task: generate-release-notes
     file: backup-and-restore-ci/tasks/generate-release-notes/task.yml
     input_mapping:
