@@ -85,6 +85,11 @@ resources:
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
     branch: master
+- name: cf-deployment-develop-flangewad
+  type: git
+  source:
+    uri: https://github.com/flangewad/cf-deployment.git
+    branch: develop
 
 - name: bbr-binary-release
   type: github-release
@@ -814,7 +819,6 @@ jobs:
       S3_UNVERSIONED_BACKUP_BUCKET_NAME: bbr-system-test-s3-unversioned-backup-bucket
       S3_UNVERSIONED_BACKUP_BUCKET_REGION: us-east-1
 
-
 - name: deploy-to-acceptance
   serial: true
   plan:
@@ -823,10 +827,12 @@ jobs:
       trigger: true
       passed:
       - run-drats-external-s3-blobstore
+      - run-drats-external-s3-unversioned-blobstore
     - get: release-tarball
       resource: release
       passed:
       - run-drats-external-s3-blobstore
+      - run-drats-external-s3-unversioned-blobstore
     - get: bosh-backup-and-restore-meta
   - aggregate:
     - task: deploy-postgres-9.4
@@ -971,6 +977,112 @@ jobs:
       BOSH_GW_USER: jumpbox
       BOSH_GW_HOST: {{bbr-s3-ssh-gateway-host}}
       BOSH_GW_PRIVATE_KEY: {{bbr-s3-ssh-gateway-key}}
+      SSH_DESTINATION_CIDR: "10.0.0.0/8"
+      DEFAULT_TIMEOUT_MINS: 30
+      SKIP_SUITE_NAME: credhub|nfs
+      DELETE_AND_REDEPLOY_CF: true
+
+- name: deploy-cf-with-unversioned-external-s3-blobstore
+  serial: true
+  serial_groups: [bbr-s3-unversioned]
+  plan:
+  - aggregate:
+    - get: cf-deployment-master
+      resource: cf-deployment-develop-flangewad
+    - get: backup-and-restore-sdk-release
+      trigger: true
+      passed:
+      - s3-blobstore-backuper-system-tests
+    - get: release-tarball
+      resource: release
+      passed:
+      - postgres-system-tests-9.4
+      - postgres-system-tests-9.6
+      - gcp-postgres-system-tests-9.6
+      - rds-postgres-system-tests-9.4
+      - rds-postgres-system-tests-9.6
+      - mariadb-system-tests
+      - s3-blobstore-backuper-system-tests
+      - rds-mysql-5.5-system-tests
+      - rds-mysql-5.6-system-tests
+      - rds-mysql-5.7-system-tests
+      - gcp-mysql-5.6-system-tests
+      - gcp-mysql-5.7-system-tests
+    - get: cf-deployment-concourse-tasks
+    - get: bosh-backup-and-restore-meta
+  - task: upload-stemcell
+    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      cf-deployment: cf-deployment-master
+    params:
+      INFRASTRUCTURE: google
+      BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
+  - task: deploy-cf-with-external-s3
+    file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      cf-deployment: cf-deployment-master
+      ops-files: cf-deployment-master
+      vars-store: bosh-backup-and-restore-meta
+      vars-files: bosh-backup-and-restore-meta
+      release: backup-and-restore-sdk-release
+    params:
+      BBL_IAAS: gcp
+      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_PROJECT_ID: cf-backup-and-restore
+      BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
+      SYSTEM_DOMAIN: bbr-s3-unversioned.cf-app.com
+      OPS_FILES: "operations/scale-to-one-az.yml operations/use-compiled-releases.yml operations/experimental/enable-backup-restore.yml operations/use-s3-blobstore.yml operations/enable-backup-restore-s3-unversioned.yml"
+      VARS_STORE_FILE: external-blobstore-directors/aws-s3-unversioned/cf-deployment-variables.yml
+      GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
+      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-vars-store
+        rebase: true
+
+- name: run-drats-external-s3-unversioned-blobstore
+  serial: true
+  serial_groups: [bbr-s3-unversioned]
+  plan:
+  - get: release-tarball
+    resource: release
+    passed:
+    - deploy-cf-with-unversioned-external-s3-blobstore
+  - get: cf-deployment-master
+    resource: cf-deployment-develop-flangewad
+    passed:
+    - deploy-cf-with-unversioned-external-s3-blobstore
+    trigger: true
+  - get: backup-and-restore-sdk-release
+    trigger: true
+    passed:
+    - deploy-cf-with-unversioned-external-s3-blobstore
+  - get: disaster-recovery-acceptance-tests
+    trigger: true
+  - get: bbr-binary-release
+    trigger: true
+  - task: unit-tests
+    file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
+    params:
+      GITHUB_SSH_KEY: {{github-ssh-key}}
+  - task: acceptance-tests
+    file: disaster-recovery-acceptance-tests/ci/drats/task.yml
+    privileged: true
+    params:
+      CF_DEPLOYMENT_NAME: cf
+      CF_API_URL: https://api.bbr-s3-unversioned.cf-app.com
+      CF_ADMIN_USERNAME: admin
+      CF_ADMIN_PASSWORD: {{bbr-s3-unversioned-cf-admin-password}}
+      BOSH_CA_CERT: {{bbr-s3-unversioned-bosh-cert}}
+      BOSH_CLIENT: admin
+      BOSH_CLIENT_SECRET: {{bbr-s3-unversioned-bosh-client-secret}}
+      BOSH_ENVIRONMENT: {{bbr-s3-unversioned-bosh-url}}
+      BOSH_GW_USER: jumpbox
+      BOSH_GW_HOST: {{bbr-s3-unversioned-ssh-gateway-host}}
+      BOSH_GW_PRIVATE_KEY: {{bbr-s3-unversioned-ssh-gateway-key}}
       SSH_DESTINATION_CIDR: "10.0.0.0/8"
       DEFAULT_TIMEOUT_MINS: 30
       SKIP_SUITE_NAME: credhub|nfs
