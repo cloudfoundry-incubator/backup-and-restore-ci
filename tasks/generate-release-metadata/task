@@ -2,7 +2,15 @@
 
 set -eux -o pipefail
 
-cp release/{*.tar,*.tgz} release-with-metadata/
-export RELEASE_TAR=$(ls release-with-metadata/ | head -1)
+if [ -e release/*.tar ]; then
+    cp release/*.tar release-with-metadata/
+    export RELEASE_TAR=$(ls release-with-metadata/*.tar)
+fi
+
+if [ -e release/*.tgz ]; then
+    cp release/*.tgz release-with-metadata/
+    export RELEASE_TAR=$(ls release-with-metadata/*.tgz)
+fi
+
 export VERSION=$(cat version-folder/${VERSION_PATH})
 erb -T- template-folder/${TEMPLATE_PATH} > release-with-metadata/release.yml
