@@ -861,7 +861,7 @@ jobs:
       TEAM_GPG_KEY: {{team-gpg-key}}
       BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
       BOSH_CLIENT: {{lite-bosh-director-username}}
-      BOSH_DEPLOYMENT: s3-backuper
+      BOSH_DEPLOYMENT: azure-backuper
       AZURE_ACCOUNT_NAME: {{azure-account-name}}
       AZURE_ACCOUNT_KEY: {{azure-account-key}}
       AZURE_CONTAINER_NAME: bbr-system-test-azure-container
