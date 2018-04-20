@@ -353,6 +353,30 @@ jobs:
       MINIO_ACCESS_KEY: {{minio-access-key}}
       MINIO_SECRET_KEY: {{minio-secret-key}}
 
+- name: deploy-azure-blobstore-sdk
+  serial: true
+  plan:
+  - aggregate:
+    - get: backup-and-restore-sdk-release
+      passed: [create-release]
+      trigger: true
+    - get: release-tarball
+      resource: release
+      passed: [create-release]
+    - get: bosh-backup-and-restore-meta
+  - task: deploy-azure-blobstore-sdk
+    file: backup-and-restore-sdk-release/ci/tasks/deploy-azure-backuper.yml
+    params:
+      TEAM_GPG_KEY: {{team-gpg-key}}
+      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
+      BOSH_CLIENT: {{lite-bosh-director-username}}
+      BOSH_DEPLOYMENT: azure-backuper
+      BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
+      MANIFEST_NAME: azure-backuper.yml
+      AZURE_ACCOUNT_NAME: {{azure-account-name}}
+      AWS_SECRET_ACCESS_KEY: {{azure-account-key}}
+      AZURE_CONTAINER_NAME: bbr-system-test-azure-container
+
 - name: postgres-system-tests-9.6
   serial: true
   plan:
@@ -819,6 +843,29 @@ jobs:
       S3_UNVERSIONED_BACKUP_BUCKET_NAME: bbr-system-test-s3-unversioned-backup-bucket
       S3_UNVERSIONED_BACKUP_BUCKET_REGION: us-east-1
 
+- name: azure-blobstore-backuper-system-tests
+  serial: true
+  plan:
+  - get: backup-and-restore-sdk-release
+    passed:
+    - deploy-azure-blobstore-sdk
+    trigger: true
+  - get: bosh-backup-and-restore-meta
+  - get: release-tarball
+    resource: release
+    passed:
+    - deploy-azure-blobstore-sdk
+  - task: azure-blobstore-backuper-system-tests
+    file: backup-and-restore-sdk-release/ci/tasks/azure-system-tests.yml
+    params:
+      TEAM_GPG_KEY: {{team-gpg-key}}
+      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
+      BOSH_CLIENT: {{lite-bosh-director-username}}
+      BOSH_DEPLOYMENT: s3-backuper
+      AZURE_ACCOUNT_NAME: {{azure-account-name}}
+      AZURE_ACCOUNT_KEY: {{azure-account-key}}
+      AZURE_CONTAINER_NAME: bbr-system-test-azure-container
+
 - name: deploy-to-acceptance
   serial: true
   plan:
@@ -900,6 +947,7 @@ jobs:
       - rds-postgres-system-tests-9.6
       - mariadb-system-tests
       - s3-blobstore-backuper-system-tests
+      - azure-blobstore-backuper-system-tests
       - rds-mysql-5.5-system-tests
       - rds-mysql-5.6-system-tests
       - rds-mysql-5.7-system-tests
@@ -1003,6 +1051,7 @@ jobs:
       - rds-postgres-system-tests-9.6
       - mariadb-system-tests
       - s3-blobstore-backuper-system-tests
+      - azure-blobstore-backuper-system-tests
       - rds-mysql-5.5-system-tests
       - rds-mysql-5.6-system-tests
       - rds-mysql-5.7-system-tests
