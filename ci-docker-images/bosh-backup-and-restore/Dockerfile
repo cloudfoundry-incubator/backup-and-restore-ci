@@ -1,9 +1,16 @@
 #backup-and-restore-minimal is defined in the disaster-recovery-acceptance-tests repo
 FROM cloudfoundrylondon/backup-and-restore-minimal
 
+RUN apt-get update
+RUN apt-get install apt-transport-https
+RUN echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ stretch main" | \
+  tee /etc/apt/sources.list.d/azure-cli.list
+RUN apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
+RUN curl -L https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+
 RUN \
   apt-get update && \
-  apt-get install -y ruby ruby-dev file libssl-dev wbritish awscli lsb-release openjdk-8-jdk apt-transport-https default-mysql-client && \
+  apt-get install -y ruby ruby-dev file libssl-dev wbritish awscli lsb-release openjdk-8-jdk default-mysql-client azure-cli && \
   rm -rf /var/lib/apt/lists/*
 RUN gem install bundler
 RUN gem install bosh_cli
