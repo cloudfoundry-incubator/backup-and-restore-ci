@@ -3,6 +3,6 @@
 set -eux -o pipefail
 
 cp release/*.tar release-with-metadata/
-export RELEASE_TAR=$(ls release-with-metadata/*.tar)
+export RELEASE_TAR=$(ls release-with-metadata/ | head -1)
 export VERSION=$(cat version-folder/${VERSION_PATH})
 erb -T- template-folder/${TEMPLATE_PATH} > release-with-metadata/release.yml
