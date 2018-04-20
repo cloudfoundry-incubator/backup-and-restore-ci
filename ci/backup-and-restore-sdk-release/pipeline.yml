@@ -374,7 +374,7 @@ jobs:
       BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
       MANIFEST_NAME: azure-backuper.yml
       AZURE_ACCOUNT_NAME: {{azure-account-name}}
-      AWS_SECRET_ACCESS_KEY: {{azure-account-key}}
+      AZURE_ACCOUNT_KEY: {{azure-account-key}}
       AZURE_CONTAINER_NAME: bbr-system-test-azure-container
 
 - name: postgres-system-tests-9.6
