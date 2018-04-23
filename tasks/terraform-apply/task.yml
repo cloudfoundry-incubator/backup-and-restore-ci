@@ -1,0 +1,20 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source: {repository: cloudfoundrylondon/backup-and-restore}
+
+inputs:
+- name: backup-and-restore-ci
+- name: bosh-backup-and-restore-meta
+
+params:
+  TERRAFORM_DIR:
+  TEAM_GPG_KEY:
+
+outputs:
+- name: meta-with-updated-terraform
+
+run:
+  path: backup-and-restore-ci/tasks/terraform-apply/task.sh
