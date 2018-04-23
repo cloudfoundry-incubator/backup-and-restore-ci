@@ -21,4 +21,4 @@ pushd "bosh-backup-and-restore-meta/${TERRAFORM_DIR}"
     echo "No deploy occurred; bailing out"
   fi
 popd
-cp -r bosh-backup-and-restore-meta/ meta-with-updated-terraform/
+cp -r bosh-backup-and-restore-meta/* meta-with-updated-terraform/
