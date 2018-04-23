@@ -1,10 +1,10 @@
 ---
 resources:
-# - name: bosh-deployment
-#   type: git
-#   source:
-#     branch: master
-#     uri: https://github.com/cloudfoundry/bosh-deployment.git
+- name: bosh-deployment
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/bosh-deployment.git
 # - name: bosh-disaster-recovery-acceptance-tests-prs
 #   type: pull-request
 #   source:
@@ -16,11 +16,57 @@ resources:
   source:
     uri: https://github.com/cloudfoundry-incubator/bosh-disaster-recovery-acceptance-tests.git
     branch: master
+- name: bosh-backup-and-restore-meta
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: {{git-private-key}}
+    branch: master
+- name: backup-and-restore-ci
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
+    private_key: {{git-private-key}}
+    branch: master
 
 
 jobs:
+- name: deploy-bosh-bengal-tiger
+  serial: true
+  serial_groups: [bengal-tiger]
+  plan:
+  - aggregate:
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
+    - get: bosh-deployment
+  - task: terraform-apply
+    file: backup-and-restore-ci/tasks/terraform-apply/task.yml
+    params:
+      TERRAFORM_DIR: "b-drats-bengal-tiger"
+      TEAM_GPG_KEY: {{team-gpg-key}}
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: meta-with-updated-terraform
+        rebase: true
+  - task: bosh-create-env
+    file: backup-and-restore-ci/tasks/bosh-create-env/task.yml
+    params:
+      BOSH_STATE_DIR: "b-drats-bengal-tiger"
+      TEAM_GPG_KEY: {{team-gpg-key}}
+      OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml"
+      DIRECTOR_NAME: "bengal-tiger"
+      PROJECT_ID: "cf-backup-and-restore"
+      ZONE: "europe-west1-b"
+      TAG: "bengal-tiger-director"
+      IP: {{bengal-tiger-director-ip}}
+      NETWORK: "bengal-tiger"
+      SUBNET: "bengal-tiger-director"
+
+
 - name: run-b-drats-master
   serial: true
+  serial_groups: [bengal-tiger]
   plan:
   - get: bosh-disaster-recovery-acceptance-tests
   - task: run-b-drats

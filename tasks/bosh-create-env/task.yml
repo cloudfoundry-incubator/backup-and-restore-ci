@@ -27,4 +27,4 @@ outputs:
 - name: meta-with-updated-bosh-state
 
 run:
-  path: backup-and-restore-ci/tasks/generate-release-metadata/task
+  path: backup-and-restore-ci/tasks/bosh-create-env/task.sh
