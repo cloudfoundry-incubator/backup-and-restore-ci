@@ -5,7 +5,7 @@ set -ex
 opsfiles_arguments=""
 for op in ${OPS_FILES}
   do
-    opsfiles_arguments="${opsfiles_arguments} -o bosh-deployment/${op}"
+    opsfiles_arguments="${opsfiles_arguments} -o ${op}"
 done
 
 pushd bosh-deployment
