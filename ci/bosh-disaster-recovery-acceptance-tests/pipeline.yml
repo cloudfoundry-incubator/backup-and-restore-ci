@@ -1,0 +1,27 @@
+---
+resources:
+# - name: bosh-deployment
+#   type: git
+#   source:
+#     branch: master
+#     uri: https://github.com/cloudfoundry/bosh-deployment.git
+# - name: bosh-disaster-recovery-acceptance-tests-prs
+#   type: pull-request
+#   source:
+#     repo: cloudfoundry-incubator/bosh-disaster-recovery-acceptance-tests
+#     access_token: {{github-access-token}}
+#     branch: master
+- name: bosh-disaster-recovery-acceptance-tests
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-incubator/bosh-disaster-recovery-acceptance-tests.git
+    branch: master
+
+
+jobs:
+- name: run-b-drats-master
+  serial: true
+  plan:
+  - get: bosh-disaster-recovery-acceptance-tests
+  - task: run-b-drats
+    file: bosh-disaster-recovery-acceptance-tests/ci/bdrats/task.yml
