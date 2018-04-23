@@ -9,7 +9,7 @@ for op in ${OPS_FILES}
 done
 
 pushd bosh-deployment
-    bosh create-env bosh.yml \
+    bosh-cli create-env bosh.yml \
     --state="../bosh-backup-and-restore-meta/${BOSH_STATE_DIR}/bosh-state.json" \
     --vars-store="../bosh-backup-and-restore-meta/${BOSH_STATE_DIR}/creds.yml" \
     --var-file gcp_credentials_json="../bosh-backup-and-restore-meta/${BOSH_STATE_DIR}/gcp_service_account_key.json" \
