@@ -18,7 +18,7 @@ params:
   BOSH_STATE_DIR:
   PROJECT_ID:
   ZONE:
-  TAG:
+  TAGS:
   IP:
   NETWORK:
   SUBNET:

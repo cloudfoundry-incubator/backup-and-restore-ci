@@ -20,7 +20,7 @@ pushd bosh-deployment
     -v internal_ip=10.0.0.6 \
     -v project_id=${PROJECT_ID} \
     -v zone=${ZONE} \
-    -v tags=${TAG} \
+    -v tags=${TAGS} \
     -v network=${NETWORK} \
     -v external_ip=${IP} \
     -v subnetwork=${SUBNET}
