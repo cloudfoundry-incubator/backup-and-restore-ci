@@ -55,7 +55,7 @@ jobs:
     params:
       BOSH_STATE_DIR: "b-drats-bengal-tiger"
       TEAM_GPG_KEY: {{team-gpg-key}}
-      OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml"
+      OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml"
       DIRECTOR_NAME: "bengal-tiger"
       PROJECT_ID: "cf-backup-and-restore"
       ZONE: "europe-west1-b"
