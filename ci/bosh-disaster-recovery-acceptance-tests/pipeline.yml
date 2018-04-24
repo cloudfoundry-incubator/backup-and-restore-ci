@@ -36,6 +36,7 @@ jobs:
   serial_groups: [bengal-tiger]
   plan:
   - aggregate:
+    - get: bosh-disaster-recovery-acceptance-tests
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: bosh-deployment
@@ -74,5 +75,6 @@ jobs:
   serial_groups: [bengal-tiger]
   plan:
   - get: bosh-disaster-recovery-acceptance-tests
+    passed: [deploy-bosh-bengal-tiger]
   - task: run-b-drats
     file: bosh-disaster-recovery-acceptance-tests/ci/bdrats/task.yml
