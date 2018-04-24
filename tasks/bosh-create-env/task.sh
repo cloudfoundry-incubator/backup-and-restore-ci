@@ -28,6 +28,7 @@ popd
 
 pushd "bosh-backup-and-restore-meta/${BOSH_STATE_DIR}"
   git add bosh-state.json
+  git add creds.yml
   if git commit -m "Update bosh state" ; then
     echo "Update bosh-state"
   else
