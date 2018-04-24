@@ -373,8 +373,8 @@ jobs:
       BOSH_DEPLOYMENT: azure-backuper
       BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
       MANIFEST_NAME: azure-backuper.yml
-      AZURE_ACCOUNT_NAME: {{azure-account-name}}
-      AZURE_ACCOUNT_KEY: {{azure-account-key}}
+      AZURE_STORAGE_ACCOUNT: {{azure-storage-account}}
+      AZURE_STORAGE_KEY: {{azure-storage-key}}
       AZURE_CONTAINER_NAME: bbr-system-test-azure-container
 
 - name: postgres-system-tests-9.6
@@ -862,8 +862,8 @@ jobs:
       BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
       BOSH_CLIENT: {{lite-bosh-director-username}}
       BOSH_DEPLOYMENT: azure-backuper
-      AZURE_ACCOUNT_NAME: {{azure-account-name}}
-      AZURE_ACCOUNT_KEY: {{azure-account-key}}
+      AZURE_STORAGE_ACCOUNT: {{azure-storage-account}}
+      AZURE_STORAGE_KEY: {{azure-storage-key}}
       AZURE_CONTAINER_NAME: bbr-system-test-azure-container
 
 - name: deploy-to-acceptance
