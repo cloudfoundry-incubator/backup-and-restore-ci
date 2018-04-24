@@ -58,7 +58,7 @@ jobs:
       DIRECTOR_NAME: "bengal-tiger"
       PROJECT_ID: "cf-backup-and-restore"
       ZONE: "europe-west1-b"
-      TAGS: ["bengal-tiger-director"]
+      TAGS: "[bengal-tiger-director]"
       IP: {{bengal-tiger-director-ip}}
       NETWORK: "bengal-tiger"
       SUBNET: "bengal-tiger-director"
