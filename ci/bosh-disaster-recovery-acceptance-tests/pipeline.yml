@@ -62,6 +62,11 @@ jobs:
       IP: {{bengal-tiger-director-ip}}
       NETWORK: "bengal-tiger"
       SUBNET: "bengal-tiger-director"
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: meta-with-updated-bosh-state
+        rebase: true
 
 
 - name: run-b-drats-master
