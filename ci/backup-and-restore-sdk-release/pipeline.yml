@@ -124,6 +124,9 @@ jobs:
         TEST_AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
         TEST_ECS_ACCESS_KEY_ID: {{ecs-access-key-id}}
         TEST_ECS_SECRET_ACCESS_KEY: {{ecs-secret-access-key}}
+        AZURE_STORAGE_ACCOUNT: {{azure-storage-account}}
+        AZURE_STORAGE_KEY: {{azure-storage-key}}
+        AZURE_CONTAINER_NAME: bbr-test-azure-container
 
 - name: create-release
   serial: true
