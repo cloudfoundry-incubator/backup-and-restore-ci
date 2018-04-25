@@ -126,10 +126,8 @@ jobs:
         TEST_ECS_SECRET_ACCESS_KEY: {{ecs-secret-access-key}}
         AZURE_STORAGE_ACCOUNT: {{azure-storage-account}}
         AZURE_STORAGE_KEY: {{azure-storage-key}}
-        AZURE_CONTAINER_NAME: bbr-test-azure-container
         AZURE_STORAGE_ACCOUNT_NO_SOFT_DELETE: {{azure-storage-account-no-soft-delete}}
         AZURE_STORAGE_KEY_NO_SOFT_DELETE: {{azure-storage-key-no-soft-delete}}
-        AZURE_CONTAINER_NAME_NO_SOFT_DELETE: bbr-test-azure-container-no-soft-delete
         AZURE_CONTAINER_NAME_MANY_FILES: bbr-test-many-blobs-azure-container
 
 - name: create-release
