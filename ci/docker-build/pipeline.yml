@@ -108,6 +108,8 @@ jobs:
   plan:
   - get: bosh-backup-and-restore-repo
     trigger: true
+  - get: backup-and-restore-minimal-docker-image
+    trigger: true
   - put: bosh-backup-and-restore-docker-image
     params:
       build: bosh-backup-and-restore-repo/ci-docker-images/bosh-backup-and-restore/
@@ -117,6 +119,8 @@ jobs:
   serial: true
   plan:
   - get: backup-and-restore-node-with-ssh-repo
+    trigger: true
+  - get: bosh-backup-and-restore-docker-image
     trigger: true
   - put: backup-and-restore-node-with-ssh-docker-image
     params:
