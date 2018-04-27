@@ -29,6 +29,12 @@ resources:
     private_key: {{git-private-key}}
     branch: master
 
+- name: bbr-binary-release
+  type: github-release
+  source:
+    owner: cloudfoundry-incubator
+    repository: bosh-backup-and-restore
+    access_token: ((github-access-token))
 
 jobs:
 - name: deploy-bosh-bengal-tiger
