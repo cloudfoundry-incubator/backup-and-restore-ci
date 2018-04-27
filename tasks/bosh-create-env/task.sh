@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e
+set -u
+
+if [[ ! -z "$BOSH_STATE_PREPARE_CMD" ]]; then
+  "$BOSH_STATE_DIR/$BOSH_STATE_PREPARE_CMD"
+fi
 
 opsfiles_arguments=""
 for op in ${OPS_FILES}
@@ -10,29 +15,30 @@ done
 
 pushd bosh-deployment
     bosh-cli create-env bosh.yml \
-    --state="../bosh-backup-and-restore-meta/${BOSH_STATE_DIR}/bosh-state.json" \
-    --vars-store="../bosh-backup-and-restore-meta/${BOSH_STATE_DIR}/creds.yml" \
-    --var-file gcp_credentials_json="../bosh-backup-and-restore-meta/${BOSH_STATE_DIR}/gcp_service_account_key.json" \
-    ${opsfiles_arguments} \
-    -v director_name=${DIRECTOR_NAME} \
+    --state="../${BOSH_STATE_DIR}/${ENVIRONMENT_NAME}/bosh-state.json" \
+    --vars-store="../${BOSH_STATE_DIR}/${ENVIRONMENT_NAME}/creds.yml" \
+    --var-file gcp_credentials_json="../${BOSH_STATE_DIR}/${ENVIRONMENT_NAME}/gcp_service_account_key.json" \
+    "$opsfiles_arguments" \
+    -v director_name="$DIRECTOR_NAME" \
     -v internal_cidr=10.0.0.0/24 \
     -v internal_gw=10.0.0.1 \
     -v internal_ip=10.0.0.6 \
-    -v project_id=${PROJECT_ID} \
-    -v zone=${ZONE} \
-    -v tags=${TAGS} \
-    -v network=${NETWORK} \
-    -v external_ip=${IP} \
-    -v subnetwork=${SUBNET}
+    -v project_id="$PROJECT_ID" \
+    -v zone="$ZONE" \
+    -v tags="$TAGS" \
+    -v network="$NETWORK" \
+    -v external_ip="$IP" \
+    -v subnetwork="$SUBNET"
 popd
 
-pushd "bosh-backup-and-restore-meta/${BOSH_STATE_DIR}"
+pushd "${BOSH_STATE_DIR}/${ENVIRONMENT_NAME}"
   git add bosh-state.json
   git add creds.yml
-  if git commit -m "Update bosh state" ; then
-    echo "Update bosh-state"
+  if git commit -m "Update bosh state for $ENVIRONMENT_NAME" ; then
+    echo "Updated bosh-state for $ENVIRONMENT_NAME"
   else
-    echo "No deploy occurred; bailing out"
+    echo "No change to BOSH state for $ENVIRONMENT_NAME"
   fi
 popd
-cp -r bosh-backup-and-restore-meta/. meta-with-updated-bosh-state/
+
+cp -r "${BOSH_STATE_DIR}/." "${BOSH_STATE_OUTPUT_DIR}"

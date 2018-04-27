@@ -5,8 +5,8 @@ set -u
 
 terraform version
 
-if [[ ! -z "$TERRFORM_STATE_PREPARE_CMD" ]]; then
-  "$TERRAFORM_STATE_DIR/$TERRFORM_STATE_PREPARE_CMD"
+if [[ ! -z "$TERRAFORM_STATE_PREPARE_CMD" ]]; then
+  "$TERRAFORM_STATE_DIR/$TERRAFORM_STATE_PREPARE_CMD"
 fi
 
 git config --global user.name "$GIT_USER_NAME"

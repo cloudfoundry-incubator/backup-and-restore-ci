@@ -7,24 +7,25 @@ image_resource:
 
 inputs:
 - name: backup-and-restore-ci
-- name: bosh-backup-and-restore-meta
+- name: bosh-state
 - name: bosh-deployment
 
+outputs:
+- name: meta-with-updated-bosh-state
+
 params:
-  BOSH_STATE_DIR:
-  TEAM_GPG_KEY:
+  BOSH_STATE_DIR: bosh-state
+  BOSH_STATE_PREPARE_CMD:  # Optional command to run before using bosh-state repository
+  BOSH_STATE_OUTPUT_DIR: meta-with-updated-bosh-state
   OPS_FILES:
   DIRECTOR_NAME:
-  BOSH_STATE_DIR:
+  ENVIRONMENT_NAME:
   PROJECT_ID:
   ZONE:
   TAGS:
   IP:
   NETWORK:
   SUBNET:
-
-outputs:
-- name: meta-with-updated-bosh-state
 
 run:
   path: backup-and-restore-ci/tasks/bosh-create-env/task.sh
