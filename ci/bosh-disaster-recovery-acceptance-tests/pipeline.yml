@@ -52,9 +52,14 @@ jobs:
     - get: bosh-deployment
   - task: terraform-apply
     file: backup-and-restore-ci/tasks/terraform-apply/task.yml
+    input_mapping:
+      terraform-state: bosh-backup-and-restore-meta
     params:
-      TERRAFORM_DIR: "b-drats-bengal-tiger"
-      TEAM_GPG_KEY: ((team-gpg-key))
+      ENVIRONMENT_NAME: b-drats-bengal-tiger
+      TERRFORM_STATE_PREPARE_CMD: unlock-ci.sh
+      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
+      GIT_USER_NAME: "PCF Backup & Restore CI"
+      GIT_USER_EMAIL: "cf-lazarus@pivotal.io"
     ensure:
       put: bosh-backup-and-restore-meta
       params:

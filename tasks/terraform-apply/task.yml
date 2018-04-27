@@ -7,14 +7,18 @@ image_resource:
 
 inputs:
 - name: backup-and-restore-ci
-- name: bosh-backup-and-restore-meta
-
-params:
-  TERRAFORM_DIR:
-  TEAM_GPG_KEY:
+- name: terraform-state
 
 outputs:
 - name: meta-with-updated-terraform
+
+params:
+  TERRAFORM_STATE_DIR: terrform-state
+  TERRFORM_STATE_PREPARE_CMD:  # Optional command to run before using terrform-state repository
+  OUTPUT_TERRAFORM_STATE_DIR: meta-with-updated-terraform
+  ENVIRONMENT_NAME:
+  GIT_USER_NAME:
+  GIT_USER_EMAIL:
 
 run:
   path: backup-and-restore-ci/tasks/terraform-apply/task.sh

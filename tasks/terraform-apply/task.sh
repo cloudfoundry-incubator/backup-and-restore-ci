@@ -1,24 +1,28 @@
 #!/usr/bin/env bash
-set -x
+
+set -e
+set -u
 
 terraform version
 
-./bosh-backup-and-restore-meta/unlock-ci.sh
+if [[ ! -z "$TERRFORM_STATE_PREPARE_CMD" ]]; then
+  $TERRAFORM_STATE_DIR/$TERRFORM_STATE_PREPARE_CMD
+fi
 
-git config --global user.name "PCF Backup & Restore CI"
-git config --global user.email "cf-lazarus@pivotal.io"
+git config --global user.name $GIT_USER_NAME
+git config --global user.email $GIT_USER_EMAIL
 
-pushd "bosh-backup-and-restore-meta/${TERRAFORM_DIR}"
-  set +x
+pushd "$TERRAFORM_STATE_DIR/$ENVIRONMENT_NAME"
   terraform init
   terraform apply -auto-approve
-  set -x
 
   git add terraform.tfstate*
-  if git commit -m "Update terraform-state" ; then
-    echo "Update terraform-state"
+
+  if git commit -m "Update terraform-state for $ENVIRONMENT_NAME"; then
+    echo "Updated terraform-state for $ENVIRONMENT_NAME"
   else
-    echo "No deploy occurred; bailing out"
+    echo "No change to terraform-state for $ENVIRONMENT_NAME"
   fi
 popd
-cp -r bosh-backup-and-restore-meta/. meta-with-updated-terraform/
+
+cp -r $TERRAFORM_STATE_DIR $OUTPUT_TERRAFORM_STATE_DIR
