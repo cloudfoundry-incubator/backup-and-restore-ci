@@ -13,7 +13,7 @@ outputs:
 - name: meta-with-updated-terraform
 
 params:
-  TERRAFORM_STATE_DIR: terrform-state
+  TERRAFORM_STATE_DIR: terraform-state
   TERRFORM_STATE_PREPARE_CMD:  # Optional command to run before using terrform-state repository
   OUTPUT_TERRAFORM_STATE_DIR: meta-with-updated-terraform
   ENVIRONMENT_NAME:
