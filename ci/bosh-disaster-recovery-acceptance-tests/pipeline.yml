@@ -5,28 +5,32 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/bosh-deployment.git
+
 # - name: bosh-disaster-recovery-acceptance-tests-prs
 #   type: pull-request
 #   source:
 #     repo: cloudfoundry-incubator/bosh-disaster-recovery-acceptance-tests
-#     access_token: {{github-access-token}}
+#     access_token: ((github-access-token))
 #     branch: master
+
 - name: bosh-disaster-recovery-acceptance-tests
   type: git
   source:
     uri: https://github.com/cloudfoundry-incubator/bosh-disaster-recovery-acceptance-tests.git
     branch: master
+
 - name: bosh-backup-and-restore-meta
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
+
 - name: backup-and-restore-ci
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
 
 - name: bbr-binary-release
@@ -50,7 +54,7 @@ jobs:
     file: backup-and-restore-ci/tasks/terraform-apply/task.yml
     params:
       TERRAFORM_DIR: "b-drats-bengal-tiger"
-      TEAM_GPG_KEY: {{team-gpg-key}}
+      TEAM_GPG_KEY: ((team-gpg-key))
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -60,13 +64,13 @@ jobs:
     file: backup-and-restore-ci/tasks/bosh-create-env/task.yml
     params:
       BOSH_STATE_DIR: "b-drats-bengal-tiger"
-      TEAM_GPG_KEY: {{team-gpg-key}}
+      TEAM_GPG_KEY: ((team-gpg-key))
       OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml"
       DIRECTOR_NAME: "bengal-tiger"
       PROJECT_ID: "cf-backup-and-restore"
       ZONE: "europe-west1-b"
       TAGS: "[bengal-tiger-director]"
-      IP: {{bengal-tiger-director-ip}}
+      IP: ((bengal-tiger-director-ip))
       NETWORK: "bengal-tiger"
       SUBNET: "bengal-tiger-director"
     ensure:
