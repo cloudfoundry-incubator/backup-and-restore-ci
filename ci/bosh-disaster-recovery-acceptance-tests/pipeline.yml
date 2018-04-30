@@ -87,12 +87,31 @@ jobs:
         repository: bosh-state-updated
         rebase: true
 
-
 - name: run-b-drats-master
   serial: true
   serial_groups: [bengal-tiger]
   plan:
-  - get: bosh-disaster-recovery-acceptance-tests
-    passed: [deploy-bosh-bengal-tiger]
+  - aggregate:
+    - get: bosh-disaster-recovery-acceptance-tests
+      passed: [deploy-bosh-bengal-tiger]
+    - get: bbr-binary-release
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+      passed: [deploy-bosh-bengal-tiger]
+      trigger: true
+    - get: backup-and-restore-ci
+  - task: make-sweet-integration-config
+    file: backup-and-restore-ci/tasks/extract-b-drats-integration-config/task.yml
+    input_mapping:
+      terraform-state: bosh-backup-and-restore-meta
+      bosh-vars-store: bosh-backup-and-restore-meta
+    params:
+      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
+      TERRAFORM_STATE_PREPARE_CMD: terraform-state/unlock-ci.sh
+      BOSH_VARS_STORE_PREPARE_CMD: bosh-vars-store/unlock-ci.sh
+      TERRAFORM_STATE_PATH: terraform-state/b-drats-bengal-tiger/terraform.tfstate
+      BOSH_VARS_STORE_PATH: bosh-state/b-drats-bengal-tiger/creds.yml
   - task: run-b-drats
     file: bosh-disaster-recovery-acceptance-tests/ci/bdrats/task.yml
+    params:
+      INTEGRATION_CONFIG_PATH: b-drats-integration-config/integration_config.json
