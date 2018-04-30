@@ -63,7 +63,7 @@ jobs:
     ensure:
       put: bosh-backup-and-restore-meta
       params:
-        repository: meta-with-updated-terraform
+        repository: terraform-state-updated
         rebase: true
   - task: bosh-create-env
     file: backup-and-restore-ci/tasks/bosh-create-env/task.yml
@@ -84,7 +84,7 @@ jobs:
     ensure:
       put: bosh-backup-and-restore-meta
       params:
-        repository: meta-with-updated-bosh-state
+        repository: bosh-state-updated
         rebase: true
 
 

@@ -11,12 +11,12 @@ inputs:
 - name: bosh-deployment
 
 outputs:
-- name: meta-with-updated-bosh-state
+- name: bosh-state-updated
 
 params:
   BOSH_STATE_DIR: bosh-state
   BOSH_STATE_PREPARE_CMD:  # Optional command to run before using bosh-state repository
-  BOSH_STATE_OUTPUT_DIR: meta-with-updated-bosh-state
+  BOSH_STATE_OUTPUT_DIR: bosh-state-updated
   OPS_FILES:
   DIRECTOR_NAME:
   ENVIRONMENT_NAME:

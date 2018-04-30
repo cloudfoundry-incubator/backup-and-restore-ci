@@ -10,12 +10,12 @@ inputs:
 - name: terraform-state
 
 outputs:
-- name: meta-with-updated-terraform
+- name: terraform-state-updated
 
 params:
   TERRAFORM_STATE_DIR: terraform-state
   TERRAFORM_STATE_PREPARE_CMD:  # Optional command to run before using terrform-state repository
-  OUTPUT_TERRAFORM_STATE_DIR: meta-with-updated-terraform
+  OUTPUT_TERRAFORM_STATE_DIR: terraform-state-updated
   ENVIRONMENT_NAME:
   GIT_USER_NAME:
   GIT_USER_EMAIL:
