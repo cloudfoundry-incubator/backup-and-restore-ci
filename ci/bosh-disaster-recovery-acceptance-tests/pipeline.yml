@@ -100,7 +100,7 @@ jobs:
       passed: [deploy-bosh-bengal-tiger]
       trigger: true
     - get: backup-and-restore-ci
-  - task: make-sweet-integration-config
+  - task: extract-b-drats-integration-config
     file: backup-and-restore-ci/tasks/extract-b-drats-integration-config/task.yml
     input_mapping:
       terraform-state: bosh-backup-and-restore-meta
