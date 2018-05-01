@@ -13,6 +13,10 @@ for op in ${OPS_FILES}
     opsfiles_arguments="${opsfiles_arguments} -o ${op}"
 done
 
+pushd "${TERRAFORM_STATE_DIR}/${ENVIRONMENT_NAME}"
+  IP=$(terraform output director-ip)
+popd
+
 pushd bosh-deployment
     # shellcheck disable=SC2086   # we need to expand $opsfiles_arguments
     bosh-cli create-env bosh.yml \

@@ -9,12 +9,14 @@ inputs:
 - name: backup-and-restore-ci
 - name: bosh-state
 - name: bosh-deployment
+- name: terraform-state
 
 outputs:
 - name: bosh-state-updated
 
 params:
   BOSH_STATE_DIR: bosh-state
+  TERRAFORM_STATE_DIR: terraform-state
   BOSH_STATE_PREPARE_CMD:  # Optional command to run before using bosh-state repository
   BOSH_STATE_OUTPUT_DIR: bosh-state-updated
   OPS_FILES:
@@ -23,7 +25,6 @@ params:
   PROJECT_ID:
   ZONE:
   TAGS:
-  IP:
   NETWORK:
   SUBNET:
 
