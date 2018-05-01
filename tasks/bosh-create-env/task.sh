@@ -43,4 +43,4 @@ pushd "${BOSH_STATE_DIR}"
   fi
 popd
 
-cp -a "${BOSH_STATE_DIR}/." "${OUTPUT_DIR}"
+cp -r "${BOSH_STATE_DIR}/." "${OUTPUT_DIR}"

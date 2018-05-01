@@ -25,4 +25,4 @@ pushd "$TERRAFORM_STATE_DIR"
   fi
 popd
 
-cp -a "$TERRAFORM_STATE_DIR/." "$OUTPUT_DIR"
+cp -r "$TERRAFORM_STATE_DIR/." "$OUTPUT_DIR"
