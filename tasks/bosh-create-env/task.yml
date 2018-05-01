@@ -14,9 +14,9 @@ outputs:
 - name: bosh-state-updated
 
 params:
-  BOSH_STATE_DIR:  # Directory containing BOSH director state and vars
+  BOSH_STATE_DIR: bosh-state
   BOSH_STATE_PREPARE_CMD:  # Optional command to run before using bosh-state repository
-  OUTPUT_DIR: bosh-state-updated
+  BOSH_STATE_OUTPUT_DIR: bosh-state-updated
   OPS_FILES:
   DIRECTOR_NAME:
   ENVIRONMENT_NAME:
