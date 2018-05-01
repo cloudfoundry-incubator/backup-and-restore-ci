@@ -69,6 +69,7 @@ jobs:
     file: backup-and-restore-ci/tasks/bosh-create-env/task.yml
     input_mapping:
       bosh-state: bosh-backup-and-restore-meta
+      terraform-state: bosh-backup-and-restore-meta
     params:
       ENVIRONMENT_NAME: "b-drats-bengal-tiger"
       BOSH_STATE_PREPARE_CMD: unlock-ci.sh
