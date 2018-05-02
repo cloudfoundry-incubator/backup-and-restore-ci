@@ -381,6 +381,7 @@ jobs:
       AZURE_STORAGE_ACCOUNT: {{azure-storage-account}}
       AZURE_STORAGE_KEY: {{azure-storage-key}}
       AZURE_CONTAINER_NAME: bbr-system-test-azure-container
+      AZURE_CLONE_CONTAINER_NAME: bbr-system-clone-test-azure-container
 
 - name: postgres-system-tests-9.6
   serial: true
@@ -870,6 +871,7 @@ jobs:
       AZURE_STORAGE_ACCOUNT: {{azure-storage-account}}
       AZURE_STORAGE_KEY: {{azure-storage-key}}
       AZURE_CONTAINER_NAME: bbr-system-test-azure-container
+      AZURE_CLONE_CONTAINER_NAME: bbr-system-clone-test-azure-container
 
 - name: deploy-to-acceptance
   serial: true
