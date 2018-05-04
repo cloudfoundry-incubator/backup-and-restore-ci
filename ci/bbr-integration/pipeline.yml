@@ -326,24 +326,6 @@ jobs:
       GITHUB_PUBLIC_KEY: {{github-public-key}}
       BOSH_CLIENT_SECRET: {{genesis-bosh-director-password}}
       BOSH_CLIENT: admin
-  - task: generate-manifest-deactivated-scripts
-    file: cf-backup-and-restore-release/ci/tasks/generate-manifest.yml
-    output_mapping:
-      generated-manifest: generated-manifest-deactivated-scripts
-    params:
-      DEPLOYMENT_CIDR: 10.0.9
-      DEPLOYMENT_NAME: cf-acceptance-deactivated-scripts
-  - task: deploy-cf-acceptance-deactivated-scripts
-    file: cf-backup-and-restore-release/ci/tasks/deploy-with-deactivated-scripts.yml
-    input_mapping:
-      generated-manifest: generated-manifest-deactivated-scripts
-    params:
-      DEPLOYMENT_NAME: cf-acceptance-deactivated-scripts
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      GIT_SSH_KEY: {{git-private-key}}
-      GITHUB_PUBLIC_KEY: {{github-public-key}}
-      BOSH_CLIENT_SECRET: {{genesis-bosh-director-password}}
-      BOSH_CLIENT: admin
 
 - name: bosh-delete-acceptance-deployments
   serial: true
