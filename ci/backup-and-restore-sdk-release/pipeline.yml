@@ -880,67 +880,6 @@ jobs:
       AZURE_CONTAINER_NAME: bbr-system-test-azure-container
       AZURE_CLONE_CONTAINER_NAME: bbr-system-clone-test-azure-container
 
-- name: deploy-to-acceptance
-  serial: true
-  plan:
-  - aggregate:
-    - get: backup-and-restore-sdk-release
-      trigger: true
-      passed:
-      - run-drats-external-s3-blobstore
-      - run-drats-external-s3-unversioned-blobstore
-    - get: release-tarball
-      resource: release
-      passed:
-      - run-drats-external-s3-blobstore
-      - run-drats-external-s3-unversioned-blobstore
-    - get: bosh-backup-and-restore-meta
-  - aggregate:
-    - task: deploy-postgres-9.4
-      file: backup-and-restore-sdk-release/ci/tasks/deploy.yml
-      params:
-        TEAM_GPG_KEY: {{team-gpg-key}}
-        BOSH_CLIENT_SECRET: {{genesis-bosh-director-password}}
-        BOSH_CLIENT: {{genesis-bosh-director-username}}
-        BOSH_DEPLOYMENT: postgres-9.4-acceptance
-        BOSH_ENVIRONMENT: genesis-bosh.backup-and-restore.cf-app.com
-        DB_PASSWORD: postgres_password
-        DB_HOST: 10.0.3.13
-        AVAILABILITY_ZONE: z1
-        MANIFEST_NAME: postgres-9.4.yml
-        NETWORK_NAME: concourse
-    - task: deploy-postgres-9.6
-      file: backup-and-restore-sdk-release/ci/tasks/deploy.yml
-      params:
-        TEAM_GPG_KEY: {{team-gpg-key}}
-        BOSH_CLIENT_SECRET: {{genesis-bosh-director-password}}
-        BOSH_CLIENT: {{genesis-bosh-director-username}}
-        BOSH_DEPLOYMENT: postgres-9.6-acceptance
-        BOSH_ENVIRONMENT: genesis-bosh.backup-and-restore.cf-app.com
-        DB_PASSWORD: postgres_password
-        MANIFEST_NAME: postgres-9.6.yml
-        DB_HOST: 10.0.3.8
-        AVAILABILITY_ZONE: z1
-        NETWORK_NAME: concourse
-        VARS_STORE_PATH: ci/backup-and-restore-sdk-release/vars/postgres-96-vars.yml
-    - task: deploy-mysql
-      file: backup-and-restore-sdk-release/ci/tasks/deploy.yml
-      params:
-        TEAM_GPG_KEY: {{team-gpg-key}}
-        BOSH_CLIENT_SECRET: {{genesis-bosh-director-password}}
-        BOSH_CLIENT: {{genesis-bosh-director-username}}
-        BOSH_DEPLOYMENT: mysql-acceptance
-        BOSH_ENVIRONMENT: genesis-bosh.backup-and-restore.cf-app.com
-        DB_PASSWORD: mysql_password
-        MANIFEST_NAME: mysql.yml
-        DB_HOST: 10.0.7.2
-        AVAILABILITY_ZONE: z1
-        VARS_STORE_PATH: ci/backup-and-restore-sdk-release/vars/mysql-vars.yml
-  - put: bosh-backup-and-restore-meta
-    params:
-      repository: bosh-backup-and-restore-meta-output
-      rebase: true
-
 - name: deploy-cf-with-external-s3-blobstore
   serial: true
   serial_groups: [bbr-s3]
@@ -1213,12 +1152,14 @@ jobs:
   - get: backup-and-restore-ci
   - get: backup-and-restore-sdk-release
     passed:
-    - deploy-to-acceptance
+    - run-drats-external-s3-blobstore
+    - run-drats-external-s3-unversioned-blobstore
   - get: backup-and-restore-sdk-release-master
   - get: release-tarball
     resource: release
     passed:
-    - deploy-to-acceptance
+    - run-drats-external-s3-blobstore
+    - run-drats-external-s3-unversioned-blobstore
   - get: version
     params: {bump: major}
   - task: create-final-release
@@ -1262,12 +1203,14 @@ jobs:
   - get: backup-and-restore-ci
   - get: backup-and-restore-sdk-release
     passed:
-    - deploy-to-acceptance
+    - run-drats-external-s3-blobstore
+    - run-drats-external-s3-unversioned-blobstore
   - get: backup-and-restore-sdk-release-master
   - get: release-tarball
     resource: release
     passed:
-    - deploy-to-acceptance
+    - run-drats-external-s3-blobstore
+    - run-drats-external-s3-unversioned-blobstore
   - get: version
     params: {bump: minor}
   - task: create-final-release
@@ -1311,12 +1254,14 @@ jobs:
   - get: backup-and-restore-ci
   - get: backup-and-restore-sdk-release
     passed:
-    - deploy-to-acceptance
+    - run-drats-external-s3-blobstore
+    - run-drats-external-s3-unversioned-blobstore
   - get: backup-and-restore-sdk-release-master
   - get: release-tarball
     resource: release
     passed:
-    - deploy-to-acceptance
+    - run-drats-external-s3-blobstore
+    - run-drats-external-s3-unversioned-blobstore
   - get: version
     params: {bump: patch}
   - task: create-final-release
@@ -1357,7 +1302,8 @@ jobs:
   plan:
   - get: backup-and-restore-sdk-release
     passed:
-    - deploy-to-acceptance
+    - run-drats-external-s3-blobstore
+    - run-drats-external-s3-unversioned-blobstore
   - get: github-release
     trigger: true
   - task: create-backup-and-restore-sdk-preview-release-tarball
