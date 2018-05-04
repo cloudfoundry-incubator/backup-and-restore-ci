@@ -7,9 +7,11 @@ groups:
   - generate-manifest-and-deploy
   - generate-manifest-and-deploy-dev
   - acceptance-tests
+  - bosh-delete-dev-deployments
 - name: SHIPIT
   jobs:
   - generate-manifest-and-deploy-acceptance
+  - bosh-delete-acceptance-deployments
   - create-final-patch
   - create-final-minor
   - create-final-major
@@ -71,6 +73,19 @@ resources:
     key: current-dev-version
     access_key_id: {{aws-access-key-id}}
     secret_access_key: {{aws-secret-access-key}}
+- name: backup-and-restore-ci
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
+    private_key: ((git-private-key))
+    branch: master
+- name: cf-backup-and-restore-github-release
+  type: github-release
+  source:
+    user: pivotal-cf
+    repository: cf-backup-and-restore-release
+    access_token: {{github-access-token}}
+    drafts: true
 
 jobs:
 - name: release-unit-tests
@@ -219,6 +234,49 @@ jobs:
       BOSH_CLIENT_SECRET: {{genesis-bosh-director-password}}
       BOSH_ENVIRONMENT: https://genesis-bosh.backup-and-restore.cf-app.com
 
+- name: bosh-delete-dev-deployments
+  serial: true
+  plan:
+  - aggregate:
+    - get: cf-backup-and-restore-release
+      passed: [acceptance-tests]
+      trigger: true
+    - get: backup-and-restore-ci
+    - get: bosh-backup-and-restore-meta
+  - task: bosh-delete-cf-integration-0
+    file: backup-and-restore-ci/tasks/bosh-delete-deployment/task.yml
+    params:
+      BOSH_DEPLOYMENT: cf-integration-0
+      BOSH_ENVIRONMENT: {{genesis-bosh-environment}}
+      BOSH_CLIENT_SECRET: {{genesis-bosh-director-password}}
+      BOSH_CLIENT: admin
+      BOSH_CA_CERT_DIR: bosh-backup-and-restore-meta
+      BOSH_CA_CERT_PATH: certs/genesis-bosh.backup-and-restore.cf-app.com.crt
+      BOSH_CA_CERT_PREPARE_CMD: unlock-ci.sh
+      TEAM_GPG_KEY: {{team-gpg-key}}
+  - task: bosh-delete-cf-dev-0
+    file: backup-and-restore-ci/tasks/bosh-delete-deployment/task.yml
+    params:
+      BOSH_DEPLOYMENT: cf-dev-0
+      BOSH_ENVIRONMENT: {{genesis-bosh-environment}}
+      BOSH_CLIENT_SECRET: {{genesis-bosh-director-password}}
+      BOSH_CLIENT: admin
+      BOSH_CA_CERT_DIR: bosh-backup-and-restore-meta
+      BOSH_CA_CERT_PATH: certs/genesis-bosh.backup-and-restore.cf-app.com.crt
+      BOSH_CA_CERT_PREPARE_CMD: unlock-ci.sh
+      TEAM_GPG_KEY: {{team-gpg-key}}
+  - task: bosh-delete-cf-dev-1
+    file: backup-and-restore-ci/tasks/bosh-delete-deployment/task.yml
+    params:
+      BOSH_DEPLOYMENT: cf-dev-1
+      BOSH_ENVIRONMENT: {{genesis-bosh-environment}}
+      BOSH_CLIENT_SECRET: {{genesis-bosh-director-password}}
+      BOSH_CLIENT: admin
+      BOSH_CA_CERT_DIR: bosh-backup-and-restore-meta
+      BOSH_CA_CERT_PATH: certs/genesis-bosh.backup-and-restore.cf-app.com.crt
+      BOSH_CA_CERT_PREPARE_CMD: unlock-ci.sh
+      TEAM_GPG_KEY: {{team-gpg-key}}
+
 - name: generate-manifest-and-deploy-acceptance
   serial: true
   plan:
@@ -286,6 +344,37 @@ jobs:
       GITHUB_PUBLIC_KEY: {{github-public-key}}
       BOSH_CLIENT_SECRET: {{genesis-bosh-director-password}}
       BOSH_CLIENT: admin
+
+- name: bosh-delete-acceptance-deployments
+  serial: true
+  plan:
+  - aggregate:
+    - get: cf-backup-and-restore-github-release
+      trigger: true
+    - get: backup-and-restore-ci
+    - get: bosh-backup-and-restore-meta
+  - task: bosh-delete-cf-acceptance-0
+    file: backup-and-restore-ci/tasks/bosh-delete-deployment/task.yml
+    params:
+      BOSH_DEPLOYMENT: cf-acceptance-0
+      BOSH_ENVIRONMENT: {{genesis-bosh-environment}}
+      BOSH_CLIENT_SECRET: {{genesis-bosh-director-password}}
+      BOSH_CLIENT: admin
+      BOSH_CA_CERT_DIR: bosh-backup-and-restore-meta
+      BOSH_CA_CERT_PATH: certs/genesis-bosh.backup-and-restore.cf-app.com.crt
+      BOSH_CA_CERT_PREPARE_CMD: unlock-ci.sh
+      TEAM_GPG_KEY: {{team-gpg-key}}
+  - task: bosh-delete-cf-acceptance-1
+    file: backup-and-restore-ci/tasks/bosh-delete-deployment/task.yml
+    params:
+      BOSH_DEPLOYMENT: cf-acceptance-1
+      BOSH_ENVIRONMENT: {{genesis-bosh-environment}}
+      BOSH_CLIENT_SECRET: {{genesis-bosh-director-password}}
+      BOSH_CLIENT: admin
+      BOSH_CA_CERT_DIR: bosh-backup-and-restore-meta
+      BOSH_CA_CERT_PATH: certs/genesis-bosh.backup-and-restore.cf-app.com.crt
+      BOSH_CA_CERT_PREPARE_CMD: unlock-ci.sh
+      TEAM_GPG_KEY: {{team-gpg-key}}
 
 - name: create-final-patch
   serial: true
