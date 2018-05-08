@@ -1,4 +1,7 @@
 ---
+toolsmiths_api_worker: &toolsmiths_api_worker vsphere-platform-recovery
+toolsmiths_pool_worker: &toolsmiths_pool_worker toolsmiths-pool
+
 groups:
 - name: BUILD
   jobs:
@@ -23,7 +26,21 @@ resource_types:
     repository: pivotalcf/pivnet-resource
     tag: latest-final
 
+- name: pcf-pool
+  type: docker-image
+  source:
+    repository: cftoolsmiths/toolsmiths-envs-resource
+
 resources:
+- name: pcf-2-1-pool
+  type: pcf-pool
+  source:
+    api_token: {{toolsmiths-api-token}}
+    hostname: environments.toolsmiths.cf-app.com
+    pool_name: us_2_1
+  tags:
+  - *toolsmiths_api_worker
+
 - name: bosh-backup-and-restore
   type: git
   source:
@@ -210,6 +227,7 @@ jobs:
     params: {file: bbr-build/bbr-*}
   - put: version
     params: {file: version/number}
+
 - name: install-optional-components-on-pas
   serial: true
   plan:
@@ -219,13 +237,16 @@ jobs:
     trigger: true
   - get: rc
     passed: [build-rc]
+  - put: env-pool
+    resource: pcf-2-1-pool
+    params:
+      action: claim
+    tags:
+    - *toolsmiths_api_worker
   - task: enable-optional-components
-    file: pivotal-disaster-recovery-acceptance-tests/ci/enable-optional-components-pas/task.yml
+    file: pivotal-disaster-recovery-acceptance-tests/ci/enable-optional-components-pas/pool-task.yml
     privileged: true
     params:
-      OPS_MAN_URL: {{opsman-2-1-url}}
-      OPS_MAN_USER: {{opsman-2-1-username}}
-      OPS_MAN_PASS: {{opsman-2-1-password}}
       OPS_MAN_VERSION: "2.1"
 - name: run-p-drats-on-pas
   serial: true
@@ -236,17 +257,27 @@ jobs:
   - get: rc
     passed: [install-optional-components-on-pas]
     trigger: true
+  - get: env-pool
+    resource: pcf-2-1-pool
+    passed: [install-optional-components-on-pas]
+    tags:
+    - *toolsmiths_api_worker
   - task: acceptance-tests
+    tags:
+    - *toolsmiths_pool_worker
     privileged: true
-    file: pivotal-disaster-recovery-acceptance-tests/ci/p-drats-ops-manager/task.yml
+    file: pivotal-disaster-recovery-acceptance-tests/ci/p-drats-ops-manager/pool-task.yml
     input_mapping:
       bbr-binary-release: rc
     params:
       DEFAULT_TIMEOUT_MINS: 30
-      OPS_MAN_PASS: {{opsman-2-1-password}}
-      OPS_MAN_SSH_KEY: {{opsman-2-1-ssh-key}}
-      OPS_MAN_URL: {{opsman-2-1-url}}
-      OPS_MAN_USER: {{opsman-2-1-username}}
+  - put: pcf-2-1-pool
+    params:
+      action: unclaim
+      env_file: env-pool/metadata
+    tags:
+    - *toolsmiths_api_worker
+
 - name: transfer-bbr-binary-to-jumpbox
   serial_groups: [version]
   plan:
