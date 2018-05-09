@@ -1,0 +1,21 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source: {repository: cloudfoundrylondon/backup-and-restore}
+
+inputs:
+- name: backup-and-restore-ci
+- name: app
+
+params:
+  CF_API:
+  CF_ADMIN_PASSWORD:
+  MYSQL_HOST:
+  MYSQL_ROOT_PASSWORD:
+  AWS_ACCESS_KEY_ID:
+  AWS_SECRET_ACCESS_KEY:
+
+run:
+  path: backup-and-restore-ci/tasks/s3-benchmarking/task.sh
