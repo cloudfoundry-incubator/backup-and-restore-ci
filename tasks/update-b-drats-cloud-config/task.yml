@@ -17,6 +17,7 @@ params:
   TERRAFORM_STATE_PATH:  # Path to terraform.tfstate
   BOSH_VARS_STORE_PREPARE_CMD:  # Optional command to run before using bosh-state repository
   BOSH_VARS_STORE_PATH:  # Path to bosh director vars-store YAML file
+  BOSH_CLIENT:
 
 run:
   path: backup-and-restore-ci/tasks/update-b-drats-cloud-config/task.sh
