@@ -98,8 +98,8 @@ jobs:
       CLOUD_CONFIG_PATH: gcp/cloud-config.yml
       TERRAFORM_STATE_PREPARE_CMD: terraform-state/unlock-ci.sh
       BOSH_VARS_STORE_PREPARE_CMD: bosh-vars-store/unlock-ci.sh
-      TERRAFORM_STATE_PATH: terraform-state/b-drats-bengal-tiger/terraform.tfstate
-      BOSH_VARS_STORE_PATH: bosh-vars-store/b-drats-bengal-tiger/creds.yml
+      TERRAFORM_STATE_PATH: b-drats-bengal-tiger/terraform.tfstate
+      BOSH_VARS_STORE_PATH: b-drats-bengal-tiger/creds.yml
 
 - name: run-b-drats-master
   serial: true
