@@ -4,11 +4,11 @@ set -e
 set -u
 
 if [[ ! -z "${TERRAFORM_STATE_PREPARE_CMD}" ]]; then
-  "${TERRAFORM_STATE_PREPARE_CMD}"
+  "terraform-state/${TERRAFORM_STATE_PREPARE_CMD}"
 fi
 
 if [[ ! -z "${BOSH_VARS_STORE_PREPARE_CMD}" ]]; then
-  "${BOSH_VARS_STORE_PREPARE_CMD}"
+  "bosh-vars-store/${BOSH_VARS_STORE_PREPARE_CMD}"
 fi
 
 bosh_host="$(terraform output -state="terraform-state/${TERRAFORM_STATE_PATH}" director-ip)"

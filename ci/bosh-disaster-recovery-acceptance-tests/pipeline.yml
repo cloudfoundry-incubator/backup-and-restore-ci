@@ -96,8 +96,8 @@ jobs:
     params:
       TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
       CLOUD_CONFIG_PATH: gcp/cloud-config.yml
-      TERRAFORM_STATE_PREPARE_CMD: terraform-state/unlock-ci.sh
-      BOSH_VARS_STORE_PREPARE_CMD: bosh-vars-store/unlock-ci.sh
+      TERRAFORM_STATE_PREPARE_CMD: unlock-ci.sh
+      BOSH_VARS_STORE_PREPARE_CMD: unlock-ci.sh
       TERRAFORM_STATE_PATH: b-drats-bengal-tiger/terraform.tfstate
       BOSH_VARS_STORE_PATH: b-drats-bengal-tiger/creds.yml
       BOSH_CLIENT: admin
