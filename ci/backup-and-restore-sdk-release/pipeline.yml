@@ -85,12 +85,6 @@ resources:
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
     branch: master
-- name: cf-deployment-develop-flangewad
-  type: git
-  source:
-    uri: https://github.com/flangewad/cf-deployment.git
-    branch: develop
-
 - name: bbr-binary-release
   type: github-release
   source:
@@ -932,7 +926,7 @@ jobs:
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
       SYSTEM_DOMAIN: bbr-s3.cf-app.com
-      OPS_FILES: "operations/scale-to-one-az.yml operations/use-compiled-releases.yml operations/use-external-dbs.yml operations/experimental/enable-backup-restore.yml operations/use-s3-blobstore.yml operations/experimental/enable-backup-restore-s3.yml"
+      OPS_FILES: "operations/scale-to-one-az.yml operations/use-compiled-releases.yml operations/use-external-dbs.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-s3-blobstore.yml operations/backup-and-restore/enable-backup-restore-s3-versioned.yml"
       VARS_STORE_FILE: external-blobstore-directors/aws-s3/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
@@ -1016,7 +1010,7 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment-master
-      resource: cf-deployment-develop-flangewad
+      resource: cf-deployment-master
     - get: backup-and-restore-sdk-release
       trigger: true
       passed:
@@ -1086,7 +1080,7 @@ jobs:
     passed:
     - deploy-cf-with-unversioned-external-s3-blobstore
   - get: cf-deployment-master
-    resource: cf-deployment-develop-flangewad
+    resource: cf-deployment-master
     passed:
     - deploy-cf-with-unversioned-external-s3-blobstore
     trigger: true
