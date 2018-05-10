@@ -87,6 +87,19 @@ jobs:
       params:
         repository: bosh-state-updated
         rebase: true
+  - task: update-b-drats-cloud-config
+    file: backup-and-restore-ci/tasks/update-b-drats-cloud-config/task.yml
+    input_mapping:
+      cloud-config: bosh-deployment
+      terraform-state: bosh-backup-and-restore-meta
+      bosh-vars-store: bosh-backup-and-restore-meta
+    params:
+      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
+      CLOUD_CONFIG_PATH: gcp/cloud-config.yml
+      TERRAFORM_STATE_PREPARE_CMD: terraform-state/unlock-ci.sh
+      BOSH_VARS_STORE_PREPARE_CMD: bosh-vars-store/unlock-ci.sh
+      TERRAFORM_STATE_PATH: terraform-state/b-drats-bengal-tiger/terraform.tfstate
+      BOSH_VARS_STORE_PATH: bosh-vars-store/b-drats-bengal-tiger/creds.yml
 
 - name: run-b-drats-master
   serial: true

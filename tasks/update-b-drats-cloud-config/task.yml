@@ -1,0 +1,22 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source: {repository: cloudfoundrylondon/backup-and-restore}
+
+inputs:
+- name: cloud-config
+- name: terraform-state
+- name: bosh-vars-store
+- name: backup-and-restore-ci
+
+params:
+  CLOUD_CONFIG_PATH:
+  TERRAFORM_STATE_PREPARE_CMD: # Optional command to run before using terraform-state repository
+  TERRAFORM_STATE_PATH:  # Path to terraform.tfstate
+  BOSH_VARS_STORE_PREPARE_CMD:  # Optional command to run before using bosh-state repository
+  BOSH_VARS_STORE_PATH:  # Path to bosh director vars-store YAML file
+
+run:
+  path: backup-and-restore-ci/tasks/update-b-drats-cloud-config/task.sh
