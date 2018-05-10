@@ -22,4 +22,4 @@ bosh-cli --environment "${bosh_host}" \
     --client "${BOSH_CLIENT}" \
     --client-secret "${bosh_client_secret}" \
     --ca-cert "${bosh_ca_cert_path}" \
-    update-cloud-config "cloud-config/${CLOUD_CONFIG_PATH}"
+    update-cloud-config "cloud-config/${CLOUD_CONFIG_PATH}" -n
