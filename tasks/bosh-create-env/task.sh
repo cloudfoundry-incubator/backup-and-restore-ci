@@ -18,7 +18,7 @@ pushd "${TERRAFORM_STATE_DIR}/${ENVIRONMENT_NAME}"
   zone="$(terraform output zone1)"
   network="$(terraform output director-network-name)"
   subnetwork="$(terraform output director-subnetwork-name)"
-  tags="[$(terraform output internal-tag)]"
+  tags="[$(terraform output director-tag)]"
   internal_cidr="$(terraform output director-subnetwork-cidr-range)"
   project_id="$(terraform output projectid)"
 popd
