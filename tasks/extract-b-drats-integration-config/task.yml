@@ -21,6 +21,7 @@ params:
   BOSH_VARS_STORE_PATH:  # Path to bosh director vars-store YAML file
   BOSH_SSH_USERNAME: jumpbox
   TIMEOUT_IN_MINUTES: 30
+  BOSH_CLIENT: admin
 
 run:
   path: backup-and-restore-ci/tasks/extract-b-drats-integration-config/task.sh
