@@ -22,11 +22,6 @@ params:
   OPS_FILES:
   DIRECTOR_NAME:
   ENVIRONMENT_NAME:
-  PROJECT_ID:
-  ZONE:
-  TAGS:
-  NETWORK:
-  SUBNET:
 
 run:
   path: backup-and-restore-ci/tasks/bosh-create-env/task.sh

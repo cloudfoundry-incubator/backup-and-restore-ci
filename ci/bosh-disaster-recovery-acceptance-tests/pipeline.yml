@@ -76,12 +76,6 @@ jobs:
       TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
       OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml"
       DIRECTOR_NAME: "bengal-tiger"
-      PROJECT_ID: "cf-backup-and-restore"
-      ZONE: "europe-west1-b"
-      TAGS: "[bengal-tiger-director]"
-      IP: ((bengal-tiger-director-ip))
-      NETWORK: "bengal-tiger"
-      SUBNET: "bengal-tiger-director"
     ensure:
       put: bosh-backup-and-restore-meta
       params:

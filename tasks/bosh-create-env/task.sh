@@ -14,7 +14,13 @@ for op in ${OPS_FILES}
 done
 
 pushd "${TERRAFORM_STATE_DIR}/${ENVIRONMENT_NAME}"
-  IP=$(terraform output director-ip)
+  external_ip=$(terraform output director-ip)
+  zone="$(terraform output zone1)"
+  network="$(terraform output director-network-name)"
+  subnetwork="$(terraform output director-subnetwork-name)"
+  tags="[$(terraform output internal-tag)]"
+  internal_cidr="$(terraform output director-subnetwork-cidr-range)"
+  project_id="$(terraform output projectid)"
 popd
 
 pushd bosh-deployment
@@ -24,25 +30,25 @@ pushd bosh-deployment
     --vars-store="../${BOSH_STATE_DIR}/${ENVIRONMENT_NAME}/creds.yml" \
     --var-file gcp_credentials_json="../${BOSH_STATE_DIR}/${ENVIRONMENT_NAME}/gcp_service_account_key.json" \
     $opsfiles_arguments \
-    -v director_name="$DIRECTOR_NAME" \
-    -v internal_cidr=10.0.0.0/24 \
+    -v director_name="${DIRECTOR_NAME}" \
+    -v internal_cidr="${internal_cidr}" \
     -v internal_gw=10.0.0.1 \
     -v internal_ip=10.0.0.6 \
-    -v project_id="$PROJECT_ID" \
-    -v zone="$ZONE" \
-    -v tags="$TAGS" \
-    -v network="$NETWORK" \
-    -v external_ip="$IP" \
-    -v subnetwork="$SUBNET"
+    -v project_id="${project_id}" \
+    -v zone="${zone}" \
+    -v tags="${tags}" \
+    -v network="${network}" \
+    -v external_ip="${external_ip}" \
+    -v subnetwork="${subnetwork}"
 popd
 
 pushd "${BOSH_STATE_DIR}/${ENVIRONMENT_NAME}"
   git add bosh-state.json
   git add creds.yml
-  if git commit -m "Update bosh state for $ENVIRONMENT_NAME" ; then
-    echo "Updated bosh-state for $ENVIRONMENT_NAME"
+  if git commit -m "Update bosh state for ${ENVIRONMENT_NAME}"; then
+    echo "Updated bosh-state for ${ENVIRONMENT_NAME}"
   else
-    echo "No change to BOSH state for $ENVIRONMENT_NAME"
+    echo "No change to BOSH state for ${ENVIRONMENT_NAME}"
   fi
 popd
 
