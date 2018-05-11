@@ -21,7 +21,7 @@ bosh_client_secret="$(bosh-cli int --path=/admin_password "bosh-vars-store/${BOS
 zone="$(terraform_output zone1)"
 network="$(terraform_output director-network-name)"
 subnetwork="$(terraform_output director-subnetwork-name)"
-tags="[$(terraform_output director-tag)]"
+tags="[$(terraform_output internal-tag)]"
 internal_cidr="$(terraform_output director-subnetwork-cidr-range)"
 
 bosh_ca_cert_path="$(mktemp)"
