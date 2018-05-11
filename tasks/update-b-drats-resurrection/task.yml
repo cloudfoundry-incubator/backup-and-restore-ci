@@ -19,4 +19,4 @@ params:
   RESURRECTION:
 
 run:
-  path: backup-and-restore-ci/tasks/upload-b-drats-resurrection/task.sh
+  path: backup-and-restore-ci/tasks/update-b-drats-resurrection/task.sh
