@@ -4,7 +4,7 @@ set -e
 set -u
 
 terraform_output() {
-   terraform output -state="${HOME}/workspace/bosh-backup-and-restore-meta/${TERRAFORM_STATE_PATH}" $1
+   terraform output -state="terraform-state/${TERRAFORM_STATE_PATH}" $1
 }
 
 if [[ ! -z "${TERRAFORM_STATE_PREPARE_CMD}" ]]; then
