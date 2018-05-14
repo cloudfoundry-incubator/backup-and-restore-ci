@@ -46,10 +46,12 @@ jobs:
   serial_groups: [bengal-tiger]
   plan:
   - aggregate:
+    - get: bosh-deployment
+      trigger: true
     - get: bosh-disaster-recovery-acceptance-tests
+      trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-    - get: bosh-deployment
   - task: terraform-apply
     file: backup-and-restore-ci/tasks/terraform-apply/task.yml
     input_mapping:
@@ -129,11 +131,13 @@ jobs:
   - aggregate:
     - get: bosh-disaster-recovery-acceptance-tests
       passed: [deploy-bosh-bengal-tiger]
+      trigger: true
+    - get: bosh-deployment
+      passed: [deploy-bosh-bengal-tiger]
+      trigger: true
     - get: bbr-binary-release
       trigger: true
     - get: bosh-backup-and-restore-meta
-      passed: [deploy-bosh-bengal-tiger]
-      trigger: true
     - get: backup-and-restore-ci
   - task: extract-b-drats-integration-config
     file: backup-and-restore-ci/tasks/extract-b-drats-integration-config/task.yml
