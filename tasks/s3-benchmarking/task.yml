@@ -25,6 +25,7 @@ params:
   RESOURCES_BUCKET:
   CF_ORG: test
   CF_SPACE: test
+  NUMBER_OF_APPS: 100
 
 run:
   path: backup-and-restore-ci/tasks/s3-benchmarking/task.sh
