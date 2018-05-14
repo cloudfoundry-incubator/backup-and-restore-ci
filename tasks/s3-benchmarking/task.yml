@@ -23,6 +23,8 @@ params:
   BUILDBPACKS_BUCKET:
   PACKAGES_BUCKET:
   RESOURCES_BUCKET:
+  CF_ORG: test
+  CF_SPACE: test
 
 run:
   path: backup-and-restore-ci/tasks/s3-benchmarking/task.sh
