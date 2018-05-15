@@ -20,13 +20,18 @@ bosh_client_secret="$(bosh-cli int --path=/admin_password "${BOSH_VARS_STORE_PAT
 bosh_ca_cert="$(bosh-cli int --path=/director_ssl/ca "${BOSH_VARS_STORE_PATH}")"
 include_deployment_testcase="${INCLUDE_DEPLOYMENT_TESTCASE}"
 
-vars="bosh_host bosh_ssh_username bosh_ssh_private_key timeout bosh_client bosh_client_secret bosh_ca_cert include_deployment_testcase"
-
 integration_config="{}"
 
-for var in $vars
+string_vars="bosh_host bosh_ssh_username bosh_ssh_private_key timeout bosh_client bosh_client_secret bosh_ca_cert"
+for var in $string_vars
 do
   integration_config=$(echo ${integration_config} | jq ".${var}=\"${!var}\"")
+done
+
+other_vars="include_deployment_testcase"
+for var in $other_vars
+do
+  integration_config=$(echo ${integration_config} | jq ".${var}=${!var}")
 done
 
 echo "$integration_config" > "${OUTPUT_DIR}/integration_config.json"
