@@ -234,6 +234,6 @@ jobs:
       TERRAFORM_STATE_PATH: terraform-state/b-drats-bengal-tiger/terraform.tfstate
       BOSH_VARS_STORE_PATH: bosh-vars-store/b-drats-bengal-tiger/creds.yml
   - task: run-b-drats
-    file: bosh-disaster-recovery-acceptance-tests/ci/bdrats/task.yml
+    file: bosh-disaster-recovery-acceptance-tests/ci/run-b-drats/task.yml
     params:
       INTEGRATION_CONFIG_PATH: b-drats-integration-config/integration_config.json
