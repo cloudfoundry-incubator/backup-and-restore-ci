@@ -18,8 +18,9 @@ timeout="${TIMEOUT_IN_MINUTES}"
 bosh_client="${BOSH_CLIENT}"
 bosh_client_secret="$(bosh-cli int --path=/admin_password "${BOSH_VARS_STORE_PATH}")"
 bosh_ca_cert="$(bosh-cli int --path=/director_ssl/ca "${BOSH_VARS_STORE_PATH}")"
+include_deployment_testcase="${INCLUDE_DEPLOYMENT_TESTCASE}"
 
-vars="bosh_host bosh_ssh_username bosh_ssh_private_key timeout bosh_client bosh_client_secret bosh_ca_cert"
+vars="bosh_host bosh_ssh_username bosh_ssh_private_key timeout bosh_client bosh_client_secret bosh_ca_cert include_deployment_testcase"
 
 integration_config="{}"
 
