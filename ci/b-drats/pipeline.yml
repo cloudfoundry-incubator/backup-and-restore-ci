@@ -124,6 +124,89 @@ jobs:
       BOSH_VARS_STORE_PATH: b-drats-bengal-tiger/creds.yml
       BOSH_CLIENT: admin
 
+- name: deploy-bosh-black-panther
+  serial: true
+  serial_groups: [black-panther]
+  plan:
+  - aggregate:
+    - get: bosh-deployment
+      trigger: true
+    - get: bosh-disaster-recovery-acceptance-tests
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
+  - task: terraform-apply
+    file: backup-and-restore-ci/tasks/terraform-apply/task.yml
+    input_mapping:
+      terraform-state: bosh-backup-and-restore-meta
+    params:
+      ENVIRONMENT_NAME: b-drats-black-panther
+      TERRAFORM_STATE_PREPARE_CMD: unlock-ci.sh
+      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
+      GIT_USER_NAME: "PCF Backup & Restore CI"
+      GIT_USER_EMAIL: "cf-lazarus@pivotal.io"
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: terraform-state-updated
+        rebase: true
+  - task: bosh-create-env
+    file: backup-and-restore-ci/tasks/bosh-create-env/task.yml
+    input_mapping:
+      bosh-state: bosh-backup-and-restore-meta
+      terraform-state: bosh-backup-and-restore-meta
+    params:
+      ENVIRONMENT_NAME: "b-drats-black-panther"
+      BOSH_STATE_PREPARE_CMD: unlock-ci.sh
+      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
+      OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml"
+      DIRECTOR_NAME: "black-panther"
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: bosh-state-updated
+        rebase: true
+  - task: update-b-drats-cloud-config
+    file: backup-and-restore-ci/tasks/update-b-drats-cloud-config/task.yml
+    input_mapping:
+      cloud-config: bosh-deployment
+      terraform-state: bosh-backup-and-restore-meta
+      bosh-vars-store: bosh-backup-and-restore-meta
+    params:
+      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
+      CLOUD_CONFIG_PATH: gcp/cloud-config.yml
+      TERRAFORM_STATE_PREPARE_CMD: unlock-ci.sh
+      BOSH_VARS_STORE_PREPARE_CMD: unlock-ci.sh
+      TERRAFORM_STATE_PATH: b-drats-black-panther/terraform.tfstate
+      BOSH_VARS_STORE_PATH: b-drats-black-panther/creds.yml
+      BOSH_CLIENT: admin
+  - task: upload-b-drats-stemcell
+    file: backup-and-restore-ci/tasks/upload-b-drats-stemcell/task.yml
+    input_mapping:
+      terraform-state: bosh-backup-and-restore-meta
+      bosh-vars-store: bosh-backup-and-restore-meta
+    params:
+      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
+      STEMCELL_URL: https://bosh.io/d/stemcells/bosh-google-kvm-ubuntu-trusty-go_agent?v=3586.7
+      TERRAFORM_STATE_PREPARE_CMD: unlock-ci.sh
+      BOSH_VARS_STORE_PREPARE_CMD: unlock-ci.sh
+      TERRAFORM_STATE_PATH: b-drats-black-panther/terraform.tfstate
+      BOSH_VARS_STORE_PATH: b-drats-black-panther/creds.yml
+      BOSH_CLIENT: admin
+  - task: update-b-drats-resurrection
+    file: backup-and-restore-ci/tasks/update-b-drats-resurrection/task.yml
+    input_mapping:
+      terraform-state: bosh-backup-and-restore-meta
+      bosh-vars-store: bosh-backup-and-restore-meta
+    params:
+      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
+      RESURRECTION: "off"
+      TERRAFORM_STATE_PREPARE_CMD: unlock-ci.sh
+      BOSH_VARS_STORE_PREPARE_CMD: unlock-ci.sh
+      TERRAFORM_STATE_PATH: b-drats-black-panther/terraform.tfstate
+      BOSH_VARS_STORE_PATH: b-drats-black-panther/creds.yml
+      BOSH_CLIENT: admin
+
 - name: run-b-drats-master
   serial: true
   serial_groups: [bengal-tiger]
