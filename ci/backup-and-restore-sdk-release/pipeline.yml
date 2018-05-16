@@ -864,6 +864,35 @@ jobs:
       S3_UNVERSIONED_BACKUP_BUCKET_NAME: bbr-system-test-s3-unversioned-backup-bucket
       S3_UNVERSIONED_BACKUP_BUCKET_REGION: us-east-1
 
+- name: s3-blobstore-system-tests-with-iam-instance-profile
+  serial: true
+  plan:
+  - get: backup-and-restore-sdk-release
+    passed:
+    - deploy-aws-blobstore-sdk-with-iam-instance-profile
+    trigger: true
+  - get: bosh-backup-and-restore-meta
+  - get: release-tarball
+    resource: release
+    passed:
+    - deploy-aws-blobstore-sdk-with-iam-instance-profile
+  - task: s3-blobstore-backuper-system-tests
+    file: backup-and-restore-sdk-release/ci/tasks/s3-system-tests.yml
+    params:
+      TEAM_GPG_KEY: {{team-gpg-key}}
+      BOSH_CLIENT_SECRET: "((ec2-bosh-director-password))"
+      BOSH_CLIENT: "((ec2-bosh-director-username))"
+      BOSH_DEPLOYMENT: s3-backuper
+      AWS_TEST_BUCKET_NAME: bbr-system-test-bucket
+      AWS_TEST_BUCKET_REGION: eu-west-1
+      AWS_TEST_CLONE_BUCKET_NAME: bbr-system-test-bucket-clone
+      AWS_TEST_CLONE_BUCKET_REGION: eu-central-1
+
+      target: "((ec2-bosh-director-url))"
+      client: "((ec2-bosh-director-username))"
+      client_secret: "((ec2-bosh-director-password))"
+      ca_cert: "((ec2-bosh-director-ca-cert))"
+
 - name: deploy-cf-with-external-s3-blobstore
   serial: true
   serial_groups: [bbr-s3]
