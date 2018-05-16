@@ -29,7 +29,7 @@ RUN wget https://get.docker.com/builds/Linux/x86_64/docker-1.11.0.tgz && \
   tar xvf docker-1.11.0.tgz && \
   sudo cp docker/docker /bin
 
-RUN (wget https://releases.hashicorp.com/terraform/0.11.2/terraform_0.11.2_linux_386.zip && unzip terraform_0.11.2_linux_386.zip -d /bin/)
+RUN (wget https://releases.hashicorp.com/terraform/0.11.5/terraform_0.11.5_linux_386.zip && unzip terraform_0.11.5_linux_386.zip -d /bin/)
 
 RUN wget https://services.gradle.org/distributions/gradle-3.4.1-bin.zip && \
   mkdir /opt/gradle && unzip -d /opt/gradle gradle-3.4.1-bin.zip
