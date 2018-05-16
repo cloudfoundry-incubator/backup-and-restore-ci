@@ -14,7 +14,7 @@ git config --global user.email "$GIT_USER_EMAIL"
 
 pushd "$TERRAFORM_STATE_DIR/$ENVIRONMENT_NAME"
   terraform init
-  terraform apply -auto-approve
+  terraform $TERRAFORM_OPERATION -auto-approve
 
   git add terraform.tfstate*
 

@@ -13,6 +13,7 @@ outputs:
 - name: terraform-state-updated
 
 params:
+  TERRAFORM_OPERATION: apply # Set terraform command to run; e.g. destroy or apply
   TERRAFORM_STATE_DIR: terraform-state
   TERRAFORM_STATE_PREPARE_CMD:  # Optional command to run before using terrform-state repository
   OUTPUT_TERRAFORM_STATE_DIR: terraform-state-updated
@@ -21,4 +22,4 @@ params:
   GIT_USER_EMAIL:
 
 run:
-  path: backup-and-restore-ci/tasks/terraform-apply/task.sh
+  path: backup-and-restore-ci/tasks/terraform-operation/task.sh
