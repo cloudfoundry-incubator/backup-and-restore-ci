@@ -892,6 +892,8 @@ jobs:
       AWS_TEST_BUCKET_REGION: eu-west-1
       AWS_TEST_CLONE_BUCKET_NAME: iam-instance-role-test-clone
       AWS_TEST_CLONE_BUCKET_REGION: eu-west-1
+      AWS_TEST_UNVERSIONED_BUCKET_NAME: bbr-system-test-bucket-unversioned
+      AWS_TEST_UNVERSIONED_BUCKET_REGION: eu-west-1
 
 - name: deploy-cf-with-external-s3-blobstore
   serial: true
