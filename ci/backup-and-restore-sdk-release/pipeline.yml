@@ -400,7 +400,7 @@ jobs:
       - release-tarball/backup-and-restore-sdk-*.tgz
       vars:
         deployment-name: s3-backuper
-        s3-bucket-name: bbr-iam-instance-profile-system-test-bucket
+        s3-bucket-name: iam-instance-role-test
         s3-region: eu-west-1
 
 - name: deploy-azure-blobstore-sdk
