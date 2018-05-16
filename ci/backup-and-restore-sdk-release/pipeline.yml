@@ -879,6 +879,7 @@ jobs:
   - task: s3-blobstore-backuper-system-tests
     file: backup-and-restore-sdk-release/ci/tasks/s3-system-tests.yml
     params:
+      SKIP_TESTS: unversioned
       TEAM_GPG_KEY: {{team-gpg-key}}
       BOSH_CLIENT_SECRET: "((ec2-bosh-director-password))"
       BOSH_CLIENT: "((ec2-bosh-director-username))"
