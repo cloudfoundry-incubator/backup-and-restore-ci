@@ -53,7 +53,7 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
   - task: terraform-apply
-    file: backup-and-restore-ci/tasks/terraform-apply/task.yml
+    file: backup-and-restore-ci/tasks/terraform-operation/task.yml
     input_mapping:
       terraform-state: bosh-backup-and-restore-meta
     params:
@@ -136,7 +136,7 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
   - task: terraform-apply
-    file: backup-and-restore-ci/tasks/terraform-apply/task.yml
+    file: backup-and-restore-ci/tasks/terraform-operation/task.yml
     input_mapping:
       terraform-state: bosh-backup-and-restore-meta
     params:
