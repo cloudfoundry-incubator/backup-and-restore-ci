@@ -1,0 +1,19 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
+    tag: v3.15.0
+
+inputs:
+- name: backup-and-restore-ci
+- name: bbl-state
+- name: ops-files
+
+params:
+  OPS_FILE_PATH:
+
+run:
+  path: backup-and-restore-ci/update-cloud-config/task.sh
