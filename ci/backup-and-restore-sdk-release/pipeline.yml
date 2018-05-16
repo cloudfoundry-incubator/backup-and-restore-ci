@@ -5,6 +5,14 @@ resource_types:
   source:
     repository: pivotalcf/pivnet-resource
     tag: latest-final
+- name: bosh-deployment
+  type: docker-image
+  source:
+    repository: cloudfoundry/bosh-deployment-resource
+- name: bosh-io-stemcell
+  type: docker-image
+  source:
+    repository: concourse/bosh-io-stemcell-resource
 
 resources:
 - name: backup-and-restore-sdk-preview-addon-pivnet
@@ -95,6 +103,18 @@ resources:
   source:
     uri: https://github.com/cloudfoundry-incubator/disaster-recovery-acceptance-tests.git
     branch: master
+- name: s3-backuper-with-iam-instance-profile-deployment
+  type: bosh-deployment
+  source:
+    deployment: s3-backuper
+    target: "((ec2-bosh-director-url))"
+    client: "((ec2-bosh-director-username))"
+    client_secret: "((ec2-bosh-director-password))"
+    ca_cert: "((ec2-bosh-director-ca-cert))"
+- name: trusty-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
 
 jobs:
 - name: unit-tests
@@ -358,6 +378,30 @@ jobs:
       S3_UNVERSIONED_BACKUP_BUCKET_REGION: us-east-1
       MINIO_ACCESS_KEY: {{minio-access-key}}
       MINIO_SECRET_KEY: {{minio-secret-key}}
+
+- name: deploy-aws-blobstore-sdk-with-iam-instance-profile
+  serial: true
+  plan:
+  - aggregate:
+    - get: backup-and-restore-sdk-release
+      passed: [create-release]
+      trigger: true
+    - get: release-tarball
+      resource: release
+      passed: [create-release]
+    - get: bosh-backup-and-restore-meta
+    - get: trusty-stemcell
+  - put: s3-backuper-with-iam-instance-profile-deployment
+    params:
+      manifest: backup-and-restore-sdk-release/ci/manifests/s3-backuper-with-iam-instance-profile.yml
+      stemcells:
+      - trusty-stemcell/*.tgz
+      releases:
+      - release-tarball/backup-and-restore-sdk-*.tgz
+      vars:
+        deployment-name: s3-backuper
+        s3-bucket-name: bbr-iam-instance-profile-system-test-bucket
+        s3-region: eu-west-1
 
 - name: deploy-azure-blobstore-sdk
   serial: true
