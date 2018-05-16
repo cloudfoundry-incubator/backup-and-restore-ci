@@ -138,11 +138,6 @@ jobs:
         TEST_AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
         TEST_ECS_ACCESS_KEY_ID: {{ecs-access-key-id}}
         TEST_ECS_SECRET_ACCESS_KEY: {{ecs-secret-access-key}}
-        AZURE_STORAGE_ACCOUNT: {{azure-storage-account}}
-        AZURE_STORAGE_KEY: {{azure-storage-key}}
-        AZURE_STORAGE_ACCOUNT_NO_SOFT_DELETE: {{azure-storage-account-no-soft-delete}}
-        AZURE_STORAGE_KEY_NO_SOFT_DELETE: {{azure-storage-key-no-soft-delete}}
-        AZURE_CONTAINER_NAME_MANY_FILES: bbr-test-many-blobs-azure-container
 
 - name: create-release
   serial: true
@@ -402,31 +397,6 @@ jobs:
         deployment-name: s3-backuper
         s3-bucket-name: iam-instance-role-test
         s3-region: eu-west-1
-
-- name: deploy-azure-blobstore-sdk
-  serial: true
-  plan:
-  - aggregate:
-    - get: backup-and-restore-sdk-release
-      passed: [create-release]
-      trigger: true
-    - get: release-tarball
-      resource: release
-      passed: [create-release]
-    - get: bosh-backup-and-restore-meta
-  - task: deploy-azure-blobstore-sdk
-    file: backup-and-restore-sdk-release/ci/tasks/deploy-azure-backuper.yml
-    params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
-      BOSH_DEPLOYMENT: azure-backuper
-      BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
-      MANIFEST_NAME: azure-backuper.yml
-      AZURE_STORAGE_ACCOUNT: {{azure-storage-account}}
-      AZURE_STORAGE_KEY: {{azure-storage-key}}
-      AZURE_CONTAINER_NAME: bbr-system-test-azure-container
-      AZURE_CLONE_CONTAINER_NAME: bbr-system-clone-test-azure-container
 
 - name: postgres-system-tests-9.6
   serial: true
@@ -894,30 +864,6 @@ jobs:
       S3_UNVERSIONED_BACKUP_BUCKET_NAME: bbr-system-test-s3-unversioned-backup-bucket
       S3_UNVERSIONED_BACKUP_BUCKET_REGION: us-east-1
 
-- name: azure-blobstore-backuper-system-tests
-  serial: true
-  plan:
-  - get: backup-and-restore-sdk-release
-    passed:
-    - deploy-azure-blobstore-sdk
-    trigger: true
-  - get: bosh-backup-and-restore-meta
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-azure-blobstore-sdk
-  - task: azure-blobstore-backuper-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/azure-system-tests.yml
-    params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
-      BOSH_DEPLOYMENT: azure-backuper
-      AZURE_STORAGE_ACCOUNT: {{azure-storage-account}}
-      AZURE_STORAGE_KEY: {{azure-storage-key}}
-      AZURE_CONTAINER_NAME: bbr-system-test-azure-container
-      AZURE_CLONE_CONTAINER_NAME: bbr-system-clone-test-azure-container
-
 - name: deploy-cf-with-external-s3-blobstore
   serial: true
   serial_groups: [bbr-s3]
@@ -938,7 +884,6 @@ jobs:
       - rds-postgres-system-tests-9.6
       - mariadb-system-tests
       - s3-blobstore-backuper-system-tests
-      - azure-blobstore-backuper-system-tests
       - rds-mysql-5.5-system-tests
       - rds-mysql-5.6-system-tests
       - rds-mysql-5.7-system-tests
@@ -1069,7 +1014,6 @@ jobs:
       - rds-postgres-system-tests-9.6
       - mariadb-system-tests
       - s3-blobstore-backuper-system-tests
-      - azure-blobstore-backuper-system-tests
       - rds-mysql-5.5-system-tests
       - rds-mysql-5.6-system-tests
       - rds-mysql-5.7-system-tests
