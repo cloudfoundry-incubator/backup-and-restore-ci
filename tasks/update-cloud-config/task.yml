@@ -16,4 +16,4 @@ params:
   OPS_FILE_PATH:
 
 run:
-  path: backup-and-restore-ci/update-cloud-config/task.sh
+  path: backup-and-restore-ci/tasks/update-cloud-config/task.sh
