@@ -883,15 +883,14 @@ jobs:
       BOSH_CLIENT_SECRET: "((ec2-bosh-director-password))"
       BOSH_CLIENT: "((ec2-bosh-director-username))"
       BOSH_DEPLOYMENT: s3-backuper
-      AWS_TEST_BUCKET_NAME: bbr-system-test-bucket
+      BOSH_CA_CERT: "((ec2-bosh-director-ca-cert))"
+      BOSH_GW_USER: jumpbox
+      BOSH_GW_HOST: "((ec2-bosh-director-url))"
+      BOSH_GW_PRIVATE_KEY: "((ec2-bosh-gw-private-key))"
+      AWS_TEST_BUCKET_NAME: iam-instance-role-test
       AWS_TEST_BUCKET_REGION: eu-west-1
-      AWS_TEST_CLONE_BUCKET_NAME: bbr-system-test-bucket-clone
-      AWS_TEST_CLONE_BUCKET_REGION: eu-central-1
-
-      target: "((ec2-bosh-director-url))"
-      client: "((ec2-bosh-director-username))"
-      client_secret: "((ec2-bosh-director-password))"
-      ca_cert: "((ec2-bosh-director-ca-cert))"
+      AWS_TEST_CLONE_BUCKET_NAME: iam-instance-role-test-clone
+      AWS_TEST_CLONE_BUCKET_REGION: eu-west-1
 
 - name: deploy-cf-with-external-s3-blobstore
   serial: true
