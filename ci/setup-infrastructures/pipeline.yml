@@ -1,0 +1,636 @@
+---
+common_bbl_params: &COMMON_BBL_PARAMS
+  BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+  BBL_GCP_PROJECT_ID: cf-backup-and-restore
+  GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
+  GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+common_bbl_up_params: &COMMON_BBL_UP_PARAMS
+  << : *COMMON_BBL_PARAMS
+  BBL_IAAS: gcp
+  BBL_GCP_ZONE: europe-west1-b
+  BBL_GCP_REGION: europe-west1
+  OPS_FILES: "local-dns.yml"
+bbl_compatible_bosh_deployment_version: &BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
+  version:
+    ref: 8a138f343f6cb32a938c5c9567ba1236326fdd7c
+
+resources:
+- name: cf-deployment-concourse-tasks
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
+    tag_filter: v4.*
+- name: bosh-deployment
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/bosh-deployment.git
+- name: aws-s3-bbl-state
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: {{git-private-key}}
+    branch: master
+- name: aws-s3-unversioned-bbl-state
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: {{git-private-key}}
+    branch: master
+- name: drats-persian-bbl-state
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: {{git-private-key}}
+    branch: master
+- name: drats-dragon-li-bbl-state
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: {{git-private-key}}
+    branch: master
+- name: drats-papillon-bbl-state
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: {{git-private-key}}
+    branch: master
+- name: drats-pr-ragdoll-bbl-state
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: {{git-private-key}}
+    branch: master
+- name: continuous-drats-bbl-state
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: {{git-private-key}}
+    branch: master
+- name: drats-with-config-manx-bbl-state
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: {{git-private-key}}
+    branch: master
+- name: drats-opt-components-norwegianforest-bbl-state
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: {{git-private-key}}
+    branch: master
+- name: bosh-backup-and-restore-meta
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: {{git-private-key}}
+    branch: master
+- name: backup-and-restore-ci
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
+    private_key: {{git-private-key}}
+    branch: master
+
+jobs:
+- name: setup-infrastructure-aws-s3
+  serial: true
+  serial_groups: [aws-s3]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: aws-s3-bbl-state
+    - get: bosh-deployment
+      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
+  - task: setup-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    params:
+      << : *COMMON_BBL_UP_PARAMS
+      BBL_STATE_DIR: external-blobstore-directors/aws-s3/
+      BBL_LB_CERT: {{aws-s3-lb-cert}}
+      BBL_LB_KEY: {{aws-s3-lb-key}}
+      LB_DOMAIN: bbr-s3.cf-app.com
+      BBL_ENV_NAME: bbr-s3
+    input_mapping:
+      bbl-state: aws-s3-bbl-state
+      ops-files: bosh-deployment
+    ensure:
+      put: aws-s3-bbl-state
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: destroy-infrastructure-aws-s3
+  serial: true
+  serial_groups: [aws-s3]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [setup-infrastructure-aws-s3]
+    - get: aws-s3-bbl-state
+      passed: [setup-infrastructure-aws-s3]
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: external-blobstore-directors/aws-s3/
+    input_mapping:
+      bbl-state: aws-s3-bbl-state
+    ensure:
+      put: aws-s3-bbl-state
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: setup-infrastructure-aws-s3-unversioned
+  serial: true
+  serial_groups: [aws-s3-unversioned]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: aws-s3-unversioned-bbl-state
+    - get: bosh-deployment
+      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
+  - task: setup-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    params:
+      << : *COMMON_BBL_UP_PARAMS
+      BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
+      BBL_LB_CERT: {{aws-s3-unversioned-lb-cert}}
+      BBL_LB_KEY: {{aws-s3-unversioned-lb-key}}
+      LB_DOMAIN: bbr-s3-unversioned.cf-app.com
+      BBL_ENV_NAME: bbr-s3-unversioned
+    input_mapping:
+      bbl-state: aws-s3-unversioned-bbl-state
+      ops-files: bosh-deployment
+    ensure:
+      put: aws-s3-unversioned-bbl-state
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: destroy-infrastructure-aws-s3-unversioned
+  serial: true
+  serial_groups: [aws-s3-unversioned]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [setup-infrastructure-aws-s3-unversioned]
+    - get: aws-s3-unversioned-bbl-state
+      passed: [setup-infrastructure-aws-s3-unversioned]
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
+    input_mapping:
+      bbl-state: aws-s3-unversioned-bbl-state
+    ensure:
+      put: aws-s3-unversioned-bbl-state
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: setup-infrastructure-aws-ec2
+  serial: true
+  serial_groups: [aws-ec2]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
+    - get: bosh-deployment
+      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
+  - task: setup-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    params:
+      BBL_IAAS: aws
+      BBL_AWS_ACCESS_KEY_ID: ((aws-access-key-id))
+      BBL_AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
+      BBL_AWS_REGION: eu-west-1
+      OPS_FILES: "local-dns.yml"
+      BBL_STATE_DIR: external-blobstore-directors/aws-ec2/
+      BBL_LB_CERT: {{aws-ec2-lb-cert}}
+      BBL_LB_KEY: {{aws-ec2-lb-key}}
+      LB_DOMAIN: bbr-ec2.cf-app.com
+      BBL_ENV_NAME: bbr-aws-ec2
+      GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
+      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      ops-files: bosh-deployment
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
+        rebase: true
+  - task: add-iam-instance-profile-vm-extension
+    file: backup-and-restore-ci/tasks/update-cloud-config/task.yml
+    params:
+      OPS_FILE_PATH: external-blobstore-directors/aws-ec2/ops-files/add-iam-instance-profile-vm-extension.yml
+      BBL_STATE_DIR: external-blobstore-directors/aws-ec2
+    input_mapping:
+      bbl-state: updated-bbl-state
+      ops-files: bosh-backup-and-restore-meta
+  - task: terraform-apply
+    file: backup-and-restore-ci/tasks/terraform-operation/task.yml
+    input_mapping:
+      terraform-state: bosh-backup-and-restore-meta
+    params:
+      ENVIRONMENT_NAME: external-blobstore-directors/aws-ec2
+      TERRAFORM_STATE_PREPARE_CMD: unlock-ci.sh
+      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
+      GIT_USER_NAME: "PCF Backup & Restore CI"
+      GIT_USER_EMAIL: "cf-lazarus@pivotal.io"
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: terraform-state-updated
+        rebase: true
+
+- name: destroy-infrastructure-aws-ec2
+  serial: true
+  serial_groups: [aws-ec2]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [setup-infrastructure-aws-ec2]
+    - get: bosh-backup-and-restore-meta
+      passed: [setup-infrastructure-aws-ec2]
+    - get: backup-and-restore-ci
+  - task: terraform-destroy
+    file: backup-and-restore-ci/tasks/terraform-operation/task.yml
+    input_mapping:
+      terraform-state: bosh-backup-and-restore-meta
+    params:
+      TERRAFORM_OPERATION: destroy
+      ENVIRONMENT_NAME: external-blobstore-directors/aws-ec2
+      TERRAFORM_STATE_PREPARE_CMD: unlock-ci.sh
+      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
+      GIT_USER_NAME: "PCF Backup & Restore CI"
+      GIT_USER_EMAIL: "cf-lazarus@pivotal.io"
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: terraform-state-updated
+        rebase: true
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      BBL_IAAS: aws
+      BBL_AWS_ACCESS_KEY_ID: ((aws-access-key-id))
+      BBL_AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
+      GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
+      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+      BBL_STATE_DIR: external-blobstore-directors/aws-ec2/
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: setup-infrastructure-drats-persian
+  serial: true
+  serial_groups: [drats-persian]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: drats-persian-bbl-state
+    - get: bosh-deployment
+      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
+  - task: setup-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    params:
+      << : *COMMON_BBL_UP_PARAMS
+      BBL_STATE_DIR: drats-persian/
+      BBL_LB_CERT: {{drats-persian-lb-cert}}
+      BBL_LB_KEY: {{drats-persian-lb-key}}
+      LB_DOMAIN: {{drats-persian-lb-domain}}
+      BBL_ENV_NAME: drats-persian
+    input_mapping:
+      bbl-state: drats-persian-bbl-state
+      ops-files: bosh-deployment
+    ensure:
+      put: drats-persian-bbl-state
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: destroy-infrastructure-drats-persian
+  serial: true
+  serial_groups: [drats-persian]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [setup-infrastructure-drats-persian]
+    - get: drats-persian-bbl-state
+      passed: [setup-infrastructure-drats-persian]
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: drats-persian/
+    input_mapping:
+      bbl-state: drats-persian-bbl-state
+    ensure:
+      put: drats-persian-bbl-state
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: setup-infrastructure-drats-dragon-li
+  serial: true
+  serial_groups: [drats-dragon-li]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: drats-dragon-li-bbl-state
+    - get: bosh-deployment
+      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
+  - task: setup-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    params:
+      << : *COMMON_BBL_UP_PARAMS
+      BBL_STATE_DIR: drats-dragon-li/
+      BBL_LB_CERT: {{drats-dragon-li-lb-cert}}
+      BBL_LB_KEY: {{drats-dragon-li-lb-key}}
+      LB_DOMAIN: {{drats-dragon-li-lb-domain}}
+      BBL_ENV_NAME: drats-dragon-li
+    input_mapping:
+      bbl-state: drats-dragon-li-bbl-state
+      ops-files: bosh-deployment
+    ensure:
+      put: drats-dragon-li-bbl-state
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: destroy-infrastructure-drats-dragon-li
+  serial: true
+  serial_groups: [drats-dragon-li]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [setup-infrastructure-drats-dragon-li]
+    - get: drats-dragon-li-bbl-state
+      passed: [setup-infrastructure-drats-dragon-li]
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: drats-dragon-li/
+    input_mapping:
+      bbl-state: drats-dragon-li-bbl-state
+    ensure:
+      put: drats-dragon-li-bbl-state
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: setup-infrastructure-drats-pr-ragdoll
+  serial: true
+  serial_groups: [drats-pr-ragdoll]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: bosh-deployment
+      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
+    - get: drats-pr-ragdoll-bbl-state
+  - task: setup-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    params:
+      << : *COMMON_BBL_UP_PARAMS
+      BBL_LB_CERT: {{drats-pr-ragdoll-lb-cert}}
+      BBL_STATE_DIR: drats-pr-ragdoll/
+      BBL_LB_KEY: {{drats-pr-ragdoll-lb-key}}
+      LB_DOMAIN: {{drats-pr-ragdoll-lb-domain}}
+      BBL_ENV_NAME: drats-pr-ragdoll
+    input_mapping:
+      bbl-state: drats-pr-ragdoll-bbl-state
+      ops-files: bosh-deployment
+    ensure:
+      put: drats-pr-ragdoll-bbl-state
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: destroy-infrastructure-drats-pr-ragdoll
+  serial: true
+  serial_groups: [drats-pr-ragdoll]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [setup-infrastructure-drats-pr-ragdoll]
+    - get: drats-pr-ragdoll-bbl-state
+      passed: [setup-infrastructure-drats-pr-ragdoll]
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: drats-pr-ragdoll/
+    input_mapping:
+      bbl-state: drats-pr-ragdoll-bbl-state
+    ensure:
+      put: drats-pr-ragdoll-bbl-state
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: setup-infrastructure-continuous-drats
+  serial: true
+  serial_groups: [continuous-drats]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: continuous-drats-bbl-state
+    - get: bosh-deployment
+      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
+  - task: setup-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    params:
+      << : *COMMON_BBL_UP_PARAMS
+      BBL_STATE_DIR: continuous-drats/
+      BBL_LB_CERT: {{continuous-drats-lb-cert}}
+      BBL_LB_KEY: {{continuous-drats-lb-key}}
+      LB_DOMAIN: {{continuous-drats-lb-domain}}
+      BBL_ENV_NAME: continuous-drats
+    input_mapping:
+      bbl-state: continuous-drats-bbl-state
+      ops-files: bosh-deployment
+    ensure:
+      put: continuous-drats-bbl-state
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: destroy-infrastructure-continuous-drats
+  serial: true
+  serial_groups: [continuous-drats]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [setup-infrastructure-continuous-drats]
+    - get: continuous-drats-bbl-state
+      passed: [setup-infrastructure-continuous-drats]
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: continuous-drats/
+    input_mapping:
+      bbl-state: continuous-drats-bbl-state
+    ensure:
+      put: continuous-drats-bbl-state
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: setup-infrastructure-drats-papillon
+  serial: true
+  serial_groups: [drats-papillon]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: drats-papillon-bbl-state
+    - get: bosh-deployment
+      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
+  - task: setup-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    params:
+      << : *COMMON_BBL_UP_PARAMS
+      BBL_STATE_DIR: drats-papillon/
+      BBL_LB_CERT: {{drats-papillon-lb-cert}}
+      BBL_LB_KEY: {{drats-papillon-lb-key}}
+      LB_DOMAIN: {{drats-papillon-lb-domain}}
+      BBL_ENV_NAME: drats-papillon
+    input_mapping:
+      bbl-state: drats-papillon-bbl-state
+      ops-files: bosh-deployment
+    ensure:
+      put: drats-papillon-bbl-state
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: destroy-infrastructure-drats-papillon
+  serial: true
+  serial_groups: [drats-papillon]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [setup-infrastructure-drats-papillon]
+    - get: drats-papillon-bbl-state
+      passed: [setup-infrastructure-drats-papillon]
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: drats-papillon/
+    input_mapping:
+      bbl-state: drats-papillon-bbl-state
+    ensure:
+      put: drats-papillon-bbl-state
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: setup-infrastructure-drats-with-config-manx
+  serial: true
+  serial_groups: [drats-with-config-manx]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: drats-with-config-manx-bbl-state
+    - get: bosh-deployment
+      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
+  - task: setup-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    params:
+      << : *COMMON_BBL_UP_PARAMS
+      BBL_STATE_DIR: drats-with-config-manx/
+      BBL_LB_CERT: {{drats-with-config-manx-lb-cert}}
+      BBL_LB_KEY: {{drats-with-config-manx-lb-key}}
+      LB_DOMAIN: {{drats-with-config-manx-lb-domain}}
+      BBL_ENV_NAME: drats-with-config-manx
+    input_mapping:
+      bbl-state: drats-with-config-manx-bbl-state
+      ops-files: bosh-deployment
+    ensure:
+      put: drats-with-config-manx-bbl-state
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: destroy-infrastructure-drats-with-config-manx
+  serial: true
+  serial_groups: [drats-with-config-manx]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [setup-infrastructure-drats-with-config-manx]
+    - get: drats-with-config-manx-bbl-state
+      passed: [setup-infrastructure-drats-with-config-manx]
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: drats-with-config-manx/
+    input_mapping:
+      bbl-state: drats-with-config-manx-bbl-state
+    ensure:
+      put: drats-with-config-manx-bbl-state
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: setup-infrastructure-drats-opt-components-norwegianforest
+  serial: true
+  serial_groups: [drats-opt-components-norwegianforest]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: drats-opt-components-norwegianforest-bbl-state
+    - get: bosh-deployment
+      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
+  - task: setup-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    params:
+      << : *COMMON_BBL_UP_PARAMS
+      BBL_STATE_DIR: drats-opt-components-norwegianforest/
+      BBL_LB_CERT: {{drats-opt-components-norwegianforest-lb-cert}}
+      BBL_LB_KEY: {{drats-opt-components-norwegianforest-lb-key}}
+      LB_DOMAIN: {{drats-opt-components-norwegianforest-lb-domain}}
+      BBL_ENV_NAME: drats-opt-components-norwegianforest
+    input_mapping:
+      bbl-state: drats-opt-components-norwegianforest-bbl-state
+      ops-files: bosh-deployment
+    ensure:
+      put: drats-opt-components-norwegianforest-bbl-state
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: destroy-infrastructure-drats-opt-components-norwegianforest
+  serial: true
+  serial_groups: [drats-opt-components-norwegianforest]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [setup-infrastructure-drats-opt-components-norwegianforest]
+    - get: drats-opt-components-norwegianforest-bbl-state
+      passed: [setup-infrastructure-drats-opt-components-norwegianforest]
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: drats-opt-components-norwegianforest/
+    input_mapping:
+      bbl-state: drats-opt-components-norwegianforest-bbl-state
+    ensure:
+      put: drats-opt-components-norwegianforest-bbl-state
+      params:
+        repository: updated-bbl-state
+        rebase: true
