@@ -879,8 +879,9 @@ jobs:
   - task: s3-blobstore-backuper-system-tests
     file: backup-and-restore-sdk-release/ci/tasks/s3-system-tests.yml
     params:
-      SKIP_TESTS: unversioned
+      FOCUS_SPEC: backs up and restores in-place # focus on one it to avoid redundant testing
       TEAM_GPG_KEY: {{team-gpg-key}}
+      BOSH_ENVIRONMENT: "((ec2-bosh-director-url))"
       BOSH_CLIENT_SECRET: "((ec2-bosh-director-password))"
       BOSH_CLIENT: "((ec2-bosh-director-username))"
       BOSH_DEPLOYMENT: s3-backuper
@@ -888,6 +889,8 @@ jobs:
       BOSH_GW_USER: jumpbox
       BOSH_GW_HOST: "((ec2-bosh-director-url))"
       BOSH_GW_PRIVATE_KEY: "((ec2-bosh-gw-private-key))"
+      AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
+      AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
       AWS_TEST_BUCKET_NAME: iam-instance-role-test
       AWS_TEST_BUCKET_REGION: eu-west-1
       AWS_TEST_CLONE_BUCKET_NAME: iam-instance-role-test-clone
