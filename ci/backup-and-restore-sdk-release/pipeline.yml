@@ -949,7 +949,7 @@ jobs:
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
       SYSTEM_DOMAIN: bbr-s3.cf-app.com
-      OPS_FILES: "operations/scale-to-one-az.yml operations/use-compiled-releases.yml operations/use-external-dbs.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-s3-blobstore.yml operations/backup-and-restore/enable-backup-restore-s3-versioned.yml"
+      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/use-external-dbs.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-s3-blobstore.yml operations/backup-and-restore/enable-backup-restore-s3-versioned.yml"
       VARS_STORE_FILE: external-blobstore-directors/aws-s3/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
@@ -1086,7 +1086,7 @@ jobs:
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
       SYSTEM_DOMAIN: bbr-s3-unversioned.cf-app.com
-      OPS_FILES: "operations/scale-to-one-az.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-s3-blobstore.yml operations/backup-and-restore/enable-backup-restore-s3-unversioned.yml"
+      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-s3-blobstore.yml operations/backup-and-restore/enable-backup-restore-s3-unversioned.yml"
       VARS_STORE_FILE: external-blobstore-directors/aws-s3-unversioned/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
