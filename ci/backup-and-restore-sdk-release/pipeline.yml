@@ -1005,7 +1005,6 @@ jobs:
       SSH_DESTINATION_CIDR: "10.0.0.0/8"
       DEFAULT_TIMEOUT_MINS: 30
       SKIP_SUITE_NAME: credhub|nfs
-      DELETE_AND_REDEPLOY_CF: true
 
 - name: delete-cf-deployment-external-s3-blobstore
   serial: true
@@ -1145,7 +1144,6 @@ jobs:
       SSH_DESTINATION_CIDR: "10.0.0.0/8"
       DEFAULT_TIMEOUT_MINS: 30
       SKIP_SUITE_NAME: credhub|nfs
-      DELETE_AND_REDEPLOY_CF: true
 
 - name: delete-cf-deployment-external-s3-unversioned-blobstore
   serial: true
