@@ -76,7 +76,7 @@ jobs:
 
 ### DEPLOY CF
 
-- name: deploy-cf-drats-pr-ragdoll
+- name: deploy-cf-drats-pr-ragdoll-opt-components
   serial: true
   serial_groups: [drats-pr-ragdoll]
   plan:
@@ -111,7 +111,7 @@ jobs:
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-pr-ragdoll/
       SYSTEM_DOMAIN: drats-pr-ragdoll.cf-app.com
-      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/experimental/enable-backup-restore.yml"
+      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/experimental/enable-backup-restore.yml operations/enable-nfs-volume-service.yml operations/experimental/enable-nfs-broker-backup.yml operations/experimental/secure-service-credentials.yml  operations/experimental/disable-interpolate-service-bindings.yml operations/experimental/enable-backup-restore-credhub.yml operations/experimental/enable-traffic-to-internal-networks.yml operations/experimental/use-bosh-dns.yml operations/experimental/use-bosh-dns-for-containers.yml"
       VARS_STORE_FILE: drats-pr-ragdoll/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
@@ -467,16 +467,16 @@ jobs:
 
 ### RUN TESTS
 
-- name: run-drats-prs
+- name: run-drats-prs-opt-components
   serial: true
   serial_groups: [drats-pr-ragdoll]
   plan:
   - get: cf-deployment
-    passed: [deploy-cf-drats-pr-ragdoll]
+    passed: [deploy-cf-drats-pr-ragdoll-opt-components]
     trigger: true
   - get: disaster-recovery-acceptance-tests-prs
     trigger: true
-    passed: [deploy-cf-drats-pr-ragdoll]
+    passed: [deploy-cf-drats-pr-ragdoll-opt-components]
     version: every
   - get: bbr-binary-release
   - put: disaster-recovery-acceptance-tests-prs
@@ -515,7 +515,11 @@ jobs:
       BOSH_GW_PRIVATE_KEY: {{pr-ragdoll-ssh-gateway-key}}
       SSH_DESTINATION_CIDR: "10.0.0.0/8"
       DEFAULT_TIMEOUT_MINS: 30
-      FOCUSED_SUITE_NAME: cf-app|cf-networking|cf-uaa|cf-routing|app-uptime
+      NFS_SERVICE_NAME: "nfs"
+      NFS_PLAN_NAME: "Existing"
+      NFS_BROKER_USER: "nfs-broker"
+      NFS_BROKER_URL: http://nfs-broker.drats-pr-ragdoll.cf-app.com
+      NFS_BROKER_PASSWORD: {{pr-ragdoll-nfs-broker-password}}
     on_failure:
       put: disaster-recovery-acceptance-tests-prs
       params:
@@ -793,11 +797,11 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment
-      passed: [run-drats-prs]
+      passed: [run-drats-prs-opt-components]
       trigger: true
     - get: disaster-recovery-acceptance-tests-prs
       trigger: true
-      passed: [run-drats-prs]
+      passed: [run-drats-prs-opt-components]
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: bosh-delete-deployment
