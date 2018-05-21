@@ -11,6 +11,6 @@ databases="$(grep "external\\_.*\\_database\\_name" "vars-store/$VARS_STORE_FILE
 
 for db_name in $databases; do
   echo "Dropping $db_name"
-  mysql -h"$db_endpoint" -u"$db_username" -p"$db_password" -e "drop $db_name"
+  mysql -h"$db_endpoint" -u"$db_username" -p"$db_password" -e "drop database if exists \`$db_name\`;"
   sleep 0.1
 done
