@@ -111,7 +111,7 @@ jobs:
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-pr-ragdoll/
       SYSTEM_DOMAIN: drats-pr-ragdoll.cf-app.com
-      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/enable-nfs-volume-service.yml operations/backup-and-restore/enable-nfs-broker-backup.yml operations/experimental/secure-service-credentials.yml  operations/experimental/disable-interpolate-service-bindings.yml operations/backup-and-restore/enable-backup-restore-credhub.yml operations/experimental/enable-traffic-to-internal-networks.yml operations/experimental/use-bosh-dns.yml operations/experimental/use-bosh-dns-for-containers.yml"
+      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/enable-nfs-volume-service.yml operations/backup-and-restore/enable-backup-restore-nfs-broker.yml operations/experimental/secure-service-credentials.yml  operations/experimental/disable-interpolate-service-bindings.yml operations/backup-and-restore/enable-backup-restore-credhub.yml operations/experimental/enable-traffic-to-internal-networks.yml operations/experimental/use-bosh-dns.yml operations/experimental/use-bosh-dns-for-containers.yml"
       VARS_STORE_FILE: drats-pr-ragdoll/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
@@ -278,7 +278,7 @@ jobs:
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-opt-components-norwegianforest/
       SYSTEM_DOMAIN: drats-opt-components-norwegianforest.cf-app.com
-      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/enable-nfs-volume-service.yml operations/experimental/enable-nfs-broker-backup.yml operations/experimental/secure-service-credentials.yml  operations/experimental/disable-interpolate-service-bindings.yml operations/backup-and-restore/enable-backup-restore-credhub.yml operations/experimental/enable-traffic-to-internal-networks.yml operations/experimental/use-bosh-dns.yml operations/experimental/use-bosh-dns-for-containers.yml"
+      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/enable-nfs-volume-service.yml operations/backup-and-restore/enable-backup-restore-nfs-broker.yml operations/experimental/secure-service-credentials.yml  operations/experimental/disable-interpolate-service-bindings.yml operations/backup-and-restore/enable-backup-restore-credhub.yml operations/experimental/enable-traffic-to-internal-networks.yml operations/experimental/use-bosh-dns.yml operations/experimental/use-bosh-dns-for-containers.yml"
       VARS_STORE_FILE: drats-opt-components-norwegianforest/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
