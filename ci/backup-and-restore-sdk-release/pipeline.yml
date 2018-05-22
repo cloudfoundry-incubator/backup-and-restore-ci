@@ -926,6 +926,12 @@ jobs:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
+  - task: create-external-cf-databases
+    file: backup-and-restore-ci/tasks/create-external-cf-databases/task.yml
+    input_mapping:
+      vars-store: bosh-backup-and-restore-meta
+    params:
+      VARS_STORE_FILE: external-blobstore-directors/aws-s3/cf-deployment-variables.yml
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     input_mapping:
