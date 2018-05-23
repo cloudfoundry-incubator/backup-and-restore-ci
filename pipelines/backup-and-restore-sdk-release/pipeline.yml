@@ -1178,22 +1178,23 @@ jobs:
   serial: true
   serial_groups: [version]
   plan:
-  - get: bosh-backup-and-restore-meta
-  - get: backup-and-restore-ci
-  - get: backup-and-restore-sdk-release
-    passed:
-    - run-drats-external-s3-blobstore
-    - run-drats-external-s3-unversioned-blobstore
-  - get: backup-and-restore-sdk-release-master
-  - get: release-tarball
-    resource: release
-    passed:
-    - run-drats-external-s3-blobstore
-    - run-drats-external-s3-unversioned-blobstore
-  - get: version
-    params: {bump: major}
+  - aggregate:
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - run-drats-external-s3-blobstore
+      - run-drats-external-s3-unversioned-blobstore
+    - get: backup-and-restore-sdk-release-master
+    - get: release-tarball
+      resource: release
+      passed:
+      - run-drats-external-s3-blobstore
+      - run-drats-external-s3-unversioned-blobstore
+    - get: version
+      params: {bump: major}
   - task: create-final-release
-    file: backup-and-restore-sdk-release/ci/tasks/create-final.yml
+    file: backup-and-restore-ci/tasks/create-final-release/task.yml
     params:
       AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
       AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
@@ -1229,22 +1230,23 @@ jobs:
   serial: true
   serial_groups: [version]
   plan:
-  - get: bosh-backup-and-restore-meta
-  - get: backup-and-restore-ci
-  - get: backup-and-restore-sdk-release
-    passed:
-    - run-drats-external-s3-blobstore
-    - run-drats-external-s3-unversioned-blobstore
-  - get: backup-and-restore-sdk-release-master
-  - get: release-tarball
-    resource: release
-    passed:
-    - run-drats-external-s3-blobstore
-    - run-drats-external-s3-unversioned-blobstore
-  - get: version
-    params: {bump: minor}
+  - aggregate:
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - run-drats-external-s3-blobstore
+      - run-drats-external-s3-unversioned-blobstore
+    - get: backup-and-restore-sdk-release-master
+    - get: release-tarball
+      resource: release
+      passed:
+      - run-drats-external-s3-blobstore
+      - run-drats-external-s3-unversioned-blobstore
+    - get: version
+      params: {bump: minor}
   - task: create-final-release
-    file: backup-and-restore-sdk-release/ci/tasks/create-final.yml
+    file: backup-and-restore-ci/tasks/create-final-release/task.yml
     params:
       AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
       AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
@@ -1280,22 +1282,23 @@ jobs:
   serial: true
   serial_groups: [version]
   plan:
-  - get: bosh-backup-and-restore-meta
-  - get: backup-and-restore-ci
-  - get: backup-and-restore-sdk-release
-    passed:
-    - run-drats-external-s3-blobstore
-    - run-drats-external-s3-unversioned-blobstore
-  - get: backup-and-restore-sdk-release-master
-  - get: release-tarball
-    resource: release
-    passed:
-    - run-drats-external-s3-blobstore
-    - run-drats-external-s3-unversioned-blobstore
-  - get: version
-    params: {bump: patch}
+  - aggregate:
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - run-drats-external-s3-blobstore
+      - run-drats-external-s3-unversioned-blobstore
+    - get: backup-and-restore-sdk-release-master
+    - get: release-tarball
+      resource: release
+      passed:
+      - run-drats-external-s3-blobstore
+      - run-drats-external-s3-unversioned-blobstore
+    - get: version
+      params: {bump: patch}
   - task: create-final-release
-    file: backup-and-restore-sdk-release/ci/tasks/create-final.yml
+    file: backup-and-restore-ci/tasks/create-final-release/task.yml
     params:
       AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
       AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
