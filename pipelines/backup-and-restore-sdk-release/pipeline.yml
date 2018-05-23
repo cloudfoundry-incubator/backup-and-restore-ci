@@ -159,8 +159,8 @@ jobs:
       BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
       BOSH_CLIENT: {{lite-bosh-director-username}}
       BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
-  - task: create-release
-    file: backup-and-restore-sdk-release/ci/tasks/create-release.yml
+  - task: create-dev-release
+    file: backup-and-restore-ci/tasks/create-dev-release/task.yml
     params:
       AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
       AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
