@@ -124,6 +124,7 @@ jobs:
     - get: backup-and-restore-sdk-release
       trigger: true
     - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
   - aggregate:
     - task: databases-unit-tests
       file: backup-and-restore-sdk-release/ci/tasks/database-unit-tests.yml
@@ -132,7 +133,7 @@ jobs:
         TEAM_GPG_KEY: {{team-gpg-key}}
         DOCKER_HOST: "tcp://10.0.3.12:4243"
     - task: blobstore-unit-tests
-      file: backup-and-restore-sdk-release/ci/tasks/blobstore-unit-tests.yml
+      file: backup-and-restore-ci/tasks/blobstore-unit-tests/task.yml
       params:
         TEST_AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
         TEST_AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
