@@ -1333,14 +1333,16 @@ jobs:
 - name: create-backup-and-restore-sdk-preview-release
   serial: true
   plan:
-  - get: backup-and-restore-sdk-release
-    passed:
-    - run-drats-external-s3-blobstore
-    - run-drats-external-s3-unversioned-blobstore
-  - get: github-release
-    trigger: true
+  - aggregate:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - run-drats-external-s3-blobstore
+      - run-drats-external-s3-unversioned-blobstore
+    - get: github-release
+      trigger: true
   - task: create-backup-and-restore-sdk-preview-release-tarball
-    file: backup-and-restore-sdk-release/ci/tasks/create-preview-release.yml
+    file: backup-and-restore-ci/tasks/create-preview-release/task.yml
   - put: backup-and-restore-sdk-preview-release
     params:
       file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-preview-*.tgz
