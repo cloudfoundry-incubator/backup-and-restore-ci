@@ -127,7 +127,7 @@ jobs:
     - get: backup-and-restore-ci
   - aggregate:
     - task: databases-unit-tests
-      file: backup-and-restore-sdk-release/ci/tasks/database-unit-tests.yml
+      file: backup-and-restore-ci/tasks/database-unit-tests/task.yml
       privileged: true
       params:
         TEAM_GPG_KEY: {{team-gpg-key}}
