@@ -227,6 +227,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
+    - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed: [create-release]
       trigger: true
@@ -249,7 +250,7 @@ jobs:
       NETWORK_NAME: postgres
       VARS_STORE_PATH: ci/backup-and-restore-sdk-release/vars/postgres-96-vars.yml
   - task: create-ssl-user
-    file: backup-and-restore-sdk-release/ci/tasks/create-ssl-user.yml
+    file: backup-and-restore-ci/tasks/create-ssl-user/task.yml
     params:
       TEAM_GPG_KEY: {{team-gpg-key}}
       BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
