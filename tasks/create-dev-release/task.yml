@@ -35,4 +35,4 @@ params:
   RELEASE_NAME:
 
 run:
-  path: backup-and-restore-ci/tasks/create-release/task.sh
+  path: backup-and-restore-ci/tasks/create-dev-release/task.sh
