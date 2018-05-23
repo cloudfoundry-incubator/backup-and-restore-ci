@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Copyright (C) 2017-Present Pivotal Software, Inc. All rights reserved.
 #
 # This program and the accompanying materials are made available under
@@ -14,22 +16,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
----
-platform: linux
+set -eux
 
-image_resource:
-  type: docker-image
-  source: {repository: cloudfoundrylondon/backup-and-restore}
+./bosh-backup-and-restore-meta/unlock-ci.sh
+export BOSH_CLIENT
+export BOSH_CLIENT_SECRET
+export BOSH_ENVIRONMENT
+export BOSH_CA_CERT="./bosh-backup-and-restore-meta/certs/${BOSH_ENVIRONMENT}.crt"
 
-inputs:
-- name: backup-and-restore-sdk-release
-- name: backup-and-restore-ci
-
-params:
-  TEST_AWS_ACCESS_KEY_ID:
-  TEST_AWS_SECRET_ACCESS_KEY:
-  TEST_ECS_ACCESS_KEY_ID:
-  TEST_ECS_SECRET_ACCESS_KEY:
-
-run:
-  path: backup-and-restore-ci/tasks/blobstore-unit-tests/task.sh
+bosh-cli -n clean-up

@@ -22,14 +22,14 @@ image_resource:
   source: {repository: cloudfoundrylondon/backup-and-restore}
 
 inputs:
-- name: backup-and-restore-sdk-release
+- name: bosh-backup-and-restore-meta
 - name: backup-and-restore-ci
 
-params:
-  TEST_AWS_ACCESS_KEY_ID:
-  TEST_AWS_SECRET_ACCESS_KEY:
-  TEST_ECS_ACCESS_KEY_ID:
-  TEST_ECS_SECRET_ACCESS_KEY:
-
 run:
-  path: backup-and-restore-ci/tasks/blobstore-unit-tests/task.sh
+  path: backup-and-restore-ci/tasks/bosh-clean-up/task.sh
+
+params:
+  BOSH_ENVIRONMENT:
+  BOSH_CLIENT:
+  BOSH_CLIENT_SECRET:
+  TEAM_GPG_KEY:

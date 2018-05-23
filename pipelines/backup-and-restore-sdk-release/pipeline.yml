@@ -144,14 +144,16 @@ jobs:
   serial: true
   serial_groups: [version]
   plan:
-  - get: bosh-backup-and-restore-meta
-  - get: backup-and-restore-sdk-release
-    passed: [unit-tests]
-    trigger: true
-  - get: version
-    params: {pre: rc}
+  - aggregate:
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed: [unit-tests]
+      trigger: true
+    - get: version
+      params: {pre: rc}
   - task: bosh-clean-up
-    file: backup-and-restore-sdk-release/ci/tasks/bosh-cleanup.yml
+    file: backup-and-restore-ci/tasks/bosh-clean-up/task.yml
     params:
       TEAM_GPG_KEY: {{team-gpg-key}}
       BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
