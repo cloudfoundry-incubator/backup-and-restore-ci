@@ -5,13 +5,12 @@ image_resource:
   type: docker-image
   source: {repository: cloudfoundrylondon/backup-and-restore-minimal}
 
+inputs:
+- name: backup-and-restore-ci
+
 params:
   CF_API_URL:
   RETRY_COUNT: 5
 
 run:
-  path: sh
-  args:
-  - -exc
-  - |
-    curl ${CF_API_URL} --fail --retry ${RETRY_COUNT} --verbose --insecure
+  path: backup-and-restore-ci/tasks/wait-for-cf-api/task.sh
