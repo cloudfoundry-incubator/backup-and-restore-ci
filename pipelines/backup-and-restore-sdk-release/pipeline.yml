@@ -409,19 +409,21 @@ jobs:
 - name: postgres-system-tests-9.6
   serial: true
   plan:
-  - get: backup-and-restore-sdk-release
-    passed:
-    - deploy-postgres-9.6
-    - deploy-backup-restore-sdk
-    trigger: true
-  - get: bosh-backup-and-restore-meta
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-postgres-9.6
-    - deploy-backup-restore-sdk
+  - aggregate:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-postgres-9.6
+      - deploy-backup-restore-sdk
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+    - get: release-tarball
+      resource: release
+      passed:
+      - deploy-postgres-9.6
+      - deploy-backup-restore-sdk
   - task: postgres-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/postgres-system-tests.yml
+    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql
       TEAM_GPG_KEY: {{team-gpg-key}}
@@ -435,7 +437,7 @@ jobs:
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
   - task: postgres-tls-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/postgres-system-tests.yml
+    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
       TEAM_GPG_KEY: {{team-gpg-key}}
@@ -451,7 +453,7 @@ jobs:
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
       TEST_TLS_VERIFY_IDENTITY: false
   - task: postgres-mutual-tls-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/postgres-system-tests.yml
+    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql_mutual_tls
       TEAM_GPG_KEY: {{team-gpg-key}}
@@ -472,19 +474,21 @@ jobs:
 - name: gcp-postgres-system-tests-9.6
   serial: true
   plan:
-  - get: backup-and-restore-sdk-release
-    passed:
-    - deploy-external-gcp-dbs
-    - deploy-backup-restore-sdk
-    trigger: true
-  - get: bosh-backup-and-restore-meta
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-external-gcp-dbs
-    - deploy-backup-restore-sdk
+  - aggregate:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-external-gcp-dbs
+      - deploy-backup-restore-sdk
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+    - get: release-tarball
+      resource: release
+      passed:
+      - deploy-external-gcp-dbs
+      - deploy-backup-restore-sdk
   - task: postgres-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/postgres-system-tests.yml
+    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql
       TEAM_GPG_KEY: {{team-gpg-key}}
@@ -498,7 +502,7 @@ jobs:
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
   - task: postgres-tls-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/postgres-system-tests.yml
+    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
       TEAM_GPG_KEY: {{team-gpg-key}}
@@ -515,7 +519,7 @@ jobs:
       TEST_TLS_VERIFY_IDENTITY: false
       TEST_SSL_USER_REQUIRES_SSL: false
   - task: postgres-mutual-tls-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/postgres-system-tests.yml
+    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql_mutual_tls
       TEAM_GPG_KEY: {{team-gpg-key}}
@@ -537,19 +541,21 @@ jobs:
 - name: rds-postgres-system-tests-9.6
   serial: true
   plan:
-  - get: backup-and-restore-sdk-release
-    passed:
-    - deploy-external-rds-dbs
-    - deploy-backup-restore-sdk
-    trigger: true
-  - get: bosh-backup-and-restore-meta
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-external-rds-dbs
-    - deploy-backup-restore-sdk
+  - aggregate:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-external-rds-dbs
+      - deploy-backup-restore-sdk
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+    - get: release-tarball
+      resource: release
+      passed:
+      - deploy-external-rds-dbs
+      - deploy-backup-restore-sdk
   - task: postgres-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/postgres-system-tests.yml
+    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql
       TEAM_GPG_KEY: {{team-gpg-key}}
@@ -563,7 +569,7 @@ jobs:
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
   - task: postgres-tls-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/postgres-system-tests.yml
+    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
       TEAM_GPG_KEY: {{team-gpg-key}}
@@ -582,19 +588,21 @@ jobs:
 - name: postgres-system-tests-9.4
   serial: true
   plan:
-  - get: backup-and-restore-sdk-release
-    passed:
-    - deploy-postgres-9.4
-    - deploy-backup-restore-sdk
-    trigger: true
-  - get: bosh-backup-and-restore-meta
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-postgres-9.4
-    - deploy-backup-restore-sdk
+  - aggregate:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-postgres-9.4
+      - deploy-backup-restore-sdk
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+    - get: release-tarball
+      resource: release
+      passed:
+      - deploy-postgres-9.4
+      - deploy-backup-restore-sdk
   - task: postgres-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/postgres-system-tests.yml
+    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql
       TEAM_GPG_KEY: {{team-gpg-key}}
@@ -611,19 +619,21 @@ jobs:
 - name: rds-postgres-system-tests-9.4
   serial: true
   plan:
-  - get: backup-and-restore-sdk-release
-    passed:
-    - deploy-external-rds-dbs
-    - deploy-backup-restore-sdk
-    trigger: true
-  - get: bosh-backup-and-restore-meta
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-external-rds-dbs
-    - deploy-backup-restore-sdk
+  - aggregate:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-external-rds-dbs
+      - deploy-backup-restore-sdk
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+    - get: release-tarball
+      resource: release
+      passed:
+      - deploy-external-rds-dbs
+      - deploy-backup-restore-sdk
   - task: postgres-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/postgres-system-tests.yml
+    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql
       TEAM_GPG_KEY: {{team-gpg-key}}
@@ -637,7 +647,7 @@ jobs:
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
   - task: postgres-tls-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/postgres-system-tests.yml
+    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
       TEAM_GPG_KEY: {{team-gpg-key}}
