@@ -170,7 +170,7 @@ jobs:
   - put: version
     params: {file: version/number}
   - task: upload-release
-    file: backup-and-restore-sdk-release/ci/tasks/upload-release.yml
+    file: backup-and-restore-ci/tasks/upload-release/task.yml
     params:
       TEAM_GPG_KEY: {{team-gpg-key}}
       BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
