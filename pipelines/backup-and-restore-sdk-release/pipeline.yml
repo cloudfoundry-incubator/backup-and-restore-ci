@@ -354,8 +354,9 @@ jobs:
       resource: release
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
   - task: deploy-aws-blobstore-sdk
-    file: backup-and-restore-sdk-release/ci/tasks/deploy-s3-backuper.yml
+    file: backup-and-restore-ci/tasks/deploy-s3-backuper/task.yml
     params:
       TEAM_GPG_KEY: {{team-gpg-key}}
       BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
