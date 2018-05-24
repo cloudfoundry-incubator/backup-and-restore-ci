@@ -859,17 +859,19 @@ jobs:
 - name: s3-blobstore-backuper-system-tests
   serial: true
   plan:
-  - get: backup-and-restore-sdk-release
-    passed:
-    - deploy-aws-blobstore-sdk
-    trigger: true
-  - get: bosh-backup-and-restore-meta
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-aws-blobstore-sdk
+  - aggregate:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-aws-blobstore-sdk
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+    - get: release-tarball
+      resource: release
+      passed:
+      - deploy-aws-blobstore-sdk
   - task: s3-blobstore-backuper-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/s3-system-tests.yml
+    file: backup-and-restore-ci/tasks/s3-system-tests/task.yml
     params:
       TEAM_GPG_KEY: {{team-gpg-key}}
       BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
@@ -891,17 +893,19 @@ jobs:
 - name: s3-blobstore-system-tests-with-iam-instance-profile
   serial: true
   plan:
-  - get: backup-and-restore-sdk-release
-    passed:
-    - deploy-aws-blobstore-sdk-with-iam-instance-profile
-    trigger: true
-  - get: bosh-backup-and-restore-meta
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-aws-blobstore-sdk-with-iam-instance-profile
+  - aggregate:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-aws-blobstore-sdk-with-iam-instance-profile
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+    - get: release-tarball
+      resource: release
+      passed:
+      - deploy-aws-blobstore-sdk-with-iam-instance-profile
   - task: s3-blobstore-backuper-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/s3-system-tests.yml
+    file: backup-and-restore-ci/tasks/s3-system-tests/task.yml
     params:
       FOCUS_SPEC: backs up and restores in-place # focus on one it to avoid redundant testing
       TEAM_GPG_KEY: {{team-gpg-key}}
