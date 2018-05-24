@@ -238,23 +238,27 @@ jobs:
 - name: install-optional-components-on-pas
   serial: true
   plan:
-  - get: pivotal-disaster-recovery-acceptance-tests
-  - get: bosh-backup-and-restore
-    passed: [build-rc]
-    trigger: true
-  - get: rc
-    passed: [build-rc]
-  - put: env-pool
-    resource: pcf-2-1-pool
-    params:
-      action: claim
-    tags:
-    - *toolsmiths_api_worker
+  - aggregate:
+    - get: pivotal-disaster-recovery-acceptance-tests
+    - get: bosh-backup-and-restore
+      passed: [build-rc]
+      trigger: true
+    - get: rc
+      passed: [build-rc]
+    - put: env-pool
+      resource: pcf-2-1-pool
+      params:
+        action: claim
+      tags:
+      - *toolsmiths_api_worker
   - task: enable-optional-components
     file: pivotal-disaster-recovery-acceptance-tests/ci/enable-optional-components-pas/pool-task.yml
     privileged: true
     params:
       OPS_MAN_VERSION: "2.1"
+  - task: enable-internal-blobstore
+    file: pivotal-disaster-recovery-acceptance-tests/ci/enable-internal-blobstore-pas/pool-task.yml
+
 - name: run-p-drats-on-pas
   serial: true
   plan:
@@ -277,6 +281,7 @@ jobs:
     input_mapping:
       pivotal-disaster-recovery-acceptance-tests: run-p-drats-with-proxy
       bbr-binary-release: rc
+      pivotal-disaster-recovery-acceptance-tests: run-p-drats-with-proxy
     params:
       DEFAULT_TIMEOUT_MINS: 30
       USE_BOSH_ALL_PROXY: true
