@@ -656,6 +656,7 @@ jobs:
 - name: mariadb-system-tests
   serial: true
   plan:
+  - get: backup-and-restore-ci
   - get: backup-and-restore-sdk-release
     passed:
     - deploy-mysql
@@ -668,7 +669,7 @@ jobs:
     - deploy-mysql
     - deploy-backup-restore-sdk
   - task: mysql-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/mysql-system-tests.yml
+    file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
     params:
       TEAM_GPG_KEY: {{team-gpg-key}}
       BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
@@ -689,6 +690,7 @@ jobs:
 - name: rds-mysql-5.5-system-tests
   serial: true
   plan:
+  - get: backup-and-restore-ci
   - get: backup-and-restore-sdk-release
     passed:
     - deploy-external-rds-dbs
@@ -701,7 +703,7 @@ jobs:
     - deploy-external-rds-dbs
     - deploy-backup-restore-sdk
   - task: mysql-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/mysql-system-tests.yml
+    file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
     params:
       TEAM_GPG_KEY: {{team-gpg-key}}
       BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
@@ -719,6 +721,7 @@ jobs:
 - name: rds-mysql-5.6-system-tests
   serial: true
   plan:
+  - get: backup-and-restore-ci
   - get: backup-and-restore-sdk-release
     passed:
     - deploy-external-rds-dbs
@@ -731,7 +734,7 @@ jobs:
     - deploy-external-rds-dbs
     - deploy-backup-restore-sdk
   - task: mysql-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/mysql-system-tests.yml
+    file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
     params:
       TEAM_GPG_KEY: {{team-gpg-key}}
       BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
@@ -749,6 +752,7 @@ jobs:
 - name: rds-mysql-5.7-system-tests
   serial: true
   plan:
+  - get: backup-and-restore-ci
   - get: backup-and-restore-sdk-release
     passed:
     - deploy-external-rds-dbs
@@ -761,7 +765,7 @@ jobs:
     - deploy-external-rds-dbs
     - deploy-backup-restore-sdk
   - task: mysql-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/mysql-system-tests.yml
+    file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
     params:
       TEAM_GPG_KEY: {{team-gpg-key}}
       BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
@@ -779,6 +783,7 @@ jobs:
 - name: gcp-mysql-5.6-system-tests
   serial: true
   plan:
+  - get: backup-and-restore-ci
   - get: backup-and-restore-sdk-release
     passed:
     - deploy-external-gcp-dbs
@@ -791,7 +796,7 @@ jobs:
     - deploy-external-gcp-dbs
     - deploy-backup-restore-sdk
   - task: mysql-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/mysql-system-tests.yml
+    file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
     params:
       TEAM_GPG_KEY: {{team-gpg-key}}
       BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
@@ -811,6 +816,7 @@ jobs:
 - name: gcp-mysql-5.7-system-tests
   serial: true
   plan:
+  - get: backup-and-restore-ci
   - get: backup-and-restore-sdk-release
     passed:
     - deploy-external-gcp-dbs
@@ -823,7 +829,7 @@ jobs:
     - deploy-external-gcp-dbs
     - deploy-backup-restore-sdk
   - task: mysql-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/mysql-system-tests.yml
+    file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
     params:
       TEAM_GPG_KEY: {{team-gpg-key}}
       BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
