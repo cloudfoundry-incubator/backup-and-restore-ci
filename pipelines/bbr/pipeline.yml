@@ -281,7 +281,6 @@ jobs:
     input_mapping:
       pivotal-disaster-recovery-acceptance-tests: run-p-drats-with-proxy
       bbr-binary-release: rc
-      pivotal-disaster-recovery-acceptance-tests: run-p-drats-with-proxy
     params:
       DEFAULT_TIMEOUT_MINS: 30
       USE_BOSH_ALL_PROXY: true
