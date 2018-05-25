@@ -107,7 +107,7 @@ jobs:
       vars-files: bosh-backup-and-restore-meta
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-pr-ragdoll/
       SYSTEM_DOMAIN: drats-pr-ragdoll.cf-app.com
@@ -162,7 +162,7 @@ jobs:
       vars-files: bosh-backup-and-restore-meta
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-dragon-li/
       SYSTEM_DOMAIN: drats-dragon-li.cf-app.com
@@ -218,7 +218,7 @@ jobs:
       vars-files: bosh-backup-and-restore-meta
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-persian/
       SYSTEM_DOMAIN: drats-persian.cf-app.com
@@ -274,7 +274,7 @@ jobs:
       vars-files: bosh-backup-and-restore-meta
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-opt-components-norwegianforest/
       SYSTEM_DOMAIN: drats-opt-components-norwegianforest.cf-app.com
@@ -328,7 +328,7 @@ jobs:
       vars-files: bosh-backup-and-restore-meta
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: continuous-drats/
       SYSTEM_DOMAIN: continuous-drats.cf-app.com
@@ -384,7 +384,7 @@ jobs:
       vars-files: bosh-backup-and-restore-meta
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-papillon/
       SYSTEM_DOMAIN: drats-papillon.cf-app.com
@@ -441,7 +441,7 @@ jobs:
       vars-files: bosh-backup-and-restore-meta
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-with-config-manx/
       SYSTEM_DOMAIN: drats-with-config-manx.cf-app.com
@@ -809,7 +809,7 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-pr-ragdoll/
 
@@ -834,7 +834,7 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-persian/
 
@@ -859,7 +859,7 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-opt-components-norwegianforest/
 
@@ -877,7 +877,7 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: continuous-drats/
 
@@ -902,7 +902,7 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-papillon/
 
@@ -924,7 +924,7 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-dragon-li/
 
@@ -949,6 +949,6 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-with-config-manx/

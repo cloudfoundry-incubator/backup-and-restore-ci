@@ -979,7 +979,7 @@ jobs:
       release: backup-and-restore-sdk-release
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
       SYSTEM_DOMAIN: bbr-s3.cf-app.com
@@ -1057,7 +1057,7 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
   - task: drop-external-cf-databases
@@ -1115,7 +1115,7 @@ jobs:
       release: backup-and-restore-sdk-release
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
       SYSTEM_DOMAIN: bbr-s3-unversioned.cf-app.com
@@ -1195,7 +1195,7 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
 
