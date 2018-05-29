@@ -6,6 +6,12 @@ resource_types:
     repository: jtarchie/pr
     tag: latest
 
+- name: git
+  type: docker-image
+  source:
+    repository: concourse/git-resource
+    tag: latest
+
 resources:
 - name: bosh-deployment
   type: git
@@ -31,6 +37,7 @@ resources:
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: ((git-private-key))
+    git_crypt_key: ((git-crypt-key))
     branch: master
 
 - name: backup-and-restore-ci
@@ -65,8 +72,6 @@ jobs:
       terraform-state: bosh-backup-and-restore-meta
     params:
       ENVIRONMENT_NAME: b-drats-bengal-tiger
-      TERRAFORM_STATE_PREPARE_CMD: unlock-ci.sh
-      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
       GIT_USER_NAME: "PCF Backup & Restore CI"
       GIT_USER_EMAIL: "cf-lazarus@pivotal.io"
     ensure:
@@ -81,8 +86,6 @@ jobs:
       terraform-state: bosh-backup-and-restore-meta
     params:
       ENVIRONMENT_NAME: "b-drats-bengal-tiger"
-      BOSH_STATE_PREPARE_CMD: unlock-ci.sh
-      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
       OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml"
       DIRECTOR_NAME: "bengal-tiger"
     ensure:
@@ -97,10 +100,7 @@ jobs:
       terraform-state: bosh-backup-and-restore-meta
       bosh-vars-store: bosh-backup-and-restore-meta
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
       CLOUD_CONFIG_PATH: gcp/cloud-config.yml
-      TERRAFORM_STATE_PREPARE_CMD: unlock-ci.sh
-      BOSH_VARS_STORE_PREPARE_CMD: unlock-ci.sh
       TERRAFORM_STATE_PATH: b-drats-bengal-tiger/terraform.tfstate
       BOSH_VARS_STORE_PATH: b-drats-bengal-tiger/creds.yml
       BOSH_CLIENT: admin
@@ -110,10 +110,7 @@ jobs:
       terraform-state: bosh-backup-and-restore-meta
       bosh-vars-store: bosh-backup-and-restore-meta
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
       STEMCELL_URL: https://bosh.io/d/stemcells/bosh-google-kvm-ubuntu-trusty-go_agent?v=3586.7
-      TERRAFORM_STATE_PREPARE_CMD: unlock-ci.sh
-      BOSH_VARS_STORE_PREPARE_CMD: unlock-ci.sh
       TERRAFORM_STATE_PATH: b-drats-bengal-tiger/terraform.tfstate
       BOSH_VARS_STORE_PATH: b-drats-bengal-tiger/creds.yml
       BOSH_CLIENT: admin
@@ -123,10 +120,7 @@ jobs:
       terraform-state: bosh-backup-and-restore-meta
       bosh-vars-store: bosh-backup-and-restore-meta
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
       RESURRECTION: "off"
-      TERRAFORM_STATE_PREPARE_CMD: unlock-ci.sh
-      BOSH_VARS_STORE_PREPARE_CMD: unlock-ci.sh
       TERRAFORM_STATE_PATH: b-drats-bengal-tiger/terraform.tfstate
       BOSH_VARS_STORE_PATH: b-drats-bengal-tiger/creds.yml
       BOSH_CLIENT: admin
@@ -153,8 +147,6 @@ jobs:
       terraform-state: bosh-backup-and-restore-meta
     params:
       ENVIRONMENT_NAME: b-drats-black-panther
-      TERRAFORM_STATE_PREPARE_CMD: unlock-ci.sh
-      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
       GIT_USER_NAME: "PCF Backup & Restore CI"
       GIT_USER_EMAIL: "cf-lazarus@pivotal.io"
     ensure:
@@ -175,8 +167,6 @@ jobs:
       terraform-state: bosh-backup-and-restore-meta
     params:
       ENVIRONMENT_NAME: "b-drats-black-panther"
-      BOSH_STATE_PREPARE_CMD: unlock-ci.sh
-      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
       OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml"
       DIRECTOR_NAME: "black-panther"
     ensure:
@@ -197,10 +187,7 @@ jobs:
       terraform-state: bosh-backup-and-restore-meta
       bosh-vars-store: bosh-backup-and-restore-meta
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
       CLOUD_CONFIG_PATH: gcp/cloud-config.yml
-      TERRAFORM_STATE_PREPARE_CMD: unlock-ci.sh
-      BOSH_VARS_STORE_PREPARE_CMD: unlock-ci.sh
       TERRAFORM_STATE_PATH: b-drats-black-panther/terraform.tfstate
       BOSH_VARS_STORE_PATH: b-drats-black-panther/creds.yml
       BOSH_CLIENT: admin
@@ -216,10 +203,7 @@ jobs:
       terraform-state: bosh-backup-and-restore-meta
       bosh-vars-store: bosh-backup-and-restore-meta
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
       STEMCELL_URL: https://bosh.io/d/stemcells/bosh-google-kvm-ubuntu-trusty-go_agent?v=3586.7
-      TERRAFORM_STATE_PREPARE_CMD: unlock-ci.sh
-      BOSH_VARS_STORE_PREPARE_CMD: unlock-ci.sh
       TERRAFORM_STATE_PATH: b-drats-black-panther/terraform.tfstate
       BOSH_VARS_STORE_PATH: b-drats-black-panther/creds.yml
       BOSH_CLIENT: admin
@@ -235,10 +219,7 @@ jobs:
       terraform-state: bosh-backup-and-restore-meta
       bosh-vars-store: bosh-backup-and-restore-meta
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
       RESURRECTION: "off"
-      TERRAFORM_STATE_PREPARE_CMD: unlock-ci.sh
-      BOSH_VARS_STORE_PREPARE_CMD: unlock-ci.sh
       TERRAFORM_STATE_PATH: b-drats-black-panther/terraform.tfstate
       BOSH_VARS_STORE_PATH: b-drats-black-panther/creds.yml
       BOSH_CLIENT: admin
@@ -270,9 +251,6 @@ jobs:
       terraform-state: bosh-backup-and-restore-meta
       bosh-vars-store: bosh-backup-and-restore-meta
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
-      TERRAFORM_STATE_PREPARE_CMD: terraform-state/unlock-ci.sh
-      BOSH_VARS_STORE_PREPARE_CMD: bosh-vars-store/unlock-ci.sh
       TERRAFORM_STATE_PATH: terraform-state/b-drats-bengal-tiger/terraform.tfstate
       BOSH_VARS_STORE_PATH: bosh-vars-store/b-drats-bengal-tiger/creds.yml
   - task: run-b-drats
@@ -306,9 +284,6 @@ jobs:
       terraform-state: bosh-backup-and-restore-meta
       bosh-vars-store: bosh-backup-and-restore-meta
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
-      TERRAFORM_STATE_PREPARE_CMD: terraform-state/unlock-ci.sh
-      BOSH_VARS_STORE_PREPARE_CMD: bosh-vars-store/unlock-ci.sh
       TERRAFORM_STATE_PATH: terraform-state/b-drats-black-panther/terraform.tfstate
       BOSH_VARS_STORE_PATH: bosh-vars-store/b-drats-black-panther/creds.yml
     on_failure:
