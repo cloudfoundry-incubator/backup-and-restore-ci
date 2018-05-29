@@ -251,13 +251,13 @@ jobs:
         action: claim
       tags:
       - *toolsmiths_api_worker
+  - task: enable-internal-blobstore
+    file: pivotal-disaster-recovery-acceptance-tests/ci/enable-internal-blobstore-pas/pool-task.yml
   - task: enable-optional-components
     file: pivotal-disaster-recovery-acceptance-tests/ci/enable-optional-components-pas/pool-task.yml
     privileged: true
     params:
       OPS_MAN_VERSION: "2.1"
-  - task: enable-internal-blobstore
-    file: pivotal-disaster-recovery-acceptance-tests/ci/enable-internal-blobstore-pas/pool-task.yml
 
 - name: run-p-drats-on-pas
   serial: true
