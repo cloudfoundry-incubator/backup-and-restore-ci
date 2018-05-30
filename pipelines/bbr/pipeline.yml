@@ -272,7 +272,6 @@ jobs:
     privileged: true
     file: pivotal-disaster-recovery-acceptance-tests/ci/p-drats-ops-manager/pool-task.yml
     input_mapping:
-      pivotal-disaster-recovery-acceptance-tests: run-p-drats-with-proxy
       bbr-binary-release: rc
     params:
       DEFAULT_TIMEOUT_MINS: 30
