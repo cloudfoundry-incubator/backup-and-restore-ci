@@ -16,11 +16,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-RELEASE_NAME="$RELEASE_NAME:-backup-and-restore-sdk"
-
 set -eu
 
 export BOSH_CA_CERT="./bosh-backup-and-restore-meta/certs/${BOSH_ENVIRONMENT}.crt"
 version="$(cat version/number)"
+
+if [ -z "$RELEASE_NAME" ]; then
+  RELEASE_NAME="backup-and-restore-sdk"
+fi
 
 bosh-cli upload-release "backup-and-restore-sdk-release-build/${RELEASE_NAME}-$version.tgz"

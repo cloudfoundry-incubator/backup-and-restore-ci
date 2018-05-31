@@ -18,16 +18,13 @@
 
 set -eu
 
-export BOSH_CLIENT
-export BOSH_CLIENT_SECRET
-export BOSH_ENVIRONMENT
 export BOSH_CA_CERT="./bosh-backup-and-restore-meta/certs/${BOSH_ENVIRONMENT}.crt"
 export OPTIONAL_BOSH_VARS_db_password=${DB_PASSWORD}
 export OPTIONAL_BOSH_VARS_db_host=${DB_HOST}
 export OPTIONAL_BOSH_VARS_availability_zone=${AVAILABILITY_ZONE}
 export OPTIONAL_BOSH_VARS_network_name=${NETWORK_NAME}
 
-export vars_store_argument=""
+vars_store_argument=""
 if [ ! -z "$VARS_STORE_PATH" ]; then
   vars_store_argument="--vars-store=bosh-backup-and-restore-meta/${VARS_STORE_PATH}"
 fi
@@ -53,4 +50,5 @@ if [ ! -z "$VARS_STORE_PATH" ]; then
   fi
   popd
 fi
+
 cp -r bosh-backup-and-restore-meta/. bosh-backup-and-restore-meta-output/

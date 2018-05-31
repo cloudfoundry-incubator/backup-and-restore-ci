@@ -18,9 +18,6 @@
 
 set -eu
 
-export BOSH_CLIENT
-export BOSH_CLIENT_SECRET
-export BOSH_ENVIRONMENT
 export BOSH_CA_CERT="./bosh-backup-and-restore-meta/certs/${BOSH_ENVIRONMENT}.crt"
 
 bosh-cli -n clean-up
