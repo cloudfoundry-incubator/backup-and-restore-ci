@@ -14,13 +14,6 @@ bbl_compatible_bosh_deployment_version: &BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
   version:
     ref: 8a138f343f6cb32a938c5c9567ba1236326fdd7c
 
-resource_types:
-- name: git
-  type: docker-image
-  source:
-    repository: concourse/git-resource
-    tag: latest
-
 resources:
 - name: cf-deployment-concourse-tasks
   type: git
