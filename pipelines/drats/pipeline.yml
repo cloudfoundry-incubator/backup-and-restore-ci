@@ -23,7 +23,7 @@ resources:
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
 
 - name: continuous-counter
@@ -32,8 +32,8 @@ resources:
     bucket: bosh-backup-and-restore-builds
     region_name: eu-west-1
     key: current-continuous-drats-version
-    access_key_id: {{aws-access-key-id}}
-    secret_access_key: {{aws-secret-access-key}}
+    access_key_id: ((aws-access-key-id))
+    secret_access_key: ((aws-secret-access-key))
 
 - name: continuous-counter-input
   type: semver
@@ -41,14 +41,14 @@ resources:
     bucket: bosh-backup-and-restore-builds
     region_name: eu-west-1
     key: current-continuous-drats-version
-    access_key_id: {{aws-access-key-id}}
-    secret_access_key: {{aws-secret-access-key}}
+    access_key_id: ((aws-access-key-id))
+    secret_access_key: ((aws-secret-access-key))
 
 - name: disaster-recovery-acceptance-tests-prs
   type: pull-request
   source:
     repo: cloudfoundry-incubator/disaster-recovery-acceptance-tests
-    access_token: {{github-access-token}}
+    access_token: ((github-access-token))
     branch: master
 
 - name: bbr-binary-release
@@ -56,7 +56,7 @@ resources:
   source:
     owner: cloudfoundry-incubator
     repository: bosh-backup-and-restore
-    access_token: {{github-access-token}}
+    access_token: ((github-access-token))
 
 - name: disaster-recovery-acceptance-tests
   type: git
@@ -107,7 +107,7 @@ jobs:
       vars-files: bosh-backup-and-restore-meta
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-pr-ragdoll/
       SYSTEM_DOMAIN: drats-pr-ragdoll.cf-app.com
@@ -162,7 +162,7 @@ jobs:
       vars-files: bosh-backup-and-restore-meta
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-dragon-li/
       SYSTEM_DOMAIN: drats-dragon-li.cf-app.com
@@ -218,7 +218,7 @@ jobs:
       vars-files: bosh-backup-and-restore-meta
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-persian/
       SYSTEM_DOMAIN: drats-persian.cf-app.com
@@ -274,7 +274,7 @@ jobs:
       vars-files: bosh-backup-and-restore-meta
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-opt-components-norwegianforest/
       SYSTEM_DOMAIN: drats-opt-components-norwegianforest.cf-app.com
@@ -328,7 +328,7 @@ jobs:
       vars-files: bosh-backup-and-restore-meta
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: continuous-drats/
       SYSTEM_DOMAIN: continuous-drats.cf-app.com
@@ -384,7 +384,7 @@ jobs:
       vars-files: bosh-backup-and-restore-meta
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-papillon/
       SYSTEM_DOMAIN: drats-papillon.cf-app.com
@@ -441,7 +441,7 @@ jobs:
       vars-files: bosh-backup-and-restore-meta
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-with-config-manx/
       SYSTEM_DOMAIN: drats-with-config-manx.cf-app.com
@@ -489,7 +489,7 @@ jobs:
     input_mapping:
       disaster-recovery-acceptance-tests: disaster-recovery-acceptance-tests-prs
     params:
-      GITHUB_SSH_KEY: {{github-ssh-key}}
+      GITHUB_SSH_KEY: ((github-ssh-key))
     on_failure:
       put: disaster-recovery-acceptance-tests-prs
       params:
@@ -505,21 +505,21 @@ jobs:
       CF_DEPLOYMENT_NAME: cf
       CF_API_URL: https://api.drats-pr-ragdoll.cf-app.com
       CF_ADMIN_USERNAME: admin
-      CF_ADMIN_PASSWORD: {{pr-ragdoll-cf-admin-password}}
-      BOSH_CA_CERT: {{pr-ragdoll-bosh-cert}}
+      CF_ADMIN_PASSWORD: ((pr-ragdoll-cf-admin-password))
+      BOSH_CA_CERT: ((pr-ragdoll-bosh-cert))
       BOSH_CLIENT: admin
-      BOSH_CLIENT_SECRET: {{pr-ragdoll-bosh-client-secret}}
-      BOSH_ENVIRONMENT: {{pr-ragdoll-bosh-url}}
+      BOSH_CLIENT_SECRET: ((pr-ragdoll-bosh-client-secret))
+      BOSH_ENVIRONMENT: ((pr-ragdoll-bosh-url))
       BOSH_GW_USER: jumpbox
-      BOSH_GW_HOST: {{pr-ragdoll-ssh-gateway-host}}
-      BOSH_GW_PRIVATE_KEY: {{pr-ragdoll-ssh-gateway-key}}
+      BOSH_GW_HOST: ((pr-ragdoll-ssh-gateway-host))
+      BOSH_GW_PRIVATE_KEY: ((pr-ragdoll-ssh-gateway-key))
       SSH_DESTINATION_CIDR: "10.0.0.0/8"
       DEFAULT_TIMEOUT_MINS: 30
       NFS_SERVICE_NAME: "nfs"
       NFS_PLAN_NAME: "Existing"
       NFS_BROKER_USER: "nfs-broker"
       NFS_BROKER_URL: http://nfs-broker.drats-pr-ragdoll.cf-app.com
-      NFS_BROKER_PASSWORD: {{pr-ragdoll-nfs-broker-password}}
+      NFS_BROKER_PASSWORD: ((pr-ragdoll-nfs-broker-password))
     on_failure:
       put: disaster-recovery-acceptance-tests-prs
       params:
@@ -556,7 +556,7 @@ jobs:
     input_mapping:
       disaster-recovery-acceptance-tests: disaster-recovery-acceptance-tests-prs
     params:
-      GITHUB_SSH_KEY: {{github-ssh-key}}
+      GITHUB_SSH_KEY: ((github-ssh-key))
     on_failure:
       put: disaster-recovery-acceptance-tests-prs
       params:
@@ -617,7 +617,7 @@ jobs:
   - task: unit-tests
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
     params:
-      GITHUB_SSH_KEY: {{github-ssh-key}}
+      GITHUB_SSH_KEY: ((github-ssh-key))
   - task: acceptance-tests
     file: disaster-recovery-acceptance-tests/ci/drats/task.yml
     privileged: true
@@ -625,14 +625,14 @@ jobs:
       CF_DEPLOYMENT_NAME: cf
       CF_API_URL: https://api.drats-persian.cf-app.com
       CF_ADMIN_USERNAME: admin
-      CF_ADMIN_PASSWORD: {{persian-cf-admin-password}}
-      BOSH_CA_CERT: {{persian-bosh-cert}}
+      CF_ADMIN_PASSWORD: ((persian-cf-admin-password))
+      BOSH_CA_CERT: ((persian-bosh-cert))
       BOSH_CLIENT: admin
-      BOSH_CLIENT_SECRET: {{persian-bosh-client-secret}}
-      BOSH_ENVIRONMENT: {{persian-bosh-url}}
+      BOSH_CLIENT_SECRET: ((persian-bosh-client-secret))
+      BOSH_ENVIRONMENT: ((persian-bosh-url))
       BOSH_GW_USER: jumpbox
-      BOSH_GW_HOST: {{persian-ssh-gateway-host}}
-      BOSH_GW_PRIVATE_KEY: {{persian-ssh-gateway-key}}
+      BOSH_GW_HOST: ((persian-ssh-gateway-host))
+      BOSH_GW_PRIVATE_KEY: ((persian-ssh-gateway-key))
       SSH_DESTINATION_CIDR: "10.0.0.0/8"
       DEFAULT_TIMEOUT_MINS: 30
       FOCUSED_SUITE_NAME: cf-app|cf-networking|cf-uaa|cf-routing|app-uptime
@@ -653,7 +653,7 @@ jobs:
   - task: unit-tests
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
     params:
-      GITHUB_SSH_KEY: {{github-ssh-key}}
+      GITHUB_SSH_KEY: ((github-ssh-key))
   - task: acceptance-tests
     file: disaster-recovery-acceptance-tests/ci/drats/task.yml
     privileged: true
@@ -661,21 +661,21 @@ jobs:
       CF_DEPLOYMENT_NAME: cf
       CF_API_URL: https://api.drats-opt-components-norwegianforest.cf-app.com
       CF_ADMIN_USERNAME: admin
-      CF_ADMIN_PASSWORD: {{opt-components-norwegianforest-cf-admin-password}}
-      BOSH_CA_CERT: {{opt-components-norwegianforest-bosh-cert}}
+      CF_ADMIN_PASSWORD: ((opt-components-norwegianforest-cf-admin-password))
+      BOSH_CA_CERT: ((opt-components-norwegianforest-bosh-cert))
       BOSH_CLIENT: admin
-      BOSH_CLIENT_SECRET: {{opt-components-norwegianforest-bosh-client-secret}}
-      BOSH_ENVIRONMENT: {{opt-components-norwegianforest-bosh-url}}
+      BOSH_CLIENT_SECRET: ((opt-components-norwegianforest-bosh-client-secret))
+      BOSH_ENVIRONMENT: ((opt-components-norwegianforest-bosh-url))
       BOSH_GW_USER: jumpbox
-      BOSH_GW_HOST: {{opt-components-norwegianforest-ssh-gateway-host}}
-      BOSH_GW_PRIVATE_KEY: {{opt-components-norwegianforest-ssh-gateway-key}}
+      BOSH_GW_HOST: ((opt-components-norwegianforest-ssh-gateway-host))
+      BOSH_GW_PRIVATE_KEY: ((opt-components-norwegianforest-ssh-gateway-key))
       SSH_DESTINATION_CIDR: "10.0.0.0/8"
       DEFAULT_TIMEOUT_MINS: 30
       NFS_SERVICE_NAME: "nfs"
       NFS_PLAN_NAME: "Existing"
       NFS_BROKER_USER: "nfs-broker"
       NFS_BROKER_URL: http://nfs-broker.drats-opt-components-norwegianforest.cf-app.com
-      NFS_BROKER_PASSWORD: {{opt-components-norwegianforest-nfs-broker-password}}
+      NFS_BROKER_PASSWORD: ((opt-components-norwegianforest-nfs-broker-password))
 
 - name: run-drats-with-integration-config
   serial: true
@@ -694,7 +694,7 @@ jobs:
   - task: unit-tests
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
     params:
-      GITHUB_SSH_KEY: {{github-ssh-key}}
+      GITHUB_SSH_KEY: ((github-ssh-key))
   - task: create-integration-config
     file: disaster-recovery-acceptance-tests/ci/update-integration-config/task.yml
     input_mapping:
@@ -731,7 +731,7 @@ jobs:
   - task: unit-tests
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
     params:
-      GITHUB_SSH_KEY: {{github-ssh-key}}
+      GITHUB_SSH_KEY: ((github-ssh-key))
   - task: acceptance-tests
     file: disaster-recovery-acceptance-tests/ci/drats/task.yml
     privileged: true
@@ -739,14 +739,14 @@ jobs:
       CF_DEPLOYMENT_NAME: cf
       CF_API_URL: https://api.continuous-drats.cf-app.com
       CF_ADMIN_USERNAME: admin
-      CF_ADMIN_PASSWORD: {{continuous-drats-cf-admin-password}}
-      BOSH_CA_CERT: {{continuous-drats-bosh-cert}}
+      CF_ADMIN_PASSWORD: ((continuous-drats-cf-admin-password))
+      BOSH_CA_CERT: ((continuous-drats-bosh-cert))
       BOSH_CLIENT: admin
-      BOSH_CLIENT_SECRET: {{continuous-drats-bosh-client-secret}}
-      BOSH_ENVIRONMENT: {{continuous-drats-bosh-url}}
+      BOSH_CLIENT_SECRET: ((continuous-drats-bosh-client-secret))
+      BOSH_ENVIRONMENT: ((continuous-drats-bosh-url))
       BOSH_GW_USER: jumpbox
-      BOSH_GW_HOST: {{continuous-drats-ssh-gateway-host}}
-      BOSH_GW_PRIVATE_KEY: {{continuous-drats-ssh-gateway-key}}
+      BOSH_GW_HOST: ((continuous-drats-ssh-gateway-host))
+      BOSH_GW_PRIVATE_KEY: ((continuous-drats-ssh-gateway-key))
       SSH_DESTINATION_CIDR: "10.0.0.0/8"
       DEFAULT_TIMEOUT_MINS: 60
       FOCUSED_SUITE_NAME: cf-app|cf-networking|cf-uaa|cf-routing|app-uptime
@@ -769,7 +769,7 @@ jobs:
   - task: unit-tests
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
     params:
-      GITHUB_SSH_KEY: {{github-ssh-key}}
+      GITHUB_SSH_KEY: ((github-ssh-key))
   - task: acceptance-tests
     file: disaster-recovery-acceptance-tests/ci/drats/task.yml
     privileged: true
@@ -777,14 +777,14 @@ jobs:
       CF_DEPLOYMENT_NAME: cf
       CF_API_URL: https://api.drats-papillon.cf-app.com
       CF_ADMIN_USERNAME: admin
-      CF_ADMIN_PASSWORD: {{papillon-cf-admin-password}}
-      BOSH_CA_CERT: {{papillon-bosh-cert}}
+      CF_ADMIN_PASSWORD: ((papillon-cf-admin-password))
+      BOSH_CA_CERT: ((papillon-bosh-cert))
       BOSH_CLIENT: admin
-      BOSH_CLIENT_SECRET: {{papillon-bosh-client-secret}}
-      BOSH_ENVIRONMENT: {{papillon-bosh-url}}
+      BOSH_CLIENT_SECRET: ((papillon-bosh-client-secret))
+      BOSH_ENVIRONMENT: ((papillon-bosh-url))
       BOSH_GW_USER: jumpbox
-      BOSH_GW_HOST: {{papillon-ssh-gateway-host}}
-      BOSH_GW_PRIVATE_KEY: {{papillon-ssh-gateway-key}}
+      BOSH_GW_HOST: ((papillon-ssh-gateway-host))
+      BOSH_GW_PRIVATE_KEY: ((papillon-ssh-gateway-key))
       SSH_DESTINATION_CIDR: "10.0.0.0/8"
       DEFAULT_TIMEOUT_MINS: 120
       FOCUSED_SUITE_NAME: cf-app|cf-networking|cf-uaa|cf-routing|app-uptime
@@ -809,7 +809,7 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-pr-ragdoll/
 
@@ -834,7 +834,7 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-persian/
 
@@ -859,7 +859,7 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-opt-components-norwegianforest/
 
@@ -877,7 +877,7 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: continuous-drats/
 
@@ -902,7 +902,7 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-papillon/
 
@@ -924,7 +924,7 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-dragon-li/
 
@@ -949,6 +949,6 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: drats-with-config-manx/

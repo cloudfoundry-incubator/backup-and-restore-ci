@@ -4,14 +4,14 @@ resources:
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
     paths: ["ci-docker-images/cfops/*"]
 - name: cfops-docs-repo
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
     paths: ["ci-docker-images/cfops-docs/*"]
 - name: backup-and-restore-minimal-repo
@@ -24,14 +24,14 @@ resources:
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
     paths: ["ci-docker-images/bosh-backup-and-restore/*"]
 - name: backup-and-restore-node-with-ssh-repo
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
     paths: ["ci-docker-images/backup-and-restore-node-with-ssh/*"]
 
@@ -39,36 +39,36 @@ resources:
   type: docker-image
   source:
     repository: cloudfoundrylondon/cfops
-    username: {{dockerhub-username}}
-    password: {{dockerhub-password}}
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
 
 - name: cfops-docs-docker-image
   type: docker-image
   source:
     repository: cloudfoundrylondon/cfops-docs
-    username: {{dockerhub-username}}
-    password: {{dockerhub-password}}
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
 
 - name: backup-and-restore-minimal-docker-image
   type: docker-image
   source:
     repository: cloudfoundrylondon/backup-and-restore-minimal
-    username: {{dockerhub-username}}
-    password: {{dockerhub-password}}
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
 
 - name: bosh-backup-and-restore-docker-image
   type: docker-image
   source:
     repository: cloudfoundrylondon/backup-and-restore
-    username: {{dockerhub-username}}
-    password: {{dockerhub-password}}
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
 
 - name: backup-and-restore-node-with-ssh-docker-image
   type: docker-image
   source:
     repository: cloudfoundrylondon/backup-and-restore-node-with-ssh
-    username: {{dockerhub-username}}
-    password: {{dockerhub-password}}
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
 
 jobs:
 

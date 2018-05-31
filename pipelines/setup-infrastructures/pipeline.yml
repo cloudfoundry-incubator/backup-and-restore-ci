@@ -1,6 +1,6 @@
 ---
 common_bbl_params: &COMMON_BBL_PARAMS
-  BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+  BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
   BBL_GCP_PROJECT_ID: cf-backup-and-restore
   GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
   GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
@@ -30,67 +30,67 @@ resources:
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
 - name: aws-s3-unversioned-bbl-state
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
 - name: drats-persian-bbl-state
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
 - name: drats-dragon-li-bbl-state
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
 - name: drats-papillon-bbl-state
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
 - name: drats-pr-ragdoll-bbl-state
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
 - name: continuous-drats-bbl-state
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
 - name: drats-with-config-manx-bbl-state
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
 - name: drats-opt-components-norwegianforest-bbl-state
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
 - name: bosh-backup-and-restore-meta
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
 - name: backup-and-restore-ci
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
 
 jobs:
@@ -108,8 +108,8 @@ jobs:
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
-      BBL_LB_CERT: {{aws-s3-lb-cert}}
-      BBL_LB_KEY: {{aws-s3-lb-key}}
+      BBL_LB_CERT: ((aws-s3-lb-cert))
+      BBL_LB_KEY: ((aws-s3-lb-key))
       LB_DOMAIN: bbr-s3.cf-app.com
       BBL_ENV_NAME: bbr-s3
     input_mapping:
@@ -157,8 +157,8 @@ jobs:
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
-      BBL_LB_CERT: {{aws-s3-unversioned-lb-cert}}
-      BBL_LB_KEY: {{aws-s3-unversioned-lb-key}}
+      BBL_LB_CERT: ((aws-s3-unversioned-lb-cert))
+      BBL_LB_KEY: ((aws-s3-unversioned-lb-key))
       LB_DOMAIN: bbr-s3-unversioned.cf-app.com
       BBL_ENV_NAME: bbr-s3-unversioned
     input_mapping:
@@ -211,8 +211,8 @@ jobs:
       BBL_AWS_REGION: eu-west-1
       OPS_FILES: "local-dns.yml"
       BBL_STATE_DIR: external-blobstore-directors/aws-ec2/
-      BBL_LB_CERT: {{aws-ec2-lb-cert}}
-      BBL_LB_KEY: {{aws-ec2-lb-key}}
+      BBL_LB_CERT: ((aws-ec2-lb-cert))
+      BBL_LB_KEY: ((aws-ec2-lb-key))
       LB_DOMAIN: bbr-ec2.cf-app.com
       BBL_ENV_NAME: bbr-aws-ec2
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
@@ -306,9 +306,9 @@ jobs:
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_STATE_DIR: drats-persian/
-      BBL_LB_CERT: {{drats-persian-lb-cert}}
-      BBL_LB_KEY: {{drats-persian-lb-key}}
-      LB_DOMAIN: {{drats-persian-lb-domain}}
+      BBL_LB_CERT: ((drats-persian-lb-cert))
+      BBL_LB_KEY: ((drats-persian-lb-key))
+      LB_DOMAIN: ((drats-persian-lb-domain))
       BBL_ENV_NAME: drats-persian
     input_mapping:
       bbl-state: drats-persian-bbl-state
@@ -355,9 +355,9 @@ jobs:
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_STATE_DIR: drats-dragon-li/
-      BBL_LB_CERT: {{drats-dragon-li-lb-cert}}
-      BBL_LB_KEY: {{drats-dragon-li-lb-key}}
-      LB_DOMAIN: {{drats-dragon-li-lb-domain}}
+      BBL_LB_CERT: ((drats-dragon-li-lb-cert))
+      BBL_LB_KEY: ((drats-dragon-li-lb-key))
+      LB_DOMAIN: ((drats-dragon-li-lb-domain))
       BBL_ENV_NAME: drats-dragon-li
     input_mapping:
       bbl-state: drats-dragon-li-bbl-state
@@ -403,10 +403,10 @@ jobs:
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
       << : *COMMON_BBL_UP_PARAMS
-      BBL_LB_CERT: {{drats-pr-ragdoll-lb-cert}}
+      BBL_LB_CERT: ((drats-pr-ragdoll-lb-cert))
       BBL_STATE_DIR: drats-pr-ragdoll/
-      BBL_LB_KEY: {{drats-pr-ragdoll-lb-key}}
-      LB_DOMAIN: {{drats-pr-ragdoll-lb-domain}}
+      BBL_LB_KEY: ((drats-pr-ragdoll-lb-key))
+      LB_DOMAIN: ((drats-pr-ragdoll-lb-domain))
       BBL_ENV_NAME: drats-pr-ragdoll
     input_mapping:
       bbl-state: drats-pr-ragdoll-bbl-state
@@ -453,9 +453,9 @@ jobs:
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_STATE_DIR: continuous-drats/
-      BBL_LB_CERT: {{continuous-drats-lb-cert}}
-      BBL_LB_KEY: {{continuous-drats-lb-key}}
-      LB_DOMAIN: {{continuous-drats-lb-domain}}
+      BBL_LB_CERT: ((continuous-drats-lb-cert))
+      BBL_LB_KEY: ((continuous-drats-lb-key))
+      LB_DOMAIN: ((continuous-drats-lb-domain))
       BBL_ENV_NAME: continuous-drats
     input_mapping:
       bbl-state: continuous-drats-bbl-state
@@ -502,9 +502,9 @@ jobs:
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_STATE_DIR: drats-papillon/
-      BBL_LB_CERT: {{drats-papillon-lb-cert}}
-      BBL_LB_KEY: {{drats-papillon-lb-key}}
-      LB_DOMAIN: {{drats-papillon-lb-domain}}
+      BBL_LB_CERT: ((drats-papillon-lb-cert))
+      BBL_LB_KEY: ((drats-papillon-lb-key))
+      LB_DOMAIN: ((drats-papillon-lb-domain))
       BBL_ENV_NAME: drats-papillon
     input_mapping:
       bbl-state: drats-papillon-bbl-state
@@ -551,9 +551,9 @@ jobs:
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_STATE_DIR: drats-with-config-manx/
-      BBL_LB_CERT: {{drats-with-config-manx-lb-cert}}
-      BBL_LB_KEY: {{drats-with-config-manx-lb-key}}
-      LB_DOMAIN: {{drats-with-config-manx-lb-domain}}
+      BBL_LB_CERT: ((drats-with-config-manx-lb-cert))
+      BBL_LB_KEY: ((drats-with-config-manx-lb-key))
+      LB_DOMAIN: ((drats-with-config-manx-lb-domain))
       BBL_ENV_NAME: drats-with-config-manx
     input_mapping:
       bbl-state: drats-with-config-manx-bbl-state
@@ -600,9 +600,9 @@ jobs:
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_STATE_DIR: drats-opt-components-norwegianforest/
-      BBL_LB_CERT: {{drats-opt-components-norwegianforest-lb-cert}}
-      BBL_LB_KEY: {{drats-opt-components-norwegianforest-lb-key}}
-      LB_DOMAIN: {{drats-opt-components-norwegianforest-lb-domain}}
+      BBL_LB_CERT: ((drats-opt-components-norwegianforest-lb-cert))
+      BBL_LB_KEY: ((drats-opt-components-norwegianforest-lb-key))
+      LB_DOMAIN: ((drats-opt-components-norwegianforest-lb-domain))
       BBL_ENV_NAME: drats-opt-components-norwegianforest
     input_mapping:
       bbl-state: drats-opt-components-norwegianforest-bbl-state

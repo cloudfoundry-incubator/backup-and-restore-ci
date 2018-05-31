@@ -18,37 +18,37 @@ resources:
 - name: backup-and-restore-sdk-preview-addon-pivnet
   type: pivnet
   source:
-    api_token: {{pivnet-api-token}}
+    api_token: ((pivnet-api-token))
     product_slug: p-bosh-backup-and-restore
-    access_key_id: {{pivnet-aws-access-key-id}}
-    secret_access_key: {{pivnet-aws-secret-access-key}}
+    access_key_id: ((pivnet-aws-access-key-id))
+    secret_access_key: ((pivnet-aws-secret-access-key))
 
 - name: backup-and-restore-sdk-release
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-sdk-release.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: develop
 
 - name: backup-and-restore-sdk-release-master
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-sdk-release.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
 
 - name: bosh-backup-and-restore-meta
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
 
 - name: backup-and-restore-ci
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
 
 - name: version
@@ -57,31 +57,31 @@ resources:
     bucket: backup-and-restore-sdk-releases
     region_name: eu-west-1
     key: current-dev-version
-    access_key_id: {{aws-access-key-id}}
-    secret_access_key: {{aws-secret-access-key}}
+    access_key_id: ((aws-access-key-id))
+    secret_access_key: ((aws-secret-access-key))
 - name: release
   type: s3
   source:
     bucket: backup-and-restore-sdk-releases
     regexp: backup-and-restore-sdk-(.*).tgz
     region_name: eu-west-1
-    access_key_id: {{aws-access-key-id}}
-    secret_access_key: {{aws-secret-access-key}}
+    access_key_id: ((aws-access-key-id))
+    secret_access_key: ((aws-secret-access-key))
 - name: backup-and-restore-sdk-preview-release
   type: s3
   source:
     bucket: backup-and-restore-sdk-preview-releases
     regexp: backup-and-restore-sdk-preview-(.*).tgz
     region_name: eu-west-1
-    access_key_id: {{aws-access-key-id}}
-    secret_access_key: {{aws-secret-access-key}}
+    access_key_id: ((aws-access-key-id))
+    secret_access_key: ((aws-secret-access-key))
 - name: github-release
   type: github-release
   source:
     user: cloudfoundry-incubator
     repository: backup-and-restore-sdk-release
     draft: true
-    access_token: {{github-access-token}}
+    access_token: ((github-access-token))
 - name: cf-deployment-concourse-tasks
   type: git
   source:
@@ -130,15 +130,15 @@ jobs:
       file: backup-and-restore-ci/tasks/database-unit-tests/task.yml
       privileged: true
       params:
-        TEAM_GPG_KEY: {{team-gpg-key}}
+        TEAM_GPG_KEY: ((team-gpg-key))
         DOCKER_HOST: "tcp://10.0.3.12:4243"
     - task: blobstore-unit-tests
       file: backup-and-restore-ci/tasks/blobstore-unit-tests/task.yml
       params:
-        TEST_AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
-        TEST_AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
-        TEST_ECS_ACCESS_KEY_ID: {{ecs-access-key-id}}
-        TEST_ECS_SECRET_ACCESS_KEY: {{ecs-secret-access-key}}
+        TEST_AWS_ACCESS_KEY_ID: ((aws-access-key-id))
+        TEST_AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
+        TEST_ECS_ACCESS_KEY_ID: ((ecs-access-key-id))
+        TEST_ECS_SECRET_ACCESS_KEY: ((ecs-secret-access-key))
 
 - name: create-release
   serial: true
@@ -155,15 +155,15 @@ jobs:
   - task: bosh-clean-up
     file: backup-and-restore-ci/tasks/bosh-clean-up/task.yml
     params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
   - task: create-dev-release
     file: backup-and-restore-ci/tasks/create-dev-release/task.yml
     params:
-      AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
-      AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
+      AWS_ACCESS_KEY_ID: ((aws-access-key-id))
+      AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
   - put: release
     params:
       file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-*.tgz
@@ -172,9 +172,9 @@ jobs:
   - task: upload-release
     file: backup-and-restore-ci/tasks/upload-release/task.yml
     params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
 
 - name: deploy-backup-restore-sdk
@@ -192,9 +192,9 @@ jobs:
   - task: deploy-backup-restore-sdk
     file: backup-and-restore-ci/tasks/deploy/task.yml
     params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_DEPLOYMENT: backup-restorer
       BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
       MANIFEST_NAME: backup-restorer.yml
@@ -214,9 +214,9 @@ jobs:
   - task: deploy-postgres-9.4
     file: backup-and-restore-ci/tasks/deploy/task.yml
     params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_DEPLOYMENT: postgres-9.4-dev
       BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
       DB_PASSWORD: postgres_password
@@ -240,9 +240,9 @@ jobs:
   - task: deploy-postgres-9.6
     file: backup-and-restore-ci/tasks/deploy/task.yml
     params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_DEPLOYMENT: postgres-9.6-dev
       BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
       DB_PASSWORD: postgres_password
@@ -254,9 +254,9 @@ jobs:
   - task: create-ssl-user
     file: backup-and-restore-ci/tasks/create-ssl-user/task.yml
     params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_DEPLOYMENT: postgres-9.6-dev
       BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
   - put: bosh-backup-and-restore-meta
@@ -279,9 +279,9 @@ jobs:
   - task: deploy-mysql
     file: backup-and-restore-ci/tasks/deploy/task.yml
     params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_DEPLOYMENT: mysql-dev
       BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
       DB_PASSWORD: mysql_password
@@ -308,15 +308,15 @@ jobs:
   - task: apply-rds-aws
     file: bosh-backup-and-restore-meta/ci/tasks/apply-rds-aws.yml
     params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      AWS_ACCESS_KEY: {{aws-access-key-id}}
-      AWS_SECRET_KEY: {{aws-secret-access-key}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      AWS_ACCESS_KEY: ((aws-access-key-id))
+      AWS_SECRET_KEY: ((aws-secret-access-key))
       AWS_REGION: eu-west-1
-      MYSQL_5_5_PASSWORD: {{rds-5-5-password}}
-      MYSQL_5_6_PASSWORD: {{rds-5-6-password}}
-      MYSQL_5_7_PASSWORD: {{rds-5-7-password}}
-      POSTGRES_9_4_PASSWORD: {{rds-postgres-9-4-password}}
-      POSTGRES_9_6_PASSWORD: {{rds-postgres-9-6-password}}
+      MYSQL_5_5_PASSWORD: ((rds-5-5-password))
+      MYSQL_5_6_PASSWORD: ((rds-5-6-password))
+      MYSQL_5_7_PASSWORD: ((rds-5-7-password))
+      POSTGRES_9_4_PASSWORD: ((rds-postgres-9-4-password))
+      POSTGRES_9_6_PASSWORD: ((rds-postgres-9-6-password))
   - put: bosh-backup-and-restore-meta
     params:
       repository: bosh-backup-and-restore-meta-output/bosh-backup-and-restore-meta
@@ -336,10 +336,10 @@ jobs:
   - task: apply-gcp-cloud-sql
     file: bosh-backup-and-restore-meta/ci/tasks/apply-gcp-cloud-sql.yml
     params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      MYSQL_5_6_PASSWORD: {{gcp-mysql-5-6-password}}
-      MYSQL_5_7_PASSWORD: {{gcp-mysql-5-7-password}}
-      POSTGRES_9_6_PASSWORD: {{gcp-postgres-9-6-password}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      MYSQL_5_6_PASSWORD: ((gcp-mysql-5-6-password))
+      MYSQL_5_7_PASSWORD: ((gcp-mysql-5-7-password))
+      POSTGRES_9_6_PASSWORD: ((gcp-postgres-9-6-password))
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -361,14 +361,14 @@ jobs:
   - task: deploy-aws-blobstore-sdk
     file: backup-and-restore-ci/tasks/deploy-s3-backuper/task.yml
     params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_DEPLOYMENT: s3-backuper
       BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
       MANIFEST_NAME: s3-backuper.yml
-      AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
-      AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
+      AWS_ACCESS_KEY_ID: ((aws-access-key-id))
+      AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
       S3_BUCKET_NAME: bbr-system-test-bucket
       S3_REGION: eu-west-1
       S3_CLONED_BUCKET_NAME: bbr-system-test-bucket-clone
@@ -379,8 +379,8 @@ jobs:
       S3_UNVERSIONED_BUCKET_REGION: eu-west-1
       S3_UNVERSIONED_BACKUP_BUCKET_NAME: bbr-system-test-s3-unversioned-backup-bucket
       S3_UNVERSIONED_BACKUP_BUCKET_REGION: us-east-1
-      MINIO_ACCESS_KEY: {{minio-access-key}}
-      MINIO_SECRET_KEY: {{minio-secret-key}}
+      MINIO_ACCESS_KEY: ((minio-access-key))
+      MINIO_SECRET_KEY: ((minio-secret-key))
 
 - name: deploy-aws-blobstore-sdk-with-iam-instance-profile
   serial: true
@@ -426,49 +426,49 @@ jobs:
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
       POSTGRES_PASSWORD: postgres_password
       POSTGRES_HOSTNAME: *postgres_host_96
       POSTGRES_USERNAME: test_user
       POSTGRES_PORT: 5432
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
   - task: postgres-tls-system-tests
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
       POSTGRES_PASSWORD: postgres_password
       POSTGRES_HOSTNAME: *postgres_host_96
       POSTGRES_USERNAME: ssl_user
       POSTGRES_PORT: 5432
-      POSTGRES_CA_CERT: {{postgres-96-ca-cert}}
+      POSTGRES_CA_CERT: ((postgres-96-ca-cert))
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
       TEST_TLS_VERIFY_IDENTITY: false
   - task: postgres-mutual-tls-system-tests
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql_mutual_tls
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
       POSTGRES_PASSWORD: postgres_password
       POSTGRES_HOSTNAME: *postgres_host_96
       POSTGRES_USERNAME: mutual_tls_user
       POSTGRES_PORT: 5432
-      POSTGRES_CA_CERT: {{postgres-96-ca-cert}}
-      POSTGRES_CLIENT_CERT: {{postgres-96-client-cert}}
-      POSTGRES_CLIENT_KEY: {{postgres-96-client-key}}
+      POSTGRES_CA_CERT: ((postgres-96-ca-cert))
+      POSTGRES_CLIENT_CERT: ((postgres-96-client-cert))
+      POSTGRES_CLIENT_KEY: ((postgres-96-client-key))
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
       TEST_TLS_VERIFY_IDENTITY: false
 
 - name: gcp-postgres-system-tests-9.6
@@ -491,50 +491,50 @@ jobs:
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
-      POSTGRES_PASSWORD: {{gcp-postgres-9-6-password}}
-      POSTGRES_HOSTNAME: {{gcp-postgres-9-6-hostname}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
+      POSTGRES_PASSWORD: ((gcp-postgres-9-6-password))
+      POSTGRES_HOSTNAME: ((gcp-postgres-9-6-hostname))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
   - task: postgres-tls-system-tests
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
-      POSTGRES_PASSWORD: {{gcp-postgres-9-6-password}}
-      POSTGRES_HOSTNAME: {{gcp-postgres-9-6-hostname}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
+      POSTGRES_PASSWORD: ((gcp-postgres-9-6-password))
+      POSTGRES_HOSTNAME: ((gcp-postgres-9-6-hostname))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
-      POSTGRES_CA_CERT_PATH: {{gcp-postgres-9-6-ca-cert-path}}
+      POSTGRES_CA_CERT_PATH: ((gcp-postgres-9-6-ca-cert-path))
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
       TEST_TLS_VERIFY_IDENTITY: false
       TEST_SSL_USER_REQUIRES_SSL: false
   - task: postgres-mutual-tls-system-tests
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql_mutual_tls
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
-      POSTGRES_PASSWORD: {{gcp-postgres-9-6-password}}
-      POSTGRES_HOSTNAME: {{gcp-postgres-9-6-mutual-tls-hostname}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
+      POSTGRES_PASSWORD: ((gcp-postgres-9-6-password))
+      POSTGRES_HOSTNAME: ((gcp-postgres-9-6-mutual-tls-hostname))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
-      POSTGRES_CA_CERT_PATH: {{gcp-postgres-9-6-mutual-tls-ca-cert-path}}
-      POSTGRES_CLIENT_CERT_PATH: {{gcp-postgres-9-6-mutual-tls-client-cert-path}}
-      POSTGRES_CLIENT_KEY_PATH: {{gcp-postgres-9-6-mutual-tls-client-key-path}}
+      POSTGRES_CA_CERT_PATH: ((gcp-postgres-9-6-mutual-tls-ca-cert-path))
+      POSTGRES_CLIENT_CERT_PATH: ((gcp-postgres-9-6-mutual-tls-client-cert-path))
+      POSTGRES_CLIENT_KEY_PATH: ((gcp-postgres-9-6-mutual-tls-client-key-path))
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
       TEST_TLS_VERIFY_IDENTITY: false
       TEST_SSL_USER_REQUIRES_SSL: false
 
@@ -558,31 +558,31 @@ jobs:
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
-      POSTGRES_PASSWORD: {{rds-postgres-9-6-password}}
-      POSTGRES_HOSTNAME: {{rds-postgres-9-6-hostname}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
+      POSTGRES_PASSWORD: ((rds-postgres-9-6-password))
+      POSTGRES_HOSTNAME: ((rds-postgres-9-6-hostname))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
   - task: postgres-tls-system-tests
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
-      POSTGRES_PASSWORD: {{rds-postgres-9-6-password}}
-      POSTGRES_HOSTNAME: {{rds-postgres-9-6-hostname}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
+      POSTGRES_PASSWORD: ((rds-postgres-9-6-password))
+      POSTGRES_HOSTNAME: ((rds-postgres-9-6-hostname))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
-      POSTGRES_CA_CERT_PATH: {{rds-ca-cert-path}}
+      POSTGRES_CA_CERT_PATH: ((rds-ca-cert-path))
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
       TEST_SSL_USER_REQUIRES_SSL: false
 
 - name: postgres-system-tests-9.4
@@ -605,16 +605,16 @@ jobs:
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
       POSTGRES_PASSWORD: postgres_password
       POSTGRES_HOSTNAME: *postgres_host_94
       POSTGRES_USERNAME: test_user
       POSTGRES_PORT: 5432
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
 
 - name: rds-postgres-system-tests-9.4
   serial: true
@@ -636,31 +636,31 @@ jobs:
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
-      POSTGRES_PASSWORD: {{rds-postgres-9-4-password}}
-      POSTGRES_HOSTNAME: {{rds-postgres-9-4-hostname}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
+      POSTGRES_PASSWORD: ((rds-postgres-9-4-password))
+      POSTGRES_HOSTNAME: ((rds-postgres-9-4-hostname))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
   - task: postgres-tls-system-tests
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
-      POSTGRES_PASSWORD: {{rds-postgres-9-4-password}}
-      POSTGRES_HOSTNAME: {{rds-postgres-9-4-hostname}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
+      POSTGRES_PASSWORD: ((rds-postgres-9-4-password))
+      POSTGRES_HOSTNAME: ((rds-postgres-9-4-hostname))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
-      POSTGRES_CA_CERT_PATH: {{rds-ca-cert-path}}
+      POSTGRES_CA_CERT_PATH: ((rds-ca-cert-path))
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
       TEST_SSL_USER_REQUIRES_SSL: false
 
 - name: mariadb-system-tests
@@ -681,19 +681,19 @@ jobs:
   - task: mysql-system-tests
     file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
     params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
       MYSQL_PASSWORD: mysql_password
       MYSQL_HOSTNAME: *mysql-host
       MYSQL_PORT: 3306
       MYSQL_USERNAME: root
-      MYSQL_CA_CERT: {{mysql-ca-cert}}
-      MYSQL_CLIENT_CERT: {{mysql-client-cert}}
-      MYSQL_CLIENT_KEY: {{mysql-client-key}}
+      MYSQL_CA_CERT: ((mysql-ca-cert))
+      MYSQL_CLIENT_CERT: ((mysql-client-cert))
+      MYSQL_CLIENT_KEY: ((mysql-client-key))
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
+      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
       TEST_TLS_VERIFY_IDENTITY: false
       TEST_TLS_MUTUAL_TLS: false
 
@@ -715,17 +715,17 @@ jobs:
   - task: mysql-system-tests
     file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
     params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
-      MYSQL_PASSWORD: {{rds-5-5-password}}
-      MYSQL_HOSTNAME: {{rds-5-5-hostname}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
+      MYSQL_PASSWORD: ((rds-5-5-password))
+      MYSQL_HOSTNAME: ((rds-5-5-hostname))
       MYSQL_PORT: 3306
       MYSQL_USERNAME: root
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
-      MYSQL_CA_CERT_PATH: {{rds-ca-cert-path}}
+      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
+      MYSQL_CA_CERT_PATH: ((rds-ca-cert-path))
       TEST_TLS_MUTUAL_TLS: false
 
 - name: rds-mysql-5.6-system-tests
@@ -746,17 +746,17 @@ jobs:
   - task: mysql-system-tests
     file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
     params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
-      MYSQL_PASSWORD: {{rds-5-6-password}}
-      MYSQL_HOSTNAME: {{rds-5-6-hostname}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
+      MYSQL_PASSWORD: ((rds-5-6-password))
+      MYSQL_HOSTNAME: ((rds-5-6-hostname))
       MYSQL_PORT: 3306
       MYSQL_USERNAME: root
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
-      MYSQL_CA_CERT_PATH: {{rds-ca-cert-path}}
+      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
+      MYSQL_CA_CERT_PATH: ((rds-ca-cert-path))
       TEST_TLS_MUTUAL_TLS: false
 
 - name: rds-mysql-5.7-system-tests
@@ -777,17 +777,17 @@ jobs:
   - task: mysql-system-tests
     file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
     params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
-      MYSQL_PASSWORD: {{rds-5-7-password}}
-      MYSQL_HOSTNAME: {{rds-5-7-hostname}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
+      MYSQL_PASSWORD: ((rds-5-7-password))
+      MYSQL_HOSTNAME: ((rds-5-7-hostname))
       MYSQL_PORT: 3306
       MYSQL_USERNAME: root
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
-      MYSQL_CA_CERT_PATH: {{rds-ca-cert-path}}
+      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
+      MYSQL_CA_CERT_PATH: ((rds-ca-cert-path))
       TEST_TLS_MUTUAL_TLS: false
 
 - name: gcp-mysql-5.6-system-tests
@@ -808,19 +808,19 @@ jobs:
   - task: mysql-system-tests
     file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
     params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
-      MYSQL_PASSWORD: {{gcp-mysql-5-6-password}}
-      MYSQL_HOSTNAME: {{gcp-mysql-5-6-hostname}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
+      MYSQL_PASSWORD: ((gcp-mysql-5-6-password))
+      MYSQL_HOSTNAME: ((gcp-mysql-5-6-hostname))
       MYSQL_PORT: 3306
       MYSQL_USERNAME: root
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
-      MYSQL_CA_CERT_PATH: {{gcp-mysql-5-6-ca-cert-path}}
-      MYSQL_CLIENT_CERT_PATH: {{gcp-mysql-5-6-client-cert-path}}
-      MYSQL_CLIENT_KEY_PATH: {{gcp-mysql-5-6-client-key-path}}
+      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
+      MYSQL_CA_CERT_PATH: ((gcp-mysql-5-6-ca-cert-path))
+      MYSQL_CLIENT_CERT_PATH: ((gcp-mysql-5-6-client-cert-path))
+      MYSQL_CLIENT_KEY_PATH: ((gcp-mysql-5-6-client-key-path))
       TEST_TLS_VERIFY_IDENTITY: false
 
 - name: gcp-mysql-5.7-system-tests
@@ -841,19 +841,19 @@ jobs:
   - task: mysql-system-tests
     file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
     params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
-      MYSQL_PASSWORD: {{gcp-mysql-5-7-password}}
-      MYSQL_HOSTNAME: {{gcp-mysql-5-7-hostname}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
+      MYSQL_PASSWORD: ((gcp-mysql-5-7-password))
+      MYSQL_HOSTNAME: ((gcp-mysql-5-7-hostname))
       MYSQL_PORT: 3306
       MYSQL_USERNAME: root
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: {{lite-bosh-ssh-key}}
-      MYSQL_CA_CERT_PATH: {{gcp-mysql-5-7-ca-cert-path}}
-      MYSQL_CLIENT_CERT_PATH: {{gcp-mysql-5-7-client-cert-path}}
-      MYSQL_CLIENT_KEY_PATH: {{gcp-mysql-5-7-client-key-path}}
+      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
+      MYSQL_CA_CERT_PATH: ((gcp-mysql-5-7-ca-cert-path))
+      MYSQL_CLIENT_CERT_PATH: ((gcp-mysql-5-7-client-cert-path))
+      MYSQL_CLIENT_KEY_PATH: ((gcp-mysql-5-7-client-key-path))
       TEST_TLS_VERIFY_IDENTITY: false
 
 - name: s3-blobstore-backuper-system-tests
@@ -873,12 +873,12 @@ jobs:
   - task: s3-blobstore-backuper-system-tests
     file: backup-and-restore-ci/tasks/s3-system-tests/task.yml
     params:
-      TEAM_GPG_KEY: {{team-gpg-key}}
-      BOSH_CLIENT_SECRET: {{lite-bosh-director-password}}
-      BOSH_CLIENT: {{lite-bosh-director-username}}
+      TEAM_GPG_KEY: ((team-gpg-key))
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_DEPLOYMENT: s3-backuper
-      AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
-      AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
+      AWS_ACCESS_KEY_ID: ((aws-access-key-id))
+      AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
       AWS_TEST_BUCKET_NAME: bbr-system-test-bucket
       AWS_TEST_BUCKET_REGION: eu-west-1
       AWS_TEST_CLONE_BUCKET_NAME: bbr-system-test-bucket-clone
@@ -908,7 +908,7 @@ jobs:
     file: backup-and-restore-ci/tasks/s3-system-tests/task.yml
     params:
       FOCUS_SPEC: backs up and restores in-place # focus on one it to avoid redundant testing
-      TEAM_GPG_KEY: {{team-gpg-key}}
+      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_ENVIRONMENT: "((ec2-bosh-director-url))"
       BOSH_CLIENT_SECRET: "((ec2-bosh-director-password))"
       BOSH_CLIENT: "((ec2-bosh-director-username))"
@@ -917,8 +917,8 @@ jobs:
       BOSH_GW_USER: jumpbox
       BOSH_GW_HOST: "((ec2-bosh-director-url))"
       BOSH_GW_PRIVATE_KEY: "((ec2-bosh-gw-private-key))"
-      AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
-      AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
+      AWS_ACCESS_KEY_ID: ((aws-access-key-id))
+      AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
       AWS_TEST_BUCKET_NAME: iam-instance-role-test
       AWS_TEST_BUCKET_REGION: eu-west-1
       AWS_TEST_CLONE_BUCKET_NAME: iam-instance-role-test-clone
@@ -979,7 +979,7 @@ jobs:
       release: backup-and-restore-sdk-release
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
       SYSTEM_DOMAIN: bbr-s3.cf-app.com
@@ -1020,7 +1020,7 @@ jobs:
   - task: unit-tests
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
     params:
-      GITHUB_SSH_KEY: {{github-ssh-key}}
+      GITHUB_SSH_KEY: ((github-ssh-key))
   - task: acceptance-tests
     file: disaster-recovery-acceptance-tests/ci/drats/task.yml
     privileged: true
@@ -1028,14 +1028,14 @@ jobs:
       CF_DEPLOYMENT_NAME: cf
       CF_API_URL: https://api.bbr-s3.cf-app.com
       CF_ADMIN_USERNAME: admin
-      CF_ADMIN_PASSWORD: {{bbr-s3-cf-admin-password}}
-      BOSH_CA_CERT: {{bbr-s3-bosh-cert}}
+      CF_ADMIN_PASSWORD: ((bbr-s3-cf-admin-password))
+      BOSH_CA_CERT: ((bbr-s3-bosh-cert))
       BOSH_CLIENT: admin
-      BOSH_CLIENT_SECRET: {{bbr-s3-bosh-client-secret}}
-      BOSH_ENVIRONMENT: {{bbr-s3-bosh-url}}
+      BOSH_CLIENT_SECRET: ((bbr-s3-bosh-client-secret))
+      BOSH_ENVIRONMENT: ((bbr-s3-bosh-url))
       BOSH_GW_USER: jumpbox
-      BOSH_GW_HOST: {{bbr-s3-ssh-gateway-host}}
-      BOSH_GW_PRIVATE_KEY: {{bbr-s3-ssh-gateway-key}}
+      BOSH_GW_HOST: ((bbr-s3-ssh-gateway-host))
+      BOSH_GW_PRIVATE_KEY: ((bbr-s3-ssh-gateway-key))
       SSH_DESTINATION_CIDR: "10.0.0.0/8"
       DEFAULT_TIMEOUT_MINS: 30
       SKIP_SUITE_NAME: credhub|nfs
@@ -1057,7 +1057,7 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
   - task: drop-external-cf-databases
@@ -1115,7 +1115,7 @@ jobs:
       release: backup-and-restore-sdk-release
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
       SYSTEM_DOMAIN: bbr-s3-unversioned.cf-app.com
@@ -1159,7 +1159,7 @@ jobs:
   - task: unit-tests
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
     params:
-      GITHUB_SSH_KEY: {{github-ssh-key}}
+      GITHUB_SSH_KEY: ((github-ssh-key))
   - task: acceptance-tests
     file: disaster-recovery-acceptance-tests/ci/drats/task.yml
     privileged: true
@@ -1167,14 +1167,14 @@ jobs:
       CF_DEPLOYMENT_NAME: cf
       CF_API_URL: https://api.bbr-s3-unversioned.cf-app.com
       CF_ADMIN_USERNAME: admin
-      CF_ADMIN_PASSWORD: {{bbr-s3-unversioned-cf-admin-password}}
-      BOSH_CA_CERT: {{bbr-s3-unversioned-bosh-cert}}
+      CF_ADMIN_PASSWORD: ((bbr-s3-unversioned-cf-admin-password))
+      BOSH_CA_CERT: ((bbr-s3-unversioned-bosh-cert))
       BOSH_CLIENT: admin
-      BOSH_CLIENT_SECRET: {{bbr-s3-unversioned-bosh-client-secret}}
-      BOSH_ENVIRONMENT: {{bbr-s3-unversioned-bosh-url}}
+      BOSH_CLIENT_SECRET: ((bbr-s3-unversioned-bosh-client-secret))
+      BOSH_ENVIRONMENT: ((bbr-s3-unversioned-bosh-url))
       BOSH_GW_USER: jumpbox
-      BOSH_GW_HOST: {{bbr-s3-unversioned-ssh-gateway-host}}
-      BOSH_GW_PRIVATE_KEY: {{bbr-s3-unversioned-ssh-gateway-key}}
+      BOSH_GW_HOST: ((bbr-s3-unversioned-ssh-gateway-host))
+      BOSH_GW_PRIVATE_KEY: ((bbr-s3-unversioned-ssh-gateway-key))
       SSH_DESTINATION_CIDR: "10.0.0.0/8"
       DEFAULT_TIMEOUT_MINS: 30
       SKIP_SUITE_NAME: credhub|nfs
@@ -1195,7 +1195,7 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
 
@@ -1221,8 +1221,8 @@ jobs:
   - task: create-final-release
     file: backup-and-restore-ci/tasks/create-final-release/task.yml
     params:
-      AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
-      AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
+      AWS_ACCESS_KEY_ID: ((aws-access-key-id))
+      AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
   - task: generate-release-notes
     file: backup-and-restore-ci/tasks/generate-release-notes/task.yml
     input_mapping:
@@ -1273,8 +1273,8 @@ jobs:
   - task: create-final-release
     file: backup-and-restore-ci/tasks/create-final-release/task.yml
     params:
-      AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
-      AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
+      AWS_ACCESS_KEY_ID: ((aws-access-key-id))
+      AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
   - task: generate-release-notes
     file: backup-and-restore-ci/tasks/generate-release-notes/task.yml
     input_mapping:
@@ -1325,8 +1325,8 @@ jobs:
   - task: create-final-release
     file: backup-and-restore-ci/tasks/create-final-release/task.yml
     params:
-      AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
-      AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
+      AWS_ACCESS_KEY_ID: ((aws-access-key-id))
+      AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
   - task: generate-release-notes
     file: backup-and-restore-ci/tasks/generate-release-notes/task.yml
     input_mapping:

@@ -4,20 +4,20 @@ resources:
   type: git
   source:
     uri: git@github.com:pivotal-cf/docs-book-backup-and-restore.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
 - name: docs-backup-and-restore
   type: git
   source:
     uri: git@github.com:pivotal-cf/docs-backup-and-restore.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
 - name: pws
   type: cf
   source:
     api: https://api.run.pivotal.io
-    username: {{pws-username}}
-    password: {{pws-password}}
+    username: ((pws-username))
+    password: ((pws-password))
     organization: bbr
     space: docs
     # skip_cert_check: true
@@ -32,7 +32,7 @@ jobs:
   - task: build
     file: docs-book-backup-and-restore/ci/build-and-deploy/task.yml
     params:
-      GIT_SSH_KEY: {{git-private-key}}
+      GIT_SSH_KEY: ((git-private-key))
       APP_NAME: bbr-docs-staging
   - put: pws
     inputs:
@@ -48,7 +48,7 @@ jobs:
     passed: [build-and-deploy-to-staging]
   - task: build
     params:
-      GIT_SSH_KEY: {{git-private-key}}
+      GIT_SSH_KEY: ((git-private-key))
       APP_NAME: bbr-docs-production
     file: docs-book-backup-and-restore/ci/build-and-deploy/task.yml
   - put: pws
