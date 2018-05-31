@@ -14,11 +14,8 @@ params:
   BOSH_ENVIRONMENT:
   BOSH_CLIENT:
   BOSH_CLIENT_SECRET:
-
-  BOSH_CA_CERT_DIR:
+  BOSH_CA_CERT_DIR: bosh-backup-and-restore-meta
   BOSH_CA_CERT_PATH:
-  BOSH_CA_CERT_PREPARE_CMD: # Optional command to run before using bosh ca cert repository
-  TEAM_GPG_KEY:
 
 run:
   path: backup-and-restore-ci/tasks/bosh-delete-deployment/task.sh
