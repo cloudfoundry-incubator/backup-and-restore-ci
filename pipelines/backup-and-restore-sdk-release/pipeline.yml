@@ -412,6 +412,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
+    - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed: [create-release]
       trigger: true
@@ -420,7 +421,7 @@ jobs:
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
   - task: deploy-azure-blobstore-sdk
-    file: backup-and-restore-sdk-release/ci/tasks/deploy-azure-backuper.yml
+    file: backup-and-restore-ci/tasks/deploy-azure-backuper/task.yml
     params:
       TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
@@ -937,6 +938,7 @@ jobs:
 - name: azure-blobstore-backuper-system-tests
   serial: true
   plan:
+  - get: backup-and-restore-ci
   - get: backup-and-restore-sdk-release
     passed:
     - deploy-azure-blobstore-sdk
@@ -947,7 +949,7 @@ jobs:
     passed:
     - deploy-azure-blobstore-sdk
   - task: azure-blobstore-backuper-system-tests
-    file: backup-and-restore-sdk-release/ci/tasks/azure-system-tests.yml
+    file: backup-and-restore-ci/tasks/azure-system-tests/task.yml
     params:
       TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
