@@ -41,7 +41,7 @@ resources:
 - name: pcf-2-1-pool
   type: pcf-pool
   source:
-    api_token: {{toolsmiths-api-token}}
+    api_token: ((toolsmiths-api-token))
     hostname: environments.toolsmiths.cf-app.com
     pool_name: us_2_1
   tags:
@@ -51,21 +51,21 @@ resources:
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/bosh-backup-and-restore.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
     disable_git_lfs: true
 - name: bosh-backup-and-restore-meta
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     git_crypt_key: ((git-crypt-key))
     branch: master
 - name: release-trigger
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     git_crypt_key: ((git-crypt-key))
     branch: master
     paths:
@@ -74,58 +74,58 @@ resources:
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
 - name: bbr-pivnet
   type: pivnet
   source:
-    api_token: {{pivnet-api-token}}
+    api_token: ((pivnet-api-token))
     product_slug: p-bosh-backup-and-restore
-    access_key_id: {{pivnet-aws-access-key-id}}
-    secret_access_key: {{pivnet-aws-secret-access-key}}
+    access_key_id: ((pivnet-aws-access-key-id))
+    secret_access_key: ((pivnet-aws-secret-access-key))
 - name: rc
   type: s3
   source:
     bucket: bosh-backup-and-restore-builds
     region_name: eu-west-1
     regexp: bbr-(.*)\.tar
-    access_key_id: {{aws-access-key-id}}
-    secret_access_key: {{aws-secret-access-key}}
+    access_key_id: ((aws-access-key-id))
+    secret_access_key: ((aws-secret-access-key))
 - name: release
   type: s3
   source:
     bucket: bosh-backup-and-restore-final-builds
     region_name: eu-west-1
     regexp: bbr-(.*)\.tar
-    access_key_id: {{aws-access-key-id}}
-    secret_access_key: {{aws-secret-access-key}}
+    access_key_id: ((aws-access-key-id))
+    secret_access_key: ((aws-secret-access-key))
 - name: version
   type: semver
   source:
     bucket: bosh-backup-and-restore-builds
     region_name: eu-west-1
     key: current-version
-    access_key_id: {{aws-access-key-id}}
-    secret_access_key: {{aws-secret-access-key}}
+    access_key_id: ((aws-access-key-id))
+    secret_access_key: ((aws-secret-access-key))
 - name: bbr-release
   type: github-release
   source:
     user: cloudfoundry-incubator
     repository: bosh-backup-and-restore
-    access_token: {{github-access-token}}
+    access_token: ((github-access-token))
     drafts: true
 - name: bbr-systest-releases
   type: git
   source:
     uri: git@github.com:pivotal-cf-experimental/bosh-backup-and-restore-test-releases.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
     paths: [redis-test-release/**, lock-ordering-release/**]
 - name: pivotal-disaster-recovery-acceptance-tests
   type: git
   source:
     uri: git@github.com:pivotal-cf/pivotal-disaster-recovery-acceptance-tests.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
 
 
@@ -145,19 +145,19 @@ jobs:
     file: bosh-backup-and-restore/ci/tasks/upload-systest-release.yml
     params:
       BOSH_HOST: lite-bosh.backup-and-restore.cf-app.com
-      BOSH_CLIENT: {{garden-bosh-director-username}}
-      BOSH_CLIENT_SECRET: {{garden-bosh-director-password}}
+      BOSH_CLIENT: ((garden-bosh-director-username))
+      BOSH_CLIENT_SECRET: ((garden-bosh-director-password))
       BOSH_UAA_HOST: lite-bosh-uaa.backup-and-restore.cf-app.com
-      BOSH_UAA_CLIENT_SECRET: {{uaa-director-password}}
+      BOSH_UAA_CLIENT_SECRET: ((uaa-director-password))
       RELEASE_NAME: redis-test-release
   - task: upload-lock-ordering-release
     file: bosh-backup-and-restore/ci/tasks/upload-systest-release.yml
     params:
       BOSH_HOST: lite-bosh.backup-and-restore.cf-app.com
-      BOSH_CLIENT: {{garden-bosh-director-username}}
-      BOSH_CLIENT_SECRET: {{garden-bosh-director-password}}
+      BOSH_CLIENT: ((garden-bosh-director-username))
+      BOSH_CLIENT_SECRET: ((garden-bosh-director-password))
       BOSH_UAA_HOST: lite-bosh-uaa.backup-and-restore.cf-app.com
-      BOSH_UAA_CLIENT_SECRET: {{uaa-director-password}}
+      BOSH_UAA_CLIENT_SECRET: ((uaa-director-password))
       RELEASE_NAME: lock-ordering-release
 - name: unit
   serial: true
@@ -172,7 +172,7 @@ jobs:
     privileged: true
     params:
       DOCKER_HOST: "tcp://10.0.3.12:4243"
-      GITHUB_SSH_KEY: {{github-ssh-key}}
+      GITHUB_SSH_KEY: ((github-ssh-key))
 - name: system
   serial: true
   plan:
@@ -184,7 +184,7 @@ jobs:
     file: bosh-backup-and-restore/ci/tasks/system.yml
     params:
       BOSH_HOST: lite-bosh.backup-and-restore.cf-app.com
-      BOSH_CLIENT_SECRET: {{director-password}}
+      BOSH_CLIENT_SECRET: ((director-password))
 - name: system-uaa
   serial: true
   plan:
@@ -198,7 +198,7 @@ jobs:
       BOSH_GATEWAY_USER: jumpbox
       BOSH_GATEWAY_KEY: bosh-backup-and-restore-meta/garden-bosh-uaa/bosh.pem
       BOSH_HOST: lite-bosh-uaa.backup-and-restore.cf-app.com
-      BOSH_CLIENT_SECRET: {{uaa-director-password}}
+      BOSH_CLIENT_SECRET: ((uaa-director-password))
 - name: system-director
   serial: true
   plan:
@@ -210,7 +210,7 @@ jobs:
     file: bosh-backup-and-restore/ci/tasks/system-director.yml
     params:
       BOSH_HOST: genesis-bosh.backup-and-restore.cf-app.com
-      BOSH_CLIENT_SECRET: {{genesis-bosh-director-password}}
+      BOSH_CLIENT_SECRET: ((genesis-bosh-director-password))
       HOST_TO_BACKUP: 10.0.0.7
 - name: build-rc
   serial_groups: [version]
@@ -300,8 +300,8 @@ jobs:
     - task: transfer-bbr-binary-to-jumpbox
       file: bosh-backup-and-restore/ci/tasks/transfer-bbr-binary-to-jumpbox.yml
       params:
-        BOSH_CLIENT_SECRET: {{genesis-bosh-director-password}}
-        BOSH_CLIENT: {{genesis-bosh-director-username}}
+        BOSH_CLIENT_SECRET: ((genesis-bosh-director-password))
+        BOSH_CLIENT: ((genesis-bosh-director-username))
         BOSH_TARGET: https://genesis-bosh.backup-and-restore.cf-app.com
 - name: build-final
   serial_groups: [version]
