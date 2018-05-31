@@ -8,7 +8,7 @@ set -e
 curl "${CF_API_URL}" --fail --retry "${RETRY_COUNT}" --insecure
 set +e
 
-for i in $(seq 1 ${RETRY_COUNT}); do
+for i in $(seq 1 "${RETRY_COUNT}"); do
     call_cf_api
     exit_code=$?
 
@@ -26,7 +26,9 @@ fi
 
 set -e
 
-for i in $(seq 1 ${RETRY_COUNT}); do
+# i is unused
+# shellcheck disable=SC2034
+for i in $(seq 1 "${RETRY_COUNT}"); do
     sleep 15
 
     call_cf_api
