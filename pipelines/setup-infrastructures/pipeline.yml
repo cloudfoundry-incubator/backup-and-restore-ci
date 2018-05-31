@@ -38,7 +38,6 @@ resources:
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: ((git-private-key))
-    git_crypt_key: ((git-crypt-key))
     branch: master
 - name: backup-and-restore-ci
   type: git
