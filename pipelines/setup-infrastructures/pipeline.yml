@@ -14,6 +14,13 @@ bbl_compatible_bosh_deployment_version: &BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
   version:
     ref: 8a138f343f6cb32a938c5c9567ba1236326fdd7c
 
+resource_types:
+- name: git
+  type: docker-image
+  source:
+    repository: concourse/git-resource
+    tag: latest
+
 resources:
 - name: cf-deployment-concourse-tasks
   type: git
@@ -31,60 +38,70 @@ resources:
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: ((git-private-key))
+    git_crypt_key: ((git-crypt-key))
     branch: master
 - name: aws-s3-unversioned-bbl-state
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: ((git-private-key))
+    git_crypt_key: ((git-crypt-key))
     branch: master
 - name: drats-persian-bbl-state
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: ((git-private-key))
+    git_crypt_key: ((git-crypt-key))
     branch: master
 - name: drats-dragon-li-bbl-state
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: ((git-private-key))
+    git_crypt_key: ((git-crypt-key))
     branch: master
 - name: drats-papillon-bbl-state
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: ((git-private-key))
+    git_crypt_key: ((git-crypt-key))
     branch: master
 - name: drats-pr-ragdoll-bbl-state
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: ((git-private-key))
+    git_crypt_key: ((git-crypt-key))
     branch: master
 - name: continuous-drats-bbl-state
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: ((git-private-key))
+    git_crypt_key: ((git-crypt-key))
     branch: master
 - name: drats-with-config-manx-bbl-state
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: ((git-private-key))
+    git_crypt_key: ((git-crypt-key))
     branch: master
 - name: drats-opt-components-norwegianforest-bbl-state
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: ((git-private-key))
+    git_crypt_key: ((git-crypt-key))
     branch: master
 - name: bosh-backup-and-restore-meta
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: ((git-private-key))
+    git_crypt_key: ((git-crypt-key))
     branch: master
 - name: backup-and-restore-ci
   type: git
@@ -239,8 +256,6 @@ jobs:
       terraform-state: bosh-backup-and-restore-meta
     params:
       ENVIRONMENT_NAME: external-blobstore-directors/aws-ec2
-      TERRAFORM_STATE_PREPARE_CMD: unlock-ci.sh
-      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
       GIT_USER_NAME: "PCF Backup & Restore CI"
       GIT_USER_EMAIL: "cf-lazarus@pivotal.io"
     ensure:
@@ -266,8 +281,6 @@ jobs:
     params:
       TERRAFORM_OPERATION: destroy
       ENVIRONMENT_NAME: external-blobstore-directors/aws-ec2
-      TERRAFORM_STATE_PREPARE_CMD: unlock-ci.sh
-      TEAM_GPG_KEY: ((team-gpg-key))  # Required by unlock-ci.sh
       GIT_USER_NAME: "PCF Backup & Restore CI"
       GIT_USER_EMAIL: "cf-lazarus@pivotal.io"
     ensure:

@@ -13,6 +13,7 @@ inputs:
 - name: ops-files
 
 params:
+  BBL_STATE_DIR:
   OPS_FILE_PATH:
 
 run:

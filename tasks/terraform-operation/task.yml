@@ -15,7 +15,6 @@ outputs:
 params:
   TERRAFORM_OPERATION: apply # Set terraform command to run; e.g. destroy or apply
   TERRAFORM_STATE_DIR: terraform-state
-  TERRAFORM_STATE_PREPARE_CMD:  # Optional command to run before using terrform-state repository
   OUTPUT_TERRAFORM_STATE_DIR: terraform-state-updated
   ENVIRONMENT_NAME:
   GIT_USER_NAME:
