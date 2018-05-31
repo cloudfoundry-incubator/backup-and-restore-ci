@@ -6,6 +6,12 @@ resource_types:
     repository: jtarchie/pr
     tag: latest
 
+- name: git
+  type: docker-image
+  source:
+    repository: concourse/git-resource
+    tag: latest
+
 resources:
 - name: cf-deployment-concourse-tasks
   type: git
@@ -24,6 +30,7 @@ resources:
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: ((git-private-key))
+    git_crypt_key: ((git-crypt-key))
     branch: master
 
 - name: continuous-counter
