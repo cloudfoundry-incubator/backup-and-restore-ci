@@ -1,0 +1,21 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source: {repository: cloudfoundrylondon/backup-and-restore}
+
+inputs:
+- name: bosh-backup-and-restore-meta
+- name: backup-and-restore-ci
+
+outputs:
+- name: bosh-backup-and-restore-meta-output
+
+params:
+  MYSQL_5_6_PASSWORD:
+  MYSQL_5_7_PASSWORD:
+  POSTGRES_9_6_PASSWORD:
+
+run:
+  path: backup-and-restore-ci/tasks/apply-gcp-cloud-sql/task.sh
