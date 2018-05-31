@@ -16,13 +16,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -ex
+set -eu
 
 eval "$(ssh-agent)"
 chmod 400 bosh-backup-and-restore-meta/keys/github
 ssh-add bosh-backup-and-restore-meta/keys/github
 
-export GOPATH=`pwd`/backup-and-restore-sdk-release:"$GOPATH"
+export GOPATH="$PWD/backup-and-restore-sdk-release:$GOPATH"
 
 pushd backup-and-restore-sdk-release/src/github.com/cloudfoundry-incubator/database-backup-restore
   ginkgo -r -v -skipPackage system_tests

@@ -32,14 +32,16 @@ if [ ! -z "$VARS_STORE_PATH" ]; then
   vars_store_argument="--vars-store=bosh-backup-and-restore-meta/${VARS_STORE_PATH}"
 fi
 
+# skip double quotes check for $vars_store_argument
+# shellcheck disable=SC2086
 bosh-cli --non-interactive \
-  --deployment ${BOSH_DEPLOYMENT} \
+  --deployment "${BOSH_DEPLOYMENT}" \
   deploy "backup-and-restore-sdk-release/ci/manifests/${MANIFEST_NAME}" \
-  --var=backup-and-restore-sdk-release-version=$(cat release-tarball/version) \
-  --var=backup-and-restore-sdk-release-url=$(cat release-tarball/url) \
+  --var=backup-and-restore-sdk-release-version="$(cat release-tarball/version)" \
+  --var=backup-and-restore-sdk-release-url="$(cat release-tarball/url)" \
   --vars-env=OPTIONAL_BOSH_VARS \
   ${vars_store_argument} \
-  --var=deployment-name=${BOSH_DEPLOYMENT}
+  --var=deployment-name="${BOSH_DEPLOYMENT}"
 
 if [ ! -z "$VARS_STORE_PATH" ]; then
   pushd "bosh-backup-and-restore-meta"

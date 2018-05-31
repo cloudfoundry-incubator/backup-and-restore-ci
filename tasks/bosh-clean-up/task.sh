@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -eux
+set -eu
 
 export BOSH_CLIENT
 export BOSH_CLIENT_SECRET

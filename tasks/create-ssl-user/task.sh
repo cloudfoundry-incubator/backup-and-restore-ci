@@ -26,9 +26,9 @@ export BOSH_CA_CERT="./bosh-backup-and-restore-meta/certs/${BOSH_ENVIRONMENT}.cr
 chmod 400 bosh-backup-and-restore-meta/genesis-bosh/bosh.pem
 
 bosh-cli \
-  --deployment ${BOSH_DEPLOYMENT} \
+  --deployment "${BOSH_DEPLOYMENT}" \
   ssh \
-  --gw-host=${BOSH_ENVIRONMENT} \
+  --gw-host="${BOSH_ENVIRONMENT}" \
   --gw-user=vcap \
   --gw-private-key=bosh-backup-and-restore-meta/genesis-bosh/bosh.pem \
   -c 'echo -e "hostssl all mutual_tls_user 0.0.0.0/0 cert map=cnmap\nhostssl all ssl_user 0.0.0.0/0 md5\nhost all test_user 0.0.0.0/0 md5" | sudo tee /var/vcap/jobs/postgres/config/pg_hba.conf && sudo /var/vcap/bosh/bin/monit restart postgres && while ! nc -z localhost 5432 </dev/null; do sleep 1; done'
