@@ -33,69 +33,6 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/bosh-deployment.git
-- name: aws-s3-bbl-state
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: ((git-private-key))
-    git_crypt_key: ((git-crypt-key))
-    branch: master
-- name: aws-s3-unversioned-bbl-state
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: ((git-private-key))
-    git_crypt_key: ((git-crypt-key))
-    branch: master
-- name: drats-persian-bbl-state
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: ((git-private-key))
-    git_crypt_key: ((git-crypt-key))
-    branch: master
-- name: drats-dragon-li-bbl-state
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: ((git-private-key))
-    git_crypt_key: ((git-crypt-key))
-    branch: master
-- name: drats-papillon-bbl-state
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: ((git-private-key))
-    git_crypt_key: ((git-crypt-key))
-    branch: master
-- name: drats-pr-ragdoll-bbl-state
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: ((git-private-key))
-    git_crypt_key: ((git-crypt-key))
-    branch: master
-- name: continuous-drats-bbl-state
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: ((git-private-key))
-    git_crypt_key: ((git-crypt-key))
-    branch: master
-- name: drats-with-config-manx-bbl-state
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: ((git-private-key))
-    git_crypt_key: ((git-crypt-key))
-    branch: master
-- name: drats-opt-components-norwegianforest-bbl-state
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: ((git-private-key))
-    git_crypt_key: ((git-crypt-key))
-    branch: master
 - name: bosh-backup-and-restore-meta
   type: git
   source:
@@ -117,7 +54,7 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
-    - get: aws-s3-bbl-state
+    - get: bosh-backup-and-restore-meta
     - get: bosh-deployment
       <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
   - task: setup-infrastructure
@@ -130,10 +67,10 @@ jobs:
       LB_DOMAIN: bbr-s3.cf-app.com
       BBL_ENV_NAME: bbr-s3
     input_mapping:
-      bbl-state: aws-s3-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
       ops-files: bosh-deployment
     ensure:
-      put: aws-s3-bbl-state
+      put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
         rebase: true
@@ -145,7 +82,7 @@ jobs:
   - aggregate:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-aws-s3]
-    - get: aws-s3-bbl-state
+    - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-aws-s3]
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -153,9 +90,9 @@ jobs:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
     input_mapping:
-      bbl-state: aws-s3-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
     ensure:
-      put: aws-s3-bbl-state
+      put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
         rebase: true
@@ -166,7 +103,7 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
-    - get: aws-s3-unversioned-bbl-state
+    - get: bosh-backup-and-restore-meta
     - get: bosh-deployment
       <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
   - task: setup-infrastructure
@@ -179,10 +116,10 @@ jobs:
       LB_DOMAIN: bbr-s3-unversioned.cf-app.com
       BBL_ENV_NAME: bbr-s3-unversioned
     input_mapping:
-      bbl-state: aws-s3-unversioned-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
       ops-files: bosh-deployment
     ensure:
-      put: aws-s3-unversioned-bbl-state
+      put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
         rebase: true
@@ -194,7 +131,7 @@ jobs:
   - aggregate:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-aws-s3-unversioned]
-    - get: aws-s3-unversioned-bbl-state
+    - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-aws-s3-unversioned]
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -202,9 +139,9 @@ jobs:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
     input_mapping:
-      bbl-state: aws-s3-unversioned-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
     ensure:
-      put: aws-s3-unversioned-bbl-state
+      put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
         rebase: true
@@ -311,7 +248,7 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
-    - get: drats-persian-bbl-state
+    - get: bosh-backup-and-restore-meta
     - get: bosh-deployment
       <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
   - task: setup-infrastructure
@@ -324,10 +261,10 @@ jobs:
       LB_DOMAIN: ((drats-persian-lb-domain))
       BBL_ENV_NAME: drats-persian
     input_mapping:
-      bbl-state: drats-persian-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
       ops-files: bosh-deployment
     ensure:
-      put: drats-persian-bbl-state
+      put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
         rebase: true
@@ -339,7 +276,7 @@ jobs:
   - aggregate:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-persian]
-    - get: drats-persian-bbl-state
+    - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-drats-persian]
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -347,9 +284,9 @@ jobs:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: drats-persian/
     input_mapping:
-      bbl-state: drats-persian-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
     ensure:
-      put: drats-persian-bbl-state
+      put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
         rebase: true
@@ -360,7 +297,7 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
-    - get: drats-dragon-li-bbl-state
+    - get: bosh-backup-and-restore-meta
     - get: bosh-deployment
       <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
   - task: setup-infrastructure
@@ -373,10 +310,10 @@ jobs:
       LB_DOMAIN: ((drats-dragon-li-lb-domain))
       BBL_ENV_NAME: drats-dragon-li
     input_mapping:
-      bbl-state: drats-dragon-li-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
       ops-files: bosh-deployment
     ensure:
-      put: drats-dragon-li-bbl-state
+      put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
         rebase: true
@@ -388,7 +325,7 @@ jobs:
   - aggregate:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-dragon-li]
-    - get: drats-dragon-li-bbl-state
+    - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-drats-dragon-li]
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -396,9 +333,9 @@ jobs:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: drats-dragon-li/
     input_mapping:
-      bbl-state: drats-dragon-li-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
     ensure:
-      put: drats-dragon-li-bbl-state
+      put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
         rebase: true
@@ -411,7 +348,7 @@ jobs:
     - get: cf-deployment-concourse-tasks
     - get: bosh-deployment
       <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
-    - get: drats-pr-ragdoll-bbl-state
+    - get: bosh-backup-and-restore-meta
   - task: setup-infrastructure
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
@@ -422,10 +359,10 @@ jobs:
       LB_DOMAIN: ((drats-pr-ragdoll-lb-domain))
       BBL_ENV_NAME: drats-pr-ragdoll
     input_mapping:
-      bbl-state: drats-pr-ragdoll-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
       ops-files: bosh-deployment
     ensure:
-      put: drats-pr-ragdoll-bbl-state
+      put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
         rebase: true
@@ -437,7 +374,7 @@ jobs:
   - aggregate:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-pr-ragdoll]
-    - get: drats-pr-ragdoll-bbl-state
+    - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-drats-pr-ragdoll]
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -445,9 +382,9 @@ jobs:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: drats-pr-ragdoll/
     input_mapping:
-      bbl-state: drats-pr-ragdoll-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
     ensure:
-      put: drats-pr-ragdoll-bbl-state
+      put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
         rebase: true
@@ -458,7 +395,7 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
-    - get: continuous-drats-bbl-state
+    - get: bosh-backup-and-restore-meta
     - get: bosh-deployment
       <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
   - task: setup-infrastructure
@@ -471,10 +408,10 @@ jobs:
       LB_DOMAIN: ((continuous-drats-lb-domain))
       BBL_ENV_NAME: continuous-drats
     input_mapping:
-      bbl-state: continuous-drats-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
       ops-files: bosh-deployment
     ensure:
-      put: continuous-drats-bbl-state
+      put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
         rebase: true
@@ -486,7 +423,7 @@ jobs:
   - aggregate:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-continuous-drats]
-    - get: continuous-drats-bbl-state
+    - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-continuous-drats]
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -494,9 +431,9 @@ jobs:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: continuous-drats/
     input_mapping:
-      bbl-state: continuous-drats-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
     ensure:
-      put: continuous-drats-bbl-state
+      put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
         rebase: true
@@ -507,7 +444,7 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
-    - get: drats-papillon-bbl-state
+    - get: bosh-backup-and-restore-meta
     - get: bosh-deployment
       <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
   - task: setup-infrastructure
@@ -520,10 +457,10 @@ jobs:
       LB_DOMAIN: ((drats-papillon-lb-domain))
       BBL_ENV_NAME: drats-papillon
     input_mapping:
-      bbl-state: drats-papillon-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
       ops-files: bosh-deployment
     ensure:
-      put: drats-papillon-bbl-state
+      put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
         rebase: true
@@ -535,7 +472,7 @@ jobs:
   - aggregate:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-papillon]
-    - get: drats-papillon-bbl-state
+    - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-drats-papillon]
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -543,9 +480,9 @@ jobs:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: drats-papillon/
     input_mapping:
-      bbl-state: drats-papillon-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
     ensure:
-      put: drats-papillon-bbl-state
+      put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
         rebase: true
@@ -556,7 +493,7 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
-    - get: drats-with-config-manx-bbl-state
+    - get: bosh-backup-and-restore-meta
     - get: bosh-deployment
       <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
   - task: setup-infrastructure
@@ -569,10 +506,10 @@ jobs:
       LB_DOMAIN: ((drats-with-config-manx-lb-domain))
       BBL_ENV_NAME: drats-with-config-manx
     input_mapping:
-      bbl-state: drats-with-config-manx-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
       ops-files: bosh-deployment
     ensure:
-      put: drats-with-config-manx-bbl-state
+      put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
         rebase: true
@@ -584,7 +521,7 @@ jobs:
   - aggregate:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-with-config-manx]
-    - get: drats-with-config-manx-bbl-state
+    - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-drats-with-config-manx]
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -592,9 +529,9 @@ jobs:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: drats-with-config-manx/
     input_mapping:
-      bbl-state: drats-with-config-manx-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
     ensure:
-      put: drats-with-config-manx-bbl-state
+      put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
         rebase: true
@@ -605,7 +542,7 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
-    - get: drats-opt-components-norwegianforest-bbl-state
+    - get: bosh-backup-and-restore-meta
     - get: bosh-deployment
       <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
   - task: setup-infrastructure
@@ -618,10 +555,10 @@ jobs:
       LB_DOMAIN: ((drats-opt-components-norwegianforest-lb-domain))
       BBL_ENV_NAME: drats-opt-components-norwegianforest
     input_mapping:
-      bbl-state: drats-opt-components-norwegianforest-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
       ops-files: bosh-deployment
     ensure:
-      put: drats-opt-components-norwegianforest-bbl-state
+      put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
         rebase: true
@@ -633,7 +570,7 @@ jobs:
   - aggregate:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-opt-components-norwegianforest]
-    - get: drats-opt-components-norwegianforest-bbl-state
+    - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-drats-opt-components-norwegianforest]
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -641,9 +578,9 @@ jobs:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: drats-opt-components-norwegianforest/
     input_mapping:
-      bbl-state: drats-opt-components-norwegianforest-bbl-state
+      bbl-state: bosh-backup-and-restore-meta
     ensure:
-      put: drats-opt-components-norwegianforest-bbl-state
+      put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
         rebase: true
