@@ -28,6 +28,3 @@ inputs:
 
 run:
   path: backup-and-restore-ci/tasks/database-unit-tests/task.sh
-
-params:
-  TEAM_GPG_KEY:

@@ -31,6 +31,6 @@ params:
   BOSH_ENVIRONMENT:
   BOSH_CLIENT:
   BOSH_CLIENT_SECRET:
-  TEAM_GPG_KEY:
+
 run:
   path: backup-and-restore-ci/tasks/upload-release/task.sh

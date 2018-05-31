@@ -13,6 +13,11 @@ resource_types:
   type: docker-image
   source:
     repository: concourse/bosh-io-stemcell-resource
+- name: git
+  type: docker-image
+  source:
+    repository: concourse/git-resource
+    tag: latest
 
 resources:
 - name: backup-and-restore-sdk-preview-addon-pivnet
@@ -42,6 +47,7 @@ resources:
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: ((git-private-key))
+    git_crypt_key: ((git-crypt-key))
     branch: master
 
 - name: backup-and-restore-ci
@@ -130,7 +136,6 @@ jobs:
       file: backup-and-restore-ci/tasks/database-unit-tests/task.yml
       privileged: true
       params:
-        TEAM_GPG_KEY: ((team-gpg-key))
         DOCKER_HOST: "tcp://10.0.3.12:4243"
     - task: blobstore-unit-tests
       file: backup-and-restore-ci/tasks/blobstore-unit-tests/task.yml
@@ -155,7 +160,6 @@ jobs:
   - task: bosh-clean-up
     file: backup-and-restore-ci/tasks/bosh-clean-up/task.yml
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
@@ -172,7 +176,6 @@ jobs:
   - task: upload-release
     file: backup-and-restore-ci/tasks/upload-release/task.yml
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
@@ -192,7 +195,6 @@ jobs:
   - task: deploy-backup-restore-sdk
     file: backup-and-restore-ci/tasks/deploy/task.yml
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_DEPLOYMENT: backup-restorer
@@ -214,7 +216,6 @@ jobs:
   - task: deploy-postgres-9.4
     file: backup-and-restore-ci/tasks/deploy/task.yml
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_DEPLOYMENT: postgres-9.4-dev
@@ -240,7 +241,6 @@ jobs:
   - task: deploy-postgres-9.6
     file: backup-and-restore-ci/tasks/deploy/task.yml
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_DEPLOYMENT: postgres-9.6-dev
@@ -254,7 +254,6 @@ jobs:
   - task: create-ssl-user
     file: backup-and-restore-ci/tasks/create-ssl-user/task.yml
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_DEPLOYMENT: postgres-9.6-dev
@@ -279,7 +278,6 @@ jobs:
   - task: deploy-mysql
     file: backup-and-restore-ci/tasks/deploy/task.yml
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_DEPLOYMENT: mysql-dev
@@ -308,7 +306,6 @@ jobs:
   - task: apply-rds-aws
     file: bosh-backup-and-restore-meta/ci/tasks/apply-rds-aws.yml
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))
       AWS_ACCESS_KEY: ((aws-access-key-id))
       AWS_SECRET_KEY: ((aws-secret-access-key))
       AWS_REGION: eu-west-1
@@ -336,7 +333,6 @@ jobs:
   - task: apply-gcp-cloud-sql
     file: bosh-backup-and-restore-meta/ci/tasks/apply-gcp-cloud-sql.yml
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))
       MYSQL_5_6_PASSWORD: ((gcp-mysql-5-6-password))
       MYSQL_5_7_PASSWORD: ((gcp-mysql-5-7-password))
       POSTGRES_9_6_PASSWORD: ((gcp-postgres-9-6-password))
@@ -361,7 +357,6 @@ jobs:
   - task: deploy-aws-blobstore-sdk
     file: backup-and-restore-ci/tasks/deploy-s3-backuper/task.yml
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_DEPLOYMENT: s3-backuper
@@ -426,7 +421,6 @@ jobs:
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       POSTGRES_PASSWORD: postgres_password
@@ -440,7 +434,6 @@ jobs:
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       POSTGRES_PASSWORD: postgres_password
@@ -456,7 +449,6 @@ jobs:
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql_mutual_tls
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       POSTGRES_PASSWORD: postgres_password
@@ -491,7 +483,6 @@ jobs:
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       POSTGRES_PASSWORD: ((gcp-postgres-9-6-password))
@@ -505,7 +496,6 @@ jobs:
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       POSTGRES_PASSWORD: ((gcp-postgres-9-6-password))
@@ -522,7 +512,6 @@ jobs:
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql_mutual_tls
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       POSTGRES_PASSWORD: ((gcp-postgres-9-6-password))
@@ -558,7 +547,6 @@ jobs:
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       POSTGRES_PASSWORD: ((rds-postgres-9-6-password))
@@ -572,7 +560,6 @@ jobs:
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       POSTGRES_PASSWORD: ((rds-postgres-9-6-password))
@@ -605,7 +592,6 @@ jobs:
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       POSTGRES_PASSWORD: postgres_password
@@ -636,7 +622,6 @@ jobs:
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       POSTGRES_PASSWORD: ((rds-postgres-9-4-password))
@@ -650,7 +635,6 @@ jobs:
     file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       POSTGRES_PASSWORD: ((rds-postgres-9-4-password))
@@ -681,7 +665,6 @@ jobs:
   - task: mysql-system-tests
     file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       MYSQL_PASSWORD: mysql_password
@@ -715,7 +698,6 @@ jobs:
   - task: mysql-system-tests
     file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       MYSQL_PASSWORD: ((rds-5-5-password))
@@ -746,7 +728,6 @@ jobs:
   - task: mysql-system-tests
     file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       MYSQL_PASSWORD: ((rds-5-6-password))
@@ -777,7 +758,6 @@ jobs:
   - task: mysql-system-tests
     file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       MYSQL_PASSWORD: ((rds-5-7-password))
@@ -808,7 +788,6 @@ jobs:
   - task: mysql-system-tests
     file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       MYSQL_PASSWORD: ((gcp-mysql-5-6-password))
@@ -841,7 +820,6 @@ jobs:
   - task: mysql-system-tests
     file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       MYSQL_PASSWORD: ((gcp-mysql-5-7-password))
@@ -873,7 +851,6 @@ jobs:
   - task: s3-blobstore-backuper-system-tests
     file: backup-and-restore-ci/tasks/s3-system-tests/task.yml
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_DEPLOYMENT: s3-backuper
@@ -908,7 +885,6 @@ jobs:
     file: backup-and-restore-ci/tasks/s3-system-tests/task.yml
     params:
       FOCUS_SPEC: backs up and restores in-place # focus on one it to avoid redundant testing
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_ENVIRONMENT: "((ec2-bosh-director-url))"
       BOSH_CLIENT_SECRET: "((ec2-bosh-director-password))"
       BOSH_CLIENT: "((ec2-bosh-director-username))"

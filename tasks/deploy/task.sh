@@ -18,7 +18,6 @@
 
 set -eu
 
-./bosh-backup-and-restore-meta/unlock-ci.sh
 export BOSH_CLIENT
 export BOSH_CLIENT_SECRET
 export BOSH_ENVIRONMENT

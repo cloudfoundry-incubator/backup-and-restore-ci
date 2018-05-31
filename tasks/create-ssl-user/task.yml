@@ -29,7 +29,6 @@ run:
   path: backup-and-restore-ci/tasks/create-ssl-user/task.sh
 
 params:
-  TEAM_GPG_KEY:
   BOSH_ENVIRONMENT:
   BOSH_DEPLOYMENT:
   BOSH_CLIENT:

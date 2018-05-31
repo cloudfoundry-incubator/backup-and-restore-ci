@@ -34,7 +34,6 @@ run:
   path: backup-and-restore-ci/tasks/deploy-s3-backuper/task.sh
 
 params:
-  TEAM_GPG_KEY:
   BOSH_ENVIRONMENT:
   BOSH_CLIENT:
   BOSH_CLIENT_SECRET:

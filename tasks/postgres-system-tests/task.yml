@@ -30,7 +30,6 @@ run:
   path: backup-and-restore-ci/tasks/postgres-system-tests/task.sh
 
 params:
-  TEAM_GPG_KEY:
   BOSH_CLIENT_SECRET:
   BOSH_CLIENT:
   POSTGRES_PASSWORD:
