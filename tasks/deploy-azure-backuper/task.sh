@@ -18,19 +18,17 @@
 
 set -eu
 
-./bosh-backup-and-restore-meta/unlock-ci.sh
-export BOSH_CLIENT
-export BOSH_CLIENT_SECRET
-export BOSH_ENVIRONMENT
 export BOSH_CA_CERT="./bosh-backup-and-restore-meta/certs/${BOSH_ENVIRONMENT}.crt"
 
 bosh-cli --non-interactive \
-  --deployment ${BOSH_DEPLOYMENT} \
+  --deployment "${BOSH_DEPLOYMENT}" \
   deploy "backup-and-restore-sdk-release/ci/manifests/${MANIFEST_NAME}" \
-  --var=deployment-name=${BOSH_DEPLOYMENT} \
-  --var=backup-and-restore-sdk-release-version=$(cat release-tarball/version) \
-  --var=backup-and-restore-sdk-release-url=$(cat release-tarball/url) \
-  --var=azure-storage-account=${AZURE_STORAGE_ACCOUNT} \
-  --var=azure-storage-key=${AZURE_STORAGE_KEY} \
-  --var=azure-container-name=${AZURE_CONTAINER_NAME} \
-  --var=azure-clone-container-name=${AZURE_CLONE_CONTAINER_NAME}
+  --var=deployment-name="${BOSH_DEPLOYMENT}" \
+  --var=backup-and-restore-sdk-release-version="$(cat release-tarball/version)" \
+  --var=backup-and-restore-sdk-release-url="$(cat release-tarball/url)" \
+  --var=azure-storage-account="${AZURE_STORAGE_ACCOUNT}" \
+  --var=azure-storage-key="${AZURE_STORAGE_KEY}" \
+  --var=azure-container-name="${AZURE_CONTAINER_NAME}" \
+  --var=azure-different-storage-account="${AZURE_DIFFERENT_STORAGE_ACCOUNT}" \
+  --var=azure-different-storage-key="${AZURE_DIFFERENT_STORAGE_KEY}" \
+  --var=azure-different-container-name="${AZURE_DIFFERENT_CONTAINER_NAME}"
