@@ -430,9 +430,9 @@ jobs:
       MANIFEST_NAME: azure-backuper.yml
       AZURE_STORAGE_ACCOUNT: ((azure-storage-account))
       AZURE_STORAGE_KEY: ((azure-storage-key))
+      AZURE_CONTAINER_NAME: bbr-system-test-azure-container
       AZURE_DIFFERENT_STORAGE_ACCOUNT: ((azure-different-storage-account))
       AZURE_DIFFERENT_STORAGE_KEY: ((azure-different-storage-key))
-      AZURE_CONTAINER_NAME: bbr-system-test-azure-container
       AZURE_DIFFERENT_CONTAINER_NAME: bbr-system-test-azure-different-container
 
 - name: postgres-system-tests-9.6
@@ -955,7 +955,11 @@ jobs:
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_DEPLOYMENT: azure-backuper
+      AZURE_STORAGE_ACCOUNT: ((azure-storage-account))
+      AZURE_STORAGE_KEY: ((azure-storage-key))
       AZURE_CONTAINER_NAME: bbr-system-test-azure-container
+      AZURE_DIFFERENT_STORAGE_ACCOUNT: ((azure-different-storage-account))
+      AZURE_DIFFERENT_STORAGE_KEY: ((azure-different-storage-key))
       AZURE_DIFFERENT_CONTAINER_NAME: bbr-system-test-azure-different-container
 
 - name: deploy-cf-with-external-s3-blobstore
