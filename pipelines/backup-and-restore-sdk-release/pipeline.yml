@@ -423,7 +423,6 @@ jobs:
   - task: deploy-azure-blobstore-sdk
     file: backup-and-restore-ci/tasks/deploy-azure-backuper/task.yml
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_DEPLOYMENT: azure-backuper
@@ -951,7 +950,6 @@ jobs:
   - task: azure-blobstore-backuper-system-tests
     file: backup-and-restore-ci/tasks/azure-system-tests/task.yml
     params:
-      TEAM_GPG_KEY: ((team-gpg-key))
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_DEPLOYMENT: azure-backuper
