@@ -149,6 +149,8 @@ jobs:
         AZURE_STORAGE_ACCOUNT_NO_SOFT_DELETE: ((azure-storage-account-no-soft-delete))
         AZURE_STORAGE_KEY_NO_SOFT_DELETE: ((azure-storage-key-no-soft-delete))
         AZURE_CONTAINER_NAME_MANY_FILES: bbr-test-many-blobs-azure-container
+        AZURE_DIFFERENT_STORAGE_ACCOUNT: ((azure-different-storage-account))
+        AZURE_DIFFERENT_STORAGE_KEY: ((azure-different-storage-key))
 
 - name: create-release
   serial: true
