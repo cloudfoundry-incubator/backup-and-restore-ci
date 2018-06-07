@@ -99,6 +99,11 @@ resources:
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
     branch: master
+- name: cf-deployment-chunyi
+  type: git
+  source:
+    uri: https://github.com/ChunyiLyu/cf-deployment.git
+    branch: develop
 - name: bbr-binary-release
   type: github-release
   source:
@@ -1035,6 +1040,81 @@ jobs:
     file: backup-and-restore-ci/tasks/wait-for-cf-api/task.yml
     params:
       CF_API_URL: https://api.bbr-s3.cf-app.com
+
+- name: deploy-cf-with-external-azure-blobstore
+  serial: true
+  serial_groups: [bbr-azure]
+  plan:
+  - aggregate:
+    - get: cf-deployment-master
+    - get: cf-deployment-chunyi
+    - get: backup-and-restore-sdk-release
+      trigger: true
+      passed:
+      - azure-blobstore-backuper-system-tests
+    - get: release-tarball
+      resource: release
+      passed:
+      - postgres-system-tests-9.4
+      - postgres-system-tests-9.6
+      - gcp-postgres-system-tests-9.6
+      - rds-postgres-system-tests-9.4
+      - rds-postgres-system-tests-9.6
+      - mariadb-system-tests
+      - s3-blobstore-backuper-system-tests
+      - azure-blobstore-backuper-system-tests
+      - rds-mysql-5.5-system-tests
+      - rds-mysql-5.6-system-tests
+      - rds-mysql-5.7-system-tests
+      - gcp-mysql-5.6-system-tests
+      - gcp-mysql-5.7-system-tests
+    - get: cf-deployment-concourse-tasks
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
+  - task: upload-stemcell
+    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      cf-deployment: cf-deployment-master
+    params:
+      INFRASTRUCTURE: google
+      BBL_STATE_DIR: external-blobstore-directors/azure/
+  - task: collect-cf-deployment-ops-files
+    file: cf-deployment-concourse-tasks/collect-ops-files/task.yml
+    input_mapping:
+      base-ops-files: cf-deployment-master
+      new-ops-files: cf-deployment-chunyi
+    params:
+      BASE_OPS_FILE_DIR: operations/
+      NEW_OPS_FILES: operations/backup-and-restore/enable-backup-restore-azure.yml
+  - task: deploy-cf-with-external-azure
+    file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      cf-deployment: cf-deployment-chunyi
+      ops-files: collected-ops-files
+      vars-store: bosh-backup-and-restore-meta
+      vars-files: bosh-backup-and-restore-meta
+      release: backup-and-restore-sdk-release
+    params:
+      BBL_IAAS: gcp
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
+      BBL_GCP_PROJECT_ID: cf-backup-and-restore
+      BBL_STATE_DIR: external-blobstore-directors/azure/
+      SYSTEM_DOMAIN: bbr-azure.cf-app.com
+      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-azure-storage-blobstore.yml operations/enable-backup-restore-azure.yml"
+      VARS_STORE_FILE: external-blobstore-directors/azure/cf-deployment-variables.yml
+      GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
+      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-vars-store
+        rebase: true
+  - task: wait-for-cf-api
+    file: backup-and-restore-ci/tasks/wait-for-cf-api/task.yml
+    params:
+      CF_API_URL: https://api.bbr-azure.cf-app.com
 
 - name: run-drats-external-s3-blobstore
   serial: true
