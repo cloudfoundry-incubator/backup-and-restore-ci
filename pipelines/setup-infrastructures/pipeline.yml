@@ -152,6 +152,55 @@ jobs:
         repository: updated-bbl-state
         rebase: true
 
+- name: setup-infrastructure-azure
+  serial: true
+  serial_groups: [azure]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: bosh-backup-and-restore-meta
+    - get: bosh-deployment
+      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
+  - task: setup-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    params:
+      << : *COMMON_BBL_UP_PARAMS
+      BBL_STATE_DIR: external-blobstore-directors/azure/
+      BBL_LB_CERT: ((azure-lb-cert))
+      BBL_LB_KEY: ((azure-lb-key))
+      LB_DOMAIN: bbr-azure.cf-app.com
+      BBL_ENV_NAME: bbr-azure
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      ops-files: bosh-deployment
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: destroy-infrastructure-azure
+  serial: true
+  serial_groups: [azure]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [setup-infrastructure-azure]
+    - get: bosh-backup-and-restore-meta
+      passed: [setup-infrastructure-azure]
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: external-blobstore-directors/azure/
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
 - name: setup-infrastructure-aws-ec2
   serial: true
   serial_groups: [aws-ec2]
