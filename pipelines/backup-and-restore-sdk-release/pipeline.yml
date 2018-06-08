@@ -1032,10 +1032,17 @@ jobs:
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
     ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-vars-store
-        rebase: true
+      do:
+      - task: git-commit
+        file: backup-and-restore-ci/tasks/git-commit/task.yml
+        input_mapping:
+          git-repository-to-commit: updated-vars-store
+        params:
+          GIT_COMMIT_MESSAGE: "updated deployment variables"
+      - put: bosh-backup-and-restore-meta
+        params:
+          repository: committed-repository
+          rebase: true
   - task: wait-for-cf-api
     file: backup-and-restore-ci/tasks/wait-for-cf-api/task.yml
     params:
@@ -1091,7 +1098,7 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      cf-deployment: cf-deployment-chunyi
+      cf-deployment: cf-deployment-master
       ops-files: collected-ops-files
       vars-store: bosh-backup-and-restore-meta
       vars-files: bosh-backup-and-restore-meta
