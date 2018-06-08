@@ -547,12 +547,10 @@ jobs:
   serial_groups: [drats-with-config-manx]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment-concourse-tasks-v6
     - get: bosh-backup-and-restore-meta
-    - get: bosh-deployment
-      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
   - task: setup-infrastructure
-    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    file: cf-deployment-concourse-tasks-v6/bbl-up/task.yml
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_STATE_DIR: drats-with-config-manx/
@@ -562,7 +560,8 @@ jobs:
       BBL_ENV_NAME: drats-with-config-manx
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      ops-files: bosh-deployment
+      bbl-config: bosh-backup-and-restore-meta
+      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -574,17 +573,19 @@ jobs:
   serial_groups: [drats-with-config-manx]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment-concourse-tasks-v6
       passed: [setup-infrastructure-drats-with-config-manx]
     - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-drats-with-config-manx]
   - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    file: cf-deployment-concourse-tasks-v6/bbl-destroy/task.yml
     params:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: drats-with-config-manx/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
