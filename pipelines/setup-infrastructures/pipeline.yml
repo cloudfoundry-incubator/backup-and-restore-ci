@@ -44,12 +44,6 @@ resources:
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: ((git-private-key))
-    branch: master
-- name: bosh-backup-and-restore-meta-decrypted
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: ((git-private-key))
     git_crypt_key: ((git-crypt-key))
     branch: master
 - name: backup-and-restore-ci
@@ -214,7 +208,6 @@ jobs:
   - aggregate:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
-    - get: bosh-backup-and-restore-meta-decrypted
     - get: backup-and-restore-ci
     - get: bosh-deployment
       <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
@@ -252,13 +245,13 @@ jobs:
   - task: terraform-apply
     file: backup-and-restore-ci/tasks/terraform-operation/task.yml
     input_mapping:
-      terraform-state: bosh-backup-and-restore-meta-decrypted
+      terraform-state: bosh-backup-and-restore-meta
     params:
       ENVIRONMENT_NAME: external-blobstore-directors/aws-ec2
       GIT_USER_NAME: "PCF Backup & Restore CI"
       GIT_USER_EMAIL: "cf-lazarus@pivotal.io"
     ensure:
-      put: bosh-backup-and-restore-meta-decrypted
+      put: bosh-backup-and-restore-meta
       params:
         repository: terraform-state-updated
         rebase: true
@@ -272,20 +265,18 @@ jobs:
       passed: [setup-infrastructure-aws-ec2]
     - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-aws-ec2]
-    - get: bosh-backup-and-restore-meta-decrypted
-      passed: [setup-infrastructure-aws-ec2]
     - get: backup-and-restore-ci
   - task: terraform-destroy
     file: backup-and-restore-ci/tasks/terraform-operation/task.yml
     input_mapping:
-      terraform-state: bosh-backup-and-restore-meta-decrypted
+      terraform-state: bosh-backup-and-restore-meta
     params:
       TERRAFORM_OPERATION: destroy
       ENVIRONMENT_NAME: external-blobstore-directors/aws-ec2
       GIT_USER_NAME: "PCF Backup & Restore CI"
       GIT_USER_EMAIL: "cf-lazarus@pivotal.io"
     ensure:
-      put: bosh-backup-and-restore-meta-decrypted
+      put: bosh-backup-and-restore-meta
       params:
         repository: terraform-state-updated
         rebase: true
