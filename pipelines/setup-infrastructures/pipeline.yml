@@ -7,12 +7,7 @@ common_bbl_params: &COMMON_BBL_PARAMS
 common_bbl_up_params: &COMMON_BBL_UP_PARAMS
   << : *COMMON_BBL_PARAMS
   BBL_IAAS: gcp
-  BBL_GCP_ZONE: europe-west1-b
   BBL_GCP_REGION: europe-west1
-  OPS_FILES: "local-dns.yml"
-bbl_compatible_bosh_deployment_version: &BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
-  version:
-    ref: 8a138f343f6cb32a938c5c9567ba1236326fdd7c
 
 resource_types:
 - name: git
@@ -27,18 +22,7 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
-    tag_filter: v4.*
-- name: cf-deployment-concourse-tasks-v6
-  type: git
-  source:
-    branch: master
-    uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
     tag_filter: v6.*
-- name: bosh-deployment
-  type: git
-  source:
-    branch: master
-    uri: https://github.com/cloudfoundry/bosh-deployment.git
 - name: bosh-backup-and-restore-meta
   type: git
   source:
@@ -61,8 +45,6 @@ jobs:
   - aggregate:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
-    - get: bosh-deployment
-      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
   - task: setup-infrastructure
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
@@ -74,7 +56,7 @@ jobs:
       BBL_ENV_NAME: bbr-s3
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      ops-files: bosh-deployment
+      bbl-config: bosh-backup-and-restore-meta
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -97,6 +79,7 @@ jobs:
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -110,8 +93,6 @@ jobs:
   - aggregate:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
-    - get: bosh-deployment
-      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
   - task: setup-infrastructure
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
@@ -123,7 +104,7 @@ jobs:
       BBL_ENV_NAME: bbr-s3-unversioned
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      ops-files: bosh-deployment
+      bbl-config: bosh-backup-and-restore-meta
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -146,6 +127,7 @@ jobs:
       BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -159,8 +141,6 @@ jobs:
   - aggregate:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
-    - get: bosh-deployment
-      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
   - task: setup-infrastructure
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
@@ -172,7 +152,7 @@ jobs:
       BBL_ENV_NAME: bbr-azure
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      ops-files: bosh-deployment
+      bbl-config: bosh-backup-and-restore-meta
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -195,6 +175,7 @@ jobs:
       BBL_STATE_DIR: external-blobstore-directors/azure/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -209,8 +190,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-    - get: bosh-deployment
-      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
   - task: setup-infrastructure
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
@@ -218,7 +197,6 @@ jobs:
       BBL_AWS_ACCESS_KEY_ID: ((aws-access-key-id))
       BBL_AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
       BBL_AWS_REGION: eu-west-1
-      OPS_FILES: "local-dns.yml"
       BBL_STATE_DIR: external-blobstore-directors/aws-ec2/
       BBL_LB_CERT: ((aws-ec2-lb-cert))
       BBL_LB_KEY: ((aws-ec2-lb-key))
@@ -228,7 +206,7 @@ jobs:
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      ops-files: bosh-deployment
+      bbl-config: bosh-backup-and-restore-meta
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -241,6 +219,7 @@ jobs:
       BBL_STATE_DIR: external-blobstore-directors/aws-ec2
     input_mapping:
       bbl-state: updated-bbl-state
+      bbl-config: bosh-backup-and-restore-meta
       ops-files: bosh-backup-and-restore-meta
   - task: terraform-apply
     file: backup-and-restore-ci/tasks/terraform-operation/task.yml
@@ -291,6 +270,7 @@ jobs:
       BBL_STATE_DIR: external-blobstore-directors/aws-ec2/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -302,10 +282,10 @@ jobs:
   serial_groups: [drats-persian]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks-v6
+    - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: setup-infrastructure
-    file: cf-deployment-concourse-tasks-v6/bbl-up/task.yml
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_STATE_DIR: drats-persian/
@@ -316,7 +296,6 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
-      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -328,19 +307,18 @@ jobs:
   serial_groups: [drats-persian]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks-v6
+    - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-persian]
     - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-drats-persian]
   - task: bbl-destroy
-    file: cf-deployment-concourse-tasks-v6/bbl-destroy/task.yml
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: drats-persian/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
-      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -352,10 +330,10 @@ jobs:
   serial_groups: [drats-dragon-li]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks-v6
+    - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: setup-infrastructure
-    file: cf-deployment-concourse-tasks-v6/bbl-up/task.yml
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_STATE_DIR: drats-dragon-li/
@@ -366,7 +344,6 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
-      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -378,19 +355,18 @@ jobs:
   serial_groups: [drats-dragon-li]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks-v6
+    - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-dragon-li]
     - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-drats-dragon-li]
   - task: bbl-destroy
-    file: cf-deployment-concourse-tasks-v6/bbl-destroy/task.yml
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: drats-dragon-li/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
-      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -402,10 +378,10 @@ jobs:
   serial_groups: [drats-pr-ragdoll]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks-v6
+    - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: setup-infrastructure
-    file: cf-deployment-concourse-tasks-v6/bbl-up/task.yml
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_LB_CERT: ((drats-pr-ragdoll-lb-cert))
@@ -416,7 +392,6 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
-      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -428,19 +403,18 @@ jobs:
   serial_groups: [drats-pr-ragdoll]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks-v6
+    - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-pr-ragdoll]
     - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-drats-pr-ragdoll]
   - task: bbl-destroy
-    file: cf-deployment-concourse-tasks-v6/bbl-destroy/task.yml
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: drats-pr-ragdoll/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
-      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -454,8 +428,6 @@ jobs:
   - aggregate:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
-    - get: bosh-deployment
-      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
   - task: setup-infrastructure
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
@@ -467,7 +439,7 @@ jobs:
       BBL_ENV_NAME: continuous-drats
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      ops-files: bosh-deployment
+      bbl-config: bosh-backup-and-restore-meta
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -490,6 +462,7 @@ jobs:
       BBL_STATE_DIR: continuous-drats/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -501,10 +474,10 @@ jobs:
   serial_groups: [drats-papillon]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks-v6
+    - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: setup-infrastructure
-    file: cf-deployment-concourse-tasks-v6/bbl-up/task.yml
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_STATE_DIR: drats-papillon/
@@ -515,7 +488,6 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
-      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -527,19 +499,18 @@ jobs:
   serial_groups: [drats-papillon]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks-v6
+    - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-papillon]
     - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-drats-papillon]
   - task: bbl-destroy
-    file: cf-deployment-concourse-tasks-v6/bbl-destroy/task.yml
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: drats-papillon/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
-      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -551,10 +522,10 @@ jobs:
   serial_groups: [drats-with-config-manx]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks-v6
+    - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: setup-infrastructure
-    file: cf-deployment-concourse-tasks-v6/bbl-up/task.yml
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_STATE_DIR: drats-with-config-manx/
@@ -565,7 +536,6 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
-      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -577,19 +547,18 @@ jobs:
   serial_groups: [drats-with-config-manx]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks-v6
+    - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-with-config-manx]
     - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-drats-with-config-manx]
   - task: bbl-destroy
-    file: cf-deployment-concourse-tasks-v6/bbl-destroy/task.yml
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: drats-with-config-manx/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
-      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -601,10 +570,10 @@ jobs:
   serial_groups: [drats-opt-components-norwegianforest]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks-v6
+    - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: setup-infrastructure
-    file: cf-deployment-concourse-tasks-v6/bbl-up/task.yml
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_STATE_DIR: drats-opt-components-norwegianforest/
@@ -615,7 +584,6 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
-      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -627,19 +595,18 @@ jobs:
   serial_groups: [drats-opt-components-norwegianforest]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks-v6
+    - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-opt-components-norwegianforest]
     - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-drats-opt-components-norwegianforest]
   - task: bbl-destroy
-    file: cf-deployment-concourse-tasks-v6/bbl-destroy/task.yml
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: drats-opt-components-norwegianforest/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
-      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
