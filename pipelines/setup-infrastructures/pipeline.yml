@@ -28,6 +28,12 @@ resources:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
     tag_filter: v4.*
+- name: cf-deployment-concourse-tasks-v6
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
+    tag_filter: v6.*
 - name: bosh-deployment
   type: git
   source:
@@ -599,12 +605,10 @@ jobs:
   serial_groups: [drats-opt-components-norwegianforest]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment-concourse-tasks-v6
     - get: bosh-backup-and-restore-meta
-    - get: bosh-deployment
-      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
   - task: setup-infrastructure
-    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    file: cf-deployment-concourse-tasks-v6/bbl-up/task.yml
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_STATE_DIR: drats-opt-components-norwegianforest/
@@ -614,7 +618,8 @@ jobs:
       BBL_ENV_NAME: drats-opt-components-norwegianforest
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      ops-files: bosh-deployment
+      bbl-config: bosh-backup-and-restore-meta
+      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -626,17 +631,19 @@ jobs:
   serial_groups: [drats-opt-components-norwegianforest]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment-concourse-tasks-v6
       passed: [setup-infrastructure-drats-opt-components-norwegianforest]
     - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-drats-opt-components-norwegianforest]
   - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    file: cf-deployment-concourse-tasks-v6/bbl-destroy/task.yml
     params:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: drats-opt-components-norwegianforest/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
