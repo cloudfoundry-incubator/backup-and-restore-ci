@@ -302,12 +302,10 @@ jobs:
   serial_groups: [drats-persian]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment-concourse-tasks-v6
     - get: bosh-backup-and-restore-meta
-    - get: bosh-deployment
-      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
   - task: setup-infrastructure
-    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    file: cf-deployment-concourse-tasks-v6/bbl-up/task.yml
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_STATE_DIR: drats-persian/
@@ -317,7 +315,8 @@ jobs:
       BBL_ENV_NAME: drats-persian
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      ops-files: bosh-deployment
+      bbl-config: bosh-backup-and-restore-meta
+      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -329,17 +328,19 @@ jobs:
   serial_groups: [drats-persian]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment-concourse-tasks-v6
       passed: [setup-infrastructure-drats-persian]
     - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-drats-persian]
   - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    file: cf-deployment-concourse-tasks-v6/bbl-destroy/task.yml
     params:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: drats-persian/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -351,12 +352,10 @@ jobs:
   serial_groups: [drats-dragon-li]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment-concourse-tasks-v6
     - get: bosh-backup-and-restore-meta
-    - get: bosh-deployment
-      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
   - task: setup-infrastructure
-    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    file: cf-deployment-concourse-tasks-v6/bbl-up/task.yml
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_STATE_DIR: drats-dragon-li/
@@ -366,7 +365,8 @@ jobs:
       BBL_ENV_NAME: drats-dragon-li
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      ops-files: bosh-deployment
+      bbl-config: bosh-backup-and-restore-meta
+      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -378,17 +378,19 @@ jobs:
   serial_groups: [drats-dragon-li]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment-concourse-tasks-v6
       passed: [setup-infrastructure-drats-dragon-li]
     - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-drats-dragon-li]
   - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    file: cf-deployment-concourse-tasks-v6/bbl-destroy/task.yml
     params:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: drats-dragon-li/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -400,12 +402,10 @@ jobs:
   serial_groups: [drats-pr-ragdoll]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks
-    - get: bosh-deployment
-      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
+    - get: cf-deployment-concourse-tasks-v6
     - get: bosh-backup-and-restore-meta
   - task: setup-infrastructure
-    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    file: cf-deployment-concourse-tasks-v6/bbl-up/task.yml
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_LB_CERT: ((drats-pr-ragdoll-lb-cert))
@@ -415,7 +415,8 @@ jobs:
       BBL_ENV_NAME: drats-pr-ragdoll
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      ops-files: bosh-deployment
+      bbl-config: bosh-backup-and-restore-meta
+      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -427,17 +428,19 @@ jobs:
   serial_groups: [drats-pr-ragdoll]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment-concourse-tasks-v6
       passed: [setup-infrastructure-drats-pr-ragdoll]
     - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-drats-pr-ragdoll]
   - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    file: cf-deployment-concourse-tasks-v6/bbl-destroy/task.yml
     params:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: drats-pr-ragdoll/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -498,12 +501,10 @@ jobs:
   serial_groups: [drats-papillon]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment-concourse-tasks-v6
     - get: bosh-backup-and-restore-meta
-    - get: bosh-deployment
-      <<: *BBL_COMPATIBLE_BOSH_DEPLOYMENT_VERSION
   - task: setup-infrastructure
-    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    file: cf-deployment-concourse-tasks-v6/bbl-up/task.yml
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_STATE_DIR: drats-papillon/
@@ -513,7 +514,8 @@ jobs:
       BBL_ENV_NAME: drats-papillon
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      ops-files: bosh-deployment
+      bbl-config: bosh-backup-and-restore-meta
+      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -525,17 +527,19 @@ jobs:
   serial_groups: [drats-papillon]
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment-concourse-tasks-v6
       passed: [setup-infrastructure-drats-papillon]
     - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-drats-papillon]
   - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    file: cf-deployment-concourse-tasks-v6/bbl-destroy/task.yml
     params:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: drats-papillon/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+      cf-deployment-concourse-tasks: cf-deployment-concourse-tasks-v6
     ensure:
       put: bosh-backup-and-restore-meta
       params:
