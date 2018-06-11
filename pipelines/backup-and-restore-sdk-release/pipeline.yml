@@ -1153,6 +1153,25 @@ jobs:
       DEFAULT_TIMEOUT_MINS: 30
       SKIP_SUITE_NAME: credhub|nfs
 
+- name: delete-cf-deployment-external-azure-blobstore
+  serial: true
+  serial_groups: [bbr-azure]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: bosh-backup-and-restore-meta
+      passed: [run-drats-external-azure-blobstore]
+    - get: backup-and-restore-sdk-release
+      passed: [run-drats-external-azure-blobstore]
+      trigger: true
+    - get: backup-and-restore-ci
+  - task: bosh-delete-deployment
+    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: external-blobstore-directors/azure/
+
 - name: run-drats-external-s3-blobstore
   serial: true
   serial_groups: [bbr-s3]
