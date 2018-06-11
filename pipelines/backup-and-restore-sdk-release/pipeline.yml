@@ -93,7 +93,7 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
-    tag_filter: v4.*
+    tag_filter: v6.*
 - name: cf-deployment-master
   type: git
   source:
@@ -1010,7 +1010,6 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
       cf-deployment: cf-deployment-master
     params:
-      INFRASTRUCTURE: google
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
   - task: deploy-cf-with-external-s3
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
@@ -1022,9 +1021,6 @@ jobs:
       vars-files: bosh-backup-and-restore-meta
       release: backup-and-restore-sdk-release
     params:
-      BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
-      BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
       SYSTEM_DOMAIN: bbr-s3.cf-app.com
       OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/use-external-dbs.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-s3-blobstore.yml operations/backup-and-restore/enable-backup-restore-s3-versioned.yml"
@@ -1077,7 +1073,6 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
       cf-deployment: cf-deployment-master
     params:
-      INFRASTRUCTURE: google
       BBL_STATE_DIR: external-blobstore-directors/azure/
   - task: collect-cf-deployment-ops-files
     file: cf-deployment-concourse-tasks/collect-ops-files/task.yml
@@ -1097,9 +1092,6 @@ jobs:
       vars-files: bosh-backup-and-restore-meta
       release: backup-and-restore-sdk-release
     params:
-      BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
-      BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: external-blobstore-directors/azure/
       SYSTEM_DOMAIN: bbr-azure.cf-app.com
       OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-azure-storage-blobstore.yml operations/enable-backup-restore-azure.yml"
@@ -1107,21 +1099,57 @@ jobs:
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
     ensure:
-      do:
-      - task: git-commit
-        file: backup-and-restore-ci/tasks/git-commit/task.yml
-        input_mapping:
-          repository-to-commit: updated-vars-store
-        params:
-          GIT_COMMIT_MESSAGE: "updated deployment variables"
-      - put: bosh-backup-and-restore-meta
-        params:
-          repository: committed-repository
-          rebase: true
+      put: bosh-backup-and-restore-meta
+      params:
+        rebase: true
+        repository: updated-vars-store
   - task: wait-for-cf-api
     file: backup-and-restore-ci/tasks/wait-for-cf-api/task.yml
     params:
       CF_API_URL: https://api.bbr-azure.cf-app.com
+
+- name: run-drats-external-azure-blobstore
+  serial: true
+  serial_groups: [bbr-azure]
+  plan:
+  - get: bosh-backup-and-restore-meta
+    passed: [deploy-cf-with-external-azure-blobstore]
+  - get: release-tarball
+    resource: release
+    passed:
+    - deploy-cf-with-external-azure-blobstore
+  - get: cf-deployment-master
+    passed: [deploy-cf-with-external-azure-blobstore]
+    trigger: true
+  - get: backup-and-restore-sdk-release
+    trigger: true
+    passed: [deploy-cf-with-external-azure-blobstore]
+  - get: disaster-recovery-acceptance-tests
+    trigger: true
+  - get: bbr-binary-release
+    trigger: true
+  - task: unit-tests
+    file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
+    params:
+      GITHUB_SSH_KEY: ((github-ssh-key))
+  - task: acceptance-tests
+    file: disaster-recovery-acceptance-tests/ci/drats/task.yml
+    privileged: true
+    params:
+      CF_DEPLOYMENT_NAME: cf
+      CF_API_URL: https://api.bbr-azure.cf-app.com
+      CF_ADMIN_USERNAME: admin
+      CF_ADMIN_PASSWORD: ((bbr-azure-cf-admin-password))
+      BOSH_CA_CERT: ((bbr-azure-bosh-cert))
+      BOSH_CLIENT: admin
+      BOSH_CLIENT_SECRET: ((bbr-azure-bosh-client-secret))
+      BOSH_ENVIRONMENT: ((bbr-azure-bosh-url))
+      BOSH_GW_USER: jumpbox
+      BOSH_GW_HOST: ((bbr-azure-ssh-gateway-host))
+      BOSH_GW_PRIVATE_KEY: ((bbr-azure-ssh-gateway-key))
+      SSH_DESTINATION_CIDR: "10.0.0.0/8"
+      DEFAULT_TIMEOUT_MINS: 30
+      SKIP_SUITE_NAME: credhub|nfs
 
 - name: run-drats-external-s3-blobstore
   serial: true
@@ -1183,8 +1211,6 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
-      BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
   - task: drop-external-cf-databases
     file: backup-and-restore-ci/tasks/drop-external-cf-databases/task.yml
@@ -1229,7 +1255,6 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
       cf-deployment: cf-deployment-master
     params:
-      INFRASTRUCTURE: google
       BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
   - task: deploy-cf-with-external-s3
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
@@ -1241,9 +1266,6 @@ jobs:
       vars-files: bosh-backup-and-restore-meta
       release: backup-and-restore-sdk-release
     params:
-      BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
-      BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
       SYSTEM_DOMAIN: bbr-s3-unversioned.cf-app.com
       OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-s3-blobstore.yml operations/backup-and-restore/enable-backup-restore-s3-unversioned.yml"
@@ -1322,8 +1344,6 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
-      BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
 
 - name: create-final-major
