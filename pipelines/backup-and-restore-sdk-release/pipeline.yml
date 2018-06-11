@@ -122,6 +122,8 @@ resources:
     client: "((ec2-bosh-director-username))"
     client_secret: "((ec2-bosh-director-password))"
     ca_cert: "((ec2-bosh-director-ca-cert))"
+    jumpbox_url: "((ec2-jumpbox-url))"
+    jumpbox_ssh_key: "((ec2-jumpbox-ssh-key))"
 - name: trusty-stemcell
   type: bosh-io-stemcell
   source:
@@ -932,8 +934,8 @@ jobs:
       BOSH_DEPLOYMENT: s3-backuper
       BOSH_CA_CERT: "((ec2-bosh-director-ca-cert))"
       BOSH_GW_USER: jumpbox
-      BOSH_GW_HOST: "((ec2-bosh-director-url))"
-      BOSH_GW_PRIVATE_KEY: "((ec2-bosh-gw-private-key))"
+      BOSH_GW_HOST: "((ec2-jumpbox-url))"
+      BOSH_GW_PRIVATE_KEY: "((ec2-jumpbox-ssh-key))"
       AWS_ACCESS_KEY_ID: ((aws-access-key-id))
       AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
       AWS_TEST_BUCKET_NAME: iam-instance-role-test
