@@ -7,6 +7,8 @@ groups:
   jobs:
   - upload-systest-releases
   - unit
+  - create-test-releases
+  - deploy-bosh-directors
   - system
   - system-uaa
   - system-director
@@ -38,6 +40,32 @@ resource_types:
     tag: latest
 
 resources:
+- name: bosh-backup-and-restore-test-releases
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf-experimental/bosh-backup-and-restore-test-releases.git
+    private_key: {{git-private-key}}
+    branch: master
+    paths:
+    - test-bosh-backup-and-restore-release
+- name: dummy-bbr-script-release-bucket
+  type: s3
+  source:
+    bucket: bosh-backup-and-restore-test-releases
+    region_name: eu-west-1
+    regexp: test-bosh-backup-and-restore-release-(.*).tgz
+    access_key_id: {{aws-access-key-id}}
+    secret_access_key: {{aws-secret-access-key}}
+- name: test-release-version
+  type: semver
+  source:
+    bucket: bosh-backup-and-restore-test-releases
+    region_name: eu-west-1
+    key: current-dev-version
+    initial_version: 0.0.0
+    access_key_id: {{aws-access-key-id}}
+    secret_access_key: {{aws-secret-access-key}}
+
 - name: pcf-2-1-pool
   type: pcf-pool
   source:
@@ -130,6 +158,62 @@ resources:
 
 
 jobs:
+- name: create-test-releases
+  plan:
+  - get: bosh-backup-and-restore-test-releases
+    trigger: true
+  - get: test-release-version
+    params: {pre: "dev"}
+  - task: create-release
+    input_mapping:
+      version: test-release-version
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: cloudfoundrylondon/backup-and-restore}
+      inputs:
+        - name: bosh-backup-and-restore-test-releases
+        - name: version
+      outputs:
+        - name: bbr-test-release-build
+      run:
+        path: bash
+        args:
+        - -uc
+        - |
+          set -ex
+          export VERSION=$(cat version/number)
+          pushd bosh-backup-and-restore-test-releases/test-bosh-backup-and-restore-release
+            bosh-cli create-release \
+              --version=$VERSION \
+              --tarball=../../bbr-test-release-build/test-bosh-backup-and-restore-release-$VERSION.tgz \
+              --force
+          popd
+  - put: test-release-version
+    params: {file: test-release-version/number}
+  - put: dummy-bbr-script-release-bucket
+    params:
+      file: bbr-test-release-build/test-bosh-backup-and-restore-release-*.tgz
+- name: deploy-bosh-directors
+  serial: true
+  plan:
+  - get: bosh-backup-and-restore-meta
+  - get: dummy-bbr-script-release-bucket
+    trigger: true
+  - task: deploy-dev-bosh
+    file: bosh-backup-and-restore-meta/ci/tasks/deploy-bosh-director.yml
+    params:
+      DIRECTOR_ENV: dev-bosh-director
+      GIT_SSH_KEY: {{git-private-key}}
+      GITHUB_PUBLIC_KEY: {{github-public-key}}
+  - task: deploy-test-bosh
+    file: bosh-backup-and-restore-meta/ci/tasks/deploy-bosh-director.yml
+    params:
+      DIRECTOR_ENV: test-bosh-director
+      GIT_SSH_KEY: {{git-private-key}}
+      GITHUB_PUBLIC_KEY: {{github-public-key}}
+
 - name: upload-systest-releases
   serial: true
   plan:
