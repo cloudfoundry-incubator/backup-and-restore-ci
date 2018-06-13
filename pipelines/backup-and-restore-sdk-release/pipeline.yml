@@ -390,6 +390,8 @@ jobs:
       S3_UNVERSIONED_BUCKET_REGION: eu-west-1
       S3_UNVERSIONED_BACKUP_BUCKET_NAME: bbr-system-test-s3-unversioned-backup-bucket
       S3_UNVERSIONED_BACKUP_BUCKET_REGION: us-east-1
+      MINIO_SERVER_KEY: ((minio-server-key))
+      MINIO_SERVER_CERT: ((minio-server-cert))
       MINIO_ACCESS_KEY: ((minio-access-key))
       MINIO_SECRET_KEY: ((minio-secret-key))
 
