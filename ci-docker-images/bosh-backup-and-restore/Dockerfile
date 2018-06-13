@@ -15,6 +15,10 @@ RUN \
 RUN gem install bundler
 RUN gem install bosh_cli
 
+RUN \
+  apt-get update && \
+  apt-get install netcat-openbsd
+
 RUN go get github.com/Masterminds/glide
 RUN cd src/github.com/Masterminds/glide
 
