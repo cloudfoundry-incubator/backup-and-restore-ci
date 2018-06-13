@@ -23,6 +23,7 @@ export BOSH_CA_CERT="./bosh-backup-and-restore-meta/certs/${BOSH_ENVIRONMENT}.cr
 bosh-cli --non-interactive \
   --deployment "${BOSH_DEPLOYMENT}" \
   deploy "backup-and-restore-sdk-release/ci/manifests/${MANIFEST_NAME}" \
+  --vars-file="bosh-backup-and-restore-meta/${VARS_FILE}"
   --var=deployment-name="${BOSH_DEPLOYMENT}" \
   --var=backup-and-restore-sdk-release-version="$(cat release-tarball/version)" \
   --var=backup-and-restore-sdk-release-url="$(cat release-tarball/url)" \
@@ -39,6 +40,4 @@ bosh-cli --non-interactive \
   --var=s3-unversioned-backup-bucket-name="${S3_UNVERSIONED_BACKUP_BUCKET_NAME}" \
   --var=s3-unversioned-backup-bucket-region="${S3_UNVERSIONED_BACKUP_BUCKET_REGION}" \
   --var=minio-access-key="${MINIO_ACCESS_KEY}" \
-  --var=minio-secret-key="${MINIO_SECRET_KEY}" \
-  --var=minio-server-key="${MINIO_SERVER_KEY}" \
-  --var=minio-server-cert="${MINIO_SERVER_CERT}"
+  --var=minio-secret-key="${MINIO_SECRET_KEY}"

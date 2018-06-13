@@ -373,6 +373,7 @@ jobs:
   - task: deploy-aws-blobstore-sdk
     file: backup-and-restore-ci/tasks/deploy-s3-backuper/task.yml
     params:
+      VARS_FILE: "minio/minio-certs.yml"
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       BOSH_DEPLOYMENT: s3-backuper
@@ -390,10 +391,8 @@ jobs:
       S3_UNVERSIONED_BUCKET_REGION: eu-west-1
       S3_UNVERSIONED_BACKUP_BUCKET_NAME: bbr-system-test-s3-unversioned-backup-bucket
       S3_UNVERSIONED_BACKUP_BUCKET_REGION: us-east-1
-      MINIO_SERVER_KEY: ((minio-server-key))
-      MINIO_SERVER_CERT: ((minio-server-cert))
-      MINIO_ACCESS_KEY: ((minio-access-key))
-      MINIO_SECRET_KEY: ((minio-secret-key))
+      MINIO_ACCESS_KEY: "((minio-access-key))"
+      MINIO_SECRET_KEY: "((minio-secret-key))"
 
 - name: deploy-aws-blobstore-sdk-with-iam-instance-profile
   serial: true
