@@ -23,6 +23,10 @@ else
   export BOSH_GW_PRIVATE_KEY="${PWD}/ssh.key"
 fi
 
+if [[ ${USE_BOSH_ALL_PROXY} ]]; then
+  export BOSH_ALL_PROXY="ssh+socks5://${BOSH_GW_USER}@${BOSH_GW_HOST}?private-key=${BOSH_GW_PRIVATE_KEY}"
+fi
+
 cd backup-and-restore-sdk-release/src/github.com/cloudfoundry-incubator/s3-blobstore-backup-restore
 
 if [[ ! -z "${FOCUS_SPEC}" ]]; then

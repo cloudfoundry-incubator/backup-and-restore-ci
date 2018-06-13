@@ -30,6 +30,7 @@ run:
   path: backup-and-restore-ci/tasks/s3-system-tests/task.sh
 
 params:
+  USE_BOSH_ALL_PROXY: false
   FOCUS_SPEC:
   BOSH_DEPLOYMENT:
   BOSH_CLIENT_SECRET:
