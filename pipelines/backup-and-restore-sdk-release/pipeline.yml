@@ -124,10 +124,10 @@ resources:
     ca_cert: "((ec2-bosh-director-ca-cert))"
     jumpbox_url: "((ec2-jumpbox-url))"
     jumpbox_ssh_key: "((ec2-jumpbox-ssh-key))"
-- name: trusty-stemcell
+- name: xenial-stemcell
   type: bosh-io-stemcell
   source:
-    name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+    name: bosh-aws-xen-hvm-ubuntu-xenial-go_agent
 
 jobs:
 - name: unit-tests
@@ -405,12 +405,12 @@ jobs:
       resource: release
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
-    - get: trusty-stemcell
+    - get: xenial-stemcell
   - put: s3-backuper-with-iam-instance-profile-deployment
     params:
       manifest: backup-and-restore-sdk-release/ci/manifests/s3-backuper-with-iam-instance-profile.yml
       stemcells:
-      - trusty-stemcell/*.tgz
+      - xenial-stemcell/*.tgz
       releases:
       - release-tarball/backup-and-restore-sdk-*.tgz
       vars:
