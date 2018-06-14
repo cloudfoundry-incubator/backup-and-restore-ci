@@ -928,6 +928,7 @@ jobs:
   - task: s3-blobstore-backuper-system-tests
     file: backup-and-restore-ci/tasks/s3-system-tests/task.yml
     params:
+      USE_BOSH_ALL_PROXY: true
       FOCUS_SPEC: backs up and restores in-place # focus on one it to avoid redundant testing
       BOSH_ENVIRONMENT: "((ec2-bosh-director-url))"
       BOSH_CLIENT_SECRET: "((ec2-bosh-director-password))"
