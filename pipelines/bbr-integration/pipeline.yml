@@ -5,9 +5,8 @@ groups:
   - release-unit-tests
   - create-backup-and-restore-release
   - generate-manifest-and-deploy
-  - generate-manifest-and-deploy-dev
   - acceptance-tests
-  - bosh-delete-dev-deployments
+  - bosh-delete-deployment
 - name: SHIPIT
   jobs:
   - generate-manifest-and-deploy-acceptance
@@ -161,56 +160,6 @@ jobs:
       GITHUB_PUBLIC_KEY: ((github-public-key))
       BOSH_CLIENT_SECRET: ((genesis-bosh-director-password))
       BOSH_CLIENT: admin
-- name: generate-manifest-and-deploy-dev
-  serial: true
-  plan:
-  - get: cf-backup-and-restore-release
-    trigger: true
-    passed: [create-backup-and-restore-release]
-  - get: cf-deployment
-    resource: cf-deployment-master
-  - get: release-tarball
-    resource: release
-    passed: [create-backup-and-restore-release]
-  - get: mysql-backup-release
-    resource: mysql-backup-release
-  - get: bosh-backup-and-restore-meta
-  - task: generate-manifest-0
-    file: cf-backup-and-restore-release/ci/tasks/generate-manifest.yml
-    output_mapping:
-      generated-manifest: generated-manifest-0
-    params:
-      DEPLOYMENT_CIDR: 10.0.12
-      DEPLOYMENT_NAME: cf-dev-0
-      STATIC_IP: 104.155.98.248
-  - task: deploy-cf-dev-0
-    file: cf-backup-and-restore-release/ci/tasks/deploy.yml
-    input_mapping:
-      generated-manifest: generated-manifest-0
-    params:
-      DEPLOYMENT_NAME: cf-dev-0
-      GIT_SSH_KEY: ((git-private-key))
-      GITHUB_PUBLIC_KEY: ((github-public-key))
-      BOSH_CLIENT_SECRET: ((genesis-bosh-director-password))
-      BOSH_CLIENT: admin
-  - task: generate-manifest-1
-    file: cf-backup-and-restore-release/ci/tasks/generate-manifest.yml
-    output_mapping:
-      generated-manifest: generated-manifest-1
-    params:
-      DEPLOYMENT_CIDR: 10.0.13
-      DEPLOYMENT_NAME: cf-dev-1
-      STATIC_IP: 35.187.16.108
-  - task: deploy-cf-dev-1
-    file: cf-backup-and-restore-release/ci/tasks/deploy.yml
-    input_mapping:
-      generated-manifest: generated-manifest-1
-    params:
-      DEPLOYMENT_NAME: cf-dev-1
-      GIT_SSH_KEY: ((git-private-key))
-      GITHUB_PUBLIC_KEY: ((github-public-key))
-      BOSH_CLIENT_SECRET: ((genesis-bosh-director-password))
-      BOSH_CLIENT: admin
 
 - name: acceptance-tests
   serial: true
@@ -237,7 +186,7 @@ jobs:
       BOSH_CLIENT_SECRET: ((genesis-bosh-director-password))
       BOSH_ENVIRONMENT: https://genesis-bosh.backup-and-restore.cf-app.com
 
-- name: bosh-delete-dev-deployments
+- name: bosh-delete-deployment
   serial: true
   plan:
   - aggregate:
@@ -250,22 +199,6 @@ jobs:
     file: backup-and-restore-ci/tasks/bosh-delete-deployment/task.yml
     params:
       BOSH_DEPLOYMENT: cf-integration-0
-      BOSH_ENVIRONMENT: ((genesis-bosh-environment))
-      BOSH_CLIENT_SECRET: ((genesis-bosh-director-password))
-      BOSH_CLIENT: admin
-      BOSH_CA_CERT_PATH: certs/genesis-bosh.backup-and-restore.cf-app.com.crt
-  - task: bosh-delete-cf-dev-0
-    file: backup-and-restore-ci/tasks/bosh-delete-deployment/task.yml
-    params:
-      BOSH_DEPLOYMENT: cf-dev-0
-      BOSH_ENVIRONMENT: ((genesis-bosh-environment))
-      BOSH_CLIENT_SECRET: ((genesis-bosh-director-password))
-      BOSH_CLIENT: admin
-      BOSH_CA_CERT_PATH: certs/genesis-bosh.backup-and-restore.cf-app.com.crt
-  - task: bosh-delete-cf-dev-1
-    file: backup-and-restore-ci/tasks/bosh-delete-deployment/task.yml
-    params:
-      BOSH_DEPLOYMENT: cf-dev-1
       BOSH_ENVIRONMENT: ((genesis-bosh-environment))
       BOSH_CLIENT_SECRET: ((genesis-bosh-director-password))
       BOSH_CLIENT: admin
