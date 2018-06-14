@@ -23,7 +23,7 @@ else
   export BOSH_GW_PRIVATE_KEY="${PWD}/ssh.key"
 fi
 
-if [[ ${USE_BOSH_ALL_PROXY} ]]; then
+if [[ "$USE_BOSH_ALL_PROXY" = true ]]; then
   export BOSH_ALL_PROXY="ssh+socks5://${BOSH_GW_USER}@${BOSH_GW_HOST}?private-key=${BOSH_GW_PRIVATE_KEY}"
 fi
 
