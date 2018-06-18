@@ -3,7 +3,7 @@
 set -e
 
 pushd release
-  bosh vendor-package "${VENDORED_PACKAGE_NAME}" ../vendored-package-release
+  bosh-cli vendor-package "${VENDORED_PACKAGE_NAME}" ../vendored-package-release
 
   git add .
 
