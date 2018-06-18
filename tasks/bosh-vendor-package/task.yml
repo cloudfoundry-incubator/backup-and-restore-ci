@@ -1,0 +1,19 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source: {repository: cloudfoundrylondon/backup-and-restore}
+
+inputs:
+- name: release
+- name: vendored-package-release
+
+outputs:
+- name: release-with-updated-vendored-package
+
+params:
+  VENDORED_PACKAGE_NAME:
+
+run:
+  path: backup-and-restore-ci/tasks/bosh-vendor-package/task.sh
