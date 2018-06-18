@@ -6,6 +6,7 @@ image_resource:
   source: {repository: cloudfoundrylondon/backup-and-restore}
 
 inputs:
+- name: backup-and-restore-ci
 - name: release
 - name: vendored-package-release
 
