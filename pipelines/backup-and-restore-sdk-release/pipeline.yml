@@ -128,7 +128,7 @@ resources:
   type: bosh-io-stemcell
   source:
     name: bosh-aws-xen-hvm-ubuntu-xenial-go_agent
-- name: golang-package
+- name: golang-release
   type: git
   source:
     uri: https://github.com/bosh-packages/golang-release.git
@@ -1587,13 +1587,13 @@ jobs:
   plan:
   - aggregate:
     - get: backup-and-restore-ci
-    - get: golang-package
+    - get: golang-release
     - get: backup-and-restore-sdk-release
   - task: bosh-vendor-package
     file: backup-and-restore-ci/tasks/bosh-vendor-package/task.yml
     input_mapping:
       release: backup-and-restore-sdk-release
-      vendored-package-release: golang-package
+      vendored-package-release: golang-release
     params:
       VENDORED_PACKAGE_NAME: golang-1-linux
   - put: backup-and-restore-sdk-release
