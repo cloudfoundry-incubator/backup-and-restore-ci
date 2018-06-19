@@ -175,6 +175,8 @@ jobs:
     trigger: true
   - get: disaster-recovery-acceptance-tests
     trigger: true
+    version:
+      ref: 422afa181310d65f5c7f50b86f1f0a5182208ae3  # compatible with v0.7.0 of cf-deployment
   - get: release-tarball
     resource: release
     passed: [generate-manifest-and-deploy]
