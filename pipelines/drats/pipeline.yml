@@ -982,7 +982,7 @@ jobs:
     params:
       BBL_STATE_DIR: azure-test-1/
       SYSTEM_DOMAIN: azure-test-1.cf-app.com
-      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-external-blobstore.yml operations/use-azure-storage-blobstore.yml operations/backup-and-restore/enable-backup-restore-azure.yml"
+      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-external-blobstore.yml operations/use-azure-storage-blobstore.yml operations/backup-and-restore/enable-restore-azure-clone.yml"
       VARS_STORE_FILE: azure-test-1/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
