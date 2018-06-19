@@ -612,3 +612,53 @@ jobs:
       params:
         repository: updated-bbl-state
         rebase: true
+
+- name: setup-infrastructure-azure-test-0
+  serial: true
+  serial_groups: [setup-infrastructure-azure-test-0]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: bosh-backup-and-restore-meta
+  - task: setup-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    params:
+      << : *COMMON_BBL_UP_PARAMS
+      BBL_STATE_DIR: azure-test-0/
+      BBL_LB_CERT: ((azure-test-0-lb-cert))
+      BBL_LB_KEY: ((azure-test-0-lb-key))
+      LB_DOMAIN: ((azure-test-0-lb-domain))
+      BBL_ENV_NAME: azure-test-0
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: setup-infrastructure-azure-test-1
+  serial: true
+  serial_groups: [setup-infrastructure-azure-test-1]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: bosh-backup-and-restore-meta
+  - task: setup-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    params:
+      << : *COMMON_BBL_UP_PARAMS
+      BBL_STATE_DIR: azure-test-1/
+      BBL_LB_CERT: ((azure-test-1-lb-cert))
+      BBL_LB_KEY: ((azure-test-1-lb-key))
+      LB_DOMAIN: ((azure-test-1-lb-domain))
+      BBL_ENV_NAME: azure-test-1
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
+        rebase: true
