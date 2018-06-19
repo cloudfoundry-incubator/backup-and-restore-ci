@@ -2,6 +2,7 @@
 groups:
 - name: CF-BACKUP-RELEASE
   jobs:
+  - bump-golang
   - release-unit-tests
   - create-backup-and-restore-release
   - generate-manifest-and-deploy
@@ -93,6 +94,10 @@ resources:
     repository: cf-backup-and-restore-release
     access_token: ((github-access-token))
     drafts: true
+- name: golang-release
+  type: git
+  source:
+    uri: https://github.com/bosh-packages/golang-release.git
 
 jobs:
 - name: release-unit-tests
@@ -348,3 +353,20 @@ jobs:
   - put: release
     params:
       file: cf-backup-and-restore-final-release-tarball/cf-backup-and-restore-*.tgz
+
+- name: bump-golang
+  plan:
+  - aggregate:
+    - get: backup-and-restore-ci
+    - get: golang-release
+    - get: cf-backup-and-restore-release
+  - task: bosh-vendor-package
+    file: backup-and-restore-ci/tasks/bosh-vendor-package/task.yml
+    input_mapping:
+      release: cf-backup-and-restore-release
+      vendored-package-release: golang-release
+    params:
+      VENDORED_PACKAGE_NAME: golang-1-linux
+  - put: cf-backup-and-restore-release
+    params:
+      repository: release-with-updated-vendored-package
