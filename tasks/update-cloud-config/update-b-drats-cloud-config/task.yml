@@ -20,4 +20,4 @@ params:
   BOSH_CLIENT:
 
 run:
-  path: backup-and-restore-ci/tasks/update-b-drats-cloud-config/task.sh
+  path: backup-and-restore-ci/tasks/update-cloud-config/task.sh
