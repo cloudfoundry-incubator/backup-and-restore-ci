@@ -613,3 +613,49 @@ jobs:
         repository: updated-bbl-state
         rebase: true
 
+- name: setup-infrastructure-maru
+  serial: true
+  serial_groups: [maru]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: bosh-backup-and-restore-meta
+  - task: setup-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    params:
+      << : *COMMON_BBL_UP_PARAMS
+      BBL_STATE_DIR: maru/
+      BBL_ENV_NAME: maru
+      SKIP_LB_CREATION: true
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: destroy-infrastructure-maru
+  serial: true
+  serial_groups: [maru]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [setup-infrastructure-maru]
+    - get: bosh-backup-and-restore-meta
+      passed: [setup-infrastructure-maru]
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: maru/
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
