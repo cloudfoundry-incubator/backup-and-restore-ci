@@ -2,6 +2,16 @@
 toolsmiths_api_worker: &toolsmiths_api_worker vsphere-platform-recovery
 toolsmiths_pool_worker: &toolsmiths_pool_worker toolsmiths-pool
 
+maru-bosh-env: &maru-bosh-env
+  BOSH_ENVIRONMENT: "((maru-bosh-director-url))"
+  BOSH_CLIENT: "((maru-bosh-director-username))"
+  BOSH_CLIENT_SECRET: "((maru-bosh-director-password))"
+  BOSH_CA_CERT: "((maru-bosh-director-ca-cert))"
+  BOSH_GW_HOST: "((maru-jumpbox-url))"
+  BOSH_GW_USER: jumpbox
+  BOSH_GW_PRIVATE_KEY: "((maru-jumpbox-ssh-key))"
+  USE_BOSH_ALL_PROXY: true
+
 lite-bosh-env: &lite-bosh-env
   BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
   BOSH_CLIENT: ((garden-bosh-director-username))
@@ -266,7 +276,7 @@ jobs:
       file: bosh-backup-and-restore/ci/tasks/upload-systest-release.yml
       params:
         RELEASE_NAME: redis-test-release
-        <<: *lite-bosh-uaa-env
+        <<: *maru-bosh-env
     - task: upload-lock-ordering-release-lite-bosh
       file: bosh-backup-and-restore/ci/tasks/upload-systest-release.yml
       params:
@@ -276,7 +286,7 @@ jobs:
       file: bosh-backup-and-restore/ci/tasks/upload-systest-release.yml
       params:
         RELEASE_NAME: lock-ordering-release
-        <<: *lite-bosh-uaa-env
+        <<: *maru-bosh-env
 
 - name: unit
   serial: true
@@ -327,10 +337,7 @@ jobs:
   - task: system
     file: bosh-backup-and-restore/ci/tasks/system.yml
     params:
-      BOSH_GATEWAY_USER: jumpbox
-      BOSH_GATEWAY_KEY: bosh-backup-and-restore-meta/garden-bosh-uaa/bosh.pem
-      BOSH_HOST: lite-bosh-uaa.backup-and-restore.cf-app.com
-      BOSH_CLIENT_SECRET: ((uaa-director-password))
+      <<: *maru-bosh-env
 - name: system-director
   serial: true
   plan:
