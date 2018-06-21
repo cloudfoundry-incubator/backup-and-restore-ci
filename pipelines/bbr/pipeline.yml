@@ -8,6 +8,7 @@ groups:
   - upload-systest-releases
   - unit
   - create-test-releases
+  - deploy-windows-vm
   - deploy-bosh-directors
   - system
   - system-uaa
@@ -27,6 +28,11 @@ resource_types:
   source:
     repository: pivotalcf/pivnet-resource
     tag: latest-final
+
+- name: bosh-deployment
+  type: docker-image
+  source:
+    repository: cloudfoundry/bosh-deployment-resource
 
 - name: pcf-pool
   type: docker-image
@@ -155,7 +161,20 @@ resources:
     uri: git@github.com:pivotal-cf/pivotal-disaster-recovery-acceptance-tests.git
     private_key: ((git-private-key))
     branch: master
-
+- name: windows-vm-deployment
+  type: bosh-deployment
+  source:
+    deployment: windows-vm
+    target: "((maru-bosh-director-url))"
+    client: "((maru-bosh-director-username))"
+    client_secret: "((maru-bosh-director-password))"
+    ca_cert: "((maru-bosh-director-ca-cert))"
+    jumpbox_url: "((maru-jumpbox-url))"
+    jumpbox_ssh_key: "((maru-jumpbox-ssh-key))"
+- name: windows-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-google-kvm-windows2016-go_agent
 
 jobs:
 - name: create-test-releases
@@ -257,11 +276,24 @@ jobs:
     params:
       DOCKER_HOST: "tcp://10.0.3.12:4243"
       GITHUB_SSH_KEY: ((github-ssh-key))
+- name: deploy-windows-vm
+  serial: true
+  plan:
+  - aggregate:
+    - get: windows-stemcell
+    - get: bosh-backup-and-restore
+      passed: [unit]
+      trigger: true
+  - put: windows-vm-deployment
+    params:
+      manifest: bosh-backup-and-restore/fixtures/windows-vm.yml
+      stemcells:
+      - windows-stemcell/*.tgz
 - name: system
   serial: true
   plan:
   - get: bosh-backup-and-restore
-    passed: [unit, upload-systest-releases]
+    passed: [unit, deploy-windows-vm, upload-systest-releases]
     trigger: true
   - get: bosh-backup-and-restore-meta
   - task: system
