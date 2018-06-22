@@ -188,7 +188,7 @@ resources:
 - name: windows-vm-deployment
   type: bosh-deployment
   source:
-    deployment: windows-vm
+    deployment: redis-windows-ci
     target: "((maru-bosh-director-url))"
     client: "((maru-bosh-director-username))"
     client_secret: "((maru-bosh-director-password))"
@@ -340,6 +340,7 @@ jobs:
       manifest: bosh-backup-and-restore/fixtures/windows-vm.yml
       stemcells:
       - windows-stemcell/*.tgz
+      - ubuntu-stemcell/*.tgz
   - put: jumpbox-windows-deployment
     params:
       manifest: bosh-backup-and-restore/fixtures/jumpbox-windows.yml
