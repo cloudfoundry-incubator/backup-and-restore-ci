@@ -337,13 +337,13 @@ jobs:
       trigger: true
   - put: windows-vm-deployment
     params:
-      manifest: bosh-backup-and-restore/fixtures/windows-vm.yml
+      manifest: bosh-backup-and-restore/fixtures/redis-windows-ci.yml
       stemcells:
       - windows-stemcell/*.tgz
       - ubuntu-stemcell/*.tgz
   - put: jumpbox-windows-deployment
     params:
-      manifest: bosh-backup-and-restore/fixtures/jumpbox-windows.yml
+      manifest: bosh-backup-and-restore/fixtures/jumpbox-windows-ci.yml
       stemcells:
       - ubuntu-stemcell/*.tgz
 - name: system
