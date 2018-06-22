@@ -198,7 +198,7 @@ resources:
 - name: jumpbox-windows-deployment
   type: bosh-deployment
   source:
-    deployment: jumpbox-windows
+    deployment: jumpbox-windows-ci
     target: "((maru-bosh-director-url))"
     client: "((maru-bosh-director-username))"
     client_secret: "((maru-bosh-director-password))"
@@ -291,11 +291,16 @@ jobs:
       params:
         RELEASE_NAME: redis-test-release
         <<: *lite-bosh-env
-    - task: upload-redis-test-release-lite-bosh-uaa
+    - task: upload-redis-test-release-maru-bosh
       file: bosh-backup-and-restore/ci/tasks/upload-systest-release.yml
       params:
         RELEASE_NAME: redis-test-release
         <<: *maru-bosh-env
+    - task: upload-redis-test-release-lite-bosh-uaa
+      file: bosh-backup-and-restore/ci/tasks/upload-systest-release.yml
+      params:
+        RELEASE_NAME: redis-test-release
+        <<: *lite-bosh-uaa-env
     - task: upload-lock-ordering-release-lite-bosh
       file: bosh-backup-and-restore/ci/tasks/upload-systest-release.yml
       params:
@@ -305,7 +310,7 @@ jobs:
       file: bosh-backup-and-restore/ci/tasks/upload-systest-release.yml
       params:
         RELEASE_NAME: lock-ordering-release
-        <<: *maru-bosh-env
+        <<: *lite-bosh-uaa-env
 
 - name: unit
   serial: true
