@@ -22,6 +22,8 @@ lite-bosh-uaa-env: &lite-bosh-uaa-env
   BOSH_ENVIRONMENT: lite-bosh-uaa.backup-and-restore.cf-app.com
   BOSH_CLIENT: ((uaa-director-username))
   BOSH_CLIENT_SECRET: ((uaa-director-password))
+  BOSH_GW_USER: jumpbox
+  BOSH_GW_PRIVATE_KEY: bosh-backup-and-restore-meta/garden-bosh-uaa/bosh.pem
   BOSH_CA_CERT_PATH: bosh-backup-and-restore-meta/certs/lite-bosh-uaa.backup-and-restore.cf-app.com.crt
 
 groups:
@@ -193,18 +195,34 @@ resources:
     ca_cert: "((maru-bosh-director-ca-cert))"
     jumpbox_url: "((maru-jumpbox-url))"
     jumpbox_ssh_key: "((maru-jumpbox-ssh-key))"
+- name: jumpbox-windows-deployment
+  type: bosh-deployment
+  source:
+    deployment: jumpbox-windows
+    target: "((maru-bosh-director-url))"
+    client: "((maru-bosh-director-username))"
+    client_secret: "((maru-bosh-director-password))"
+    ca_cert: "((maru-bosh-director-ca-cert))"
+    jumpbox_url: "((maru-jumpbox-url))"
+    jumpbox_ssh_key: "((maru-jumpbox-ssh-key))"
 - name: windows-stemcell
   type: bosh-io-stemcell
   source:
     name: bosh-google-kvm-windows2016-go_agent
+- name: ubuntu-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-google-kvm-ubuntu-trusty-go_agent
 
 jobs:
 - name: create-test-releases
   plan:
-  - get: bosh-backup-and-restore-test-releases
-    trigger: true
-  - get: test-release-version
-    params: {pre: "dev"}
+  - aggregate:
+    - get: bosh-backup-and-restore-test-releases
+      trigger: true
+    - get: test-release-version
+      params: {pre: "dev"}
+    - get: dummy-bbr-script-release-bucket
   - task: create-release
     input_mapping:
       version: test-release-version
@@ -242,6 +260,7 @@ jobs:
   - get: bosh-backup-and-restore-meta
   - get: dummy-bbr-script-release-bucket
     trigger: true
+    passed: [create-test-releases]
   - task: deploy-dev-bosh
     file: bosh-backup-and-restore-meta/ci/tasks/deploy-bosh-director.yml
     params:
@@ -301,12 +320,13 @@ jobs:
     privileged: true
     params:
       DOCKER_HOST: "tcp://10.0.3.12:4243"
-      GITHUB_SSH_KEY: ((github-ssh-key))
+      GITHUB_SSH_KEY: "((github-ssh-key))"
 - name: deploy-windows-vm
   serial: true
   plan:
   - aggregate:
     - get: windows-stemcell
+    - get: ubuntu-stemcell
     - get: bosh-backup-and-restore
       passed: [unit]
       trigger: true
@@ -315,6 +335,11 @@ jobs:
       manifest: bosh-backup-and-restore/fixtures/windows-vm.yml
       stemcells:
       - windows-stemcell/*.tgz
+  - put: jumpbox-windows-deployment
+    params:
+      manifest: bosh-backup-and-restore/fixtures/jumpbox-windows.yml
+      stemcells:
+      - ubuntu-stemcell/*.tgz
 - name: system
   serial: true
   plan:
@@ -325,8 +350,7 @@ jobs:
   - task: system
     file: bosh-backup-and-restore/ci/tasks/system.yml
     params:
-      BOSH_HOST: lite-bosh.backup-and-restore.cf-app.com
-      BOSH_CLIENT_SECRET: ((director-password))
+      <<: *lite-bosh-env
 - name: system-uaa
   serial: true
   plan:
@@ -337,7 +361,7 @@ jobs:
   - task: system
     file: bosh-backup-and-restore/ci/tasks/system.yml
     params:
-      <<: *maru-bosh-env
+      <<: *lite-bosh-uaa-env
 - name: system-director
   serial: true
   plan:
@@ -348,7 +372,7 @@ jobs:
   - task: system-director
     file: bosh-backup-and-restore/ci/tasks/system-director.yml
     params:
-      BOSH_HOST: genesis-bosh.backup-and-restore.cf-app.com
+      BOSH_ENVIRONMENT: genesis-bosh.backup-and-restore.cf-app.com
       BOSH_CLIENT_SECRET: ((genesis-bosh-director-password))
       HOST_TO_BACKUP: 10.0.0.7
 - name: build-rc
