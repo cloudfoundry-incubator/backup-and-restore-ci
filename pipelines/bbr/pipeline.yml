@@ -34,8 +34,7 @@ groups:
   - create-test-releases
   - deploy-windows-vm
   - deploy-bosh-directors
-  - system
-  - system-uaa
+  - system-deployment
   - system-director
   - build-rc
   - install-optional-components-on-pas
@@ -346,28 +345,25 @@ jobs:
       manifest: bosh-backup-and-restore/fixtures/jumpbox-windows-ci.yml
       stemcells:
       - ubuntu-stemcell/*.tgz
-- name: system
+
+- name: system-deployment
   serial: true
   plan:
-  - get: bosh-backup-and-restore
-    passed: [unit, deploy-windows-vm, upload-systest-releases]
-    trigger: true
-  - get: bosh-backup-and-restore-meta
-  - task: system-deployment
-    file: bosh-backup-and-restore/ci/tasks/system-deployment.yml
-    params:
-      <<: *lite-bosh-env
-- name: system-uaa
-  serial: true
-  plan:
-  - get: bosh-backup-and-restore
-    passed: [unit, upload-systest-releases]
-    trigger: true
-  - get: bosh-backup-and-restore-meta
-  - task: system-deployment
-    file: bosh-backup-and-restore/ci/tasks/system-deployment.yml
-    params:
-      <<: *lite-bosh-uaa-env
+  - aggregate:
+    - get: bosh-backup-and-restore
+      passed: [unit, upload-systest-releases]
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+  - aggregate:
+    - task: system-deployment-without-uaa
+      file: bosh-backup-and-restore/ci/tasks/system-deployment.yml
+      params:
+        <<: *lite-bosh-env
+    - task: system-deployment-with-uaa
+      file: bosh-backup-and-restore/ci/tasks/system-deployment.yml
+      params:
+        <<: *lite-bosh-uaa-env
+
 - name: system-director
   serial: true
   plan:
@@ -385,7 +381,7 @@ jobs:
   serial_groups: [version]
   plan:
   - get: bosh-backup-and-restore
-    passed: [system, system-uaa, system-director]
+    passed: [system-deployment, system-director]
     trigger: true
     params:
       submodules: none
