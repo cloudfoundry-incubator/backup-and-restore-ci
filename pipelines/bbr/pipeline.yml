@@ -36,6 +36,7 @@ groups:
   - deploy-bosh-directors
   - system-deployment
   - system-director
+  - system-windows
   - build-rc
   - install-optional-components-on-pas
   - run-p-drats-on-pas
@@ -377,11 +378,24 @@ jobs:
       BOSH_ENVIRONMENT: genesis-bosh.backup-and-restore.cf-app.com
       BOSH_CLIENT_SECRET: ((genesis-bosh-director-password))
       HOST_TO_BACKUP: 10.0.0.7
+
+- name: system-windows
+  serial: true
+  plan:
+  - get: bosh-backup-and-restore
+    passed: [unit, deploy-windows-vm, upload-systest-releases]
+    trigger: true
+  - get: bosh-backup-and-restore-meta
+  - task: system-windows
+    file: bosh-backup-and-restore/ci/tasks/system-windows.yml
+    params:
+      <<: *maru-bosh-env
+
 - name: build-rc
   serial_groups: [version]
   plan:
   - get: bosh-backup-and-restore
-    passed: [system-deployment, system-director]
+    passed: [system-deployment, system-director, system-windows]
     trigger: true
     params:
       submodules: none
