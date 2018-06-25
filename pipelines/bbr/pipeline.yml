@@ -353,8 +353,8 @@ jobs:
     passed: [unit, deploy-windows-vm, upload-systest-releases]
     trigger: true
   - get: bosh-backup-and-restore-meta
-  - task: system
-    file: bosh-backup-and-restore/ci/tasks/system.yml
+  - task: system-deployment
+    file: bosh-backup-and-restore/ci/tasks/system-deployment.yml
     params:
       <<: *lite-bosh-env
 - name: system-uaa
@@ -364,8 +364,8 @@ jobs:
     passed: [unit, upload-systest-releases]
     trigger: true
   - get: bosh-backup-and-restore-meta
-  - task: system
-    file: bosh-backup-and-restore/ci/tasks/system.yml
+  - task: system-deployment
+    file: bosh-backup-and-restore/ci/tasks/system-deployment.yml
     params:
       <<: *lite-bosh-uaa-env
 - name: system-director
