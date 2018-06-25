@@ -108,7 +108,6 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      cf-deployment: cf-deployment
       ops-files: cf-deployment
       vars-store: bosh-backup-and-restore-meta
       vars-files: bosh-backup-and-restore-meta
@@ -124,6 +123,13 @@ jobs:
       params:
         repository: updated-vars-store
         rebase: true
+  - task: bosh-run-errand-nfsbrokerpush
+    file: cf-deployment-concourse-tasks/run-errand/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: drats-pr-ragdoll/
+      ERRAND_NAME: nfsbrokerpush
   - task: bosh-cleanup
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     input_mapping:
@@ -263,7 +269,6 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      cf-deployment: cf-deployment
       ops-files: cf-deployment
       vars-store: bosh-backup-and-restore-meta
       vars-files: bosh-backup-and-restore-meta
@@ -279,6 +284,13 @@ jobs:
       params:
         repository: updated-vars-store
         rebase: true
+  - task: bosh-run-errand-nfsbrokerpush
+    file: cf-deployment-concourse-tasks/run-errand/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: drats-opt-components-norwegianforest/
+      ERRAND_NAME: nfsbrokerpush
   - task: bosh-cleanup
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     input_mapping:
