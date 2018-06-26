@@ -94,7 +94,7 @@ jobs:
         repository: bosh-state-updated
         rebase: true
   - task: update-b-drats-cloud-config
-    file: backup-and-restore-ci/tasks/update-cloud-config/task.yml
+    file: backup-and-restore-ci/tasks/update-b-drats-cloud-config/task.yml
     input_mapping:
       cloud-config: bosh-deployment
       terraform-state: bosh-backup-and-restore-meta
@@ -181,7 +181,7 @@ jobs:
         status: failure
         context: b-drats
   - task: update-b-drats-cloud-config
-    file: backup-and-restore-ci/tasks/update-cloud-config/task.yml
+    file: backup-and-restore-ci/tasks/update-b-drats-cloud-config/task.yml
     input_mapping:
       cloud-config: bosh-deployment
       terraform-state: bosh-backup-and-restore-meta
