@@ -39,6 +39,7 @@ groups:
   - system-deployment
   - system-director
   - system-windows
+  - delete-windows-deployment
   - build-rc
   - install-optional-components-on-pas
   - run-p-drats-on-pas
@@ -392,6 +393,22 @@ jobs:
     file: bosh-backup-and-restore/ci/tasks/system-windows.yml
     params:
       <<: *maru-bosh-env
+
+- name: delete-windows-deployment
+  serial: true
+  plan:
+  - aggregate:
+    - get: bosh-backup-and-restore
+      passed: [system-windows]
+      trigger: true
+  - put: windows-vm-deployment
+    params:
+      delete:
+        enabled: true
+  - put: jumpbox-windows-deployment
+    params:
+      delete:
+        enabled: true
 
 - name: build-rc
   serial_groups: [version]
