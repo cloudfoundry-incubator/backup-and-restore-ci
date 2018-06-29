@@ -65,7 +65,7 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
-    tag_filter: v4.*
+    tag_filter: v6.*
 - name: cf-deployment-master
   type: git
   source:
@@ -885,7 +885,6 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
       cf-deployment: cf-deployment-master
     params:
-      INFRASTRUCTURE: google
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
   - task: deploy-cf-with-external-s3
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
@@ -897,12 +896,9 @@ jobs:
       vars-files: bosh-backup-and-restore-meta
       release: backup-and-restore-sdk-release
     params:
-      BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcp_service_account_key.json
-      BBL_GCP_PROJECT_ID: cf-backup-and-restore
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
       SYSTEM_DOMAIN: bbr-s3.cf-app.com
-      OPS_FILES: "operations/scale-to-one-az.yml operations/use-compiled-releases.yml operations/use-external-dbs.yml operations/experimental/enable-backup-restore.yml operations/use-s3-blobstore.yml operations/experimental/enable-backup-restore-s3.yml"
+      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/use-external-dbs.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-external-blobstore.yml operations/use-s3-blobstore.yml operations/backup-and-restore/enable-backup-restore-s3-versioned.yml"
       VARS_STORE_FILE: external-blobstore-directors/aws-s3/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
