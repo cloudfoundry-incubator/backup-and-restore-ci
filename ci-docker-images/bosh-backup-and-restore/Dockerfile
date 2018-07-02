@@ -10,17 +10,12 @@ RUN curl -L https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
 
 RUN \
   apt-get update && \
-  apt-get install -y ruby ruby-dev file libssl-dev wbritish awscli lsb-release openjdk-8-jdk default-mysql-client azure-cli && \
+  apt-get install -y file libssl-dev wbritish awscli lsb-release openjdk-8-jdk default-mysql-client azure-cli && \
   rm -rf /var/lib/apt/lists/*
-RUN gem install bundler
-RUN gem install bosh_cli
 
 RUN \
   apt-get update && \
   apt-get install netcat-openbsd
-
-RUN go get github.com/Masterminds/glide
-RUN cd src/github.com/Masterminds/glide
 
 RUN git clone https://github.com/AGWA/git-crypt.git && \
  cd git-crypt/ && \
@@ -34,11 +29,6 @@ RUN wget https://get.docker.com/builds/Linux/x86_64/docker-1.11.0.tgz && \
   sudo cp docker/docker /bin
 
 RUN (wget https://releases.hashicorp.com/terraform/0.11.7/terraform_0.11.7_linux_386.zip && unzip terraform_0.11.7_linux_386.zip -d /bin/)
-
-RUN wget https://services.gradle.org/distributions/gradle-3.4.1-bin.zip && \
-  mkdir /opt/gradle && unzip -d /opt/gradle gradle-3.4.1-bin.zip
-
-ENV PATH="${PATH}:/opt/gradle/gradle-3.4.1/bin"
 
 ENV CLOUD_SDK_VERSION 178.0.0
 
