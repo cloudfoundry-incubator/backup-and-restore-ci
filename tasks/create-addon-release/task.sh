@@ -19,10 +19,10 @@
 set -eu
 
 VERSION=$(cat github-release/version)
-COMMIT_SHA=$(cat github-release/commit_sha)
+TAG=$(cat github-release/TAG)
 
 pushd backup-and-restore-sdk-release
-  git reset --hard "${COMMIT_SHA}"
+  git checkout "${TAG}"
 
   bosh-cli create-release \
     --version "${VERSION}" \
