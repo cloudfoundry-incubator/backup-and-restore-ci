@@ -10,7 +10,7 @@ RUN curl -L https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
 
 RUN \
   apt-get update && \
-  apt-get install -y file libssl-dev wbritish awscli lsb-release openjdk-8-jdk default-mysql-client azure-cli && \
+  apt-get install -y ruby ruby-dev file libssl-dev wbritish awscli lsb-release openjdk-8-jdk default-mysql-client azure-cli && \
   rm -rf /var/lib/apt/lists/*
 
 RUN \
