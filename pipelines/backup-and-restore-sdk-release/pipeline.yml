@@ -20,7 +20,7 @@ resource_types:
     tag: latest
 
 resources:
-- name: backup-and-restore-sdk-preview-addon-pivnet
+- name: backup-and-restore-sdk-addon-pivnet
   type: pivnet
   source:
     api_token: ((pivnet-api-token))
@@ -73,11 +73,11 @@ resources:
     region_name: eu-west-1
     access_key_id: ((aws-access-key-id))
     secret_access_key: ((aws-secret-access-key))
-- name: backup-and-restore-sdk-preview-release
+- name: backup-and-restore-sdk-addon-release
   type: s3
   source:
-    bucket: backup-and-restore-sdk-preview-releases
-    regexp: backup-and-restore-sdk-preview-(.*).tgz
+    bucket: backup-and-restore-sdk-addon-releases
+    regexp: backup-and-restore-sdk-addon-(.*).tgz
     region_name: eu-west-1
     access_key_id: ((aws-access-key-id))
     secret_access_key: ((aws-secret-access-key))
@@ -1515,7 +1515,7 @@ jobs:
   - put: version
     params: {file: version/number}
 
-- name: create-backup-and-restore-sdk-preview-release
+- name: create-backup-and-restore-sdk-addon-release
   serial: true
   plan:
   - aggregate:
@@ -1526,32 +1526,32 @@ jobs:
       - run-drats-external-s3-unversioned-blobstore
     - get: github-release
       trigger: true
-  - task: create-backup-and-restore-sdk-preview-release-tarball
-    file: backup-and-restore-ci/tasks/create-preview-release/task.yml
-  - put: backup-and-restore-sdk-preview-release
+  - task: create-backup-and-restore-sdk-addon-release-tarball
+    file: backup-and-restore-ci/tasks/create-addon-release/task.yml
+  - put: backup-and-restore-sdk-addon-release
     params:
-      file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-preview-*.tgz
+      file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-addon-*.tgz
 
-- name: upload-backup-and-restore-sdk-preview-pivnet
+- name: upload-backup-and-restore-sdk-addon-pivnet
   serial: true
   serial_groups: [version]
   plan:
-  - get: backup-and-restore-sdk-preview-release
-    passed: [create-backup-and-restore-sdk-preview-release]
+  - get: backup-and-restore-sdk-addon-release
+    passed: [create-backup-and-restore-sdk-addon-release]
   - get: bosh-backup-and-restore-meta
   - get: backup-and-restore-ci
   - get: github-release
-    passed: [create-backup-and-restore-sdk-preview-release]
+    passed: [create-backup-and-restore-sdk-addon-release]
     trigger: true
   - task: generate-release-metadata
     file: backup-and-restore-ci/tasks/generate-release-metadata/task.yml
     input_mapping:
-      release: backup-and-restore-sdk-preview-release
+      release: backup-and-restore-sdk-addon-release
       version-folder: github-release
       template-folder: bosh-backup-and-restore-meta
     params:
-      TEMPLATE_PATH: templates/release-sdk-preview.yml.erb
-  - put: backup-and-restore-sdk-preview-addon-pivnet
+      TEMPLATE_PATH: templates/release-sdk-addon.yml.erb
+  - put: backup-and-restore-sdk-addon-pivnet
     params:
       metadata_file: release-with-metadata/release.yml
       s3_filepath_prefix: product-files/bosh-backup-restore

@@ -26,7 +26,7 @@ pushd backup-and-restore-sdk-release
 
   bosh-cli create-release \
     --version "${VERSION}" \
-    --name="backup-and-restore-sdk-preview" \
+    --name="backup-and-restore-sdk-addon" \
     --tarball="../backup-and-restore-sdk-release-build/backup-and-restore-sdk-addon-${VERSION}.tgz" \
     --force
 popd

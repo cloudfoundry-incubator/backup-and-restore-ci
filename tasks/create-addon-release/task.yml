@@ -30,4 +30,4 @@ outputs:
 - name: backup-and-restore-sdk-release-build
 
 run:
-  path: backup-and-restore-ci/tasks/create-preview-release/task.sh
+  path: backup-and-restore-ci/tasks/create-addon-release/task.sh
