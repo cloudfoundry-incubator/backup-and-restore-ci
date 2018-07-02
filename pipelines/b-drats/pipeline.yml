@@ -310,3 +310,91 @@ jobs:
         path: bosh-disaster-recovery-acceptance-tests-prs
         status: success
         context: b-drats
+
+- name: destroy-bosh-bengal-tiger
+  serial: true
+  serial_groups: [bengal-tiger]
+  plan:
+  - aggregate:
+    - get: bosh-deployment
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
+  - task: bosh-delete-env
+    file: backup-and-restore-ci/tasks/bosh-create-env/task.yml
+    input_mapping:
+      bosh-state: bosh-backup-and-restore-meta
+      terraform-state: bosh-backup-and-restore-meta
+    params:
+      ENVIRONMENT_NAME: "b-drats-bengal-tiger"
+      OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml"
+      DIRECTOR_NAME: "bengal-tiger"
+      BOSH_OPERATION: "delete-env"
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: bosh-state-updated
+        rebase: true
+  - task: terraform-destory
+    file: backup-and-restore-ci/tasks/terraform-operation/task.yml
+    input_mapping:
+      terraform-state: bosh-backup-and-restore-meta
+    params:
+      TERRAFORM_OPERATION: destroy
+      ENVIRONMENT_NAME: b-drats-bengal-tiger
+      GIT_USER_NAME: "PCF Backup & Restore CI"
+      GIT_USER_EMAIL: "cf-lazarus@pivotal.io"
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: terraform-state-updated
+        rebase: true
+
+- name: destroy-bosh-black-panther
+  serial: true
+  serial_groups: [black-panther]
+  plan:
+  - aggregate:
+    - get: bosh-deployment
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
+  - task: bosh-delete-env
+    file: backup-and-restore-ci/tasks/bosh-create-env/task.yml
+    input_mapping:
+      bosh-state: bosh-backup-and-restore-meta
+      terraform-state: bosh-backup-and-restore-meta
+    params:
+      ENVIRONMENT_NAME: "b-drats-black-panther"
+      OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml"
+      DIRECTOR_NAME: "black-panther"
+      BOSH_OPERATION: "delete-env"
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: bosh-state-updated
+        rebase: true
+    on_failure:
+      put: bosh-disaster-recovery-acceptance-tests-prs
+      params:
+        path: bosh-disaster-recovery-acceptance-tests-prs
+        status: failure
+        context: b-drats
+  - task: terraform-destroy
+    file: backup-and-restore-ci/tasks/terraform-operation/task.yml
+    input_mapping:
+      terraform-state: bosh-backup-and-restore-meta
+    params:
+      TERRAFORM_OPERATION: destroy
+      ENVIRONMENT_NAME: b-drats-black-panther
+      GIT_USER_NAME: "PCF Backup & Restore CI"
+      GIT_USER_EMAIL: "cf-lazarus@pivotal.io"
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: terraform-state-updated
+        rebase: true
+    on_failure:
+      put: bosh-disaster-recovery-acceptance-tests-prs
+      params:
+        path: bosh-disaster-recovery-acceptance-tests-prs
+        status: failure
+        context: b-drats
