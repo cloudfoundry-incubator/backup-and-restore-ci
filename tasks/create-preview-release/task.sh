@@ -16,16 +16,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -ex
+set -eu
 
-export VERSION=$(cat github-release/version)
-export COMMIT_SHA=$(cat github-release/commit_sha)
+VERSION=$(cat github-release/version)
+COMMIT_SHA=$(cat github-release/commit_sha)
 
 pushd backup-and-restore-sdk-release
-  git reset --hard ${COMMIT_SHA}
+  git reset --hard "${COMMIT_SHA}"
 
   bosh-cli create-release \
-    --version ${VERSION} \
+    --version "${VERSION}" \
     --name="backup-and-restore-sdk-preview" \
-    --tarball=../backup-and-restore-sdk-release-build/backup-and-restore-sdk-preview-${VERSION}.tgz --force
+    --tarball="../backup-and-restore-sdk-release-build/backup-and-restore-sdk-addon-${VERSION}.tgz" \
+    --force
 popd
