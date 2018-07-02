@@ -19,7 +19,7 @@
 set -eu
 
 VERSION=$(cat github-release/version)
-TAG=$(cat github-release/TAG)
+TAG=$(cat github-release/tag)
 
 pushd backup-and-restore-sdk-release
   git checkout "${TAG}"
