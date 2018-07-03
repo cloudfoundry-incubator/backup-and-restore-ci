@@ -42,13 +42,17 @@ pushd bosh-deployment
     -v subnetwork="${subnetwork}"
 popd
 
+if [[ ${BOSH_OPERATION} == "delete-env" ]]; then
+    rm "${BOSH_STATE_DIR}/${ENVIRONMENT_NAME}/creds.yml"
+fi
+
 pushd "${BOSH_STATE_DIR}/${ENVIRONMENT_NAME}"
   git add bosh-state.json
   git add creds.yml
-  if git commit -m "Update bosh state for ${ENVIRONMENT_NAME}"; then
-    echo "Updated bosh-state for ${ENVIRONMENT_NAME}"
+  if git commit -m "Update bosh state for ${ENVIRONMENT_NAME} after bosh ${BOSH_OPERATION}"; then
+    echo "Updated bosh-state for ${ENVIRONMENT_NAME} after bosh ${BOSH_OPERATION}"
   else
-    echo "No change to BOSH state for ${ENVIRONMENT_NAME}"
+    echo "No change to BOSH state for ${ENVIRONMENT_NAME} after bosh ${BOSH_OPERATION}"
   fi
 popd
 
