@@ -19,4 +19,4 @@ outputs:
 - name: release-with-metadata
 
 run:
-  path: backup-and-restore-ci/tasks/generate-release-metadata/task
+  path: backup-and-restore-ci/tasks/generate-release-metadata/task.sh
