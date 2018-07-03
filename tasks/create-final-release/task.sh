@@ -31,8 +31,8 @@ blobstore:
 
   bosh-cli -n finalize-release ../release-tarball/backup-and-restore-sdk-*.tgz --version="$VERSION"
 
-  mv releases/backup-and-restore-sdk/backup-and-restore-sdk-"${VERSION}".tgz \
-    ../backup-and-restore-sdk-final-release-tarball
+  mv ../release-tarball/backup-and-restore-sdk-*.tgz \
+    ../backup-and-restore-sdk-final-release-tarball/backup-and-restore-sdk-"${VERSION}".tgz
 
   git add ./releases
   git add ./.final_builds
