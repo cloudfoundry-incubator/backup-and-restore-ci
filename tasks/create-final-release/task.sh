@@ -28,7 +28,7 @@ blobstore:
     secret_access_key: $AWS_SECRET_ACCESS_KEY
 " > config/private.yml
 
-  bosh -n finalize release ../release-tarball/backup-and-restore-sdk-*.tgz --version "$VERSION"
+  bosh-cli -n finalize-release ../release-tarball/backup-and-restore-sdk-*.tgz --version="$VERSION"
 
   mv releases/backup-and-restore-sdk/backup-and-restore-sdk-"${VERSION}".tgz \
     ../backup-and-restore-sdk-final-release-tarball
