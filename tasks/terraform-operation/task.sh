@@ -11,10 +11,10 @@ function commit_terraform_state() {
   pushd "$TERRAFORM_STATE_DIR/$ENVIRONMENT_NAME"
     git add terraform.tfstate*
 
-    if git commit -m "Update terraform-state for $ENVIRONMENT_NAME"; then
-      echo "Updated terraform-state for $ENVIRONMENT_NAME"
+    if git commit -m "Update terraform-state for $ENVIRONMENT_NAME after terraform $TERRAFORM_OPERATION"; then
+      echo "Updated terraform-state for $ENVIRONMENT_NAME after terraform $TERRAFORM_OPERATION"
     else
-      echo "No change to terraform-state for $ENVIRONMENT_NAME"
+      echo "No change to terraform-state for $ENVIRONMENT_NAME after terraform $TERRAFORM_OPERATION"
     fi
   popd
 
