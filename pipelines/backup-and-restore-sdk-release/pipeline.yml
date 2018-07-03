@@ -1550,6 +1550,7 @@ jobs:
       template-folder: bosh-backup-and-restore-meta
     params:
       TEMPLATE_PATH: templates/release-sdk-addon.yml.erb
+      VERSION_PATH: tag
   - put: backup-and-restore-sdk-addon-pivnet
     params:
       metadata_file: release-with-metadata/release.yml
