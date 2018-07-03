@@ -22,7 +22,7 @@ params:
   OPS_FILES:
   DIRECTOR_NAME:
   ENVIRONMENT_NAME:
-  BOSH_OPERATION: create-env
+  BOSH_OPERATION: create-env # Set bosh command to run, e.g. create-env or delete-env
 
 run:
-  path: backup-and-restore-ci/tasks/bosh-create-env/task.sh
+  path: backup-and-restore-ci/tasks/bosh-operation/task.sh

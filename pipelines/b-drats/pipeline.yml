@@ -80,7 +80,7 @@ jobs:
         repository: terraform-state-updated
         rebase: true
   - task: bosh-create-env
-    file: backup-and-restore-ci/tasks/bosh-create-env/task.yml
+    file: backup-and-restore-ci/tasks/bosh-operation/task.yml
     input_mapping:
       bosh-state: bosh-backup-and-restore-meta
       terraform-state: bosh-backup-and-restore-meta
@@ -88,6 +88,7 @@ jobs:
       ENVIRONMENT_NAME: "b-drats-bengal-tiger"
       OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml"
       DIRECTOR_NAME: "bengal-tiger"
+      BOSH_OPERATION: "create-env"
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -161,7 +162,7 @@ jobs:
         status: failure
         context: b-drats
   - task: bosh-create-env
-    file: backup-and-restore-ci/tasks/bosh-create-env/task.yml
+    file: backup-and-restore-ci/tasks/bosh-operation/task.yml
     input_mapping:
       bosh-state: bosh-backup-and-restore-meta
       terraform-state: bosh-backup-and-restore-meta
@@ -169,6 +170,7 @@ jobs:
       ENVIRONMENT_NAME: "b-drats-black-panther"
       OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml"
       DIRECTOR_NAME: "black-panther"
+      BOSH_OPERATION: "create-env"
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -320,7 +322,7 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
   - task: bosh-delete-env
-    file: backup-and-restore-ci/tasks/bosh-create-env/task.yml
+    file: backup-and-restore-ci/tasks/bosh-operation/task.yml
     input_mapping:
       bosh-state: bosh-backup-and-restore-meta
       terraform-state: bosh-backup-and-restore-meta
@@ -358,7 +360,7 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
   - task: bosh-delete-env
-    file: backup-and-restore-ci/tasks/bosh-create-env/task.yml
+    file: backup-and-restore-ci/tasks/bosh-operation/task.yml
     input_mapping:
       bosh-state: bosh-backup-and-restore-meta
       terraform-state: bosh-backup-and-restore-meta
