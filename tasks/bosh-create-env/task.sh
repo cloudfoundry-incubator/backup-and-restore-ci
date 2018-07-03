@@ -23,6 +23,22 @@ pushd "${TERRAFORM_STATE_DIR}/${ENVIRONMENT_NAME}"
   project_id="$(terraform output projectid)"
 popd
 
+function commit_bosh_state() {
+  pushd "${BOSH_STATE_DIR}/${ENVIRONMENT_NAME}"
+    git add bosh-state.json
+    git add creds.yml
+    if git commit -m "Update bosh state for ${ENVIRONMENT_NAME} after bosh ${BOSH_OPERATION}"; then
+      echo "Updated bosh-state for ${ENVIRONMENT_NAME} after bosh ${BOSH_OPERATION}"
+    else
+      echo "No change to BOSH state for ${ENVIRONMENT_NAME} after bosh ${BOSH_OPERATION}"
+    fi
+  popd
+
+  cp -r "${BOSH_STATE_DIR}/." "${BOSH_STATE_OUTPUT_DIR}"
+}
+
+trap commit_bosh_state EXIT
+
 pushd bosh-deployment
     # shellcheck disable=SC2086   # we need to expand $opsfiles_arguments
     bosh-cli ${BOSH_OPERATION} bosh.yml \
@@ -45,15 +61,3 @@ popd
 if [[ ${BOSH_OPERATION} == "delete-env" ]]; then
     rm "${BOSH_STATE_DIR}/${ENVIRONMENT_NAME}/creds.yml"
 fi
-
-pushd "${BOSH_STATE_DIR}/${ENVIRONMENT_NAME}"
-  git add bosh-state.json
-  git add creds.yml
-  if git commit -m "Update bosh state for ${ENVIRONMENT_NAME} after bosh ${BOSH_OPERATION}"; then
-    echo "Updated bosh-state for ${ENVIRONMENT_NAME} after bosh ${BOSH_OPERATION}"
-  else
-    echo "No change to BOSH state for ${ENVIRONMENT_NAME} after bosh ${BOSH_OPERATION}"
-  fi
-popd
-
-cp -r "${BOSH_STATE_DIR}/." "${BOSH_STATE_OUTPUT_DIR}"
