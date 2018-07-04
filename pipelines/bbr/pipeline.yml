@@ -43,6 +43,7 @@ groups:
   - build-rc
   - install-optional-components-on-pas
   - run-p-drats-on-pas
+  - unclaim-env
   - transfer-bbr-binary-to-jumpbox
 - name: SHIPIT
   jobs:
@@ -476,12 +477,20 @@ jobs:
       bbr-binary-release: rc
     params:
       DEFAULT_TIMEOUT_MINS: 30
-  - put: pcf-2-1-pool
-    params:
-      action: unclaim
-      env_file: env-pool/metadata
-    tags:
-    - *toolsmiths_api_worker
+
+- name: unclaim-env
+  plan:
+    - get: pcf-2-1-pool
+      passed: [run-p-drats-on-pas]
+      trigger: true
+      tags:
+      - *toolsmiths_api_worker
+    - put: pcf-2-1-pool
+      params:
+        action: unclaim
+        env_file: pcf-2-1-pool/metadata
+      tags:
+      - *toolsmiths_api_worker
 
 - name: transfer-bbr-binary-to-jumpbox
   serial_groups: [version]
@@ -501,6 +510,7 @@ jobs:
         BOSH_CLIENT_SECRET: ((genesis-bosh-director-password))
         BOSH_CLIENT: ((genesis-bosh-director-username))
         BOSH_TARGET: https://genesis-bosh.backup-and-restore.cf-app.com
+
 - name: build-final
   serial_groups: [version]
   plan:
