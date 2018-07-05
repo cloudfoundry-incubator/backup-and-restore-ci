@@ -122,6 +122,8 @@ resources:
     private_key: ((git-private-key))
     branch: master
     disable_git_lfs: true
+    ignore_paths:
+    - ci
 - name: bosh-backup-and-restore-meta
   type: git
   source:
