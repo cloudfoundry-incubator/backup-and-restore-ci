@@ -74,12 +74,6 @@ resource_types:
     tag: latest
 
 resources:
-- name: backup-and-restore-ci
-  type: git
-  source:
-    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
-    private_key: ((git-private-key))
-    branch: master
 - name: bosh-backup-and-restore-test-releases
   type: git
   source:
