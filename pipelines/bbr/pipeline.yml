@@ -74,6 +74,12 @@ resource_types:
     tag: latest
 
 resources:
+- name: backup-and-restore-ci
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
+    private_key: ((git-private-key))
+    branch: master
 - name: bosh-backup-and-restore-test-releases
   type: git
   source:
@@ -495,17 +501,13 @@ jobs:
 - name: transfer-bbr-binary-to-jumpbox
   serial_groups: [version]
   plan:
-    - get: bosh-backup-and-restore
-      passed: [run-p-drats-on-pas]
-      params:
-        submodules: none
-        disable_git_lfs: true
+    - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
     - get: rc
       passed: [run-p-drats-on-pas]
       trigger: true
     - task: transfer-bbr-binary-to-jumpbox
-      file: bosh-backup-and-restore/ci/tasks/transfer-bbr-binary-to-jumpbox.yml
+      file: backup-and-restore-ci/tasks/transfer-bbr-binary-to-jumpbox/task.yml
       params:
         BOSH_CLIENT_SECRET: ((genesis-bosh-director-password))
         BOSH_CLIENT: ((genesis-bosh-director-username))
