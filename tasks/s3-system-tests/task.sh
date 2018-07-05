@@ -27,11 +27,10 @@ if [[ "$USE_BOSH_ALL_PROXY" = true ]]; then
   export BOSH_ALL_PROXY="ssh+socks5://${BOSH_GW_USER}@${BOSH_GW_HOST}?private-key=${BOSH_GW_PRIVATE_KEY}"
 fi
 
-cd backup-and-restore-sdk-release/src/github.com/cloudfoundry-incubator/s3-blobstore-backup-restore
+cd backup-and-restore-sdk-release/src/github.com/cloudfoundry-incubator/backup-and-restore-sdk-release-system-tests/s3
 
 if [[ ! -z "${FOCUS_SPEC}" ]]; then
-  ginkgo -focus "${FOCUS_SPEC}" -v -r system_tests -trace
+  ginkgo -focus "${FOCUS_SPEC}" -v -r -trace
 else
-  ginkgo -v -r system_tests -trace
+  ginkgo -v -r -trace
 fi
-
