@@ -20,10 +20,6 @@ set -eu
 
 export GOPATH="$PWD/backup-and-restore-sdk-release:$GOPATH"
 
-pushd backup-and-restore-sdk-release/src/github.com/cloudfoundry-incubator/s3-blobstore-backup-restore
-  ginkgo -r -p -v -skipPackage=system_tests -keepGoing --flakeAttempts=2
-popd
-
-pushd backup-and-restore-sdk-release/src/github.com/cloudfoundry-incubator/azure-blobstore-backup-restore
-  ginkgo -r -p -v -skipPackage=system_tests -keepGoing
+pushd "backup-and-restore-sdk-release/src/github.com/cloudfoundry-incubator/$PACKAGE_NAME"
+  ginkgo -r -p -v -keepGoing --flakeAttempts=2
 popd

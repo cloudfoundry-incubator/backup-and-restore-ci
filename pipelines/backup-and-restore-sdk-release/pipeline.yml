@@ -143,20 +143,25 @@ jobs:
       privileged: true
       params:
         DOCKER_HOST: "tcp://10.0.3.12:4243"
-    - task: blobstore-unit-tests
+    - task: s3-blobstore-unit-tests
       file: backup-and-restore-ci/tasks/blobstore-unit-tests/task.yml
       params:
+        PACKAGE_NAME: s3-blobstore-backup-restore
         TEST_AWS_ACCESS_KEY_ID: ((aws-access-key-id))
         TEST_AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
         TEST_ECS_ACCESS_KEY_ID: ((ecs-access-key-id))
         TEST_ECS_SECRET_ACCESS_KEY: ((ecs-secret-access-key))
+    - task: azure-blobstore-unit-tests
+      file: backup-and-restore-ci/tasks/blobstore-unit-tests/task.yml
+      params:
+        PACKAGE_NAME: azure-blobstore-backup-restore
         AZURE_STORAGE_ACCOUNT: ((azure-storage-account))
         AZURE_STORAGE_KEY: ((azure-storage-key))
         AZURE_STORAGE_ACCOUNT_NO_SOFT_DELETE: ((azure-storage-account-no-soft-delete))
         AZURE_STORAGE_KEY_NO_SOFT_DELETE: ((azure-storage-key-no-soft-delete))
-        AZURE_CONTAINER_NAME_MANY_FILES: bbr-test-many-blobs-azure-container
         AZURE_DIFFERENT_STORAGE_ACCOUNT: ((azure-different-storage-account))
         AZURE_DIFFERENT_STORAGE_KEY: ((azure-different-storage-key))
+        AZURE_CONTAINER_NAME_MANY_FILES: bbr-test-many-blobs-azure-container
 
 - name: create-release
   serial: true
