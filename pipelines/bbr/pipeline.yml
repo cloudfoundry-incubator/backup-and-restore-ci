@@ -1,5 +1,5 @@
 ---
-toolsmiths_api_worker: &toolsmiths_api_worker vsphere-platform-recovery
+toolsmiths_api_worker: &toolsmiths_api_worker platform-recovery-vsphere
 toolsmiths_pool_worker: &toolsmiths_pool_worker toolsmiths-pool
 
 maru-bosh-env: &maru-bosh-env
