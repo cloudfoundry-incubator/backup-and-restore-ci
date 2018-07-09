@@ -28,3 +28,8 @@ inputs:
 
 run:
   path: backup-and-restore-ci/tasks/gcp-system-tests/task.sh
+
+params:
+  GCP_SERVICE_KEY:
+  GCP_PROJECT_NAME:
+  GCP_BUCKET_NAME:

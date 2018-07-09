@@ -21,5 +21,9 @@ set -eu
 export GOPATH="$PWD/backup-and-restore-sdk-release"
 export PATH="$PATH:$GOPATH/bin"
 
+GCP_SERVICE_KEY_PATH="$(mktemp)"
+echo "$GCP_SERVICE_KEY" > "$GCP_SERVICE_KEY_PATH"
+export GCP_SERVICE_KEY_PATH
+
 cd backup-and-restore-sdk-release/src/github.com/cloudfoundry-incubator/backup-and-restore-sdk-release-system-tests/gcp
 ginkgo -v -r -trace

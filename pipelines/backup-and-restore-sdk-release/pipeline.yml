@@ -992,6 +992,10 @@ jobs:
     - create-release
   - task: gcp-blobstore-backuper-system-tests
     file: backup-and-restore-ci/tasks/gcp-system-tests/task.yml
+    params:
+      GCP_SERVICE_KEY: ((gcp_service_account_key))
+      GCP_PROJECT_NAME: cf-backup-and-restore
+      GCP_BUCKET_NAME: bbr-system-test-gcp-bucket
 
 - name: deploy-cf-with-external-s3-blobstore
   serial: true
