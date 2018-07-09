@@ -3,26 +3,17 @@
 set -e
 set -u
 
-terraform_output() {
-   terraform output -state="terraform-state/${TERRAFORM_STATE_PATH}" $1
-}
+pushd terraform-state
+    bosh_host="$(terraform output director-ip)"
+    bosh_ca_cert="$(bosh-cli int --path=/director_ssl/ca "../bosh-vars-store/${BOSH_VARS_STORE_PATH}")"
+    bosh_client_secret="$(bosh-cli int --path=/admin_password "../bosh-vars-store/${BOSH_VARS_STORE_PATH}")"
+    zone="$(terraform output zone1)"
+    network="$(terraform output director-network-name)"
+    subnetwork="$(terraform output director-subnetwork-name)"
+    tags="[$(terraform output internal-tag)]"
+    internal_cidr="$(terraform output director-subnetwork-cidr-range)"
+popd
 
-if [[ ! -z "${TERRAFORM_STATE_PREPARE_CMD}" ]]; then
-  "terraform-state/${TERRAFORM_STATE_PREPARE_CMD}"
-fi
-
-if [[ ! -z "${BOSH_VARS_STORE_PREPARE_CMD}" ]]; then
-  "bosh-vars-store/${BOSH_VARS_STORE_PREPARE_CMD}"
-fi
-
-bosh_host="$(terraform_output director-ip)"
-bosh_ca_cert="$(bosh-cli int --path=/director_ssl/ca "bosh-vars-store/${BOSH_VARS_STORE_PATH}")"
-bosh_client_secret="$(bosh-cli int --path=/admin_password "bosh-vars-store/${BOSH_VARS_STORE_PATH}")"
-zone="$(terraform_output zone1)"
-network="$(terraform_output director-network-name)"
-subnetwork="$(terraform_output director-subnetwork-name)"
-tags="[$(terraform_output internal-tag)]"
-internal_cidr="$(terraform_output director-subnetwork-cidr-range)"
 
 bosh_ca_cert_path="$(mktemp)"
 echo "${bosh_ca_cert}" > "${bosh_ca_cert_path}"
