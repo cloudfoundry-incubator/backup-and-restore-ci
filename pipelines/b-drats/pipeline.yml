@@ -6,6 +6,11 @@ resource_types:
     repository: jtarchie/pr
     tag: latest
 
+- name: terraform
+  type: docker-image
+  source:
+    repository: ljfranklin/terraform-resource
+
 - name: git
   type: docker-image
   source:
@@ -54,6 +59,16 @@ resources:
     repository: bosh-backup-and-restore
     access_token: ((github-access-token))
 
+- name: terraform
+  type: terraform
+  source:
+    storage:
+      bucket: bbr-terraform-states
+      bucket_path: /
+      access_key_id: ((aws-access-key-id))
+      secret_access_key: ((aws-secret-access-key))
+      region_name: eu-west-1
+
 jobs:
 - name: deploy-bosh-bengal-tiger
   serial: true
@@ -66,29 +81,26 @@ jobs:
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-  - task: terraform-apply
-    file: backup-and-restore-ci/tasks/terraform-operation/task.yml
-    input_mapping:
-      terraform-state: bosh-backup-and-restore-meta
+  - put: terraform
     params:
-      ENVIRONMENT_NAME: b-drats-bengal-tiger
-      GIT_USER_NAME: "PCF Backup & Restore CI"
-      GIT_USER_EMAIL: "cf-lazarus@pivotal.io"
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: terraform-state-updated
-        rebase: true
+      terraform_source: bosh-backup-and-restore-meta/b-drats-bengal-tiger/
+      env_name: b-drats-bengal-tiger
+      delete_on_failure: true
+      vars:
+        gcp_service_account_key: ((gcp_service_account_key))
+    get_params:
+      output_statefile: true
   - task: bosh-create-env
     file: backup-and-restore-ci/tasks/bosh-operation/task.yml
     input_mapping:
       bosh-state: bosh-backup-and-restore-meta
-      terraform-state: bosh-backup-and-restore-meta
+      terraform-state: terraform
     params:
       ENVIRONMENT_NAME: "b-drats-bengal-tiger"
       OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml"
       DIRECTOR_NAME: "bengal-tiger"
       BOSH_OPERATION: "create-env"
+      GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -98,31 +110,28 @@ jobs:
     file: backup-and-restore-ci/tasks/update-b-drats-cloud-config/task.yml
     input_mapping:
       cloud-config: bosh-deployment
-      terraform-state: bosh-backup-and-restore-meta
+      terraform-state: terraform
       bosh-vars-store: bosh-backup-and-restore-meta
     params:
       CLOUD_CONFIG_PATH: gcp/cloud-config.yml
-      TERRAFORM_STATE_PATH: b-drats-bengal-tiger/terraform.tfstate
       BOSH_VARS_STORE_PATH: b-drats-bengal-tiger/creds.yml
       BOSH_CLIENT: admin
   - task: upload-b-drats-stemcell
     file: backup-and-restore-ci/tasks/upload-b-drats-stemcell/task.yml
     input_mapping:
-      terraform-state: bosh-backup-and-restore-meta
+      terraform-state: terraform
       bosh-vars-store: bosh-backup-and-restore-meta
     params:
       STEMCELL_URL: https://bosh.io/d/stemcells/bosh-google-kvm-ubuntu-trusty-go_agent?v=3586.7
-      TERRAFORM_STATE_PATH: b-drats-bengal-tiger/terraform.tfstate
       BOSH_VARS_STORE_PATH: b-drats-bengal-tiger/creds.yml
       BOSH_CLIENT: admin
   - task: update-b-drats-resurrection
     file: backup-and-restore-ci/tasks/update-b-drats-resurrection/task.yml
     input_mapping:
-      terraform-state: bosh-backup-and-restore-meta
+      terraform-state: terraform
       bosh-vars-store: bosh-backup-and-restore-meta
     params:
       RESURRECTION: "off"
-      TERRAFORM_STATE_PATH: b-drats-bengal-tiger/terraform.tfstate
       BOSH_VARS_STORE_PATH: b-drats-bengal-tiger/creds.yml
       BOSH_CLIENT: admin
 
@@ -142,19 +151,15 @@ jobs:
       path: bosh-disaster-recovery-acceptance-tests-prs
       status: pending
       context: b-drats
-  - task: terraform-apply
-    file: backup-and-restore-ci/tasks/terraform-operation/task.yml
-    input_mapping:
-      terraform-state: bosh-backup-and-restore-meta
+  - put: terraform
     params:
-      ENVIRONMENT_NAME: b-drats-black-panther
-      GIT_USER_NAME: "PCF Backup & Restore CI"
-      GIT_USER_EMAIL: "cf-lazarus@pivotal.io"
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: terraform-state-updated
-        rebase: true
+      terraform_source: bosh-backup-and-restore-meta/b-drats-black-panther/
+      env_name: b-drats-black-panther
+      delete_on_failure: true
+      vars:
+        gcp_service_account_key: ((gcp_service_account_key))
+    get_params:
+      output_statefile: true
     on_failure:
       put: bosh-disaster-recovery-acceptance-tests-prs
       params:
@@ -165,12 +170,13 @@ jobs:
     file: backup-and-restore-ci/tasks/bosh-operation/task.yml
     input_mapping:
       bosh-state: bosh-backup-and-restore-meta
-      terraform-state: bosh-backup-and-restore-meta
+      terraform-state: terraform
     params:
       ENVIRONMENT_NAME: "b-drats-black-panther"
       OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml"
       DIRECTOR_NAME: "black-panther"
       BOSH_OPERATION: "create-env"
+      GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -186,11 +192,10 @@ jobs:
     file: backup-and-restore-ci/tasks/update-b-drats-cloud-config/task.yml
     input_mapping:
       cloud-config: bosh-deployment
-      terraform-state: bosh-backup-and-restore-meta
+      terraform-state: terraform
       bosh-vars-store: bosh-backup-and-restore-meta
     params:
       CLOUD_CONFIG_PATH: gcp/cloud-config.yml
-      TERRAFORM_STATE_PATH: b-drats-black-panther/terraform.tfstate
       BOSH_VARS_STORE_PATH: b-drats-black-panther/creds.yml
       BOSH_CLIENT: admin
     on_failure:
@@ -202,11 +207,10 @@ jobs:
   - task: upload-b-drats-stemcell
     file: backup-and-restore-ci/tasks/upload-b-drats-stemcell/task.yml
     input_mapping:
-      terraform-state: bosh-backup-and-restore-meta
+      terraform-state: terraform
       bosh-vars-store: bosh-backup-and-restore-meta
     params:
       STEMCELL_URL: https://bosh.io/d/stemcells/bosh-google-kvm-ubuntu-trusty-go_agent?v=3586.7
-      TERRAFORM_STATE_PATH: b-drats-black-panther/terraform.tfstate
       BOSH_VARS_STORE_PATH: b-drats-black-panther/creds.yml
       BOSH_CLIENT: admin
     on_failure:
@@ -218,11 +222,10 @@ jobs:
   - task: update-b-drats-resurrection
     file: backup-and-restore-ci/tasks/update-b-drats-resurrection/task.yml
     input_mapping:
-      terraform-state: bosh-backup-and-restore-meta
+      terraform-state: terraform
       bosh-vars-store: bosh-backup-and-restore-meta
     params:
       RESURRECTION: "off"
-      TERRAFORM_STATE_PATH: b-drats-black-panther/terraform.tfstate
       BOSH_VARS_STORE_PATH: b-drats-black-panther/creds.yml
       BOSH_CLIENT: admin
     on_failure:
@@ -247,13 +250,16 @@ jobs:
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
+    - get: terraform
+      passed: [deploy-bosh-bengal-tiger]
+      params:
+        output_statefile: true
   - task: extract-b-drats-integration-config
     file: backup-and-restore-ci/tasks/extract-b-drats-integration-config/task.yml
     input_mapping:
-      terraform-state: bosh-backup-and-restore-meta
+      terraform-state: terraform
       bosh-vars-store: bosh-backup-and-restore-meta
     params:
-      TERRAFORM_STATE_PATH: terraform-state/b-drats-bengal-tiger/terraform.tfstate
       BOSH_VARS_STORE_PATH: bosh-vars-store/b-drats-bengal-tiger/creds.yml
   - task: run-b-drats
     file: bosh-disaster-recovery-acceptance-tests/ci/run-b-drats/task.yml
@@ -275,6 +281,10 @@ jobs:
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
+    - get: terraform
+      passed: [deploy-bosh-black-panther]
+      params:
+        output_statefile: true
   - put: bosh-disaster-recovery-acceptance-tests-prs
     params:
       path: bosh-disaster-recovery-acceptance-tests-prs
@@ -283,10 +293,9 @@ jobs:
   - task: extract-b-drats-integration-config
     file: backup-and-restore-ci/tasks/extract-b-drats-integration-config/task.yml
     input_mapping:
-      terraform-state: bosh-backup-and-restore-meta
+      terraform-state: terraform
       bosh-vars-store: bosh-backup-and-restore-meta
     params:
-      TERRAFORM_STATE_PATH: terraform-state/b-drats-black-panther/terraform.tfstate
       BOSH_VARS_STORE_PATH: bosh-vars-store/b-drats-black-panther/creds.yml
     on_failure:
       put: bosh-disaster-recovery-acceptance-tests-prs
@@ -321,35 +330,35 @@ jobs:
     - get: bosh-deployment
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
+    - get: terraform
+      passed: [run-b-drats-master]
+      params:
+        output_statefile: true
   - task: bosh-delete-env
     file: backup-and-restore-ci/tasks/bosh-operation/task.yml
     input_mapping:
       bosh-state: bosh-backup-and-restore-meta
-      terraform-state: bosh-backup-and-restore-meta
+      terraform-state: terraform
     params:
       ENVIRONMENT_NAME: "b-drats-bengal-tiger"
       OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml"
       DIRECTOR_NAME: "bengal-tiger"
       BOSH_OPERATION: "delete-env"
+      GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
     ensure:
       put: bosh-backup-and-restore-meta
       params:
         repository: bosh-state-updated
         rebase: true
-  - task: terraform-destory
-    file: backup-and-restore-ci/tasks/terraform-operation/task.yml
-    input_mapping:
-      terraform-state: bosh-backup-and-restore-meta
+  - put: terraform
     params:
-      TERRAFORM_OPERATION: destroy
-      ENVIRONMENT_NAME: b-drats-bengal-tiger
-      GIT_USER_NAME: "PCF Backup & Restore CI"
-      GIT_USER_EMAIL: "cf-lazarus@pivotal.io"
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: terraform-state-updated
-        rebase: true
+      terraform_source: bosh-backup-and-restore-meta/b-drats-bengal-tiger/
+      env_name: b-drats-bengal-tiger
+      action: destroy
+      vars:
+        gcp_service_account_key: ((gcp_service_account_key))
+    get_params:
+      action: destroy
 
 - name: destroy-bosh-black-panther
   serial: true
@@ -359,16 +368,21 @@ jobs:
     - get: bosh-deployment
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
+    - get: terraform
+      passed: [run-b-drats-prs]
+      params:
+        output_statefile: true
   - task: bosh-delete-env
     file: backup-and-restore-ci/tasks/bosh-operation/task.yml
     input_mapping:
       bosh-state: bosh-backup-and-restore-meta
-      terraform-state: bosh-backup-and-restore-meta
+      terraform-state: terraform
     params:
       ENVIRONMENT_NAME: "b-drats-black-panther"
       OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml"
       DIRECTOR_NAME: "black-panther"
       BOSH_OPERATION: "delete-env"
+      GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -380,20 +394,15 @@ jobs:
         path: bosh-disaster-recovery-acceptance-tests-prs
         status: failure
         context: b-drats
-  - task: terraform-destroy
-    file: backup-and-restore-ci/tasks/terraform-operation/task.yml
-    input_mapping:
-      terraform-state: bosh-backup-and-restore-meta
+  - put: terraform
     params:
-      TERRAFORM_OPERATION: destroy
-      ENVIRONMENT_NAME: b-drats-black-panther
-      GIT_USER_NAME: "PCF Backup & Restore CI"
-      GIT_USER_EMAIL: "cf-lazarus@pivotal.io"
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: terraform-state-updated
-        rebase: true
+      terraform_source: bosh-backup-and-restore-meta/b-drats-black-panther/
+      env_name: b-drats-black-panther
+      action: destroy
+      vars:
+        gcp_service_account_key: ((gcp_service_account_key))
+    get_params:
+      action: destroy
     on_failure:
       put: bosh-disaster-recovery-acceptance-tests-prs
       params:
