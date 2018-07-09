@@ -22,14 +22,22 @@ image_resource:
   source: {repository: cloudfoundrylondon/backup-and-restore}
 
 inputs:
-- name: backup-and-restore-ci
 - name: backup-and-restore-sdk-release
+- name: backup-and-restore-ci
+- name: release-tarball
 - name: bosh-backup-and-restore-meta
 
+outputs:
+- name: backup-and-restore-sdk-release-build
+
 run:
-  path: backup-and-restore-ci/tasks/gcp-system-tests/task.sh
+  path: backup-and-restore-ci/tasks/deploy-gcs-backuper/task.sh
 
 params:
-  GCP_SERVICE_KEY:
-  GCP_PROJECT_NAME:
-  GCP_BUCKET_NAME:
+  BOSH_ENVIRONMENT:
+  BOSH_CLIENT:
+  BOSH_CLIENT_SECRET:
+  BOSH_DEPLOYMENT:
+  MANIFEST_NAME:
+  GCP_SERVICE_ACCOUNT_KEY:
+  GCS_BUCKET_NAME:
