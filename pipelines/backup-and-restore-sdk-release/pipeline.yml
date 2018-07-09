@@ -977,6 +977,22 @@ jobs:
       AZURE_DIFFERENT_STORAGE_KEY: ((azure-different-storage-key))
       AZURE_DIFFERENT_CONTAINER_NAME: bbr-system-test-azure-different-container
 
+- name: gcp-blobstore-backuper-system-tests
+  serial: true
+  plan:
+  - get: backup-and-restore-ci
+  - get: backup-and-restore-sdk-release
+    passed:
+    - create-release
+    trigger: true
+  - get: bosh-backup-and-restore-meta
+  - get: release-tarball
+    resource: release
+    passed:
+    - create-release
+  - task: gcp-blobstore-backuper-system-tests
+    file: backup-and-restore-ci/tasks/gcp-system-tests/task.yml
+
 - name: deploy-cf-with-external-s3-blobstore
   serial: true
   serial_groups: [bbr-s3]
