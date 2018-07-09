@@ -3,17 +3,13 @@
 set -e
 set -u
 
-if [[ ! -z "$BOSH_STATE_PREPARE_CMD" ]]; then
-  "$BOSH_STATE_DIR/$BOSH_STATE_PREPARE_CMD"
-fi
-
 opsfiles_arguments=""
 for op in ${OPS_FILES}
   do
     opsfiles_arguments="${opsfiles_arguments} -o ${op}"
 done
 
-pushd "${TERRAFORM_STATE_DIR}/${ENVIRONMENT_NAME}"
+pushd terraform-state
   external_ip=$(terraform output director-ip)
   zone="$(terraform output zone1)"
   network="$(terraform output director-network-name)"

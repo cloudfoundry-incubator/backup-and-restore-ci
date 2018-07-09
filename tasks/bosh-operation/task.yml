@@ -16,7 +16,6 @@ outputs:
 
 params:
   BOSH_STATE_DIR: bosh-state
-  TERRAFORM_STATE_DIR: terraform-state
   BOSH_STATE_PREPARE_CMD:  # Optional command to run before using bosh-state repository
   BOSH_STATE_OUTPUT_DIR: bosh-state-updated
   OPS_FILES:
