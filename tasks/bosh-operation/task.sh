@@ -40,7 +40,7 @@ pushd bosh-deployment
     bosh-cli ${BOSH_OPERATION} bosh.yml \
     --state="../${BOSH_STATE_DIR}/${ENVIRONMENT_NAME}/bosh-state.json" \
     --vars-store="../${BOSH_STATE_DIR}/${ENVIRONMENT_NAME}/creds.yml" \
-    --var-file gcp_credentials_json="../${BOSH_STATE_DIR}/${ENVIRONMENT_NAME}/gcp_service_account_key.json" \
+    --var gcp_credentials_json="${GCP_SERVICE_ACCOUNT_KEY}" \
     $opsfiles_arguments \
     -v director_name="${DIRECTOR_NAME}" \
     -v internal_cidr="${internal_cidr}" \

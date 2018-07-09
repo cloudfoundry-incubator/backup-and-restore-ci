@@ -16,11 +16,11 @@ outputs:
 
 params:
   BOSH_STATE_DIR: bosh-state
-  BOSH_STATE_PREPARE_CMD:  # Optional command to run before using bosh-state repository
   BOSH_STATE_OUTPUT_DIR: bosh-state-updated
   OPS_FILES:
   DIRECTOR_NAME:
   ENVIRONMENT_NAME:
+  GCP_SERVICE_ACCOUNT_KEY:
   BOSH_OPERATION: create-env # Set bosh command to run, e.g. create-env or delete-env
 
 run:
