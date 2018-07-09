@@ -12,9 +12,6 @@ inputs:
 
 params:
   STEMCELL_URL:
-  TERRAFORM_STATE_PREPARE_CMD: # Optional command to run before using terraform-state repository
-  TERRAFORM_STATE_PATH:  # Path to terraform.tfstate
-  BOSH_VARS_STORE_PREPARE_CMD:  # Optional command to run before using bosh-state repository
   BOSH_VARS_STORE_PATH:  # Path to bosh director vars-store YAML file
   BOSH_CLIENT:
 
