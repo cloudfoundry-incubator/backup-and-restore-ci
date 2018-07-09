@@ -35,13 +35,16 @@ function commit_bosh_state() {
 
 trap commit_bosh_state EXIT
 
+gcp_version_account_key="$(mktemp)"
+echo "${GCP_SERVICE_ACCOUNT_KEY}" > "${gcp_version_account_key}"
+
 pushd bosh-deployment
     # shellcheck disable=SC2086   # we need to expand $opsfiles_arguments
     bosh-cli ${BOSH_OPERATION} bosh.yml \
     --state="../${BOSH_STATE_DIR}/${ENVIRONMENT_NAME}/bosh-state.json" \
     --vars-store="../${BOSH_STATE_DIR}/${ENVIRONMENT_NAME}/creds.yml" \
+    --var-file gcp_credentials_json="${gcp_version_account_key}" \
     $opsfiles_arguments \
-    -v gcp_credentials_json="${GCP_SERVICE_ACCOUNT_KEY}" \
     -v director_name="${DIRECTOR_NAME}" \
     -v internal_cidr="${internal_cidr}" \
     -v internal_gw=10.0.0.1 \
