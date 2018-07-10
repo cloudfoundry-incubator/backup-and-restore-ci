@@ -18,12 +18,24 @@
 
 set -eu
 
-export GOPATH="$PWD/backup-and-restore-sdk-release"
-export PATH="$PATH:$GOPATH/bin"
-
 GCP_SERVICE_ACCOUNT_KEY_PATH="$(mktemp)"
 echo "$GCP_SERVICE_ACCOUNT_KEY" > "$GCP_SERVICE_ACCOUNT_KEY_PATH"
 export GCP_SERVICE_ACCOUNT_KEY_PATH
+
+eval "$(ssh-agent)"
+
+chmod 400 bosh-backup-and-restore-meta/keys/github
+ssh-add bosh-backup-and-restore-meta/keys/github
+chmod 400 bosh-backup-and-restore-meta/genesis-bosh/bosh.pem
+
+export GOPATH="$PWD/backup-and-restore-sdk-release"
+export PATH="$PATH:$GOPATH/bin"
+
+export BOSH_ENVIRONMENT="https://lite-bosh.backup-and-restore.cf-app.com"
+export BOSH_CA_CERT="$PWD/bosh-backup-and-restore-meta/certs/lite-bosh.backup-and-restore.cf-app.com.crt"
+export BOSH_GW_USER="vcap"
+export BOSH_GW_HOST="lite-bosh.backup-and-restore.cf-app.com"
+export BOSH_GW_PRIVATE_KEY="$PWD/bosh-backup-and-restore-meta/genesis-bosh/bosh.pem"
 
 cd backup-and-restore-sdk-release/src/github.com/cloudfoundry-incubator/backup-and-restore-sdk-release-system-tests/gcs
 ginkgo -v -r -trace

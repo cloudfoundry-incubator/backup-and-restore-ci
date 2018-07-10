@@ -1021,6 +1021,9 @@ jobs:
       GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       GCP_PROJECT_NAME: cf-backup-and-restore
       GCS_BUCKET_NAME: bbr-system-test-gcs-bucket
+      BOSH_DEPLOYMENT: gcs-backuper
+      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+      BOSH_CLIENT: ((lite-bosh-director-username))
 
 - name: deploy-cf-with-external-s3-blobstore
   serial: true
