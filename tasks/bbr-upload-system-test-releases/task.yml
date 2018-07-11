@@ -1,0 +1,26 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source: {repository: cloudfoundrylondon/backup-and-restore}
+
+inputs:
+- name: bbr-systest-releases
+- name: bosh-backup-and-restore
+- name: bosh-backup-and-restore-meta
+- name: backup-and-restore-ci
+
+params:
+  RELEASE_NAME:
+  BOSH_ENVIRONMENT:
+  BOSH_CLIENT:
+  BOSH_CLIENT_SECRET:
+  BOSH_CA_CERT_PATH: # path to bosh director ca cert
+  BOSH_GW_HOST: # optional, gateway host to establish BOSH_ALL_PROXY; needs to include port
+  BOSH_GW_PRIVATE_KEY: # optional
+  BOSH_GW_USER: # optional
+  USE_BOSH_ALL_PROXY: false
+
+run:
+  path: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.sh

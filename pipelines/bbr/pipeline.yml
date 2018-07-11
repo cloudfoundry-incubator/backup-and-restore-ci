@@ -294,29 +294,30 @@ jobs:
     - get: bbr-systest-releases
       trigger: true
     - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
   - aggregate:
     - task: upload-redis-test-release-lite-bosh
-      file: bosh-backup-and-restore/ci/tasks/upload-systest-release.yml
+      file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
       params:
         RELEASE_NAME: redis-test-release
         <<: *lite-bosh-env
     - task: upload-redis-test-release-maru-bosh
-      file: bosh-backup-and-restore/ci/tasks/upload-systest-release.yml
+      file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
       params:
         RELEASE_NAME: redis-test-release
         <<: *maru-bosh-env
     - task: upload-redis-test-release-lite-bosh-uaa
-      file: bosh-backup-and-restore/ci/tasks/upload-systest-release.yml
+      file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
       params:
         RELEASE_NAME: redis-test-release
         <<: *lite-bosh-uaa-env
     - task: upload-lock-ordering-release-lite-bosh
-      file: bosh-backup-and-restore/ci/tasks/upload-systest-release.yml
+      file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
       params:
         RELEASE_NAME: lock-ordering-release
         <<: *lite-bosh-env
     - task: upload-lock-ordering-release-lite-bosh-uaa
-      file: bosh-backup-and-restore/ci/tasks/upload-systest-release.yml
+      file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
       params:
         RELEASE_NAME: lock-ordering-release
         <<: *lite-bosh-uaa-env
