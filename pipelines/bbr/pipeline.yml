@@ -286,18 +286,20 @@ jobs:
     - get: dummy-bbr-script-release-bucket
       trigger: true
       passed: [create-test-releases]
-  - task: deploy-dev-bosh
-    file: bosh-backup-and-restore-meta/ci/tasks/deploy-bosh-director.yml
-    params:
-      DIRECTOR_ENV: dev-bosh-director
-      GIT_SSH_KEY: ((git-private-key))
-      GITHUB_PUBLIC_KEY: ((github-public-key))
-  - task: deploy-test-bosh
-    file: bosh-backup-and-restore-meta/ci/tasks/deploy-bosh-director.yml
-    params:
-      DIRECTOR_ENV: test-bosh-director
-      GIT_SSH_KEY: ((git-private-key))
-      GITHUB_PUBLIC_KEY: ((github-public-key))
+    - get: backup-and-restore-ci
+  - aggregate:
+    - task: deploy-dev-bosh
+      file: backup-and-restore-ci/tasks/deploy-bosh-director/task.yml
+      params:
+        DIRECTOR_ENV: dev-bosh-director
+        GIT_SSH_KEY: ((git-private-key))
+        GITHUB_PUBLIC_KEY: ((github-public-key))
+    - task: deploy-test-bosh
+      file: backup-and-restore-ci/tasks/deploy-bosh-director/task.yml
+      params:
+        DIRECTOR_ENV: test-bosh-director
+        GIT_SSH_KEY: ((git-private-key))
+        GITHUB_PUBLIC_KEY: ((github-public-key))
 
 - name: upload-systest-releases
   serial: true

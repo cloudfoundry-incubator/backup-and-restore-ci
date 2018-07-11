@@ -1,0 +1,20 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source: {repository: cloudfoundrylondon/backup-and-restore}
+
+inputs:
+- name: bosh-backup-and-restore-meta
+- name: dummy-bbr-script-release-bucket
+- name: backup-and-restore-ci
+
+outputs:
+- name: bosh-backup-and-restore-meta-updated
+
+params:
+  DIRECTOR_ENV:
+
+run:
+  path: backup-and-restore-ci/tasks/deploy-bosh-director/task.sh
