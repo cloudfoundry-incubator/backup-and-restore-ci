@@ -45,6 +45,7 @@ groups:
   - run-p-drats-on-pas
   - unclaim-env
   - transfer-bbr-binary-to-jumpbox
+
 - name: SHIPIT
   jobs:
   - build-final
@@ -78,18 +79,20 @@ resources:
   type: git
   source:
     uri: git@github.com:pivotal-cf-experimental/bosh-backup-and-restore-test-releases.git
-    private_key: {{git-private-key}}
+    private_key: ((git-private-key))
     branch: master
     paths:
     - test-bosh-backup-and-restore-release
+
 - name: dummy-bbr-script-release-bucket
   type: s3
   source:
     bucket: bosh-backup-and-restore-test-releases
     region_name: eu-west-1
     regexp: test-bosh-backup-and-restore-release-(.*).tgz
-    access_key_id: {{aws-access-key-id}}
-    secret_access_key: {{aws-secret-access-key}}
+    access_key_id: ((aws-access-key-id))
+    secret_access_key: ((aws-secret-access-key))
+
 - name: test-release-version
   type: semver
   source:
@@ -97,8 +100,8 @@ resources:
     region_name: eu-west-1
     key: current-dev-version
     initial_version: 0.0.0
-    access_key_id: {{aws-access-key-id}}
-    secret_access_key: {{aws-secret-access-key}}
+    access_key_id: ((aws-access-key-id))
+    secret_access_key: ((aws-secret-access-key))
 
 - name: pcf-2-1-pool
   type: pcf-pool
@@ -118,6 +121,7 @@ resources:
     disable_git_lfs: true
     ignore_paths:
     - ci
+
 - name: bosh-backup-and-restore-meta
   type: git
   source:
@@ -125,6 +129,7 @@ resources:
     private_key: ((git-private-key))
     git_crypt_key: ((git-crypt-key))
     branch: master
+
 - name: release-trigger
   type: git
   source:
@@ -134,12 +139,14 @@ resources:
     branch: master
     paths:
     - bbr-current-release/version
+
 - name: backup-and-restore-ci
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
     private_key: ((git-private-key))
     branch: master
+
 - name: bbr-pivnet
   type: pivnet
   source:
@@ -147,6 +154,7 @@ resources:
     product_slug: p-bosh-backup-and-restore
     access_key_id: ((pivnet-aws-access-key-id))
     secret_access_key: ((pivnet-aws-secret-access-key))
+
 - name: rc
   type: s3
   source:
@@ -155,6 +163,7 @@ resources:
     regexp: bbr-(.*)\.tar
     access_key_id: ((aws-access-key-id))
     secret_access_key: ((aws-secret-access-key))
+
 - name: release
   type: s3
   source:
@@ -163,6 +172,7 @@ resources:
     regexp: bbr-(.*)\.tar
     access_key_id: ((aws-access-key-id))
     secret_access_key: ((aws-secret-access-key))
+
 - name: version
   type: semver
   source:
@@ -171,6 +181,7 @@ resources:
     key: current-version
     access_key_id: ((aws-access-key-id))
     secret_access_key: ((aws-secret-access-key))
+
 - name: bbr-release
   type: github-release
   source:
@@ -178,6 +189,7 @@ resources:
     repository: bosh-backup-and-restore
     access_token: ((github-access-token))
     drafts: true
+
 - name: bbr-systest-releases
   type: git
   source:
@@ -185,12 +197,14 @@ resources:
     private_key: ((git-private-key))
     branch: master
     paths: [redis-test-release/**, lock-ordering-release/**]
+
 - name: pivotal-disaster-recovery-acceptance-tests
   type: git
   source:
     uri: git@github.com:pivotal-cf/pivotal-disaster-recovery-acceptance-tests.git
     private_key: ((git-private-key))
     branch: master
+
 - name: windows-vm-deployment
   type: bosh-deployment
   source:
@@ -201,6 +215,7 @@ resources:
     ca_cert: "((maru-bosh-director-ca-cert))"
     jumpbox_url: "((maru-jumpbox-url))"
     jumpbox_ssh_key: "((maru-jumpbox-ssh-key))"
+
 - name: jumpbox-windows-deployment
   type: bosh-deployment
   source:
@@ -211,10 +226,12 @@ resources:
     ca_cert: "((maru-bosh-director-ca-cert))"
     jumpbox_url: "((maru-jumpbox-url))"
     jumpbox_ssh_key: "((maru-jumpbox-ssh-key))"
+
 - name: windows-stemcell
   type: bosh-io-stemcell
   source:
     name: bosh-google-kvm-windows2016-go_agent
+
 - name: ubuntu-stemcell
   type: bosh-io-stemcell
   source:
@@ -273,14 +290,14 @@ jobs:
     file: bosh-backup-and-restore-meta/ci/tasks/deploy-bosh-director.yml
     params:
       DIRECTOR_ENV: dev-bosh-director
-      GIT_SSH_KEY: {{git-private-key}}
-      GITHUB_PUBLIC_KEY: {{github-public-key}}
+      GIT_SSH_KEY: ((git-private-key))
+      GITHUB_PUBLIC_KEY: ((github-public-key))
   - task: deploy-test-bosh
     file: bosh-backup-and-restore-meta/ci/tasks/deploy-bosh-director.yml
     params:
       DIRECTOR_ENV: test-bosh-director
-      GIT_SSH_KEY: {{git-private-key}}
-      GITHUB_PUBLIC_KEY: {{github-public-key}}
+      GIT_SSH_KEY: ((git-private-key))
+      GITHUB_PUBLIC_KEY: ((github-public-key))
 
 - name: upload-systest-releases
   serial: true
