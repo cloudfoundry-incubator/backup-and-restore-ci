@@ -450,6 +450,7 @@ jobs:
       trigger: true
     - get: rc
       passed: [build-rc]
+      trigger: true
     - put: env-pool
       resource: pcf-2-1-pool
       params:
