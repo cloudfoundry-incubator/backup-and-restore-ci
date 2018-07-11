@@ -260,6 +260,7 @@ jobs:
   - put: dummy-bbr-script-release-bucket
     params:
       file: bbr-test-release-build/test-bosh-backup-and-restore-release-*.tgz
+
 - name: deploy-bosh-directors
   serial: true
   plan:
@@ -323,13 +324,15 @@ jobs:
 - name: unit
   serial: true
   plan:
-  - get: bosh-backup-and-restore
-    trigger: true
-    params:
-      submodules: none
-      disable_git_lfs: true
+  - aggregate:
+    - get: bosh-backup-and-restore
+      trigger: true
+      params:
+        submodules: none
+        disable_git_lfs: true
+    - get: backup-and-restore-ci
   - task: unit
-    file: bosh-backup-and-restore/ci/tasks/unit.yml
+    file: backup-and-restore-ci/tasks/unit-bbr/task.yml
     privileged: true
     params:
       DOCKER_HOST: "tcp://10.0.3.12:4243"
