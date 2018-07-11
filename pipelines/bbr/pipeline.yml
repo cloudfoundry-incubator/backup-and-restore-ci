@@ -424,7 +424,7 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-backup-and-restore
-      passed: [unit, deploy-windows-vm]
+      passed: [deploy-windows-vm]
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
