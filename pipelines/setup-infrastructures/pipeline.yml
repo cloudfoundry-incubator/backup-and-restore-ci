@@ -16,6 +16,11 @@ resource_types:
     repository: concourse/git-resource
     tag: latest
 
+- name: terraform
+  type: docker-image
+  source:
+    repository: ljfranklin/terraform-resource
+
 resources:
 - name: cf-deployment-concourse-tasks
   type: git
@@ -23,6 +28,7 @@ resources:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
     tag_filter: v6.*
+
 - name: bosh-backup-and-restore-meta
   type: git
   source:
@@ -30,12 +36,23 @@ resources:
     private_key: ((git-private-key))
     git_crypt_key: ((git-crypt-key))
     branch: master
+
 - name: backup-and-restore-ci
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
     private_key: ((git-private-key))
     branch: master
+
+- name: terraform
+  type: terraform
+  source:
+    storage:
+      bucket: bbr-terraform-states
+      bucket_path: /
+      access_key_id: ((aws-access-key-id))
+      secret_access_key: ((aws-secret-access-key))
+      region_name: eu-west-1
 
 jobs:
 - name: setup-infrastructure-aws-s3
@@ -221,19 +238,13 @@ jobs:
       bbl-state: updated-bbl-state
       bbl-config: bosh-backup-and-restore-meta
       ops-files: bosh-backup-and-restore-meta
-  - task: terraform-apply
-    file: backup-and-restore-ci/tasks/terraform-operation/task.yml
-    input_mapping:
-      terraform-state: bosh-backup-and-restore-meta
+  - put: terraform
     params:
-      ENVIRONMENT_NAME: external-blobstore-directors/aws-ec2
-      GIT_USER_NAME: "PCF Backup & Restore CI"
-      GIT_USER_EMAIL: "cf-lazarus@pivotal.io"
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: terraform-state-updated
-        rebase: true
+      terraform_source: bosh-backup-and-restore-meta/external-blobstore-directors/aws-ec2/iam-roles-terraform/
+      env_name: external-blobstore-aws-ec2
+      delete_on_failure: true
+      vars:
+        gcp_service_account_key: ((gcp_service_account_key))
 
 - name: destroy-infrastructure-aws-ec2
   serial: true
@@ -244,21 +255,13 @@ jobs:
       passed: [setup-infrastructure-aws-ec2]
     - get: bosh-backup-and-restore-meta
       passed: [setup-infrastructure-aws-ec2]
-    - get: backup-and-restore-ci
-  - task: terraform-destroy
-    file: backup-and-restore-ci/tasks/terraform-operation/task.yml
-    input_mapping:
-      terraform-state: bosh-backup-and-restore-meta
+  - put: terraform
     params:
-      TERRAFORM_OPERATION: destroy
-      ENVIRONMENT_NAME: external-blobstore-directors/aws-ec2
-      GIT_USER_NAME: "PCF Backup & Restore CI"
-      GIT_USER_EMAIL: "cf-lazarus@pivotal.io"
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: terraform-state-updated
-        rebase: true
+      terraform_source: bosh-backup-and-restore-meta/external-blobstore-directors/aws-ec2/iam-roles-terraform/
+      env_name: external-blobstore-aws-ec2
+      action: destroy
+    get_params:
+      action: destroy
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
