@@ -352,6 +352,7 @@ jobs:
 
 - name: deploy-windows-vm
   serial: true
+  serial_groups: [windows-vm-deployment]
   plan:
   - aggregate:
     - get: windows-stemcell
@@ -415,6 +416,7 @@ jobs:
 
 - name: system-windows
   serial: true
+  serial_groups: [windows-vm-deployment]
   plan:
   - aggregate:
     - get: bosh-backup-and-restore
