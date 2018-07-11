@@ -245,7 +245,6 @@ jobs:
       trigger: true
     - get: test-release-version
       params: {pre: "dev"}
-    - get: dummy-bbr-script-release-bucket
   - task: create-release
     input_mapping:
       version: test-release-version
@@ -408,6 +407,9 @@ jobs:
     - get: backup-and-restore-ci
     - get: bbr-systest-releases
       passed: [upload-systest-releases]
+      trigger: true
+    - get: dummy-bbr-script-release-bucket
+      passed: [deploy-bosh-directors]
       trigger: true
   - task: system-director
     file: backup-and-restore-ci/tasks/bbr-system-director/task.yml
