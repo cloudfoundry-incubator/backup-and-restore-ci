@@ -303,14 +303,8 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - get: bosh-backup-and-restore
-      trigger: true
-      params:
-        submodules: none
-        disable_git_lfs: true
     - get: bbr-systest-releases
       trigger: true
-    - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
   - aggregate:
     - task: upload-redis-test-release-lite-bosh
@@ -383,10 +377,13 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-backup-and-restore
-      passed: [unit, upload-systest-releases]
+      passed: [unit]
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
+    - get: bbr-systest-releases
+      passed: [upload-systest-releases]
+      trigger: true
   - aggregate:
     - task: system-deployment-without-uaa
       file: backup-and-restore-ci/tasks/bbr-system-deployment/task.yml
@@ -402,10 +399,13 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-backup-and-restore
-      passed: [unit, upload-systest-releases]
+      passed: [unit]
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
+    - get: bbr-systest-releases
+      passed: [upload-systest-releases]
+      trigger: true
   - task: system-director
     file: backup-and-restore-ci/tasks/bbr-system-director/task.yml
     params:
@@ -418,10 +418,13 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-backup-and-restore
-      passed: [unit, deploy-windows-vm, upload-systest-releases]
+      passed: [unit, deploy-windows-vm]
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
+    - get: bbr-systest-releases
+      passed: [upload-systest-releases]
+      trigger: true
   - task: system-windows
     file: backup-and-restore-ci/tasks/bbr-system-windows/task.yml
     params:

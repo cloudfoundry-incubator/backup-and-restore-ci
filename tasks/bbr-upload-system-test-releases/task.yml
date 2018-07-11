@@ -7,8 +7,6 @@ image_resource:
 
 inputs:
 - name: bbr-systest-releases
-- name: bosh-backup-and-restore
-- name: bosh-backup-and-restore-meta
 - name: backup-and-restore-ci
 
 params:
