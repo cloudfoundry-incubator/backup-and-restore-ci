@@ -425,8 +425,9 @@ jobs:
   - get: version
     params: {pre: rc}
   - get: bosh-backup-and-restore-meta
+  - get: backup-and-restore-ci
   - task: build
-    file: bosh-backup-and-restore/ci/tasks/build.yml
+    file: backup-and-restore-ci/tasks/build-bbr/task.yml
   - put: rc
     params: {file: bbr-build/bbr-*}
   - put: version
@@ -520,6 +521,7 @@ jobs:
     params:
       submodules: none
       disable_git_lfs: true
+  - get: backup-and-restore-ci
   - task: get-version
     config:
       platform: linux
@@ -538,8 +540,9 @@ jobs:
           set -eux
           cat bosh-backup-and-restore-meta/bbr-current-release/version > bbr-version/number
   - task: build
-    file: bosh-backup-and-restore/ci/tasks/build.yml
-    input_mapping: {version: bbr-version}
+    file: backup-and-restore-ci/tasks/build-bbr/task.yml
+    input_mapping:
+      version: bbr-version
   - put: release
     params: {file: bbr-build/bbr-*}
   - put: version
