@@ -332,7 +332,7 @@ jobs:
         disable_git_lfs: true
     - get: backup-and-restore-ci
   - task: unit
-    file: backup-and-restore-ci/tasks/unit-bbr/task.yml
+    file: backup-and-restore-ci/tasks/bbr-unit/task.yml
     privileged: true
     params:
       DOCKER_HOST: "tcp://10.0.3.12:4243"
@@ -437,7 +437,7 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
   - task: build
-    file: backup-and-restore-ci/tasks/build-bbr/task.yml
+    file: backup-and-restore-ci/tasks/bbr-build/task.yml
   - put: rc
     params: {file: bbr-build/bbr-*}
   - put: version
@@ -554,7 +554,7 @@ jobs:
           set -eux
           cat bosh-backup-and-restore-meta/bbr-current-release/version > bbr-version/number
   - task: build
-    file: backup-and-restore-ci/tasks/build-bbr/task.yml
+    file: backup-and-restore-ci/tasks/bbr-build/task.yml
     input_mapping:
       version: bbr-version
   - put: release

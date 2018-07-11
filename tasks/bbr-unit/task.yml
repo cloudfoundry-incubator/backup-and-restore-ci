@@ -6,14 +6,13 @@ image_resource:
   source: {repository: cloudfoundrylondon/backup-and-restore}
 
 inputs:
-- name: version
 - name: bosh-backup-and-restore
   path: src/github.com/cloudfoundry-incubator/bosh-backup-and-restore
-- name: bosh-backup-and-restore-meta
 - name: backup-and-restore-ci
 
-outputs:
-- name: bbr-build
-
 run:
-  path: backup-and-restore-ci/tasks/build-bbr/task.sh
+  path: backup-and-restore-ci/tasks/bbr-unit/task.sh
+
+params:
+  DOCKER_HOST:
+  GITHUB_SSH_KEY:
