@@ -280,6 +280,7 @@ jobs:
 
 - name: deploy-bosh-directors
   serial: true
+  serial_groups: [bosh-directors]
   plan:
   - aggregate:
     - get: bosh-backup-and-restore-meta
@@ -397,6 +398,7 @@ jobs:
 
 - name: system-director
   serial: true
+  serial_groups: [bosh-directors]
   plan:
   - aggregate:
     - get: bosh-backup-and-restore
