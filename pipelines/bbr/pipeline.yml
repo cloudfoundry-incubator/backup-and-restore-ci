@@ -263,10 +263,11 @@ jobs:
 - name: deploy-bosh-directors
   serial: true
   plan:
-  - get: bosh-backup-and-restore-meta
-  - get: dummy-bbr-script-release-bucket
-    trigger: true
-    passed: [create-test-releases]
+  - aggregate:
+    - get: bosh-backup-and-restore-meta
+    - get: dummy-bbr-script-release-bucket
+      trigger: true
+      passed: [create-test-releases]
   - task: deploy-dev-bosh
     file: bosh-backup-and-restore-meta/ci/tasks/deploy-bosh-director.yml
     params:
@@ -283,14 +284,15 @@ jobs:
 - name: upload-systest-releases
   serial: true
   plan:
-  - get: bosh-backup-and-restore
-    trigger: true
-    params:
-      submodules: none
-      disable_git_lfs: true
-  - get: bbr-systest-releases
-    trigger: true
-  - get: bosh-backup-and-restore-meta
+  - aggregate:
+    - get: bosh-backup-and-restore
+      trigger: true
+      params:
+        submodules: none
+        disable_git_lfs: true
+    - get: bbr-systest-releases
+      trigger: true
+    - get: bosh-backup-and-restore-meta
   - aggregate:
     - task: upload-redis-test-release-lite-bosh
       file: bosh-backup-and-restore/ci/tasks/upload-systest-release.yml
@@ -332,6 +334,7 @@ jobs:
     params:
       DOCKER_HOST: "tcp://10.0.3.12:4243"
       GITHUB_SSH_KEY: "((github-ssh-key))"
+
 - name: deploy-windows-vm
   serial: true
   plan:
@@ -341,17 +344,18 @@ jobs:
     - get: bosh-backup-and-restore
       passed: [unit]
       trigger: true
-  - put: windows-vm-deployment
-    params:
-      manifest: bosh-backup-and-restore/fixtures/redis-windows-ci.yml
-      stemcells:
-      - windows-stemcell/*.tgz
-      - ubuntu-stemcell/*.tgz
-  - put: jumpbox-windows-deployment
-    params:
-      manifest: bosh-backup-and-restore/fixtures/jumpbox-windows-ci.yml
-      stemcells:
-      - ubuntu-stemcell/*.tgz
+  - aggregate:
+    - put: windows-vm-deployment
+      params:
+        manifest: bosh-backup-and-restore/fixtures/redis-windows-ci.yml
+        stemcells:
+        - windows-stemcell/*.tgz
+        - ubuntu-stemcell/*.tgz
+    - put: jumpbox-windows-deployment
+      params:
+        manifest: bosh-backup-and-restore/fixtures/jumpbox-windows-ci.yml
+        stemcells:
+        - ubuntu-stemcell/*.tgz
 
 - name: system-deployment
   serial: true
@@ -374,10 +378,11 @@ jobs:
 - name: system-director
   serial: true
   plan:
-  - get: bosh-backup-and-restore
-    passed: [unit, upload-systest-releases]
-    trigger: true
-  - get: bosh-backup-and-restore-meta
+  - aggregate:
+    - get: bosh-backup-and-restore
+      passed: [unit, upload-systest-releases]
+      trigger: true
+    - get: bosh-backup-and-restore-meta
   - task: system-director
     file: bosh-backup-and-restore/ci/tasks/system-director.yml
     params:
@@ -388,10 +393,11 @@ jobs:
 - name: system-windows
   serial: true
   plan:
-  - get: bosh-backup-and-restore
-    passed: [unit, deploy-windows-vm, upload-systest-releases]
-    trigger: true
-  - get: bosh-backup-and-restore-meta
+  - aggregate:
+    - get: bosh-backup-and-restore
+      passed: [unit, deploy-windows-vm, upload-systest-releases]
+      trigger: true
+    - get: bosh-backup-and-restore-meta
   - task: system-windows
     file: bosh-backup-and-restore/ci/tasks/system-windows.yml
     params:
@@ -400,32 +406,33 @@ jobs:
 - name: delete-windows-deployment
   serial: true
   plan:
+  - get: bosh-backup-and-restore
+    passed: [system-windows]
+    trigger: true
   - aggregate:
-    - get: bosh-backup-and-restore
-      passed: [system-windows]
-      trigger: true
-  - put: windows-vm-deployment
-    params:
-      delete:
-        enabled: true
-  - put: jumpbox-windows-deployment
-    params:
-      delete:
-        enabled: true
+    - put: windows-vm-deployment
+      params:
+        delete:
+          enabled: true
+    - put: jumpbox-windows-deployment
+      params:
+        delete:
+          enabled: true
 
 - name: build-rc
   serial_groups: [version]
   plan:
-  - get: bosh-backup-and-restore
-    passed: [system-deployment, system-director, system-windows]
-    trigger: true
-    params:
-      submodules: none
-      disable_git_lfs: true
-  - get: version
-    params: {pre: rc}
-  - get: bosh-backup-and-restore-meta
-  - get: backup-and-restore-ci
+  - aggregate:
+    - get: bosh-backup-and-restore
+      passed: [system-deployment, system-director, system-windows]
+      trigger: true
+      params:
+        submodules: none
+        disable_git_lfs: true
+    - get: version
+      params: {pre: rc}
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
   - task: build
     file: backup-and-restore-ci/tasks/build-bbr/task.yml
   - put: rc
@@ -460,17 +467,18 @@ jobs:
 - name: run-p-drats-on-pas
   serial: true
   plan:
-  - get: pivotal-disaster-recovery-acceptance-tests
-  - get: bosh-backup-and-restore
-    passed: [install-optional-components-on-pas]
-  - get: rc
-    passed: [install-optional-components-on-pas]
-    trigger: true
-  - get: env-pool
-    resource: pcf-2-1-pool
-    passed: [install-optional-components-on-pas]
-    tags:
-    - *toolsmiths_api_worker
+  - aggregate:
+    - get: pivotal-disaster-recovery-acceptance-tests
+    - get: bosh-backup-and-restore
+      passed: [install-optional-components-on-pas]
+    - get: rc
+      passed: [install-optional-components-on-pas]
+      trigger: true
+    - get: env-pool
+      resource: pcf-2-1-pool
+      passed: [install-optional-components-on-pas]
+      tags:
+      - *toolsmiths_api_worker
   - task: acceptance-tests
     tags:
     - *toolsmiths_pool_worker
@@ -483,45 +491,47 @@ jobs:
 
 - name: unclaim-env
   plan:
-    - get: pcf-2-1-pool
-      passed: [run-p-drats-on-pas]
-      trigger: true
-      tags:
-      - *toolsmiths_api_worker
-    - put: pcf-2-1-pool
-      params:
-        action: unclaim
-        env_file: pcf-2-1-pool/metadata
-      tags:
-      - *toolsmiths_api_worker
+  - get: pcf-2-1-pool
+    passed: [run-p-drats-on-pas]
+    trigger: true
+    tags:
+    - *toolsmiths_api_worker
+  - put: pcf-2-1-pool
+    params:
+      action: unclaim
+      env_file: pcf-2-1-pool/metadata
+    tags:
+    - *toolsmiths_api_worker
 
 - name: transfer-bbr-binary-to-jumpbox
   serial_groups: [version]
   plan:
+  - aggregate:
     - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
     - get: rc
       passed: [run-p-drats-on-pas]
       trigger: true
-    - task: transfer-bbr-binary-to-jumpbox
-      file: backup-and-restore-ci/tasks/transfer-bbr-binary-to-jumpbox/task.yml
-      params:
-        BOSH_CLIENT_SECRET: ((genesis-bosh-director-password))
-        BOSH_CLIENT: ((genesis-bosh-director-username))
-        BOSH_TARGET: https://genesis-bosh.backup-and-restore.cf-app.com
+  - task: transfer-bbr-binary-to-jumpbox
+    file: backup-and-restore-ci/tasks/transfer-bbr-binary-to-jumpbox/task.yml
+    params:
+      BOSH_CLIENT_SECRET: ((genesis-bosh-director-password))
+      BOSH_CLIENT: ((genesis-bosh-director-username))
+      BOSH_TARGET: https://genesis-bosh.backup-and-restore.cf-app.com
 
 - name: build-final
   serial_groups: [version]
   plan:
-  - get: bosh-backup-and-restore-meta
-    resource: release-trigger
-    trigger: true
-  - get: bosh-backup-and-restore
-    passed: [run-p-drats-on-pas]
-    params:
-      submodules: none
-      disable_git_lfs: true
-  - get: backup-and-restore-ci
+  - aggregate:
+    - get: bosh-backup-and-restore-meta
+      resource: release-trigger
+      trigger: true
+    - get: bosh-backup-and-restore
+      passed: [run-p-drats-on-pas]
+      params:
+        submodules: none
+        disable_git_lfs: true
+    - get: backup-and-restore-ci
   - task: get-version
     config:
       platform: linux
@@ -547,6 +557,7 @@ jobs:
     params: {file: bbr-build/bbr-*}
   - put: version
     params: {file: bbr-version/number}
+
 - name: publish-release
   serial: true
   plan:
@@ -563,33 +574,35 @@ jobs:
       passed: [build-final]
       trigger: true
     - get: backup-and-restore-ci
-  - task: generate-release-metadata
-    file: backup-and-restore-ci/tasks/generate-release-metadata/task.yml
-    input_mapping:
-      release: release
-      version-folder: bosh-backup-and-restore-meta
-      template-folder: bosh-backup-and-restore-meta
-    params:
-      TEMPLATE_PATH: templates/release.yml.erb
-      VERSION_PATH: bbr-current-release/version
-  - task: generate-release-notes
-    file: backup-and-restore-ci/tasks/generate-release-notes/task.yml
-    input_mapping:
-      repo: bosh-backup-and-restore
-      template-folder: bosh-backup-and-restore-meta
-    params:
-      TEMPLATE_PATH: templates/release-notes.md.erb
-  - put: bbr-pivnet
-    params:
-      metadata_file: release-with-metadata/release.yml
-      s3_filepath_prefix: product-files/bosh-backup-restore
-      file_glob: release-with-metadata/*.tar
-  - put: bbr-release
-    params:
-      name: bosh-backup-and-restore-meta/bbr-current-release/version
-      tag: bosh-backup-and-restore-meta/bbr-current-release/version
-      tag_prefix: v
-      body: release-notes/release-notes.md
-      commitish: bosh-backup-and-restore/.git/refs/heads/master
-      globs:
-      - release-with-metadata/*.tar
+  - aggregate:
+    - task: generate-release-metadata
+      file: backup-and-restore-ci/tasks/generate-release-metadata/task.yml
+      input_mapping:
+        release: release
+        version-folder: bosh-backup-and-restore-meta
+        template-folder: bosh-backup-and-restore-meta
+      params:
+        TEMPLATE_PATH: templates/release.yml.erb
+        VERSION_PATH: bbr-current-release/version
+    - task: generate-release-notes
+      file: backup-and-restore-ci/tasks/generate-release-notes/task.yml
+      input_mapping:
+        repo: bosh-backup-and-restore
+        template-folder: bosh-backup-and-restore-meta
+      params:
+        TEMPLATE_PATH: templates/release-notes.md.erb
+  - aggregate:
+    - put: bbr-pivnet
+      params:
+        metadata_file: release-with-metadata/release.yml
+        s3_filepath_prefix: product-files/bosh-backup-restore
+        file_glob: release-with-metadata/*.tar
+    - put: bbr-release
+      params:
+        name: bosh-backup-and-restore-meta/bbr-current-release/version
+        tag: bosh-backup-and-restore-meta/bbr-current-release/version
+        tag_prefix: v
+        body: release-notes/release-notes.md
+        commitish: bosh-backup-and-restore/.git/refs/heads/master
+        globs:
+        - release-with-metadata/*.tar
