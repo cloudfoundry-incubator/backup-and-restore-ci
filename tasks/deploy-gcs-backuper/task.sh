@@ -20,11 +20,14 @@ set -eu
 
 export BOSH_CA_CERT="./bosh-backup-and-restore-meta/certs/${BOSH_ENVIRONMENT}.crt"
 
+vars_file="$(mktemp)"
+echo "gcp-service-account-key: |\n${GCP_SERVICE_ACCOUNT_KEY}" > "$vars_file"
+
 bosh-cli --non-interactive \
   --deployment "${BOSH_DEPLOYMENT}" \
   deploy "backup-and-restore-sdk-release/ci/manifests/${MANIFEST_NAME}" \
   --var=deployment-name="${BOSH_DEPLOYMENT}" \
   --var=backup-and-restore-sdk-release-version="$(cat release-tarball/version)" \
   --var=backup-and-restore-sdk-release-url="$(cat release-tarball/url)" \
-  --var=gcp-service-account-key="$GCP_SERVICE_ACCOUNT_KEY" \
+  --vars-file="$vars_file" \
   --var=gcs-bucket-name="$GCS_BUCKET_NAME"

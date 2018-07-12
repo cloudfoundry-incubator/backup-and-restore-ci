@@ -162,6 +162,11 @@ jobs:
         AZURE_DIFFERENT_STORAGE_ACCOUNT: ((azure-different-storage-account))
         AZURE_DIFFERENT_STORAGE_KEY: ((azure-different-storage-key))
         AZURE_CONTAINER_NAME_MANY_FILES: bbr-test-many-blobs-azure-container
+    - task: gcs-blobstore-unit-tests
+      file: backup-and-restore-ci/tasks/blobstore-unit-tests/task.yml
+      params:
+        PACKAGE_NAME: gcs-blobstore-backup-restore
+        GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
 
 - name: create-release
   serial: true
