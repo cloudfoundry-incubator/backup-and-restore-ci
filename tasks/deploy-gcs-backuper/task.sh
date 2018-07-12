@@ -20,8 +20,10 @@ set -eu
 
 export BOSH_CA_CERT="./bosh-backup-and-restore-meta/certs/${BOSH_ENVIRONMENT}.crt"
 
+GCP_SERVICE_ACCOUNT_KEY="$(echo "$GCP_SERVICE_ACCOUNT_KEY" | sed -e 's/^/  /')"
 vars_file="$(mktemp)"
-echo "gcp-service-account-key: |\n${GCP_SERVICE_ACCOUNT_KEY}" > "$vars_file"
+echo "gcp-service-account-key: |
+${GCP_SERVICE_ACCOUNT_KEY}" > "$vars_file"
 
 bosh-cli --non-interactive \
   --deployment "${BOSH_DEPLOYMENT}" \
