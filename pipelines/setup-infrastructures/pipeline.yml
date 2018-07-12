@@ -44,6 +44,13 @@ resources:
     private_key: ((git-private-key))
     branch: master
 
+- name: bosh-bootloader
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/bosh-bootloader.git
+    branch: master
+    tag_filter: v6.*
+
 - name: terraform
   type: terraform
   source:
@@ -662,3 +669,50 @@ jobs:
         repository: updated-bbl-state
         rebase: true
 
+- name: setup-infrastructure-maru-lite
+  serial: true
+  serial_groups: [maru-lite]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: bosh-backup-and-restore-meta
+    - get: bosh-bootloader
+  - task: setup-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    params:
+      << : *COMMON_BBL_UP_PARAMS
+      BBL_STATE_DIR: maru-lite/
+      BBL_ENV_NAME: maru-lite
+      SKIP_LB_CREATION: true
+      BBL_CONFIG_DIR: plan-patches/bosh-lite-gcp/
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-bootloader
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: destroy-infrastructure-maru-lite
+  serial: true
+  serial_groups: [maru-lite]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [setup-infrastructure-maru-lite]
+    - get: bosh-backup-and-restore-meta
+      passed: [setup-infrastructure-maru-lite]
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: maru-lite/
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
+        rebase: true
