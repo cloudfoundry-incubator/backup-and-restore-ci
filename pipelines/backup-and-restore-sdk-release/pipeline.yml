@@ -1,4 +1,11 @@
 ---
+maru-lite-director: &MARU_LITE_DIRECTOR
+  target: "((maru-lite-bosh-director-url))"
+  client: "((maru-lite-bosh-director-username))"
+  client_secret: "((maru-lite-bosh-director-password))"
+  ca_cert: "((maru-lite-bosh-director-ca-cert))"
+  jumpbox_url: "((maru-lite-jumpbox-url))"
+  jumpbox_ssh_key: "((maru-lite-jumpbox-ssh-key))"
 resource_types:
 - name: pivnet
   type: docker-image
@@ -119,10 +126,19 @@ resources:
     ca_cert: "((ec2-bosh-director-ca-cert))"
     jumpbox_url: "((ec2-jumpbox-url))"
     jumpbox_ssh_key: "((ec2-jumpbox-ssh-key))"
-- name: xenial-stemcell
+- name: mysql-dev-deployment
+  type: bosh-deployment
+  source:
+    << : *MARU_LITE_DIRECTOR
+    deployment: mysql-dev
+- name: xenial-stemcell-aws
   type: bosh-io-stemcell
   source:
     name: bosh-aws-xen-hvm-ubuntu-xenial-go_agent
+- name: xenial-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-google-kvm-ubuntu-xenial-go_agent
 - name: golang-release
   type: git
   source:
@@ -290,7 +306,6 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed: [create-release]
       trigger: true
@@ -298,22 +313,17 @@ jobs:
       resource: release
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
-  - task: deploy-mysql
-    file: backup-and-restore-ci/tasks/deploy/task.yml
+    - get: xenial-stemcell
+  - put: mysql-dev-deployment
     params:
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
-      BOSH_DEPLOYMENT: mysql-dev
-      BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
-      DB_PASSWORD: mysql_password
-      MANIFEST_NAME: mysql.yml
-      DB_HOST: &mysql-host 10.244.7.9
-      AVAILABILITY_ZONE: lite
-      VARS_STORE_PATH: ci/backup-and-restore-sdk-release/vars/mysql-vars.yml
-  - put: bosh-backup-and-restore-meta
-    params:
-      repository: bosh-backup-and-restore-meta-output
-      rebase: true
+      manifest: backup-and-restore-sdk-release/ci/manifests/mysql.yml
+      stemcells:
+      - xenial-stemcell/*.tgz
+      vars:
+        deployment-name: mysql-dev
+        db_password: mysql_password
+        db_host: &mysql-host 10.244.7.9
+        availability_zone: z1
 
 - name: deploy-external-rds-dbs
   serial: true
@@ -414,12 +424,12 @@ jobs:
       resource: release
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
-    - get: xenial-stemcell
+    - get: xenial-stemcell-aws
   - put: s3-backuper-with-iam-instance-profile-deployment
     params:
       manifest: backup-and-restore-sdk-release/ci/manifests/s3-backuper-with-iam-instance-profile.yml
       stemcells:
-      - xenial-stemcell/*.tgz
+      - xenial-stemcell-aws/*.tgz
       releases:
       - release-tarball/backup-and-restore-sdk-*.tgz
       vars:
