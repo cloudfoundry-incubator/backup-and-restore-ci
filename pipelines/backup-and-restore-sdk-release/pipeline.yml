@@ -6,6 +6,16 @@ maru-lite-director: &MARU_LITE_DIRECTOR
   ca_cert: "((maru-lite-bosh-director-ca-cert))"
   jumpbox_url: "((maru-lite-jumpbox-url))"
   jumpbox_ssh_key: "((maru-lite-jumpbox-ssh-key))"
+
+maru-lite-bosh-creds: &MARU_LITE_BOSH_CREDS
+  BOSH_ENVIRONMENT: "((maru-lite-bosh-director-url))"
+  BOSH_CLIENT: "((maru-lite-bosh-director-username))"
+  BOSH_CLIENT_SECRET: "((maru-lite-bosh-director-password))"
+  BOSH_CA_CERT: "((maru-lite-bosh-director-ca-cert))"
+  BOSH_GW_USER: jumpbox
+  BOSH_GW_HOST: "((maru-lite-jumpbox-url))"
+  BOSH_GW_PRIVATE_KEY: "((maru-lite-jumpbox-ssh-key))"
+
 resource_types:
 - name: pivnet
   type: docker-image
@@ -131,6 +141,11 @@ resources:
   source:
     << : *MARU_LITE_DIRECTOR
     deployment: mysql-dev
+- name: database-backup-restorer-deployment
+  type: bosh-deployment
+  source:
+    << : *MARU_LITE_DIRECTOR
+    deployment: database-backup-restorer
 - name: xenial-stemcell-aws
   type: bosh-io-stemcell
   source:
@@ -138,7 +153,7 @@ resources:
 - name: xenial-stemcell
   type: bosh-io-stemcell
   source:
-    name: bosh-google-kvm-ubuntu-xenial-go_agent
+    name: bosh-warden-boshlite-ubuntu-xenial-go_agent
 - name: golang-release
   type: git
   source:
@@ -231,6 +246,7 @@ jobs:
       resource: release
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
+    - get: xenial-stemcell
   - task: deploy-backup-restore-sdk
     file: backup-and-restore-ci/tasks/deploy/task.yml
     params:
@@ -239,6 +255,16 @@ jobs:
       BOSH_DEPLOYMENT: backup-restorer
       BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
       MANIFEST_NAME: backup-restorer.yml
+  - put: database-backup-restorer-deployment
+    params:
+      manifest: backup-and-restore-sdk-release/ci/manifests/database-backup-restorer.yml
+      stemcells:
+      - xenial-stemcell/*.tgz
+      releases:
+      - release-tarball/backup-and-restore-sdk-*.tgz
+      vars:
+        deployment-name: database-backup-restorer
+        availability_zone: z1
 
 - name: deploy-postgres-9.4
   serial: true
@@ -322,7 +348,7 @@ jobs:
       vars:
         deployment-name: mysql-dev
         db_password: mysql_password
-        db_host: &mysql-host 10.244.7.9
+        db_host: &mysql-host 10.244.1.9
         availability_zone: z1
 
 - name: deploy-external-rds-dbs
@@ -728,8 +754,6 @@ jobs:
   - task: mysql-system-tests
     file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
     params:
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
       MYSQL_PASSWORD: mysql_password
       MYSQL_HOSTNAME: *mysql-host
       MYSQL_PORT: 3306
@@ -737,11 +761,13 @@ jobs:
       MYSQL_CA_CERT: ((mysql-ca-cert))
       MYSQL_CLIENT_CERT: ((mysql-client-cert))
       MYSQL_CLIENT_KEY: ((mysql-client-key))
-      SSH_PROXY_HOST: 104.199.27.23
-      SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
+      SSH_PROXY_HOST: "((maru-lite-jumpbox-url))"
+      SSH_PROXY_USER: jumpbox
+      SSH_PROXY_PRIVATE_KEY: "((maru-lite-jumpbox-ssh-key))"
       TEST_TLS_VERIFY_IDENTITY: false
       TEST_TLS_MUTUAL_TLS: false
+      << : *MARU_LITE_BOSH_CREDS
+
 
 - name: rds-mysql-5.5-system-tests
   serial: true

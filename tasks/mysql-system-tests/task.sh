@@ -29,15 +29,28 @@ chmod 0400 /tmp/private.key
 
 export GOPATH=$PWD/backup-and-restore-sdk-release
 export PATH=$PATH:$GOPATH/bin
-export BOSH_ENVIRONMENT="https://lite-bosh.backup-and-restore.cf-app.com"
-export BOSH_CA_CERT=$PWD/bosh-backup-and-restore-meta/certs/lite-bosh.backup-and-restore.cf-app.com.crt
-export BOSH_GW_USER=${SSH_PROXY_USER}
-export BOSH_GW_HOST=${SSH_PROXY_HOST}
+export BOSH_ENVIRONMENT="${BOSH_ENVIRONMENT:="https://lite-bosh.backup-and-restore.cf-app.com"}"
+export BOSH_CA_CERT="${BOSH_CA_CERT:="${PWD}/bosh-backup-and-restore-meta/certs/lite-bosh.backup-and-restore.cf-app.com.crt"}"
+export BOSH_GW_USER="${BOSH_GW_USER:="vcap"}"
+export BOSH_GW_HOST="${BOSH_GW_HOST:="lite-bosh.backup-and-restore.cf-app.com"}"
 export BOSH_GW_PRIVATE_KEY=/tmp/private.key
+
+if [[ -z "${BOSH_GW_PRIVATE_KEY}" ]]; then
+  export BOSH_GW_PRIVATE_KEY="${PWD}/bosh-backup-and-restore-meta/genesis-bosh/bosh.pem"
+else
+  echo -e "${BOSH_GW_PRIVATE_KEY}" > "${PWD}/ssh.key"
+  chmod 0600 "${PWD}/ssh.key"
+  export BOSH_GW_PRIVATE_KEY="${PWD}/ssh.key"
+fi
+
 export SSH_PROXY_KEY_FILE=/tmp/private.key
 export MYSQL_CA_CERT="${MYSQL_CA_CERT:-$(cat "$PWD/bosh-backup-and-restore-meta/${MYSQL_CA_CERT_PATH}")}"
 export MYSQL_CLIENT_CERT="${MYSQL_CLIENT_CERT:-$(cat "$PWD/bosh-backup-and-restore-meta/${MYSQL_CLIENT_CERT_PATH}")}"
 export MYSQL_CLIENT_KEY="${MYSQL_CLIENT_KEY:-$(cat "$PWD/bosh-backup-and-restore-meta/${MYSQL_CLIENT_KEY_PATH}")}"
+
+if [[ "$USE_BOSH_ALL_PROXY" = true ]]; then
+  export BOSH_ALL_PROXY="ssh+socks5://${BOSH_GW_USER}@${BOSH_GW_HOST}?private-key=${BOSH_GW_PRIVATE_KEY}"
+fi
 
 cd backup-and-restore-sdk-release/src/github.com/cloudfoundry-incubator/database-backup-restore
 ginkgo -v -r -trace system_tests/mysql
