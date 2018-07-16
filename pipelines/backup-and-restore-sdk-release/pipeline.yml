@@ -361,7 +361,7 @@ jobs:
       vars:
         deployment-name: mysql-dev
         db_password: mysql_password
-        db_host: &mysql-host 10.244.1.9
+        db_host: 10.244.1.9
         availability_zone: z1
 
 - name: deploy-external-rds-dbs
