@@ -150,10 +150,12 @@ resources:
   type: bosh-io-stemcell
   source:
     name: bosh-aws-xen-hvm-ubuntu-xenial-go_agent
+    version_family: 87.latest
 - name: xenial-stemcell
   type: bosh-io-stemcell
   source:
     name: bosh-warden-boshlite-ubuntu-xenial-go_agent
+    version_family: 87.latest
 - name: golang-release
   type: git
   source:
