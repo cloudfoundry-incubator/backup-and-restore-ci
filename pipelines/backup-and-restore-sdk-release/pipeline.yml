@@ -358,11 +358,17 @@ jobs:
       manifest: backup-and-restore-sdk-release/ci/manifests/mysql.yml
       stemcells:
       - xenial-stemcell/*.tgz
+      releases:
+      - release-tarball/backup-and-restore-sdk-*.tgz
       vars:
         deployment-name: mysql-dev
         db_password: mysql_password
         db_host: 10.244.1.9
         availability_zone: z1
+        databases:
+          ca: ((mysql-ca-cert))
+          certificate: ((mysql-client-cert))
+          private_key: ((mysql-client-key))
 
 - name: deploy-external-rds-dbs
   serial: true
