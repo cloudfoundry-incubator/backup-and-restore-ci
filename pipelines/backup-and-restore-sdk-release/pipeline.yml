@@ -795,7 +795,7 @@ jobs:
         TEST_TLS_VERIFY_IDENTITY: false
         TEST_TLS_MUTUAL_TLS: false
     - task: mysql-system-tests-maru-lite
-      file: backup-and-restore-ci/tasks/sdk-system-mysql/tash.yml
+      file: backup-and-restore-ci/tasks/sdk-system-mysql/task.yml
       params:
         <<: *MARU_LITE_BOSH_CREDS
         MYSQL_HOSTNAME: *mysql-host
