@@ -16,6 +16,12 @@ maru-lite-bosh-creds: &MARU_LITE_BOSH_CREDS
   BOSH_GW_HOST: "((maru-lite-jumpbox-url))"
   BOSH_GW_PRIVATE_KEY: "((maru-lite-jumpbox-ssh-key))"
 
+mysql-deployment-name: &mysql-deployment-name mysql-dev
+mysql-host: &mysql-host 10.244.1.9
+mysql-port: &mysql-port 3306
+mysql-username: &mysql-username root
+mysql-password: &mysql-password mysql_password
+
 resource_types:
 - name: pivnet
   type: docker-image
@@ -140,7 +146,7 @@ resources:
   type: bosh-deployment
   source:
     << : *MARU_LITE_DIRECTOR
-    deployment: mysql-dev
+    deployment: *mysql-deployment-name
 - name: database-backup-restorer-deployment
   type: bosh-deployment
   source:
@@ -349,11 +355,11 @@ jobs:
       params:
         BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
         BOSH_CLIENT: ((lite-bosh-director-username))
-        BOSH_DEPLOYMENT: mysql-dev
+        BOSH_DEPLOYMENT: *mysql-deployment-name
         BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
-        DB_PASSWORD: mysql_password
+        DB_PASSWORD: *mysql-password
         MANIFEST_NAME: mysql.yml
-        DB_HOST: &mysql-host 10.244.7.9
+        DB_HOST: 10.244.7.9
         AVAILABILITY_ZONE: lite
         VARS_STORE_PATH: ci/backup-and-restore-sdk-release/vars/mysql-vars.yml
     - put: mysql-dev-deployment
@@ -362,9 +368,9 @@ jobs:
         stemcells:
         - xenial-stemcell/*.tgz
         vars:
-          deployment-name: mysql-dev
-          db_password: mysql_password
-          db_host: 10.244.1.9
+          deployment-name: *mysql-deployment-name
+          db_password: *mysql-password
+          db_host: *mysql-host
           availability_zone: z1
         vars_files:
         - bosh-backup-and-restore-meta/ci/backup-and-restore-sdk-release/vars/mysql-vars.yml
@@ -774,16 +780,29 @@ jobs:
     params:
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
-      MYSQL_PASSWORD: mysql_password
-      MYSQL_HOSTNAME: *mysql-host
-      MYSQL_PORT: 3306
-      MYSQL_USERNAME: root
+      MYSQL_HOSTNAME: 10.244.7.9
+      MYSQL_PORT: *mysql-port
+      MYSQL_USERNAME: *mysql-username
+      MYSQL_PASSWORD: *mysql-password
       MYSQL_CA_CERT: ((mysql-ca-cert))
       MYSQL_CLIENT_CERT: ((mysql-client-cert))
       MYSQL_CLIENT_KEY: ((mysql-client-key))
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
+      TEST_TLS_VERIFY_IDENTITY: false
+      TEST_TLS_MUTUAL_TLS: false
+  - task: mysql-system-tests-maru-lite
+    file: backup-and-restore-ci/tasks/sdk-system-mysql/tash.yml
+    params:
+      <<: *MARU_LITE_BOSH_CREDS
+      MYSQL_HOSTNAME: *mysql-host
+      MYSQL_PORT: *mysql-port
+      MYSQL_USERNAME: *mysql-username
+      MYSQL_PASSWORD: *mysql-password
+      MYSQL_CA_CERT: ((mysql-ca-cert))
+      MYSQL_CLIENT_CERT: ((mysql-client-cert))
+      MYSQL_CLIENT_KEY: ((mysql-client-key))
       TEST_TLS_VERIFY_IDENTITY: false
       TEST_TLS_MUTUAL_TLS: false
 
