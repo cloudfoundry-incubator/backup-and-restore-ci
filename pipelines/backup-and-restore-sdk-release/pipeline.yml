@@ -341,30 +341,31 @@ jobs:
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
     - get: xenial-stemcell
-  - task: deploy-mysql-dev-on-lite
-    file: backup-and-restore-ci/tasks/deploy/task.yml
-    params:
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
-      BOSH_DEPLOYMENT: mysql-dev
-      BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
-      DB_PASSWORD: mysql_password
-      MANIFEST_NAME: mysql.yml
-      DB_HOST: &mysql-host 10.244.7.9
-      AVAILABILITY_ZONE: lite
-      VARS_STORE_PATH: ci/backup-and-restore-sdk-release/vars/mysql-vars.yml
-  - put: mysql-dev-deployment
-    params:
-      manifest: backup-and-restore-sdk-release/ci/manifests/mysql.yml
-      stemcells:
-      - xenial-stemcell/*.tgz
-      vars:
-        deployment-name: mysql-dev
-        db_password: mysql_password
-        db_host: 10.244.1.9
-        availability_zone: z1
-      vars_files:
-      - bosh-backup-and-restore-meta/ci/backup-and-restore-sdk-release/vars/mysql-vars.yml
+  - aggregate:
+    - task: deploy-mysql-dev-on-lite
+      file: backup-and-restore-ci/tasks/deploy/task.yml
+      params:
+        BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
+        BOSH_CLIENT: ((lite-bosh-director-username))
+        BOSH_DEPLOYMENT: mysql-dev
+        BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
+        DB_PASSWORD: mysql_password
+        MANIFEST_NAME: mysql.yml
+        DB_HOST: &mysql-host 10.244.7.9
+        AVAILABILITY_ZONE: lite
+        VARS_STORE_PATH: ci/backup-and-restore-sdk-release/vars/mysql-vars.yml
+    - put: mysql-dev-deployment
+      params:
+        manifest: backup-and-restore-sdk-release/ci/manifests/mysql.yml
+        stemcells:
+        - xenial-stemcell/*.tgz
+        vars:
+          deployment-name: mysql-dev
+          db_password: mysql_password
+          db_host: 10.244.1.9
+          availability_zone: z1
+        vars_files:
+        - bosh-backup-and-restore-meta/ci/backup-and-restore-sdk-release/vars/mysql-vars.yml
 
 - name: deploy-external-rds-dbs
   serial: true
