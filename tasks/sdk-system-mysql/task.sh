@@ -18,10 +18,6 @@
 
 set -eu
 
-eval "$(ssh-agent)"
-chmod 400 bosh-backup-and-restore-meta/keys/github
-ssh-add bosh-backup-and-restore-meta/keys/github
-
 ssh_proxy_key="$(mktemp)"
 echo -e "${BOSH_GW_PRIVATE_KEY}" > "$ssh_proxy_key"
 chmod 0400 "$ssh_proxy_key"

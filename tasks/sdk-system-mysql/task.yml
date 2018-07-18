@@ -24,7 +24,6 @@ image_resource:
 inputs:
 - name: backup-and-restore-ci
 - name: backup-and-restore-sdk-release
-- name: bosh-backup-and-restore-meta
 
 run:
   path: backup-and-restore-ci/tasks/sdk-system-mysql/task.sh
