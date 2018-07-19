@@ -4,7 +4,7 @@ maru-lite-director: &MARU_LITE_DIRECTOR
   client: "((maru-lite-bosh-director-username))"
   client_secret: "((maru-lite-bosh-director-password))"
   ca_cert: "((maru-lite-bosh-director-ca-cert))"
-  jumpbox_url: "((maru-lite-jumpbox-url))"
+  jumpbox_url: "((maru-lite-jumpbox-address)):22"
   jumpbox_ssh_key: "((maru-lite-jumpbox-ssh-key))"
 
 maru-lite-bosh-creds: &MARU_LITE_BOSH_CREDS
@@ -13,7 +13,7 @@ maru-lite-bosh-creds: &MARU_LITE_BOSH_CREDS
   BOSH_CLIENT_SECRET: "((maru-lite-bosh-director-password))"
   BOSH_CA_CERT: "((maru-lite-bosh-director-ca-cert))"
   BOSH_GW_USER: jumpbox
-  BOSH_GW_HOST: "((maru-lite-jumpbox-url))"
+  BOSH_GW_HOST: "((maru-lite-jumpbox-address))"
   BOSH_GW_PRIVATE_KEY: "((maru-lite-jumpbox-ssh-key))"
 
 mysql-deployment-name: &mysql-deployment-name mysql-dev
