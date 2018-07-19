@@ -1050,6 +1050,7 @@ jobs:
       MANIFEST_NAME: gcs-backuper.yml
       GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       GCS_BUCKET_NAME: bbr-system-test-gcs-bucket
+      GCS_CLONE_BUCKET_NAME: bbr-system-test-gcs-clone-bucket
 
 - name: gcs-blobstore-backuper-system-tests
   serial: true
@@ -1070,6 +1071,7 @@ jobs:
       GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       GCP_PROJECT_NAME: cf-backup-and-restore
       GCS_BUCKET_NAME: bbr-system-test-gcs-bucket
+      GCS_CLONE_BUCKET_NAME: bbr-system-test-gcs-clone-bucket
       BOSH_DEPLOYMENT: gcs-backuper
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))

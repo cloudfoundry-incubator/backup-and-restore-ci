@@ -32,4 +32,5 @@ bosh-cli --non-interactive \
   --var=backup-and-restore-sdk-release-version="$(cat release-tarball/version)" \
   --var=backup-and-restore-sdk-release-url="$(cat release-tarball/url)" \
   --vars-file="$vars_file" \
-  --var=gcs-bucket-name="$GCS_BUCKET_NAME"
+  --var=gcs-bucket-name="$GCS_BUCKET_NAME" \
+  --var=gcs-clone-bucket-name="$GCS_CLONE_BUCKET_NAME"
