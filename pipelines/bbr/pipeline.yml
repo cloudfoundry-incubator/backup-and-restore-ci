@@ -78,7 +78,7 @@ resources:
 - name: bosh-backup-and-restore-test-releases
   type: git
   source:
-    uri: git@github.com:pivotal-cf-experimental/bosh-backup-and-restore-test-releases.git
+    uri: git@github.com:cloudfoundry-incubator/bosh-backup-and-restore-test-releases.git
     private_key: ((git-private-key))
     branch: master
     paths:
@@ -190,14 +190,6 @@ resources:
     access_token: ((github-access-token))
     drafts: true
 
-- name: bbr-systest-releases
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf-experimental/bosh-backup-and-restore-test-releases.git
-    private_key: ((git-private-key))
-    branch: master
-    paths: [redis-test-release/**, lock-ordering-release/**]
-
 - name: pivotal-disaster-recovery-acceptance-tests
   type: git
   source:
@@ -305,7 +297,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - get: bbr-systest-releases
+    - get: bosh-backup-and-restore-test-releases
       trigger: true
     - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
@@ -315,6 +307,16 @@ jobs:
       params:
         RELEASE_NAME: redis-test-release
         <<: *lite-bosh-env
+    - task: upload-many-bbr-jobs-release-lite-bosh
+      file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
+      params:
+        RELEASE_NAME: many-bbr-jobs
+        <<: *lite-bosh-env
+    - task: upload-many-bbr-jobs-release-lite-bosh-uaa
+      file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
+      params:
+        RELEASE_NAME: many-bbr-jobs
+        <<: *lite-bosh-uaa-env
     - task: upload-redis-test-release-maru-bosh
       file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
       params:
@@ -385,7 +387,7 @@ jobs:
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-    - get: bbr-systest-releases
+    - get: bosh-backup-and-restore-test-releases
       passed: [upload-systest-releases]
       trigger: true
   - aggregate:
@@ -408,7 +410,7 @@ jobs:
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-    - get: bbr-systest-releases
+    - get: bosh-backup-and-restore-test-releases
       passed: [upload-systest-releases]
       trigger: true
     - get: dummy-bbr-script-release-bucket
@@ -431,7 +433,7 @@ jobs:
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-    - get: bbr-systest-releases
+    - get: bosh-backup-and-restore-test-releases
       passed: [upload-systest-releases]
       trigger: true
   - task: system-windows
