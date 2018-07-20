@@ -18,8 +18,8 @@ else
   export BOSH_GW_PRIVATE_KEY=$PWD/${BOSH_GW_PRIVATE_KEY:-bosh-backup-and-restore-meta/genesis-bosh/bosh.pem}
 fi
 
-if [[ -z "$BOSH_CA_CERT" ]]; then
-  export BOSH_CA_CERT=$PWD/bosh-backup-and-restore-meta/certs/$BOSH_ENVIRONMENT.crt
+if [[ -z "$BOSH_CA_CERT_PATH" ]]; then
+  export BOSH_CA_CERT="$PWD/$BOSH_CA_CERT_PATH"
 fi
 
 export GOPATH=$PWD
