@@ -734,6 +734,54 @@ jobs:
         repository: updated-bbl-state
         rebase: true
 
+- name: setup-infrastructure-gcs
+  serial: true
+  serial_groups: [gcs]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: bosh-backup-and-restore-meta
+  - task: setup-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    params:
+      << : *COMMON_BBL_UP_PARAMS
+      BBL_STATE_DIR: external-blobstore-directors/gcs/
+      BBL_LB_CERT: ((gcs-lb-cert))
+      BBL_LB_KEY: ((gcs-lb-key))
+      LB_DOMAIN: bbr-gcs.cf-app.com
+      BBL_ENV_NAME: bbr-gcs
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: destroy-infrastructure-gcs
+  serial: true
+  serial_groups: [gcs]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [setup-infrastructure-gcs]
+    - get: bosh-backup-and-restore-meta
+      passed: [setup-infrastructure-gcs]
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: external-blobstore-directors/gcs/
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
 - name: deploy-tracker-bot
   serial: true
   plan:
