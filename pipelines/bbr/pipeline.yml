@@ -310,12 +310,12 @@ jobs:
     - task: upload-many-bbr-jobs-release-lite-bosh
       file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
       params:
-        RELEASE_NAME: many-bbr-jobs
+        RELEASE_NAME: many-bbr-jobs-release
         <<: *lite-bosh-env
     - task: upload-many-bbr-jobs-release-lite-bosh-uaa
       file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
       params:
-        RELEASE_NAME: many-bbr-jobs
+        RELEASE_NAME: many-bbr-jobs-release
         <<: *lite-bosh-uaa-env
     - task: upload-redis-test-release-maru-bosh
       file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
