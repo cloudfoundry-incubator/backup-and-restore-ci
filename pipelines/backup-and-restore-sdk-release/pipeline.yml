@@ -1092,7 +1092,18 @@ jobs:
     - get: backup-and-restore-sdk-release
       trigger: true
       passed:
+      - postgres-system-tests-9.4
+      - postgres-system-tests-9.6
+      - gcp-postgres-system-tests-9.6
+      - rds-postgres-system-tests-9.4
+      - rds-postgres-system-tests-9.6
+      - mariadb-system-tests
       - s3-blobstore-backuper-system-tests
+      - rds-mysql-5.5-system-tests
+      - rds-mysql-5.6-system-tests
+      - rds-mysql-5.7-system-tests
+      - gcp-mysql-5.6-system-tests
+      - gcp-mysql-5.7-system-tests
     - get: release-tarball
       resource: release
       passed:
@@ -1103,7 +1114,6 @@ jobs:
       - rds-postgres-system-tests-9.6
       - mariadb-system-tests
       - s3-blobstore-backuper-system-tests
-      - azure-blobstore-backuper-system-tests
       - rds-mysql-5.5-system-tests
       - rds-mysql-5.6-system-tests
       - rds-mysql-5.7-system-tests
@@ -1164,19 +1174,7 @@ jobs:
     - get: release-tarball
       resource: release
       passed:
-      - postgres-system-tests-9.4
-      - postgres-system-tests-9.6
-      - gcp-postgres-system-tests-9.6
-      - rds-postgres-system-tests-9.4
-      - rds-postgres-system-tests-9.6
-      - mariadb-system-tests
-      - s3-blobstore-backuper-system-tests
       - azure-blobstore-backuper-system-tests
-      - rds-mysql-5.5-system-tests
-      - rds-mysql-5.6-system-tests
-      - rds-mysql-5.7-system-tests
-      - gcp-mysql-5.6-system-tests
-      - gcp-mysql-5.7-system-tests
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
@@ -1467,22 +1465,12 @@ jobs:
       trigger: true
       passed:
       - s3-blobstore-backuper-system-tests
+      - s3-blobstore-system-tests-with-iam-instance-profile
     - get: release-tarball
       resource: release
       passed:
-      - postgres-system-tests-9.4
-      - postgres-system-tests-9.6
-      - gcp-postgres-system-tests-9.6
-      - rds-postgres-system-tests-9.4
-      - rds-postgres-system-tests-9.6
-      - mariadb-system-tests
       - s3-blobstore-backuper-system-tests
-      - azure-blobstore-backuper-system-tests
-      - rds-mysql-5.5-system-tests
-      - rds-mysql-5.6-system-tests
-      - rds-mysql-5.7-system-tests
-      - gcp-mysql-5.6-system-tests
-      - gcp-mysql-5.7-system-tests
+      - s3-blobstore-system-tests-with-iam-instance-profile
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
@@ -1595,6 +1583,7 @@ jobs:
       - run-drats-external-s3-blobstore
       - run-drats-external-s3-unversioned-blobstore
       - run-drats-external-gcs-blobstore
+      - run-drats-external-azure-blobstore
     - get: backup-and-restore-sdk-release-master
     - get: release-tarball
       resource: release
@@ -1602,6 +1591,7 @@ jobs:
       - run-drats-external-s3-blobstore
       - run-drats-external-s3-unversioned-blobstore
       - run-drats-external-gcs-blobstore
+      - run-drats-external-azure-blobstore
     - get: version
       params: {bump: major}
   - task: create-final-release
@@ -1649,6 +1639,7 @@ jobs:
       - run-drats-external-s3-blobstore
       - run-drats-external-s3-unversioned-blobstore
       - run-drats-external-gcs-blobstore
+      - run-drats-external-azure-blobstore
     - get: backup-and-restore-sdk-release-master
     - get: release-tarball
       resource: release
@@ -1656,6 +1647,7 @@ jobs:
       - run-drats-external-s3-blobstore
       - run-drats-external-s3-unversioned-blobstore
       - run-drats-external-gcs-blobstore
+      - run-drats-external-azure-blobstore
     - get: version
       params: {bump: minor}
   - task: create-final-release
@@ -1703,6 +1695,7 @@ jobs:
       - run-drats-external-s3-blobstore
       - run-drats-external-s3-unversioned-blobstore
       - run-drats-external-gcs-blobstore
+      - run-drats-external-azure-blobstore
     - get: backup-and-restore-sdk-release-master
     - get: release-tarball
       resource: release
@@ -1710,6 +1703,7 @@ jobs:
       - run-drats-external-s3-blobstore
       - run-drats-external-s3-unversioned-blobstore
       - run-drats-external-gcs-blobstore
+      - run-drats-external-azure-blobstore
     - get: version
       params: {bump: patch}
   - task: create-final-release
