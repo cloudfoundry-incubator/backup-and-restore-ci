@@ -197,6 +197,14 @@ resources:
     private_key: ((git-private-key))
     branch: master
 
+- name: run-p-drats-with-proxy
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/pivotal-disaster-recovery-acceptance-tests.git
+    private_key: ((git-private-key))
+    branch: wip-157779432
+
+
 - name: windows-vm-deployment
   type: bosh-deployment
   source:
@@ -507,7 +515,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - get: pivotal-disaster-recovery-acceptance-tests
+    - get: run-p-drats-with-proxy
     - get: bosh-backup-and-restore
       passed: [install-optional-components-on-pas]
     - get: rc
@@ -522,11 +530,13 @@ jobs:
     tags:
     - *toolsmiths_pool_worker
     privileged: true
-    file: pivotal-disaster-recovery-acceptance-tests/ci/p-drats-ops-manager/pool-task.yml
+    file: run-p-drats-with-proxy/ci/p-drats-ops-manager/pool-task.yml
     input_mapping:
+      pivotal-disaster-recovery-acceptance-tests: run-p-drats-with-proxy
       bbr-binary-release: rc
     params:
       DEFAULT_TIMEOUT_MINS: 30
+      USE_BOSH_ALL_PROXY: true
 
 - name: unclaim-env
   plan:
