@@ -1090,6 +1090,10 @@ jobs:
   serial_groups: [bbr-s3]
   plan:
   - aggregate:
+    - get: disaster-recovery-acceptance-tests
+      trigger: true
+    - get: bbr-binary-release
+      trigger: true
     - get: cf-deployment-master
     - get: backup-and-restore-sdk-release
       trigger: true
@@ -1168,6 +1172,10 @@ jobs:
   serial_groups: [bbr-azure]
   plan:
   - aggregate:
+    - get: disaster-recovery-acceptance-tests
+      trigger: true
+    - get: bbr-binary-release
+      trigger: true
     - get: cf-deployment-master
     - get: backup-and-restore-sdk-release
       trigger: true
@@ -1218,6 +1226,10 @@ jobs:
   serial_groups: [bbr-gcs]
   plan:
   - aggregate:
+    - get: disaster-recovery-acceptance-tests
+      trigger: true
+    - get: bbr-binary-release
+      trigger: true
     - get: cf-deployment-gcs
     - get: backup-and-restore-sdk-release
       trigger: true
@@ -1281,8 +1293,10 @@ jobs:
       trigger: true
       passed: [deploy-cf-with-external-gcs-blobstore]
     - get: disaster-recovery-acceptance-tests
+      passed: [deploy-cf-with-external-gcs-blobstore]
       trigger: true
     - get: bbr-binary-release
+      passed: [deploy-cf-with-external-gcs-blobstore]
       trigger: true
   - task: unit-tests
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
@@ -1312,6 +1326,12 @@ jobs:
   serial_groups: [bbr-gcs]
   plan:
   - aggregate:
+    - get: disaster-recovery-acceptance-tests
+      passed: [run-drats-external-gcs-blobstore]
+      trigger: true
+    - get: bbr-binary-release
+      passed: [run-drats-external-gcs-blobstore]
+      trigger: true
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
       passed: [run-drats-external-gcs-blobstore]
@@ -1343,8 +1363,10 @@ jobs:
     trigger: true
     passed: [deploy-cf-with-external-azure-blobstore]
   - get: disaster-recovery-acceptance-tests
+    passed: [deploy-cf-with-external-azure-blobstore]
     trigger: true
   - get: bbr-binary-release
+    passed: [deploy-cf-with-external-azure-blobstore]
     trigger: true
   - task: unit-tests
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
@@ -1374,6 +1396,12 @@ jobs:
   serial_groups: [bbr-azure]
   plan:
   - aggregate:
+    - get: disaster-recovery-acceptance-tests
+      passed: [run-drats-external-azure-blobstore]
+      trigger: true
+    - get: bbr-binary-release
+      passed: [run-drats-external-azure-blobstore]
+      trigger: true
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
       passed: [run-drats-external-azure-blobstore]
@@ -1405,8 +1433,10 @@ jobs:
     trigger: true
     passed: [deploy-cf-with-external-s3-blobstore]
   - get: disaster-recovery-acceptance-tests
+    passed: [deploy-cf-with-external-s3-blobstore]
     trigger: true
   - get: bbr-binary-release
+    passed: [deploy-cf-with-external-s3-blobstore]
     trigger: true
   - task: unit-tests
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
@@ -1436,6 +1466,12 @@ jobs:
   serial_groups: [bbr-s3]
   plan:
   - aggregate:
+    - get: disaster-recovery-acceptance-tests
+      passed: [run-drats-external-s3-blobstore]
+      trigger: true
+    - get: bbr-binary-release
+      passed: [run-drats-external-s3-blobstore]
+      trigger: true
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
       passed: [run-drats-external-s3-blobstore]
@@ -1461,6 +1497,10 @@ jobs:
   serial_groups: [bbr-s3-unversioned]
   plan:
   - aggregate:
+    - get: disaster-recovery-acceptance-tests
+      trigger: true
+    - get: bbr-binary-release
+      trigger: true
     - get: cf-deployment-master
       resource: cf-deployment-master
     - get: backup-and-restore-sdk-release
@@ -1527,8 +1567,12 @@ jobs:
     passed:
     - deploy-cf-with-unversioned-external-s3-blobstore
   - get: disaster-recovery-acceptance-tests
+    passed:
+    - deploy-cf-with-unversioned-external-s3-blobstore
     trigger: true
   - get: bbr-binary-release
+    passed:
+    - deploy-cf-with-unversioned-external-s3-blobstore
     trigger: true
   - get: bosh-backup-and-restore-meta
     passed: [deploy-cf-with-unversioned-external-s3-blobstore]
@@ -1560,9 +1604,15 @@ jobs:
   serial_groups: [bbr-s3-unversioned]
   plan:
   - aggregate:
+    - get: disaster-recovery-acceptance-tests
+      passed: [run-drats-external-s3-unversioned-blobstore]
+      trigger: true
+    - get: bbr-binary-release
+      passed: [run-drats-external-s3-unversioned-blobstore]
+      trigger: true
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
-      passed: [run-drats-external-s3-blobstore]
+      passed: [run-drats-external-s3-unversioned-blobstore]
     - get: backup-and-restore-sdk-release
       passed: [run-drats-external-s3-unversioned-blobstore]
       trigger: true
