@@ -1,0 +1,17 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source: {repository: wernight/phantomjs}
+
+inputs:
+- name: backup-and-restore-ci
+
+run:
+  path: phantomjs
+  args:
+  - backup-and-restore-ci/tasks/renew-env/renew.js
+
+params:
+  ENVIRONMENTS: # JSON list of environments, e.g. '[{"name":"some-env","ID": 123}]'

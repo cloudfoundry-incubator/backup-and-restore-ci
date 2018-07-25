@@ -78,6 +78,19 @@ resources:
     space: ((pws-tracker-bot-space))
     skip_cert_check: false
 
+- name: every-morning
+  type: time
+  source:
+    start: 9:00 AM
+    stop: 10:00 AM
+    days:
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    location: Europe/London
+
 jobs:
 - name: setup-infrastructure-aws-s3
   serial: true
@@ -797,3 +810,15 @@ jobs:
       manifest: bosh-backup-and-restore-meta/tracker-bot/manifest.yml
       environment_variables:
         TRACKER_API_TOKEN: ((tracker-api-token))
+
+- name: renew-environments
+  plan:
+  - aggregate:
+    - get: backup-and-restore-ci
+    - get: every-morning
+      trigger: true
+  - task: renew-environments
+    tags: [platform-recovery-vsphere]
+    file: backup-and-restore-ci/renew-env/task.yml
+    params:
+      ENVIRONMENTS: ((environments-to-renew))
