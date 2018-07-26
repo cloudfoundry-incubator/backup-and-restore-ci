@@ -819,6 +819,6 @@ jobs:
       trigger: true
   - task: renew-environments
     tags: [platform-recovery-vsphere]
-    file: backup-and-restore-ci/renew-env/task.yml
+    file: backup-and-restore-ci/tasks/renew-env/task.yml
     params:
       ENVIRONMENTS: ((environments-to-renew))
