@@ -156,7 +156,7 @@ jobs:
     params:
       BBL_STATE_DIR: drats-papillon/
       SYSTEM_DOMAIN: drats-papillon.cf-app.com
-      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml"
+      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/enable-nfs-volume-service.yml operations/backup-and-restore/enable-backup-restore-nfs-broker.yml operations/experimental/secure-service-credentials.yml  operations/experimental/disable-interpolate-service-bindings.yml operations/backup-and-restore/enable-backup-restore-credhub.yml operations/experimental/enable-traffic-to-internal-networks.yml operations/experimental/use-bosh-dns.yml operations/experimental/use-bosh-dns-for-containers.yml"
       VARS_STORE_FILE: drats-papillon/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
@@ -165,6 +165,13 @@ jobs:
       params:
         repository: updated-vars-store
         rebase: true
+  - task: bosh-run-errand-nfsbrokerpush
+    file: cf-deployment-concourse-tasks/run-errand/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: drats-papillon/
+      ERRAND_NAME: nfsbrokerpush
   - task: bosh-cleanup
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     input_mapping:
@@ -209,7 +216,7 @@ jobs:
     params:
       BBL_STATE_DIR: drats-with-config-manx/
       SYSTEM_DOMAIN: drats-with-config-manx.cf-app.com
-      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml"
+      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/enable-nfs-volume-service.yml operations/backup-and-restore/enable-backup-restore-nfs-broker.yml operations/experimental/secure-service-credentials.yml  operations/experimental/disable-interpolate-service-bindings.yml operations/backup-and-restore/enable-backup-restore-credhub.yml operations/experimental/enable-traffic-to-internal-networks.yml operations/experimental/use-bosh-dns.yml operations/experimental/use-bosh-dns-for-containers.yml"
       VARS_STORE_FILE: drats-with-config-manx/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
@@ -218,6 +225,13 @@ jobs:
       params:
         repository: updated-vars-store
         rebase: true
+  - task: bosh-run-errand-nfsbrokerpush
+    file: cf-deployment-concourse-tasks/run-errand/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: drats-with-config-manx/
+      ERRAND_NAME: nfsbrokerpush
   - task: bosh-cleanup
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     input_mapping:
@@ -243,6 +257,7 @@ jobs:
     passed: [deploy-cf-drats-pr-ragdoll-opt-components]
     version: every
   - get: bbr-binary-release
+  - get: bosh-backup-and-restore-meta
   - put: disaster-recovery-acceptance-tests-prs
     params:
       path: disaster-recovery-acceptance-tests-prs
@@ -260,30 +275,26 @@ jobs:
         path: disaster-recovery-acceptance-tests-prs
         status: failure
         context: drats
+  - task: create-integration-config
+    file: disaster-recovery-acceptance-tests-prs/ci/update-integration-config/task.yml
+    input_mapping:
+      disaster-recovery-acceptance-tests: disaster-recovery-acceptance-tests-prs
+      integration-configs: bosh-backup-and-restore-meta
+      vars-store: bosh-backup-and-restore-meta
+      bbl-state-store: bosh-backup-and-restore-meta
+    params:
+      VARS_STORE_FILE_PATH: drats-pr-ragdoll/cf-deployment-variables.yml
+      BBL_STATE_DIR_PATH: drats-pr-ragdoll
+      SYSTEM_DOMAIN: drats-pr-ragdoll.cf-app.com
+      INTEGRATION_CONFIG_FILE_PATH: drats-pr-ragdoll/integration_config.json
   - task: acceptance-tests
-    file: disaster-recovery-acceptance-tests-prs/ci/drats/task.yml
+    file: disaster-recovery-acceptance-tests-prs/ci/drats-with-integration-config/task.yml
     privileged: true
     input_mapping:
       disaster-recovery-acceptance-tests: disaster-recovery-acceptance-tests-prs
+      drats-integration-config: updated-integration-configs
     params:
-      CF_DEPLOYMENT_NAME: cf
-      CF_API_URL: https://api.drats-pr-ragdoll.cf-app.com
-      CF_ADMIN_USERNAME: admin
-      CF_ADMIN_PASSWORD: ((pr-ragdoll-cf-admin-password))
-      BOSH_CA_CERT: ((pr-ragdoll-bosh-cert))
-      BOSH_CLIENT: admin
-      BOSH_CLIENT_SECRET: ((pr-ragdoll-bosh-client-secret))
-      BOSH_ENVIRONMENT: ((pr-ragdoll-bosh-url))
-      BOSH_GW_USER: jumpbox
-      BOSH_GW_HOST: ((pr-ragdoll-ssh-gateway-host))
-      BOSH_GW_PRIVATE_KEY: ((pr-ragdoll-ssh-gateway-key))
-      SSH_DESTINATION_CIDR: "10.0.0.0/8"
-      DEFAULT_TIMEOUT_MINS: 30
-      NFS_SERVICE_NAME: "nfs"
-      NFS_PLAN_NAME: "Existing"
-      NFS_BROKER_USER: "nfs-broker"
-      NFS_BROKER_URL: http://nfs-broker.drats-pr-ragdoll.cf-app.com
-      NFS_BROKER_PASSWORD: ((pr-ragdoll-nfs-broker-password))
+      CONFIG_FILE_PATH: drats-pr-ragdoll/integration_config.json
     on_failure:
       put: disaster-recovery-acceptance-tests-prs
       params:
@@ -297,7 +308,7 @@ jobs:
         status: success
         context: drats
 
-- name: run-drats-with-integration-config
+- name: run-drats
   serial: true
   serial_groups: [drats-with-config-manx]
   plan:
@@ -318,21 +329,21 @@ jobs:
   - task: create-integration-config
     file: disaster-recovery-acceptance-tests/ci/update-integration-config/task.yml
     input_mapping:
-      integration-configs: disaster-recovery-acceptance-tests
+      integration-configs: bosh-backup-and-restore-meta
       vars-store: bosh-backup-and-restore-meta
       bbl-state-store: bosh-backup-and-restore-meta
     params:
       VARS_STORE_FILE_PATH: drats-with-config-manx/cf-deployment-variables.yml
       BBL_STATE_DIR_PATH: drats-with-config-manx
       SYSTEM_DOMAIN: drats-with-config-manx.cf-app.com
+      INTEGRATION_CONFIG_FILE_PATH: drats-with-config-manx/integration_config.json
   - task: acceptance-tests
     file: disaster-recovery-acceptance-tests/ci/drats-with-integration-config/task.yml
     privileged: true
     input_mapping:
       drats-integration-config: updated-integration-configs
     params:
-      CONFIG_FILE_PATH: ci/integration_config.json
-      FOCUSED_SUITE_NAME: cf-app|cf-networking|cf-uaa|cf-routing|app-uptime
+      CONFIG_FILE_PATH: drats-with-config-manx/integration_config.json
 
 - name: run-drats-with-destroy
   serial: true
@@ -351,25 +362,24 @@ jobs:
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
     params:
       GITHUB_SSH_KEY: ((github-ssh-key))
+  - task: create-integration-config
+    file: disaster-recovery-acceptance-tests/ci/update-integration-config/task.yml
+    input_mapping:
+      integration-configs: bosh-backup-and-restore-meta
+      vars-store: bosh-backup-and-restore-meta
+      bbl-state-store: bosh-backup-and-restore-meta
+    params:
+      VARS_STORE_FILE_PATH: drats-papillon/cf-deployment-variables.yml
+      BBL_STATE_DIR_PATH: drats-papillon
+      SYSTEM_DOMAIN: drats-papillon.cf-app.com
+      INTEGRATION_CONFIG_FILE_PATH: drats-papillon/integration_config.json
   - task: acceptance-tests
     file: disaster-recovery-acceptance-tests/ci/drats/task.yml
     privileged: true
+    input_mapping:
+      drats-integration-config: updated-integration-configs
     params:
-      CF_DEPLOYMENT_NAME: cf
-      CF_API_URL: https://api.drats-papillon.cf-app.com
-      CF_ADMIN_USERNAME: admin
-      CF_ADMIN_PASSWORD: ((papillon-cf-admin-password))
-      BOSH_CA_CERT: ((papillon-bosh-cert))
-      BOSH_CLIENT: admin
-      BOSH_CLIENT_SECRET: ((papillon-bosh-client-secret))
-      BOSH_ENVIRONMENT: ((papillon-bosh-url))
-      BOSH_GW_USER: jumpbox
-      BOSH_GW_HOST: ((papillon-ssh-gateway-host))
-      BOSH_GW_PRIVATE_KEY: ((papillon-ssh-gateway-key))
-      SSH_DESTINATION_CIDR: "10.0.0.0/8"
-      DEFAULT_TIMEOUT_MINS: 120
-      FOCUSED_SUITE_NAME: cf-app|cf-networking|cf-uaa|cf-routing|app-uptime
-      DELETE_AND_REDEPLOY_CF: true
+      CONFIG_FILE_PATH: drats-papillon/integration_config.json
 
 ## Delete cf deployments
 - name: delete-cf-deployment-drats-pr-ragdoll
@@ -421,14 +431,14 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment
-      passed: [run-drats-with-integration-config]
+      passed: [run-drats]
       trigger: true
     - get: disaster-recovery-acceptance-tests
       trigger: true
-      passed: [run-drats-with-integration-config]
+      passed: [run-drats]
     - get: bbr-binary-release
       trigger: true
-      passed: [run-drats-with-integration-config]
+      passed: [run-drats]
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: bosh-delete-deployment
