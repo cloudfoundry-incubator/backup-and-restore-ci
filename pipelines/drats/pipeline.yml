@@ -35,24 +35,6 @@ resources:
     git_crypt_key: ((git-crypt-key))
     branch: master
 
-- name: continuous-counter
-  type: semver
-  source:
-    bucket: bosh-backup-and-restore-builds
-    region_name: eu-west-1
-    key: current-continuous-drats-version
-    access_key_id: ((aws-access-key-id))
-    secret_access_key: ((aws-secret-access-key))
-
-- name: continuous-counter-input
-  type: semver
-  source:
-    bucket: bosh-backup-and-restore-builds
-    region_name: eu-west-1
-    key: current-continuous-drats-version
-    access_key_id: ((aws-access-key-id))
-    secret_access_key: ((aws-secret-access-key))
-
 - name: disaster-recovery-acceptance-tests-prs
   type: pull-request
   source:
@@ -250,56 +232,6 @@ jobs:
     file: backup-and-restore-ci/tasks/wait-for-cf-api/task.yml
     params:
       CF_API_URL: https://api.drats-opt-components-norwegianforest.cf-app.com
-
-- name: deploy-cf-continuous-drats
-  serial: true
-  serial_groups: [continuous-drats]
-  plan:
-  - aggregate:
-    - get: cf-deployment-concourse-tasks
-    - get: cf-deployment
-      trigger: true
-    - get: bbr-binary-release
-    - get: bosh-backup-and-restore-meta
-    - get: disaster-recovery-acceptance-tests
-    - get: backup-and-restore-ci
-  - task: upload-stemcell
-    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      cf-deployment: cf-deployment
-    params:
-      BBL_STATE_DIR: continuous-drats/
-  - task: deploy-cf
-    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      cf-deployment: cf-deployment
-      ops-files: cf-deployment
-      vars-store: bosh-backup-and-restore-meta
-      vars-files: bosh-backup-and-restore-meta
-    params:
-      BBL_STATE_DIR: continuous-drats/
-      SYSTEM_DOMAIN: continuous-drats.cf-app.com
-      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml"
-      VARS_STORE_FILE: continuous-drats/cf-deployment-variables.yml
-      GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
-      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-vars-store
-        rebase: true
-  - task: bosh-cleanup
-    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-    params:
-      BBL_STATE_DIR: continuous-drats/
-  - task: wait-for-cf-api
-    file: backup-and-restore-ci/tasks/wait-for-cf-api/task.yml
-    params:
-      CF_API_URL: https://api.continuous-drats.cf-app.com
 
 - name: deploy-cf-drats-papillon
   serial: true
@@ -619,45 +551,6 @@ jobs:
       CONFIG_FILE_PATH: ci/integration_config.json
       FOCUSED_SUITE_NAME: cf-app|cf-networking|cf-uaa|cf-routing|app-uptime
 
-- name: run-drats-continuously
-  serial: true
-  serial_groups: [continuous-drats]
-  plan:
-  - aggregate:
-    - get: continuous-counter-input
-      trigger: true
-    - get: cf-deployment
-      passed: [deploy-cf-continuous-drats]
-      trigger: true
-    - get: disaster-recovery-acceptance-tests
-      trigger: true
-    - get: bbr-binary-release
-      trigger: true
-  - task: unit-tests
-    file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
-    params:
-      GITHUB_SSH_KEY: ((github-ssh-key))
-  - task: acceptance-tests
-    file: disaster-recovery-acceptance-tests/ci/drats/task.yml
-    privileged: true
-    params:
-      CF_DEPLOYMENT_NAME: cf
-      CF_API_URL: https://api.continuous-drats.cf-app.com
-      CF_ADMIN_USERNAME: admin
-      CF_ADMIN_PASSWORD: ((continuous-drats-cf-admin-password))
-      BOSH_CA_CERT: ((continuous-drats-bosh-cert))
-      BOSH_CLIENT: admin
-      BOSH_CLIENT_SECRET: ((continuous-drats-bosh-client-secret))
-      BOSH_ENVIRONMENT: ((continuous-drats-bosh-url))
-      BOSH_GW_USER: jumpbox
-      BOSH_GW_HOST: ((continuous-drats-ssh-gateway-host))
-      BOSH_GW_PRIVATE_KEY: ((continuous-drats-ssh-gateway-key))
-      SSH_DESTINATION_CIDR: "10.0.0.0/8"
-      DEFAULT_TIMEOUT_MINS: 60
-      FOCUSED_SUITE_NAME: cf-app|cf-networking|cf-uaa|cf-routing|app-uptime
-  - put: continuous-counter
-    params: {bump: patch}
-
 - name: run-drats-with-destroy
   serial: true
   serial_groups: [drats-papillon]
@@ -738,22 +631,6 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
     params:
       BBL_STATE_DIR: drats-opt-components-norwegianforest/
-
-- name: delete-cf-deployment-continuous-drats
-  serial: true
-  serial_groups: [continuous-drats]
-  plan:
-  - aggregate:
-    - get: cf-deployment
-      passed: [run-drats-continuously]
-    - get: cf-deployment-concourse-tasks
-    - get: bosh-backup-and-restore-meta
-  - task: bosh-delete-deployment
-    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-    params:
-      BBL_STATE_DIR: continuous-drats/
 
 - name: delete-cf-deployment-drats-papillon
   serial: true
