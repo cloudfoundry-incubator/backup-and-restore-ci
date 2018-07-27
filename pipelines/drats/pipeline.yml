@@ -249,20 +249,21 @@ jobs:
   serial: true
   serial_groups: [drats-pr-ragdoll]
   plan:
-  - get: cf-deployment
-    passed: [deploy-cf-drats-pr-ragdoll-opt-components]
-    trigger: true
-  - get: disaster-recovery-acceptance-tests-prs
-    trigger: true
-    passed: [deploy-cf-drats-pr-ragdoll-opt-components]
-    version: every
-  - get: bbr-binary-release
-  - get: bosh-backup-and-restore-meta
-  - put: disaster-recovery-acceptance-tests-prs
-    params:
-      path: disaster-recovery-acceptance-tests-prs
-      status: pending
-      context: drats
+  - aggregate:
+    - get: cf-deployment
+      passed: [deploy-cf-drats-pr-ragdoll-opt-components]
+      trigger: true
+    - get: disaster-recovery-acceptance-tests-prs
+      trigger: true
+      passed: [deploy-cf-drats-pr-ragdoll-opt-components]
+      version: every
+    - get: bbr-binary-release
+    - get: bosh-backup-and-restore-meta
+    - put: disaster-recovery-acceptance-tests-prs
+      params:
+        path: disaster-recovery-acceptance-tests-prs
+        status: pending
+        context: drats
   - task: unit-tests
     file: disaster-recovery-acceptance-tests-prs/ci/unit-tests/task.yml
     input_mapping:
@@ -312,16 +313,17 @@ jobs:
   serial: true
   serial_groups: [drats-with-config-manx]
   plan:
-  - get: cf-deployment
-    passed: [deploy-cf-drats-with-config-manx]
-    trigger: true
-  - get: bosh-backup-and-restore-meta
-  - get: disaster-recovery-acceptance-tests
-    trigger: true
-    passed: [deploy-cf-drats-with-config-manx]
-  - get: bbr-binary-release
-    trigger: true
-    passed: [deploy-cf-drats-with-config-manx]
+  - aggregate:
+    - get: bosh-backup-and-restore-meta
+    - get: cf-deployment
+      passed: [deploy-cf-drats-with-config-manx]
+      trigger: true
+    - get: disaster-recovery-acceptance-tests
+      trigger: true
+      passed: [deploy-cf-drats-with-config-manx]
+    - get: bbr-binary-release
+      trigger: true
+      passed: [deploy-cf-drats-with-config-manx]
   - task: unit-tests
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
     params:
@@ -349,15 +351,17 @@ jobs:
   serial: true
   serial_groups: [drats-papillon]
   plan:
-  - get: cf-deployment
-    passed: [deploy-cf-drats-papillon]
-    trigger: true
-  - get: disaster-recovery-acceptance-tests
-    trigger: true
-    passed: [deploy-cf-drats-papillon]
-  - get: bbr-binary-release
-    trigger: true
-    passed: [deploy-cf-drats-papillon]
+  - aggregate:
+    - get: cf-deployment
+      passed: [deploy-cf-drats-papillon]
+      trigger: true
+    - get: disaster-recovery-acceptance-tests
+      trigger: true
+      passed: [deploy-cf-drats-papillon]
+    - get: bbr-binary-release
+      trigger: true
+      passed: [deploy-cf-drats-papillon]
+    - get: bosh-backup-and-restore-meta
   - task: unit-tests
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
     params:
@@ -374,7 +378,7 @@ jobs:
       SYSTEM_DOMAIN: drats-papillon.cf-app.com
       INTEGRATION_CONFIG_FILE_PATH: drats-papillon/integration_config.json
   - task: acceptance-tests
-    file: disaster-recovery-acceptance-tests/ci/drats/task.yml
+    file: disaster-recovery-acceptance-tests/ci/drats-with-integration-config/task.yml
     privileged: true
     input_mapping:
       drats-integration-config: updated-integration-configs
