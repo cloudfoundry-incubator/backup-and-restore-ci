@@ -317,54 +317,6 @@ jobs:
         repository: updated-bbl-state
         rebase: true
 
-- name: setup-infrastructure-drats-dragon-li
-  serial: true
-  serial_groups: [drats-dragon-li]
-  plan:
-  - aggregate:
-    - get: cf-deployment-concourse-tasks
-    - get: bosh-backup-and-restore-meta
-  - task: setup-infrastructure
-    file: cf-deployment-concourse-tasks/bbl-up/task.yml
-    params:
-      << : *COMMON_BBL_UP_PARAMS
-      BBL_STATE_DIR: drats-dragon-li/
-      BBL_LB_CERT: ((drats-dragon-li-lb-cert))
-      BBL_LB_KEY: ((drats-dragon-li-lb-key))
-      LB_DOMAIN: ((drats-dragon-li-lb-domain))
-      BBL_ENV_NAME: drats-dragon-li
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      bbl-config: bosh-backup-and-restore-meta
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
-
-- name: destroy-infrastructure-drats-dragon-li
-  serial: true
-  serial_groups: [drats-dragon-li]
-  plan:
-  - aggregate:
-    - get: cf-deployment-concourse-tasks
-      passed: [setup-infrastructure-drats-dragon-li]
-    - get: bosh-backup-and-restore-meta
-      passed: [setup-infrastructure-drats-dragon-li]
-  - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    params:
-      << : *COMMON_BBL_PARAMS
-      BBL_STATE_DIR: drats-dragon-li/
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      bbl-config: bosh-backup-and-restore-meta
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
-
 - name: setup-infrastructure-drats-pr-ragdoll
   serial: true
   serial_groups: [drats-pr-ragdoll]
@@ -500,54 +452,6 @@ jobs:
     params:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: drats-with-config-manx/
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      bbl-config: bosh-backup-and-restore-meta
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
-
-- name: setup-infrastructure-drats-opt-components-norwegianforest
-  serial: true
-  serial_groups: [drats-opt-components-norwegianforest]
-  plan:
-  - aggregate:
-    - get: cf-deployment-concourse-tasks
-    - get: bosh-backup-and-restore-meta
-  - task: setup-infrastructure
-    file: cf-deployment-concourse-tasks/bbl-up/task.yml
-    params:
-      << : *COMMON_BBL_UP_PARAMS
-      BBL_STATE_DIR: drats-opt-components-norwegianforest/
-      BBL_LB_CERT: ((drats-opt-components-norwegianforest-lb-cert))
-      BBL_LB_KEY: ((drats-opt-components-norwegianforest-lb-key))
-      LB_DOMAIN: ((drats-opt-components-norwegianforest-lb-domain))
-      BBL_ENV_NAME: drats-opt-components-norwegianforest
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      bbl-config: bosh-backup-and-restore-meta
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
-
-- name: destroy-infrastructure-drats-opt-components-norwegianforest
-  serial: true
-  serial_groups: [drats-opt-components-norwegianforest]
-  plan:
-  - aggregate:
-    - get: cf-deployment-concourse-tasks
-      passed: [setup-infrastructure-drats-opt-components-norwegianforest]
-    - get: bosh-backup-and-restore-meta
-      passed: [setup-infrastructure-drats-opt-components-norwegianforest]
-  - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    params:
-      << : *COMMON_BBL_PARAMS
-      BBL_STATE_DIR: drats-opt-components-norwegianforest/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
