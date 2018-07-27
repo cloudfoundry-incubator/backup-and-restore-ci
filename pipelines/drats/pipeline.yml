@@ -192,58 +192,6 @@ jobs:
     params:
       CF_API_URL: https://api.drats-dragon-li.cf-app.com
 
-- name: deploy-cf-drats-persian
-  serial: true
-  serial_groups: [drats-persian]
-  plan:
-  - aggregate:
-    - get: disaster-recovery-acceptance-tests
-      trigger: true
-    - get: cf-deployment
-      trigger: true
-    - get: bbr-binary-release
-      trigger: true
-    - get: cf-deployment-concourse-tasks
-    - get: bosh-backup-and-restore-meta
-    - get: backup-and-restore-ci
-  - task: upload-stemcell
-    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      cf-deployment: cf-deployment
-    params:
-      BBL_STATE_DIR: drats-persian/
-  - task: deploy-cf
-    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      cf-deployment: cf-deployment
-      ops-files: cf-deployment
-      vars-store: bosh-backup-and-restore-meta
-      vars-files: bosh-backup-and-restore-meta
-    params:
-      BBL_STATE_DIR: drats-persian/
-      SYSTEM_DOMAIN: drats-persian.cf-app.com
-      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml"
-      VARS_STORE_FILE: drats-persian/cf-deployment-variables.yml
-      GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
-      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-vars-store
-        rebase: true
-  - task: bosh-cleanup
-    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-    params:
-      BBL_STATE_DIR: drats-persian/
-  - task: wait-for-cf-api
-    file: backup-and-restore-ci/tasks/wait-for-cf-api/task.yml
-    params:
-      CF_API_URL: https://api.drats-persian.cf-app.com
-
 - name: deploy-cf-drats-opt-components-norwegianforest
   serial: true
   serial_groups: [drats-opt-components-norwegianforest]
@@ -593,42 +541,6 @@ jobs:
         status: success
         context: drats-with-config
 
-- name: run-drats
-  serial: true
-  serial_groups: [drats-persian]
-  plan:
-  - get: cf-deployment
-    passed: [deploy-cf-drats-persian]
-    trigger: true
-  - get: disaster-recovery-acceptance-tests
-    trigger: true
-    passed: [deploy-cf-drats-persian]
-  - get: bbr-binary-release
-    trigger: true
-    passed: [deploy-cf-drats-persian]
-  - task: unit-tests
-    file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
-    params:
-      GITHUB_SSH_KEY: ((github-ssh-key))
-  - task: acceptance-tests
-    file: disaster-recovery-acceptance-tests/ci/drats/task.yml
-    privileged: true
-    params:
-      CF_DEPLOYMENT_NAME: cf
-      CF_API_URL: https://api.drats-persian.cf-app.com
-      CF_ADMIN_USERNAME: admin
-      CF_ADMIN_PASSWORD: ((persian-cf-admin-password))
-      BOSH_CA_CERT: ((persian-bosh-cert))
-      BOSH_CLIENT: admin
-      BOSH_CLIENT_SECRET: ((persian-bosh-client-secret))
-      BOSH_ENVIRONMENT: ((persian-bosh-url))
-      BOSH_GW_USER: jumpbox
-      BOSH_GW_HOST: ((persian-ssh-gateway-host))
-      BOSH_GW_PRIVATE_KEY: ((persian-ssh-gateway-key))
-      SSH_DESTINATION_CIDR: "10.0.0.0/8"
-      DEFAULT_TIMEOUT_MINS: 30
-      FOCUSED_SUITE_NAME: cf-app|cf-networking|cf-uaa|cf-routing|app-uptime
-
 - name: run-drats-opt-components
   serial: true
   serial_groups: [drats-opt-components-norwegianforest]
@@ -802,29 +714,6 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
     params:
       BBL_STATE_DIR: drats-pr-ragdoll/
-
-- name: delete-cf-deployment-drats-persian
-  serial: true
-  serial_groups: [drats-persian]
-  plan:
-  - aggregate:
-    - get: cf-deployment
-      passed: [run-drats]
-      trigger: true
-    - get: disaster-recovery-acceptance-tests
-      passed: [run-drats]
-      trigger: true
-    - get: bbr-binary-release
-      passed: [run-drats]
-      trigger: true
-    - get: cf-deployment-concourse-tasks
-    - get: bosh-backup-and-restore-meta
-  - task: bosh-delete-deployment
-    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-    params:
-      BBL_STATE_DIR: drats-persian/
 
 - name: delete-cf-deployment-drats-opt-components-norwegianforest
   serial: true
