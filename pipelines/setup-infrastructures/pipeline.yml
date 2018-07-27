@@ -413,54 +413,6 @@ jobs:
         repository: updated-bbl-state
         rebase: true
 
-- name: setup-infrastructure-continuous-drats
-  serial: true
-  serial_groups: [continuous-drats]
-  plan:
-  - aggregate:
-    - get: cf-deployment-concourse-tasks
-    - get: bosh-backup-and-restore-meta
-  - task: setup-infrastructure
-    file: cf-deployment-concourse-tasks/bbl-up/task.yml
-    params:
-      << : *COMMON_BBL_UP_PARAMS
-      BBL_STATE_DIR: continuous-drats/
-      BBL_LB_CERT: ((continuous-drats-lb-cert))
-      BBL_LB_KEY: ((continuous-drats-lb-key))
-      LB_DOMAIN: ((continuous-drats-lb-domain))
-      BBL_ENV_NAME: continuous-drats
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      bbl-config: bosh-backup-and-restore-meta
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
-
-- name: destroy-infrastructure-continuous-drats
-  serial: true
-  serial_groups: [continuous-drats]
-  plan:
-  - aggregate:
-    - get: cf-deployment-concourse-tasks
-      passed: [setup-infrastructure-continuous-drats]
-    - get: bosh-backup-and-restore-meta
-      passed: [setup-infrastructure-continuous-drats]
-  - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    params:
-      << : *COMMON_BBL_PARAMS
-      BBL_STATE_DIR: continuous-drats/
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      bbl-config: bosh-backup-and-restore-meta
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
-
 - name: setup-infrastructure-drats-papillon
   serial: true
   serial_groups: [drats-papillon]
