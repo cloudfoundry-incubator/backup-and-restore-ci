@@ -88,6 +88,7 @@ resources:
     key: current-dev-version
     access_key_id: ((aws-access-key-id))
     secret_access_key: ((aws-secret-access-key))
+
 - name: release
   type: s3
   source:
@@ -96,6 +97,7 @@ resources:
     region_name: eu-west-1
     access_key_id: ((aws-access-key-id))
     secret_access_key: ((aws-secret-access-key))
+
 - name: backup-and-restore-sdk-addon-release
   type: s3
   source:
@@ -104,6 +106,7 @@ resources:
     region_name: eu-west-1
     access_key_id: ((aws-access-key-id))
     secret_access_key: ((aws-secret-access-key))
+
 - name: github-release
   type: github-release
   source:
@@ -111,17 +114,20 @@ resources:
     repository: backup-and-restore-sdk-release
     draft: true
     access_token: ((github-access-token))
+
 - name: cf-deployment-concourse-tasks
   type: git
   source:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
     tag_filter: v6.*
+
 - name: cf-deployment-master
   type: git
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
     branch: master
+    tag_filter: v2.*
 
 - name: cf-deployment-gcs
   type: git
@@ -141,6 +147,7 @@ resources:
   source:
     uri: https://github.com/cloudfoundry-incubator/disaster-recovery-acceptance-tests.git
     branch: master
+
 - name: s3-backuper-with-iam-instance-profile-deployment
   type: bosh-deployment
   source:
@@ -151,26 +158,31 @@ resources:
     ca_cert: "((ec2-bosh-director-ca-cert))"
     jumpbox_url: "((ec2-jumpbox-url))"
     jumpbox_ssh_key: "((ec2-jumpbox-ssh-key))"
+
 - name: mysql-dev-deployment
   type: bosh-deployment
   source:
     << : *MARU_LITE_DIRECTOR
     deployment: *mysql-deployment-name
+
 - name: database-backup-restorer-deployment
   type: bosh-deployment
   source:
     << : *MARU_LITE_DIRECTOR
     deployment: database-backup-restorer
+
 - name: xenial-stemcell-aws
   type: bosh-io-stemcell
   source:
     name: bosh-aws-xen-hvm-ubuntu-xenial-go_agent
     version_family: 87.latest
+
 - name: xenial-stemcell
   type: bosh-io-stemcell
   source:
     name: bosh-warden-boshlite-ubuntu-xenial-go_agent
     version_family: 87.latest
+
 - name: golang-release
   type: git
   source:
