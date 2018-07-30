@@ -22,6 +22,12 @@ mysql-port: &mysql-port 3306
 mysql-username: &mysql-username root
 mysql-password: &mysql-password mysql_password
 
+postgres-9-4-deployment-name: &postgres-9-4-deployment-name postgres-9-4-dev
+postgres-9-4-host: &postgres-9-4-host 10.244.1.10
+postgres-9-4-port: &postgres-9-4-port 5432
+postgres-9-4-username: &postgres-9-4-username test_user
+postgres-9-4-password: &postgres-9-4-password postgres_password
+
 resource_types:
 - name: pivnet
   type: docker-image
@@ -165,6 +171,12 @@ resources:
     << : *MARU_LITE_DIRECTOR
     deployment: *mysql-deployment-name
 
+- name: postgres-9.4-dev-deployment
+  type: bosh-deployment
+  source:
+    << : *MARU_LITE_DIRECTOR
+    deployment: *postgres-9-4-deployment-name
+
 - name: database-backup-restorer-deployment
   type: bosh-deployment
   source:
@@ -299,26 +311,24 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed: [create-release]
       trigger: true
     - get: release-tarball
       resource: release
       passed: [create-release]
-    - get: bosh-backup-and-restore-meta
-  - task: deploy-postgres-9.4
-    file: backup-and-restore-ci/tasks/deploy/task.yml
+    - get: xenial-stemcell
+  - put: postgres-9.4-dev-deployment
     params:
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
-      BOSH_DEPLOYMENT: postgres-9.4-dev
-      BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
-      DB_PASSWORD: postgres_password
-      MANIFEST_NAME: postgres-9.4.yml
-      DB_HOST: &postgres_host_94 10.244.9.2
-      AVAILABILITY_ZONE: lite
-      NETWORK_NAME: postgres
+      manifest: backup-and-restore-sdk-release/ci/manifests/postgres-9.4.yml
+      stemcells:
+      - xenial-stemcell/*.tgz
+      vars:
+        deployment-name: *postgres-9-4-deployment-name
+        db_username: *postgres-9-4-username
+        db_password: *postgres-9-4-password
+        db_host: *postgres-9-4-host
+        availability_zone: z1
 
 - name: deploy-postgres-9.6
   serial: true
@@ -715,10 +725,10 @@ jobs:
       TEST_SUITE_NAME: postgresql
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
-      POSTGRES_PASSWORD: postgres_password
-      POSTGRES_HOSTNAME: *postgres_host_94
-      POSTGRES_USERNAME: test_user
-      POSTGRES_PORT: 5432
+      POSTGRES_PASSWORD: *postgres-9-4-password
+      POSTGRES_HOSTNAME: 10.244.9.2
+      POSTGRES_USERNAME: *postgres-9-4-username
+      POSTGRES_PORT: *postgres-9-4-port
       SSH_PROXY_HOST: 104.199.27.23
       SSH_PROXY_USER: vcap
       SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
