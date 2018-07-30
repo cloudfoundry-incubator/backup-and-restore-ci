@@ -1,7 +1,9 @@
-#!/bin/bash -e
+#!/usr/bin/env bash
 
-pushd $(dirname $0)
-docker pull ruby:2.2.0
-docker build -t cloudfoundrylondon/cfops-docs .
-docker push cloudfoundrylondon/cfops-docs:latest
+set -e
+
+pushd "$(dirname "$0")"
+  docker pull ruby:2.2.0
+  docker build -t cloudfoundrylondon/cfops-docs .
+  docker push cloudfoundrylondon/cfops-docs:latest
 popd

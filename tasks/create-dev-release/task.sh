@@ -19,7 +19,8 @@
 set -e
 set -x
 
-export VERSION=$(cat version/number)
+VERSION=$(cat version/number)
+export VERSION
 
 if [ -z "$RELEASE_NAME" ]; then
   export RELEASE_NAME="backup-and-restore-sdk"
@@ -27,7 +28,7 @@ fi
 
 pushd backup-and-restore-sdk-release
   bosh-cli create-release \
-    --version $VERSION \
+    --version "$VERSION" \
     --name=${RELEASE_NAME} \
-    --tarball=../backup-and-restore-sdk-release-build/${RELEASE_NAME}-$VERSION.tgz --force
+    --tarball="../backup-and-restore-sdk-release-build/${RELEASE_NAME}-$VERSION.tgz" --force
 popd

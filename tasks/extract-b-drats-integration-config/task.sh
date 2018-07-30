@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034,SC2153
 
-set -e
-set -u
+set -eu
 
 pushd terraform-state
-    bosh_host="$(terraform output director-ip)"
+  bosh_host="$(terraform output director-ip)"
 popd
 
 bosh_ssh_username="${BOSH_SSH_USERNAME}"
@@ -26,7 +26,7 @@ done
 other_vars="include_deployment_testcase timeout_in_minutes"
 for var in $other_vars
 do
-  integration_config=$(echo ${integration_config} | jq ".${var}=${!var}")
+  integration_config=$(echo "${integration_config}" | jq ".${var}=${!var}")
 done
 
 echo "$integration_config" > "${OUTPUT_DIR}/integration_config.json"

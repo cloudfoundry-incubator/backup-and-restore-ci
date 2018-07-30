@@ -20,6 +20,7 @@ set -eu
 
 export BOSH_CA_CERT="./bosh-backup-and-restore-meta/certs/${BOSH_ENVIRONMENT}.crt"
 
+# shellcheck disable=SC2001
 GCP_SERVICE_ACCOUNT_KEY="$(echo "$GCP_SERVICE_ACCOUNT_KEY" | sed -e 's/^/  /')"
 vars_file="$(mktemp)"
 echo "gcp-service-account-key: |
