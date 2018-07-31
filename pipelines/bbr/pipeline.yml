@@ -1,7 +1,4 @@
 ---
-toolsmiths_api_worker: &toolsmiths_api_worker platform-recovery-vsphere
-toolsmiths_pool_worker: &toolsmiths_pool_worker toolsmiths-pool
-
 maru-bosh-env: &maru-bosh-env
   BOSH_ENVIRONMENT: "((maru-bosh-director-url))"
   BOSH_CLIENT: "((maru-bosh-director-username))"
@@ -41,9 +38,7 @@ groups:
   - system-windows
   - delete-windows-deployment
   - build-rc
-  - install-optional-components-on-pas
   - run-p-drats-on-pas
-  - unclaim-env
   - transfer-bbr-binary-to-jumpbox
 
 - name: SHIPIT
@@ -62,11 +57,6 @@ resource_types:
   type: docker-image
   source:
     repository: cloudfoundry/bosh-deployment-resource
-
-- name: pcf-pool
-  type: docker-image
-  source:
-    repository: cftoolsmiths/toolsmiths-envs-resource
 
 - name: git
   type: docker-image
@@ -102,15 +92,6 @@ resources:
     initial_version: 0.0.0
     access_key_id: ((aws-access-key-id))
     secret_access_key: ((aws-secret-access-key))
-
-- name: pcf-2-1-pool
-  type: pcf-pool
-  source:
-    api_token: ((toolsmiths-api-token))
-    hostname: environments.toolsmiths.cf-app.com
-    pool_name: us_2_1
-  tags:
-  - *toolsmiths_api_worker
 
 - name: bosh-backup-and-restore
   type: git
@@ -190,12 +171,12 @@ resources:
     access_token: ((github-access-token))
     drafts: true
 
-- name: pivotal-disaster-recovery-acceptance-tests
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf/pivotal-disaster-recovery-acceptance-tests.git
-    private_key: ((git-private-key))
-    branch: master
+# - name: pivotal-disaster-recovery-acceptance-tests
+#   type: git
+#   source:
+#     uri: git@github.com:pivotal-cf/pivotal-disaster-recovery-acceptance-tests.git
+#     private_key: ((git-private-key))
+#     branch: master
 
 - name: run-p-drats-with-proxy
   type: git
@@ -203,7 +184,6 @@ resources:
     uri: git@github.com:pivotal-cf/pivotal-disaster-recovery-acceptance-tests.git
     private_key: ((git-private-key))
     branch: wip-157779432
-
 
 - name: windows-vm-deployment
   type: bosh-deployment
@@ -486,71 +466,29 @@ jobs:
   - put: version
     params: {file: version/number}
 
-- name: install-optional-components-on-pas
-  serial: true
-  plan:
-  - aggregate:
-    - get: pivotal-disaster-recovery-acceptance-tests
-    - get: bosh-backup-and-restore
-      passed: [build-rc]
-      trigger: true
-    - get: rc
-      passed: [build-rc]
-      trigger: true
-    - put: env-pool
-      resource: pcf-2-1-pool
-      params:
-        action: claim
-      tags:
-      - *toolsmiths_api_worker
-  - task: enable-internal-blobstore
-    file: pivotal-disaster-recovery-acceptance-tests/ci/enable-internal-blobstore-pas/pool-task.yml
-  - task: enable-optional-components
-    file: pivotal-disaster-recovery-acceptance-tests/ci/enable-optional-components-pas/pool-task.yml
-    privileged: true
-    params:
-      OPS_MAN_VERSION: "2.1"
-
 - name: run-p-drats-on-pas
   serial: true
   plan:
   - aggregate:
     - get: run-p-drats-with-proxy
     - get: bosh-backup-and-restore
-      passed: [install-optional-components-on-pas]
+      passed: [build-rc]
     - get: rc
-      passed: [install-optional-components-on-pas]
+      passed: [build-rc]
       trigger: true
-    - get: env-pool
-      resource: pcf-2-1-pool
-      passed: [install-optional-components-on-pas]
-      tags:
-      - *toolsmiths_api_worker
   - task: acceptance-tests
-    tags:
-    - *toolsmiths_pool_worker
     privileged: true
-    file: run-p-drats-with-proxy/ci/p-drats-ops-manager/pool-task.yml
+    file: run-p-drats-with-proxy/ci/p-drats-ops-manager/task.yml
     input_mapping:
       pivotal-disaster-recovery-acceptance-tests: run-p-drats-with-proxy
       bbr-binary-release: rc
     params:
       DEFAULT_TIMEOUT_MINS: 30
       USE_BOSH_ALL_PROXY: true
-
-- name: unclaim-env
-  plan:
-  - get: pcf-2-1-pool
-    passed: [run-p-drats-on-pas]
-    trigger: true
-    tags:
-    - *toolsmiths_api_worker
-  - put: pcf-2-1-pool
-    params:
-      action: unclaim
-      env_file: pcf-2-1-pool/metadata
-    tags:
-    - *toolsmiths_api_worker
+      OPS_MAN_URL: ((ops-man-url))
+      OPS_MAN_USER: ((ops-man-user))
+      OPS_MAN_PASS: ((ops-man-pass))
+      OPS_MAN_SSH_KEY: ((ops-man-ssh-key))
 
 - name: transfer-bbr-binary-to-jumpbox
   serial_groups: [version]
