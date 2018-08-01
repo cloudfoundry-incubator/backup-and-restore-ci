@@ -26,7 +26,7 @@ inputs:
 - name: backup-and-restore-sdk-release
 
 run:
-  path: backup-and-restore-ci/tasks/sdk-system-mysql/task.sh
+  path: backup-and-restore-ci/tasks/sdk-system-postgres/task.sh
 
 params:
   BOSH_ENVIRONMENT:
