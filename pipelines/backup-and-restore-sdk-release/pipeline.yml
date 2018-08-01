@@ -28,6 +28,16 @@ postgres-9-4-port: &postgres-9-4-port 5432
 postgres-9-4-username: &postgres-9-4-username test_user
 postgres-9-4-password: &postgres-9-4-password postgres_password
 
+postgres-9-6-deployment-name: &postgres-9-6-deployment-name postgres-9-6-dev
+postgres-9-6-host: &postgres-9-6-host 10.244.1.11
+postgres-9-6-port: &postgres-9-6-port 5432
+postgres-9-6-username: &postgres-9-6-username test_user
+postgres-9-6-password: &postgres-9-6-password postgres_password
+postgres-9-6-ssl-username: &postgres-9-6-ssl-username ssl_user
+postgres-9-6-ssl-password: &postgres-9-6-ssl-password postgres_password
+postgres-9-6-tls-username: &postgres-9-6-tls-username mutual_tls_user
+postgres-9-6-tls-common-name: &postgres-9-6-tls-common-name postgres96
+
 resource_types:
 - name: pivnet
   type: docker-image
@@ -176,6 +186,12 @@ resources:
   source:
     << : *MARU_LITE_DIRECTOR
     deployment: *postgres-9-4-deployment-name
+
+- name: postgres-9.6-dev-deployment
+  type: bosh-deployment
+  source:
+    << : *MARU_LITE_DIRECTOR
+    deployment: *postgres-9-6-deployment-name
 
 - name: database-backup-restorer-deployment
   type: bosh-deployment
@@ -342,26 +358,26 @@ jobs:
       resource: release
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
-  - task: deploy-postgres-9.6
-    file: backup-and-restore-ci/tasks/deploy/task.yml
+  - put: postgres-9.6-dev-deployment
     params:
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
-      BOSH_DEPLOYMENT: postgres-9.6-dev
-      BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
-      DB_PASSWORD: postgres_password
-      MANIFEST_NAME: postgres-9.6.yml
-      DB_HOST: &postgres_host_96 10.244.9.3
-      AVAILABILITY_ZONE: lite
-      NETWORK_NAME: postgres
-      VARS_STORE_PATH: ci/backup-and-restore-sdk-release/vars/postgres-96-vars.yml
+      manifest: backup-and-restore-sdk-release/ci/manifests/postgres-9.6.yml
+      vars:
+        deployment-name: *postgres-9-6-deployment-name
+        db_username: *postgres-9-6-username
+        db_password: *postgres-9-6-password
+        ssl_username: *postgres-9-6-ssl-username
+        ssl_password: *postgres-9-6-ssl-password
+        tls_username: *postgres-9-6-tls-username
+        tls_common_name: *postgres-9-6-tls-common-name
+        db_host: *postgres-9-6-host
+        db_port: *postgres-9-6-port
+        availability_zone: z1
+      vars_files:
+      - bosh-backup-and-restore-meta/ci/backup-and-restore-sdk-release/vars/postgres-96-vars.yml
   - task: create-ssl-user
     file: backup-and-restore-ci/tasks/create-ssl-user/task.yml
     params:
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
-      BOSH_DEPLOYMENT: postgres-9.6-dev
-      BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
+      <<: *MARU_LITE_BOSH_CREDS
   - put: bosh-backup-and-restore-meta
     params:
       repository: bosh-backup-and-restore-meta-output
@@ -555,7 +571,7 @@ jobs:
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       POSTGRES_PASSWORD: postgres_password
-      POSTGRES_HOSTNAME: *postgres_host_96
+      POSTGRES_HOSTNAME: *postgres-9-6-host
       POSTGRES_USERNAME: test_user
       POSTGRES_PORT: 5432
       SSH_PROXY_HOST: 104.199.27.23
@@ -568,7 +584,7 @@ jobs:
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       POSTGRES_PASSWORD: postgres_password
-      POSTGRES_HOSTNAME: *postgres_host_96
+      POSTGRES_HOSTNAME: *postgres-9-6-host
       POSTGRES_USERNAME: ssl_user
       POSTGRES_PORT: 5432
       POSTGRES_CA_CERT: ((postgres-96-ca-cert))
@@ -583,7 +599,7 @@ jobs:
       BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
       BOSH_CLIENT: ((lite-bosh-director-username))
       POSTGRES_PASSWORD: postgres_password
-      POSTGRES_HOSTNAME: *postgres_host_96
+      POSTGRES_HOSTNAME: *postgres-9-6-host
       POSTGRES_USERNAME: mutual_tls_user
       POSTGRES_PORT: 5432
       POSTGRES_CA_CERT: ((postgres-96-ca-cert))
