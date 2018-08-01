@@ -378,10 +378,7 @@ jobs:
     file: backup-and-restore-ci/tasks/create-ssl-user/task.yml
     params:
       <<: *MARU_LITE_BOSH_CREDS
-  - put: bosh-backup-and-restore-meta
-    params:
-      repository: bosh-backup-and-restore-meta-output
-      rebase: true
+      BOSH_DEPLOYMENT: *postgres-9-6-deployment-name
 
 - name: deploy-mysql
   serial: true
@@ -565,39 +562,30 @@ jobs:
       - deploy-postgres-9.6
       - deploy-backup-restore-sdk
   - task: postgres-system-tests
-    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
     params:
       TEST_SUITE_NAME: postgresql
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
+      <<: *MARU_LITE_BOSH_CREDS
       POSTGRES_PASSWORD: postgres_password
       POSTGRES_HOSTNAME: *postgres-9-6-host
       POSTGRES_USERNAME: test_user
       POSTGRES_PORT: 5432
-      SSH_PROXY_HOST: 104.199.27.23
-      SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
   - task: postgres-tls-system-tests
-    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
+      <<: *MARU_LITE_BOSH_CREDS
       POSTGRES_PASSWORD: postgres_password
       POSTGRES_HOSTNAME: *postgres-9-6-host
       POSTGRES_USERNAME: ssl_user
       POSTGRES_PORT: 5432
       POSTGRES_CA_CERT: ((postgres-96-ca-cert))
-      SSH_PROXY_HOST: 104.199.27.23
-      SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
       TEST_TLS_VERIFY_IDENTITY: false
   - task: postgres-mutual-tls-system-tests
-    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
     params:
       TEST_SUITE_NAME: postgresql_mutual_tls
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
+      <<: *MARU_LITE_BOSH_CREDS
       POSTGRES_PASSWORD: postgres_password
       POSTGRES_HOSTNAME: *postgres-9-6-host
       POSTGRES_USERNAME: mutual_tls_user
@@ -605,9 +593,6 @@ jobs:
       POSTGRES_CA_CERT: ((postgres-96-ca-cert))
       POSTGRES_CLIENT_CERT: ((postgres-96-client-cert))
       POSTGRES_CLIENT_KEY: ((postgres-96-client-key))
-      SSH_PROXY_HOST: 104.199.27.23
-      SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
       TEST_TLS_VERIFY_IDENTITY: false
 
 - name: gcp-postgres-system-tests-9.6
