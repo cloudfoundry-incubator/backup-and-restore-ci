@@ -721,18 +721,14 @@ jobs:
       - deploy-postgres-9.4
       - deploy-backup-restore-sdk
   - task: postgres-system-tests
-    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
     params:
       TEST_SUITE_NAME: postgresql
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
       POSTGRES_PASSWORD: *postgres-9-4-password
-      POSTGRES_HOSTNAME: 10.244.9.2
+      POSTGRES_HOSTNAME: *postgres-9-4-host
       POSTGRES_USERNAME: *postgres-9-4-username
       POSTGRES_PORT: *postgres-9-4-port
-      SSH_PROXY_HOST: 104.199.27.23
-      SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
+      <<: *MARU_LITE_BOSH_CREDS
 
 - name: rds-postgres-system-tests-9.4
   serial: true
