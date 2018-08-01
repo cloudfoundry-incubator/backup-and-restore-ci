@@ -18,14 +18,12 @@
 
 set -eu
 
-export BOSH_CA_CERT="./bosh-backup-and-restore-meta/certs/${BOSH_ENVIRONMENT}.crt"
-
-chmod 400 bosh-backup-and-restore-meta/genesis-bosh/bosh.pem
+echo -e "${BOSH_GW_PRIVATE_KEY}" > "${PWD}/ssh.key"
+chmod 0600 "${PWD}/ssh.key"
+export BOSH_GW_PRIVATE_KEY="${PWD}/ssh.key"
+export BOSH_ALL_PROXY="ssh+socks5://${BOSH_GW_USER}@${BOSH_GW_HOST}?private-key=${BOSH_GW_PRIVATE_KEY}"
 
 bosh-cli \
   --deployment "${BOSH_DEPLOYMENT}" \
   ssh \
-  --gw-host="${BOSH_ENVIRONMENT}" \
-  --gw-user=vcap \
-  --gw-private-key=bosh-backup-and-restore-meta/genesis-bosh/bosh.pem \
   -c 'echo -e "hostssl all mutual_tls_user 0.0.0.0/0 cert map=cnmap\nhostssl all ssl_user 0.0.0.0/0 md5\nhost all test_user 0.0.0.0/0 md5" | sudo tee /var/vcap/jobs/postgres/config/pg_hba.conf && sudo /var/vcap/bosh/bin/monit restart postgres && while ! nc -z localhost 5432 </dev/null; do sleep 1; done'
