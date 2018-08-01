@@ -18,23 +18,22 @@
 
 set -eu
 
-eval "$(ssh-agent)"
-
-chmod 400 bosh-backup-and-restore-meta/keys/github
-ssh-add bosh-backup-and-restore-meta/keys/github
-chmod 400 bosh-backup-and-restore-meta/genesis-bosh/bosh.pem
-
 echo -e "${SSH_PROXY_PRIVATE_KEY}" > /tmp/private.key
 chmod 0400 /tmp/private.key
 
 export GOPATH=$PWD/backup-and-restore-sdk-release
 export PATH=$PATH:$GOPATH/bin
-export BOSH_ENVIRONMENT="https://lite-bosh.backup-and-restore.cf-app.com"
-export BOSH_CA_CERT=$PWD/bosh-backup-and-restore-meta/certs/lite-bosh.backup-and-restore.cf-app.com.crt
+export BOSH_ENVIRONMENT="${BOSH_ENVIRONMENT:="https://lite-bosh.backup-and-restore.cf-app.com"}"
+export BOSH_CA_CERT="${BOSH_CA_CERT:="${PWD}/bosh-backup-and-restore-meta/certs/lite-bosh.backup-and-restore.cf-app.com.crt"}"
 export BOSH_GW_USER=${SSH_PROXY_USER}
 export BOSH_GW_HOST=${SSH_PROXY_HOST}
 export BOSH_GW_PRIVATE_KEY=/tmp/private.key
 export SSH_PROXY_KEY_FILE=/tmp/private.key
+
+if [[ "$USE_BOSH_ALL_PROXY" = true ]]; then
+  export BOSH_ALL_PROXY="ssh+socks5://${BOSH_GW_USER}@${BOSH_GW_HOST}:22?private-key=${BOSH_GW_PRIVATE_KEY}"
+fi
+
 export POSTGRES_CA_CERT="${POSTGRES_CA_CERT:-$(cat "$PWD/bosh-backup-and-restore-meta/${POSTGRES_CA_CERT_PATH}")}"
 export POSTGRES_CLIENT_CERT="${POSTGRES_CLIENT_CERT:-$(cat "$PWD/bosh-backup-and-restore-meta/${POSTGRES_CLIENT_CERT_PATH}")}"
 export POSTGRES_CLIENT_KEY="${POSTGRES_CLIENT_KEY:-$(cat "$PWD/bosh-backup-and-restore-meta/${POSTGRES_CLIENT_KEY_PATH}")}"
