@@ -32,4 +32,4 @@ export GOPATH="$PWD/backup-and-restore-sdk-release"
 export PATH="$PATH:$GOPATH/bin"
 
 cd backup-and-restore-sdk-release/src/github.com/cloudfoundry-incubator/database-backup-restore
-ginkgo -v -r -trace system_tests/postgres
+ginkgo -v -r "system_tests/${TEST_SUITE_NAME}" -trace
