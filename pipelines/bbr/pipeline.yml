@@ -171,19 +171,12 @@ resources:
     access_token: ((github-access-token))
     drafts: true
 
-# - name: pivotal-disaster-recovery-acceptance-tests
-#   type: git
-#   source:
-#     uri: git@github.com:pivotal-cf/pivotal-disaster-recovery-acceptance-tests.git
-#     private_key: ((git-private-key))
-#     branch: master
-
-- name: run-p-drats-with-proxy
+- name: pivotal-disaster-recovery-acceptance-tests
   type: git
   source:
     uri: git@github.com:pivotal-cf/pivotal-disaster-recovery-acceptance-tests.git
     private_key: ((git-private-key))
-    branch: wip-157779432
+    branch: master
 
 - name: windows-vm-deployment
   type: bosh-deployment
@@ -470,7 +463,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - get: run-p-drats-with-proxy
+    - get: pivotal-disaster-recovery-acceptance-tests
     - get: bosh-backup-and-restore
       passed: [build-rc]
     - get: rc
@@ -478,13 +471,11 @@ jobs:
       trigger: true
   - task: acceptance-tests
     privileged: true
-    file: run-p-drats-with-proxy/ci/p-drats-ops-manager/task.yml
+    file: pivotal-disaster-recovery-acceptance-tests/ci/p-drats-ops-manager/task.yml
     input_mapping:
-      pivotal-disaster-recovery-acceptance-tests: run-p-drats-with-proxy
       bbr-binary-release: rc
     params:
       DEFAULT_TIMEOUT_MINS: 30
-      USE_BOSH_ALL_PROXY: true
       OPS_MAN_URL: ((ops-man-url))
       OPS_MAN_USER: ((ops-man-user))
       OPS_MAN_PASS: ((ops-man-pass))
