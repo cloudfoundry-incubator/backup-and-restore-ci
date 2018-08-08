@@ -276,14 +276,20 @@ jobs:
       file: backup-and-restore-ci/tasks/deploy-bosh-director/task.yml
       params:
         DIRECTOR_ENV: dev-bosh-director
-        GIT_SSH_KEY: ((git-private-key))
-        GITHUB_PUBLIC_KEY: ((github-public-key))
+      ensure:
+        put: bosh-backup-and-restore-meta
+        params:
+          repository: bosh-state-updated
+          rebase: true
     - task: deploy-test-bosh
       file: backup-and-restore-ci/tasks/deploy-bosh-director/task.yml
       params:
         DIRECTOR_ENV: test-bosh-director
-        GIT_SSH_KEY: ((git-private-key))
-        GITHUB_PUBLIC_KEY: ((github-public-key))
+      ensure:
+        put: bosh-backup-and-restore-meta
+        params:
+          repository: bosh-state-updated
+          rebase: true
 
 - name: upload-deployment-test-releases
   serial: true
