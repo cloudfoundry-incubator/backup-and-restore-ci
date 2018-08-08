@@ -28,9 +28,9 @@ lite-bosh-uaa-env: &lite-bosh-uaa-env
 groups:
 - name: BUILD
   jobs:
-  - upload-systest-releases
+  - upload-deployment-test-releases
   - unit
-  - create-test-releases
+  - create-director-test-releases
   - deploy-windows-vm
   - deploy-bosh-directors
   - system-deployment
@@ -65,7 +65,7 @@ resource_types:
     tag: latest
 
 resources:
-- name: bosh-backup-and-restore-test-releases
+- name: bbr-director-test-releases
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/bosh-backup-and-restore-test-releases.git
@@ -73,6 +73,17 @@ resources:
     branch: master
     paths:
     - test-bosh-backup-and-restore-release
+
+- name: bbr-deployment-test-releases
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/bosh-backup-and-restore-test-releases.git
+    private_key: ((git-private-key))
+    branch: master
+    paths:
+    - redis-test-release
+    - lock-ordering-release
+    - many-bbr-jobs-release
 
 - name: dummy-bbr-script-release-bucket
   type: s3
@@ -211,10 +222,10 @@ resources:
     name: bosh-google-kvm-ubuntu-trusty-go_agent
 
 jobs:
-- name: create-test-releases
+- name: create-director-test-releases
   plan:
   - aggregate:
-    - get: bosh-backup-and-restore-test-releases
+    - get: bbr-director-test-releases
       trigger: true
     - get: test-release-version
       params: {pre: "dev"}
@@ -227,7 +238,7 @@ jobs:
         type: docker-image
         source: {repository: cloudfoundrylondon/backup-and-restore}
       inputs:
-        - name: bosh-backup-and-restore-test-releases
+        - name: bbr-director-test-releases
         - name: version
       outputs:
         - name: bbr-test-release-build
@@ -238,7 +249,7 @@ jobs:
         - |
           set -ex
           export VERSION=$(cat version/number)
-          pushd bosh-backup-and-restore-test-releases/test-bosh-backup-and-restore-release
+          pushd bbr-director-test-releases/test-bosh-backup-and-restore-release
             bosh-cli create-release \
               --version=$VERSION \
               --tarball=../../bbr-test-release-build/test-bosh-backup-and-restore-release-$VERSION.tgz \
@@ -258,7 +269,7 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: dummy-bbr-script-release-bucket
       trigger: true
-      passed: [create-test-releases]
+      passed: [create-director-test-releases]
     - get: backup-and-restore-ci
   - aggregate:
     - task: deploy-dev-bosh
@@ -274,11 +285,11 @@ jobs:
         GIT_SSH_KEY: ((git-private-key))
         GITHUB_PUBLIC_KEY: ((github-public-key))
 
-- name: upload-systest-releases
+- name: upload-deployment-test-releases
   serial: true
   plan:
   - aggregate:
-    - get: bosh-backup-and-restore-test-releases
+    - get: bbr-deployment-test-releases
       trigger: true
     - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
@@ -346,6 +357,9 @@ jobs:
     - get: bosh-backup-and-restore
       passed: [unit]
       trigger: true
+    - get: bbr-deployment-test-releases
+      passed: [upload-deployment-test-releases]
+      trigger: true
   - aggregate:
     - put: windows-vm-deployment
       params:
@@ -368,8 +382,8 @@ jobs:
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-test-releases
-      passed: [upload-systest-releases]
+    - get: bbr-deployment-test-releases
+      passed: [upload-deployment-test-releases]
       trigger: true
   - aggregate:
     - task: system-deployment-without-uaa
@@ -391,9 +405,6 @@ jobs:
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-test-releases
-      passed: [upload-systest-releases]
-      trigger: true
     - get: dummy-bbr-script-release-bucket
       passed: [deploy-bosh-directors]
       trigger: true
@@ -414,8 +425,8 @@ jobs:
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-test-releases
-      passed: [upload-systest-releases]
+    - get: bbr-deployment-test-releases
+      passed: [deploy-windows-vm]
       trigger: true
   - task: system-windows
     file: backup-and-restore-ci/tasks/bbr-system-windows/task.yml

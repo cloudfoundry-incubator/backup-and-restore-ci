@@ -6,7 +6,7 @@ image_resource:
   source: {repository: cloudfoundrylondon/backup-and-restore}
 
 inputs:
-- name: bosh-backup-and-restore-test-releases
+- name: bbr-deployment-test-releases
 - name: backup-and-restore-ci
 - name: bosh-backup-and-restore-meta
 
