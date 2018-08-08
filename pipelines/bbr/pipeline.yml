@@ -13,6 +13,9 @@ lite-bosh-env: &lite-bosh-env
   BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
   BOSH_CLIENT: ((garden-bosh-director-username))
   BOSH_CLIENT_SECRET: ((garden-bosh-director-password))
+  BOSH_GW_HOST: lite-bosh.backup-and-restore.cf-app.com
+  BOSH_GW_USER: vcap
+  BOSH_GW_PRIVATE_KEY: bosh-backup-and-restore-meta/garden-bosh/bosh.pem
   BOSH_CA_CERT_PATH: bosh-backup-and-restore-meta/certs/lite-bosh.backup-and-restore.cf-app.com.crt
   BOSH_CA_CERT: ((garden-bosh-director-ca-cert))
 
@@ -20,6 +23,7 @@ lite-bosh-uaa-env: &lite-bosh-uaa-env
   BOSH_ENVIRONMENT: lite-bosh-uaa.backup-and-restore.cf-app.com
   BOSH_CLIENT: ((uaa-director-username))
   BOSH_CLIENT_SECRET: ((uaa-director-password))
+  BOSH_GW_HOST: lite-bosh-uaa.backup-and-restore.cf-app.com
   BOSH_GW_USER: jumpbox
   BOSH_GW_PRIVATE_KEY: bosh-backup-and-restore-meta/garden-bosh-uaa/bosh.pem
   BOSH_CA_CERT_PATH: bosh-backup-and-restore-meta/certs/lite-bosh-uaa.backup-and-restore.cf-app.com.crt
