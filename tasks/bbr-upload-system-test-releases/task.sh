@@ -12,7 +12,7 @@ fi
 if [[ ! -z "$BOSH_CA_CERT_PATH" ]]; then
   export BOSH_CA_CERT="$PWD/$BOSH_CA_CERT_PATH"
 fi
-cd "bosh-backup-and-restore-test-releases/${RELEASE_NAME}"
+cd "bbr-deployment-test-releases/${RELEASE_NAME}"
 
 bosh-cli -n create-release --force
 bosh-cli upload-release --rebase
