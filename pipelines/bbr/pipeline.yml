@@ -279,7 +279,7 @@ jobs:
       ensure:
         put: bosh-backup-and-restore-meta
         params:
-          repository: bosh-state-updated
+          repository: bosh-backup-and-restore-meta-updated
           rebase: true
     - task: deploy-test-bosh
       file: backup-and-restore-ci/tasks/deploy-bosh-director/task.yml
@@ -288,7 +288,7 @@ jobs:
       ensure:
         put: bosh-backup-and-restore-meta
         params:
-          repository: bosh-state-updated
+          repository: bosh-backup-and-restore-meta-updated
           rebase: true
 
 - name: upload-deployment-test-releases
