@@ -9,13 +9,23 @@ maru-bosh-env: &maru-bosh-env
   BOSH_GW_PRIVATE_KEY: "((maru-jumpbox-ssh-key))"
   USE_BOSH_ALL_PROXY: true
 
+maru-lite-bosh-env: &maru-lite-bosh-env
+  BOSH_ENVIRONMENT: "((maru-lite-bosh-director-url))"
+  BOSH_CLIENT: "((maru-lite-bosh-director-username))"
+  BOSH_CLIENT_SECRET: "((maru-lite-bosh-director-password))"
+  BOSH_CA_CERT: "((maru-lite-bosh-director-ca-cert))"
+  BOSH_GW_USER: jumpbox
+  BOSH_GW_HOST: "((maru-lite-jumpbox-address)):22"
+  BOSH_GW_PRIVATE_KEY: "((maru-lite-jumpbox-ssh-key))"
+  USE_BOSH_ALL_PROXY: true
+
 lite-bosh-env: &lite-bosh-env
   BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
   BOSH_CLIENT: ((garden-bosh-director-username))
   BOSH_CLIENT_SECRET: ((garden-bosh-director-password))
   BOSH_GW_HOST: lite-bosh.backup-and-restore.cf-app.com
   BOSH_GW_USER: vcap
-  BOSH_GW_PRIVATE_KEY: bosh-backup-and-restore-meta/garden-bosh/bosh.pem
+  BOSH_GW_PRIVATE_KEY: bosh-backup-and-restore-meta/genesis-bosh/bosh.pem
   BOSH_CA_CERT_PATH: bosh-backup-and-restore-meta/certs/lite-bosh.backup-and-restore.cf-app.com.crt
   BOSH_CA_CERT: ((garden-bosh-director-ca-cert))
 
@@ -35,12 +45,12 @@ groups:
   - upload-deployment-test-releases
   - unit
   - create-director-test-releases
-  - deploy-windows-vm
+  - deploy-system-deployments
   - deploy-bosh-directors
   - system-deployment
   - system-director
   - system-windows
-  - delete-windows-deployment
+  - delete-system-deployments
   - build-rc
   - run-p-drats-on-pas
   - transfer-bbr-binary-to-jumpbox
@@ -204,6 +214,17 @@ resources:
     jumpbox_url: "((maru-jumpbox-url))"
     jumpbox_ssh_key: "((maru-jumpbox-ssh-key))"
 
+- name: many-bbr-scripts-deployment
+  type: bosh-deployment
+  source:
+    deployment: many-bbr-scripts
+    target: "((maru-lite-bosh-director-url))"
+    client: "((maru-lite-bosh-director-username))"
+    client_secret: "((maru-lite-bosh-director-password))"
+    ca_cert: "((maru-lite-bosh-director-ca-cert))"
+    jumpbox_url: "((maru-lite-jumpbox-address)):22"
+    jumpbox_ssh_key: "((maru-lite-jumpbox-ssh-key))"
+
 - name: jumpbox-windows-deployment
   type: bosh-deployment
   source:
@@ -224,6 +245,11 @@ resources:
   type: bosh-io-stemcell
   source:
     name: bosh-google-kvm-ubuntu-trusty-go_agent
+
+- name: xenial-lite-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-warden-boshlite-ubuntu-xenial-go_agent
 
 jobs:
 - name: create-director-test-releases
@@ -319,6 +345,11 @@ jobs:
       params:
         RELEASE_NAME: many-bbr-jobs-release
         <<: *lite-bosh-uaa-env
+    - task: upload-many-bbr-jobs-release-maru-lite
+      file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
+      params:
+        RELEASE_NAME: many-bbr-jobs-release
+        <<: *maru-lite-bosh-env
     - task: upload-redis-test-release-maru-bosh
       file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
       params:
@@ -357,13 +388,14 @@ jobs:
       DOCKER_HOST: "tcp://10.0.3.12:4243"
       GITHUB_SSH_KEY: "((github-ssh-key))"
 
-- name: deploy-windows-vm
+- name: deploy-system-deployments
   serial: true
-  serial_groups: [windows-vm-deployment]
+  serial_groups: [systest-deployments]
   plan:
   - aggregate:
     - get: windows-stemcell
     - get: ubuntu-stemcell
+    - get: xenial-lite-stemcell
     - get: bosh-backup-and-restore
       passed: [unit]
       trigger: true
@@ -382,13 +414,18 @@ jobs:
         manifest: bosh-backup-and-restore/fixtures/jumpbox-windows-ci.yml
         stemcells:
         - ubuntu-stemcell/*.tgz
+    - put: many-bbr-scripts-deployment
+      params:
+        manifest: bosh-backup-and-restore/fixtures/many-bbr-scripts.yml
+        stemcells:
+          - xenial-lite-stemcell/*.tgz
 
 - name: system-deployment
   serial: true
   plan:
   - aggregate:
     - get: bosh-backup-and-restore
-      passed: [unit]
+      passed: [unit, deploy-system-deployments]
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
@@ -404,6 +441,10 @@ jobs:
       file: backup-and-restore-ci/tasks/bbr-system-deployment/task.yml
       params:
         <<: *lite-bosh-uaa-env
+    - task: system-bosh-all-proxy
+      file: backup-and-restore-ci/tasks/bbr-system-bosh-all-proxy/task.yml
+      params:
+        <<: *maru-lite-bosh-env
 
 - name: system-director
   serial: true
@@ -427,27 +468,29 @@ jobs:
 
 - name: system-windows
   serial: true
-  serial_groups: [windows-vm-deployment]
+  serial_groups: [systest-deployments]
   plan:
   - aggregate:
     - get: bosh-backup-and-restore
-      passed: [deploy-windows-vm]
+      passed: [deploy-system-deployments]
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: bbr-deployment-test-releases
-      passed: [deploy-windows-vm]
+      passed: [deploy-system-deployments]
       trigger: true
   - task: system-windows
     file: backup-and-restore-ci/tasks/bbr-system-windows/task.yml
     params:
       <<: *maru-bosh-env
 
-- name: delete-windows-deployment
+
+- name: delete-system-deployments
   serial: true
+  serial_groups: [systest-deployments]
   plan:
   - get: bosh-backup-and-restore
-    passed: [system-windows]
+    passed: [system-windows, system-deployment]
     trigger: true
   - aggregate:
     - put: windows-vm-deployment
@@ -455,6 +498,10 @@ jobs:
         delete:
           enabled: true
     - put: jumpbox-windows-deployment
+      params:
+        delete:
+          enabled: true
+    - put: many-bbr-scripts-deployment
       params:
         delete:
           enabled: true
