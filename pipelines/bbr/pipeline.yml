@@ -4,7 +4,7 @@ maru-bosh-env: &maru-bosh-env
   BOSH_CLIENT: "((maru-bosh-director-username))"
   BOSH_CLIENT_SECRET: "((maru-bosh-director-password))"
   BOSH_CA_CERT: "((maru-bosh-director-ca-cert))"
-  BOSH_GW_HOST: "((maru-jumpbox-url))"
+  BOSH_GW_HOST: "((maru-jumpbox-url)):22"
   BOSH_GW_USER: jumpbox
   BOSH_GW_PRIVATE_KEY: "((maru-jumpbox-ssh-key))"
   USE_BOSH_ALL_PROXY: true
@@ -15,7 +15,7 @@ maru-lite-bosh-env: &maru-lite-bosh-env
   BOSH_CLIENT_SECRET: "((maru-lite-bosh-director-password))"
   BOSH_CA_CERT: "((maru-lite-bosh-director-ca-cert))"
   BOSH_GW_USER: jumpbox
-  BOSH_GW_HOST: "((maru-lite-jumpbox-address))"
+  BOSH_GW_HOST: "((maru-lite-jumpbox-address)):22"
   BOSH_GW_PRIVATE_KEY: "((maru-lite-jumpbox-ssh-key))"
   USE_BOSH_ALL_PROXY: true
 
