@@ -15,7 +15,7 @@ maru-lite-bosh-env: &maru-lite-bosh-env
   BOSH_CLIENT_SECRET: "((maru-lite-bosh-director-password))"
   BOSH_CA_CERT: "((maru-lite-bosh-director-ca-cert))"
   BOSH_GW_USER: jumpbox
-  BOSH_GW_HOST: "((maru-lite-jumpbox-address)):22"
+  BOSH_GW_HOST: "((maru-lite-jumpbox-address))"
   BOSH_GW_PRIVATE_KEY: "((maru-lite-jumpbox-ssh-key))"
   USE_BOSH_ALL_PROXY: true
 
@@ -211,7 +211,7 @@ resources:
     client: "((maru-bosh-director-username))"
     client_secret: "((maru-bosh-director-password))"
     ca_cert: "((maru-bosh-director-ca-cert))"
-    jumpbox_url: "((maru-jumpbox-url))"
+    jumpbox_url: "((maru-jumpbox-url)):22"
     jumpbox_ssh_key: "((maru-jumpbox-ssh-key))"
 
 - name: many-bbr-scripts-deployment
@@ -233,7 +233,7 @@ resources:
     client: "((maru-bosh-director-username))"
     client_secret: "((maru-bosh-director-password))"
     ca_cert: "((maru-bosh-director-ca-cert))"
-    jumpbox_url: "((maru-jumpbox-url))"
+    jumpbox_url: "((maru-jumpbox-url)):22"
     jumpbox_ssh_key: "((maru-jumpbox-ssh-key))"
 
 - name: windows-stemcell
