@@ -259,11 +259,11 @@ jobs:
       version: every
     - get: bbr-binary-release
     - get: bosh-backup-and-restore-meta
-    - put: disaster-recovery-acceptance-tests-prs
-      params:
-        path: disaster-recovery-acceptance-tests-prs
-        status: pending
-        context: drats
+  - put: disaster-recovery-acceptance-tests-prs
+    params:
+      path: disaster-recovery-acceptance-tests-prs
+      status: pending
+      context: drats
   - task: unit-tests
     file: disaster-recovery-acceptance-tests-prs/ci/unit-tests/task.yml
     input_mapping:
