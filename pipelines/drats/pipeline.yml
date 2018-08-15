@@ -18,14 +18,14 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
-    tag_filter: v6.*
+    tag_filter: v7.*
 
 - name: cf-deployment
   type: git
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
     branch: master
-    tag_filter: v2.*
+    tag_filter: v3.*
 
 - name: bosh-backup-and-restore-meta
   type: git
@@ -97,8 +97,7 @@ jobs:
     params:
       BBL_STATE_DIR: drats-pr-ragdoll/
       SYSTEM_DOMAIN: drats-pr-ragdoll.cf-app.com
-      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/enable-nfs-volume-service.yml operations/backup-and-restore/enable-backup-restore-nfs-broker.yml operations/experimental/secure-service-credentials.yml  operations/experimental/disable-interpolate-service-bindings.yml operations/backup-and-restore/enable-backup-restore-credhub.yml operations/experimental/enable-traffic-to-internal-networks.yml operations/experimental/use-bosh-dns.yml operations/experimental/use-bosh-dns-for-containers.yml"
-      VARS_STORE_FILE: drats-pr-ragdoll/cf-deployment-variables.yml
+      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/enable-nfs-volume-service.yml operations/backup-and-restore/enable-backup-restore-nfs-broker.yml operations/experimental/secure-service-credentials.yml  operations/experimental/disable-interpolate-service-bindings.yml operations/backup-and-restore/enable-backup-restore-credhub.yml operations/experimental/enable-traffic-to-internal-networks.yml"
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
     ensure:
@@ -156,8 +155,7 @@ jobs:
     params:
       BBL_STATE_DIR: drats-papillon/
       SYSTEM_DOMAIN: drats-papillon.cf-app.com
-      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/enable-nfs-volume-service.yml operations/backup-and-restore/enable-backup-restore-nfs-broker.yml operations/experimental/secure-service-credentials.yml  operations/experimental/disable-interpolate-service-bindings.yml operations/backup-and-restore/enable-backup-restore-credhub.yml operations/experimental/enable-traffic-to-internal-networks.yml operations/experimental/use-bosh-dns.yml operations/experimental/use-bosh-dns-for-containers.yml"
-      VARS_STORE_FILE: drats-papillon/cf-deployment-variables.yml
+      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/enable-nfs-volume-service.yml operations/backup-and-restore/enable-backup-restore-nfs-broker.yml operations/experimental/secure-service-credentials.yml  operations/experimental/disable-interpolate-service-bindings.yml operations/backup-and-restore/enable-backup-restore-credhub.yml operations/experimental/enable-traffic-to-internal-networks.yml"
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
     ensure:
@@ -216,8 +214,7 @@ jobs:
     params:
       BBL_STATE_DIR: drats-with-config-manx/
       SYSTEM_DOMAIN: drats-with-config-manx.cf-app.com
-      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/enable-nfs-volume-service.yml operations/backup-and-restore/enable-backup-restore-nfs-broker.yml operations/experimental/secure-service-credentials.yml  operations/experimental/disable-interpolate-service-bindings.yml operations/backup-and-restore/enable-backup-restore-credhub.yml operations/experimental/enable-traffic-to-internal-networks.yml operations/experimental/use-bosh-dns.yml operations/experimental/use-bosh-dns-for-containers.yml"
-      VARS_STORE_FILE: drats-with-config-manx/cf-deployment-variables.yml
+      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/enable-nfs-volume-service.yml operations/backup-and-restore/enable-backup-restore-nfs-broker.yml operations/experimental/secure-service-credentials.yml  operations/experimental/disable-interpolate-service-bindings.yml operations/backup-and-restore/enable-backup-restore-credhub.yml operations/experimental/enable-traffic-to-internal-networks.yml"
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
     ensure:
@@ -277,15 +274,13 @@ jobs:
         status: failure
         context: drats
   - task: create-integration-config
-    file: disaster-recovery-acceptance-tests-prs/ci/update-integration-config/task.yml
+    file: disaster-recovery-acceptance-tests-prs/ci/credhub-compatible/update-integration-config/task.yml
     input_mapping:
       disaster-recovery-acceptance-tests: disaster-recovery-acceptance-tests-prs
       integration-configs: bosh-backup-and-restore-meta
-      vars-store: bosh-backup-and-restore-meta
-      bbl-state-store: bosh-backup-and-restore-meta
+      bbl-state: bosh-backup-and-restore-meta
     params:
-      VARS_STORE_FILE_PATH: drats-pr-ragdoll/cf-deployment-variables.yml
-      BBL_STATE_DIR_PATH: drats-pr-ragdoll
+      BBL_STATE_DIR: drats-pr-ragdoll/
       SYSTEM_DOMAIN: drats-pr-ragdoll.cf-app.com
       INTEGRATION_CONFIG_FILE_PATH: drats-pr-ragdoll/integration_config.json
   - task: acceptance-tests
@@ -329,14 +324,12 @@ jobs:
     params:
       GITHUB_SSH_KEY: ((github-ssh-key))
   - task: create-integration-config
-    file: disaster-recovery-acceptance-tests/ci/update-integration-config/task.yml
+    file: disaster-recovery-acceptance-tests/ci/credhub-compatible/update-integration-config/task.yml
     input_mapping:
       integration-configs: bosh-backup-and-restore-meta
-      vars-store: bosh-backup-and-restore-meta
-      bbl-state-store: bosh-backup-and-restore-meta
+      bbl-state: bosh-backup-and-restore-meta
     params:
-      VARS_STORE_FILE_PATH: drats-with-config-manx/cf-deployment-variables.yml
-      BBL_STATE_DIR_PATH: drats-with-config-manx
+      BBL_STATE_DIR: drats-with-config-manx/
       SYSTEM_DOMAIN: drats-with-config-manx.cf-app.com
       INTEGRATION_CONFIG_FILE_PATH: drats-with-config-manx/integration_config.json
   - task: acceptance-tests
@@ -367,14 +360,12 @@ jobs:
     params:
       GITHUB_SSH_KEY: ((github-ssh-key))
   - task: create-integration-config
-    file: disaster-recovery-acceptance-tests/ci/update-integration-config/task.yml
+    file: disaster-recovery-acceptance-tests/ci/credhub-compatible/update-integration-config/task.yml
     input_mapping:
       integration-configs: bosh-backup-and-restore-meta
-      vars-store: bosh-backup-and-restore-meta
-      bbl-state-store: bosh-backup-and-restore-meta
+      bbl-state: bosh-backup-and-restore-meta
     params:
-      VARS_STORE_FILE_PATH: drats-papillon/cf-deployment-variables.yml
-      BBL_STATE_DIR_PATH: drats-papillon
+      BBL_STATE_DIR: drats-papillon
       SYSTEM_DOMAIN: drats-papillon.cf-app.com
       INTEGRATION_CONFIG_FILE_PATH: drats-papillon/integration_config.json
   - task: acceptance-tests
