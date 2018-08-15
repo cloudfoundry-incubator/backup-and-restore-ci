@@ -52,6 +52,7 @@ groups:
   - system-windows
   - delete-system-deployments
   - build-rc
+  - install-optional-components-on-pas
   - run-p-drats-on-pas
   - transfer-bbr-binary-to-jumpbox
 
@@ -527,8 +528,29 @@ jobs:
   - put: version
     params: {file: version/number}
 
+- name: install-optional-components-on-pas
+  serial: true
+  serial_groups: [p-drats]
+  plan:
+  - get: pivotal-disaster-recovery-acceptance-tests
+  - task: enable-internal-blobstore
+    file: pivotal-disaster-recovery-acceptance-tests/ci/enable-internal-blobstore-pas/task.yml
+    params:
+      OPS_MAN_URL: ((ops-man-url))
+      OPS_MAN_USER: ((ops-man-user))
+      OPS_MAN_PASS: ((ops-man-pass))
+  - task: enable-optional-components
+    file: pivotal-disaster-recovery-acceptance-tests/ci/enable-optional-components-pas/task.yml
+    privileged: true
+    params:
+      OPS_MAN_URL: ((ops-man-url))
+      OPS_MAN_USER: ((ops-man-user))
+      OPS_MAN_PASS: ((ops-man-pass))
+      OPS_MAN_VERSION: "2.2"
+
 - name: run-p-drats-on-pas
   serial: true
+  serial_groups: [p-drats]
   plan:
   - aggregate:
     - get: pivotal-disaster-recovery-acceptance-tests
