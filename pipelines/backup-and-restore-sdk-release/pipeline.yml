@@ -136,14 +136,14 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
-    tag_filter: v6.*
+    tag_filter: v7.*
 
 - name: cf-deployment-master
   type: git
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
     branch: master
-    tag_filter: v2.*
+    tag_filter: v3.*
 
 - name: cf-deployment-gcs
   type: git
@@ -1173,7 +1173,7 @@ jobs:
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
       SYSTEM_DOMAIN: bbr-s3.cf-app.com
       OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/use-external-dbs.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-external-blobstore.yml operations/use-s3-blobstore.yml operations/backup-and-restore/enable-backup-restore-s3-versioned.yml"
-      VARS_STORE_FILE: external-blobstore-directors/aws-s3/cf-deployment-variables.yml
+      VARS_FILES: external-blobstore-directors/aws-s3/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
     ensure:
@@ -1227,7 +1227,7 @@ jobs:
       BBL_STATE_DIR: external-blobstore-directors/azure/
       SYSTEM_DOMAIN: bbr-azure.cf-app.com
       OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-external-blobstore.yml operations/use-azure-storage-blobstore.yml operations/backup-and-restore/enable-backup-restore-azure.yml"
-      VARS_STORE_FILE: external-blobstore-directors/azure/cf-deployment-variables.yml
+      VARS_FILES: external-blobstore-directors/azure/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
     ensure:
@@ -1281,7 +1281,7 @@ jobs:
       BBL_STATE_DIR: external-blobstore-directors/gcs/
       SYSTEM_DOMAIN: bbr-gcs.cf-app.com
       OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-external-blobstore.yml operations/use-gcs-blobstore-service-account.yml operations/backup-and-restore/enable-backup-restore-gcs.yml"
-      VARS_STORE_FILE: external-blobstore-directors/gcs/cf-deployment-variables.yml
+      VARS_FILES: external-blobstore-directors/gcs/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
     ensure:
@@ -1555,7 +1555,7 @@ jobs:
       BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
       SYSTEM_DOMAIN: bbr-s3-unversioned.cf-app.com
       OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-external-blobstore.yml operations/use-s3-blobstore.yml operations/backup-and-restore/enable-backup-restore-s3-unversioned.yml"
-      VARS_STORE_FILE: external-blobstore-directors/aws-s3-unversioned/cf-deployment-variables.yml
+      VARS_FILES: external-blobstore-directors/aws-s3-unversioned/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
     ensure:
