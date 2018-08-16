@@ -1176,11 +1176,6 @@ jobs:
       VARS_FILES: external-blobstore-directors/aws-s3/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        rebase: true
-        repository: updated-vars-store
   - task: wait-for-cf-api
     file: backup-and-restore-ci/tasks/wait-for-cf-api/task.yml
     params:
@@ -1230,11 +1225,6 @@ jobs:
       VARS_FILES: external-blobstore-directors/azure/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        rebase: true
-        repository: updated-vars-store
   - task: wait-for-cf-api
     file: backup-and-restore-ci/tasks/wait-for-cf-api/task.yml
     params:
@@ -1284,11 +1274,6 @@ jobs:
       VARS_FILES: external-blobstore-directors/gcs/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        rebase: true
-        repository: updated-vars-store
   - task: wait-for-cf-api
     file: backup-and-restore-ci/tasks/wait-for-cf-api/task.yml
     params:
@@ -1558,11 +1543,6 @@ jobs:
       VARS_FILES: external-blobstore-directors/aws-s3-unversioned/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-vars-store
-        rebase: true
   - task: wait-for-cf-api
     file: backup-and-restore-ci/tasks/wait-for-cf-api/task.yml
     params:
