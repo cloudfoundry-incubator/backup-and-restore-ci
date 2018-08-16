@@ -97,7 +97,7 @@ jobs:
       terraform-state: terraform
     params:
       ENVIRONMENT_NAME: "b-drats-bengal-tiger"
-      OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml"
+      OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml bbr.yml"
       DIRECTOR_NAME: "bengal-tiger"
       BOSH_OPERATION: "create-env"
       GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
@@ -173,7 +173,7 @@ jobs:
       terraform-state: terraform
     params:
       ENVIRONMENT_NAME: "b-drats-black-panther"
-      OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml"
+      OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml bbr.yml"
       DIRECTOR_NAME: "black-panther"
       BOSH_OPERATION: "create-env"
       GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
