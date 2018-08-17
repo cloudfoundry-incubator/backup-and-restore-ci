@@ -1306,24 +1306,22 @@ jobs:
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
     params:
       GITHUB_SSH_KEY: ((github-ssh-key))
-  - task: acceptance-tests
-    file: disaster-recovery-acceptance-tests/ci/drats/task.yml
-    privileged: true
+  - task: create-integration-config
+    file: disaster-recovery-acceptance-tests/ci/credhub-compatible/update-integration-config/task.yml
+    input_mapping:
+      integration-configs: bosh-backup-and-restore-meta
+      bbl-state: bosh-backup-and-restore-meta
     params:
-      CF_DEPLOYMENT_NAME: cf
-      CF_API_URL: https://api.bbr-gcs.cf-app.com
-      CF_ADMIN_USERNAME: admin
-      CF_ADMIN_PASSWORD: ((bbr-gcs-cf-admin-password))
-      BOSH_CA_CERT: ((bbr-gcs-bosh-cert))
-      BOSH_CLIENT: admin
-      BOSH_CLIENT_SECRET: ((bbr-gcs-bosh-client-secret))
-      BOSH_ENVIRONMENT: ((bbr-gcs-bosh-url))
-      BOSH_GW_USER: jumpbox
-      BOSH_GW_HOST: ((bbr-gcs-ssh-gateway-host))
-      BOSH_GW_PRIVATE_KEY: ((bbr-gcs-ssh-gateway-key))
-      SSH_DESTINATION_CIDR: "10.0.0.0/8"
-      DEFAULT_TIMEOUT_MINS: 30
-      SKIP_SUITE_NAME: credhub|nfs
+      BBL_STATE_DIR: external-blobstore-directors/gcs
+      SYSTEM_DOMAIN: bbr-gcs.cf-app.com
+      INTEGRATION_CONFIG_FILE_PATH: external-blobstore-directors/gcs/integration_config.json
+  - task: acceptance-tests
+    file: disaster-recovery-acceptance-tests/ci/drats-with-integration-config/task.yml
+    privileged: true
+    input_mapping:
+      drats-integration-config: updated-integration-configs
+    params:
+      CONFIG_FILE_PATH: external-blobstore-directors/gcs/integration_config.json
 
 - name: delete-cf-deployment-external-gcs-blobstore
   serial: true
@@ -1376,24 +1374,22 @@ jobs:
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
     params:
       GITHUB_SSH_KEY: ((github-ssh-key))
-  - task: acceptance-tests
-    file: disaster-recovery-acceptance-tests/ci/drats/task.yml
-    privileged: true
+  - task: create-integration-config
+    file: disaster-recovery-acceptance-tests/ci/credhub-compatible/update-integration-config/task.yml
+    input_mapping:
+      integration-configs: bosh-backup-and-restore-meta
+      bbl-state: bosh-backup-and-restore-meta
     params:
-      CF_DEPLOYMENT_NAME: cf
-      CF_API_URL: https://api.bbr-azure.cf-app.com
-      CF_ADMIN_USERNAME: admin
-      CF_ADMIN_PASSWORD: ((bbr-azure-cf-admin-password))
-      BOSH_CA_CERT: ((bbr-azure-bosh-cert))
-      BOSH_CLIENT: admin
-      BOSH_CLIENT_SECRET: ((bbr-azure-bosh-client-secret))
-      BOSH_ENVIRONMENT: ((bbr-azure-bosh-url))
-      BOSH_GW_USER: jumpbox
-      BOSH_GW_HOST: ((bbr-azure-ssh-gateway-host))
-      BOSH_GW_PRIVATE_KEY: ((bbr-azure-ssh-gateway-key))
-      SSH_DESTINATION_CIDR: "10.0.0.0/8"
-      DEFAULT_TIMEOUT_MINS: 30
-      SKIP_SUITE_NAME: credhub|nfs
+      BBL_STATE_DIR: external-blobstore-directors/azure
+      SYSTEM_DOMAIN: bbr-azure.cf-app.com
+      INTEGRATION_CONFIG_FILE_PATH: external-blobstore-directors/azure/integration_config.json
+  - task: acceptance-tests
+    file: disaster-recovery-acceptance-tests/ci/drats-with-integration-config/task.yml
+    privileged: true
+    input_mapping:
+      drats-integration-config: updated-integration-configs
+    params:
+      CONFIG_FILE_PATH: external-blobstore-directors/azure/integration_config.json
 
 - name: delete-cf-deployment-external-azure-blobstore
   serial: true
@@ -1446,24 +1442,22 @@ jobs:
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
     params:
       GITHUB_SSH_KEY: ((github-ssh-key))
-  - task: acceptance-tests
-    file: disaster-recovery-acceptance-tests/ci/drats/task.yml
-    privileged: true
+  - task: create-integration-config
+    file: disaster-recovery-acceptance-tests/ci/credhub-compatible/update-integration-config/task.yml
+    input_mapping:
+      integration-configs: bosh-backup-and-restore-meta
+      bbl-state: bosh-backup-and-restore-meta
     params:
-      CF_DEPLOYMENT_NAME: cf
-      CF_API_URL: https://api.bbr-s3.cf-app.com
-      CF_ADMIN_USERNAME: admin
-      CF_ADMIN_PASSWORD: ((bbr-s3-cf-admin-password))
-      BOSH_CA_CERT: ((bbr-s3-bosh-cert))
-      BOSH_CLIENT: admin
-      BOSH_CLIENT_SECRET: ((bbr-s3-bosh-client-secret))
-      BOSH_ENVIRONMENT: ((bbr-s3-bosh-url))
-      BOSH_GW_USER: jumpbox
-      BOSH_GW_HOST: ((bbr-s3-ssh-gateway-host))
-      BOSH_GW_PRIVATE_KEY: ((bbr-s3-ssh-gateway-key))
-      SSH_DESTINATION_CIDR: "10.0.0.0/8"
-      DEFAULT_TIMEOUT_MINS: 30
-      SKIP_SUITE_NAME: credhub|nfs
+      BBL_STATE_DIR: external-blobstore-directors/aws-s3
+      SYSTEM_DOMAIN: bbr-s3.cf-app.com
+      INTEGRATION_CONFIG_FILE_PATH: external-blobstore-directors/aws-s3/integration_config.json
+  - task: acceptance-tests
+    file: disaster-recovery-acceptance-tests/ci/drats-with-integration-config/task.yml
+    privileged: true
+    input_mapping:
+      drats-integration-config: updated-integration-configs
+    params:
+      CONFIG_FILE_PATH: external-blobstore-directors/aws-s3/integration_config.json
 
 - name: delete-cf-deployment-external-s3-blobstore
   serial: true
@@ -1579,24 +1573,22 @@ jobs:
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
     params:
       GITHUB_SSH_KEY: ((github-ssh-key))
-  - task: acceptance-tests
-    file: disaster-recovery-acceptance-tests/ci/drats/task.yml
-    privileged: true
+  - task: create-integration-config
+    file: disaster-recovery-acceptance-tests/ci/credhub-compatible/update-integration-config/task.yml
+    input_mapping:
+      integration-configs: bosh-backup-and-restore-meta
+      bbl-state: bosh-backup-and-restore-meta
     params:
-      CF_DEPLOYMENT_NAME: cf
-      CF_API_URL: https://api.bbr-s3-unversioned.cf-app.com
-      CF_ADMIN_USERNAME: admin
-      CF_ADMIN_PASSWORD: ((bbr-s3-unversioned-cf-admin-password))
-      BOSH_CA_CERT: ((bbr-s3-unversioned-bosh-cert))
-      BOSH_CLIENT: admin
-      BOSH_CLIENT_SECRET: ((bbr-s3-unversioned-bosh-client-secret))
-      BOSH_ENVIRONMENT: ((bbr-s3-unversioned-bosh-url))
-      BOSH_GW_USER: jumpbox
-      BOSH_GW_HOST: ((bbr-s3-unversioned-ssh-gateway-host))
-      BOSH_GW_PRIVATE_KEY: ((bbr-s3-unversioned-ssh-gateway-key))
-      SSH_DESTINATION_CIDR: "10.0.0.0/8"
-      DEFAULT_TIMEOUT_MINS: 30
-      SKIP_SUITE_NAME: credhub|nfs
+      BBL_STATE_DIR: external-blobstore-directors/azure
+      SYSTEM_DOMAIN: bbr-azure.cf-app.com
+      INTEGRATION_CONFIG_FILE_PATH: external-blobstore-directors/aws-s3-unversioned/integration_config.json
+  - task: acceptance-tests
+    file: disaster-recovery-acceptance-tests/ci/drats-with-integration-config/task.yml
+    privileged: true
+    input_mapping:
+      drats-integration-config: updated-integration-configs
+    params:
+      CONFIG_FILE_PATH: external-blobstore-directors/aws-s3-unversioned/integration_config.json
 
 - name: delete-cf-deployment-external-s3-unversioned-blobstore
   serial: true
