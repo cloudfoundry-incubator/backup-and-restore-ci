@@ -67,9 +67,9 @@ jobs:
 
 ### DEPLOY CF
 
-- name: deploy-cf-pr-opt-components
+- name: deploy-cf-prs
   serial: true
-  serial_groups: [drats-pr]
+  serial_groups: [drats-prs]
   plan:
   - aggregate:
     - get: disaster-recovery-acceptance-tests-prs
@@ -227,17 +227,17 @@ jobs:
 
 ### RUN TESTS
 
-- name: run-drats-prs-opt-components
+- name: run-drats-prs
   serial: true
-  serial_groups: [drats-pr]
+  serial_groups: [drats-prs]
   plan:
   - aggregate:
     - get: cf-deployment
-      passed: [deploy-cf-pr-opt-components]
+      passed: [deploy-cf-prs]
       trigger: true
     - get: disaster-recovery-acceptance-tests-prs
       trigger: true
-      passed: [deploy-cf-pr-opt-components]
+      passed: [deploy-cf-prs]
       version: every
     - get: bbr-binary-release
     - get: bosh-backup-and-restore-meta
@@ -362,17 +362,17 @@ jobs:
       CONFIG_FILE_PATH: drats-papillon/integration_config.json
 
 ## Delete cf deployments
-- name: delete-cf-pr
+- name: delete-cf-prs
   serial: true
-  serial_groups: [drats-pr]
+  serial_groups: [drats-prs]
   plan:
   - aggregate:
     - get: cf-deployment
-      passed: [run-drats-prs-opt-components]
+      passed: [run-drats-prs]
       trigger: true
     - get: disaster-recovery-acceptance-tests-prs
       trigger: true
-      passed: [run-drats-prs-opt-components]
+      passed: [run-drats-prs]
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: bosh-delete-deployment
