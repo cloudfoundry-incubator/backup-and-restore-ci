@@ -67,9 +67,9 @@ jobs:
 
 ### DEPLOY CF
 
-- name: deploy-cf-drats-pr-ragdoll-opt-components
+- name: deploy-cf-pr-opt-components
   serial: true
-  serial_groups: [drats-pr-ragdoll]
+  serial_groups: [drats-pr]
   plan:
   - aggregate:
     - get: disaster-recovery-acceptance-tests-prs
@@ -229,15 +229,15 @@ jobs:
 
 - name: run-drats-prs-opt-components
   serial: true
-  serial_groups: [drats-pr-ragdoll]
+  serial_groups: [drats-pr]
   plan:
   - aggregate:
     - get: cf-deployment
-      passed: [deploy-cf-drats-pr-ragdoll-opt-components]
+      passed: [deploy-cf-pr-opt-components]
       trigger: true
     - get: disaster-recovery-acceptance-tests-prs
       trigger: true
-      passed: [deploy-cf-drats-pr-ragdoll-opt-components]
+      passed: [deploy-cf-pr-opt-components]
       version: every
     - get: bbr-binary-release
     - get: bosh-backup-and-restore-meta
@@ -362,9 +362,9 @@ jobs:
       CONFIG_FILE_PATH: drats-papillon/integration_config.json
 
 ## Delete cf deployments
-- name: delete-cf-deployment-drats-pr-ragdoll
+- name: delete-cf-pr
   serial: true
-  serial_groups: [drats-pr-ragdoll]
+  serial_groups: [drats-pr]
   plan:
   - aggregate:
     - get: cf-deployment
