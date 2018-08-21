@@ -118,9 +118,9 @@ jobs:
     params:
       CF_API_URL: https://api.drats-pr-ragdoll.cf-app.com
 
-- name: deploy-cf-drats-papillon
+- name: deploy-cf-with-destroy
   serial: true
-  serial_groups: [drats-papillon]
+  serial_groups: [drats-with-destroy]
   plan:
   - aggregate:
     - get: disaster-recovery-acceptance-tests
@@ -327,18 +327,18 @@ jobs:
 
 - name: run-drats-with-destroy
   serial: true
-  serial_groups: [drats-papillon]
+  serial_groups: [drats-with-destroy]
   plan:
   - aggregate:
     - get: cf-deployment
-      passed: [deploy-cf-drats-papillon]
+      passed: [deploy-cf-with-destroy]
       trigger: true
     - get: disaster-recovery-acceptance-tests
       trigger: true
-      passed: [deploy-cf-drats-papillon]
+      passed: [deploy-cf-with-destroy]
     - get: bbr-binary-release
       trigger: true
-      passed: [deploy-cf-drats-papillon]
+      passed: [deploy-cf-with-destroy]
     - get: bosh-backup-and-restore-meta
   - task: unit-tests
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
@@ -382,9 +382,9 @@ jobs:
     params:
       BBL_STATE_DIR: drats-pr-ragdoll/
 
-- name: delete-cf-deployment-drats-papillon
+- name: delete-cf-with-destroy
   serial: true
-  serial_groups: [drats-papillon]
+  serial_groups: [drats-with-destroy]
   plan:
   - aggregate:
     - get: cf-deployment
