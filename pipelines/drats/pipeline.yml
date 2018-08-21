@@ -172,9 +172,9 @@ jobs:
       CF_API_URL: https://api.drats-papillon.cf-app.com
 
 
-- name: deploy-cf-drats-with-config-manx
+- name: deploy-cf
   serial: true
-  serial_groups: [drats-with-config-manx]
+  serial_groups: [drats]
   plan:
   - aggregate:
     - get: disaster-recovery-acceptance-tests
@@ -291,19 +291,19 @@ jobs:
 
 - name: run-drats
   serial: true
-  serial_groups: [drats-with-config-manx]
+  serial_groups: [drats]
   plan:
   - aggregate:
     - get: bosh-backup-and-restore-meta
     - get: cf-deployment
-      passed: [deploy-cf-drats-with-config-manx]
+      passed: [deploy-cf]
       trigger: true
     - get: disaster-recovery-acceptance-tests
       trigger: true
-      passed: [deploy-cf-drats-with-config-manx]
+      passed: [deploy-cf]
     - get: bbr-binary-release
       trigger: true
-      passed: [deploy-cf-drats-with-config-manx]
+      passed: [deploy-cf]
   - task: unit-tests
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
     params:
@@ -405,9 +405,9 @@ jobs:
     params:
       BBL_STATE_DIR: drats-papillon/
 
-- name: delete-cf-deployment-drats-with-config-manx
+- name: delete-cf
   serial: true
-  serial_groups: [drats-with-config-manx]
+  serial_groups: [drats]
   plan:
   - aggregate:
     - get: cf-deployment
