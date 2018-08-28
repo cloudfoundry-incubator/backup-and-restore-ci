@@ -1579,8 +1579,8 @@ jobs:
       integration-configs: bosh-backup-and-restore-meta
       bbl-state: bosh-backup-and-restore-meta
     params:
-      BBL_STATE_DIR: external-blobstore-directors/azure
-      SYSTEM_DOMAIN: bbr-azure.cf-app.com
+      BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned
+      SYSTEM_DOMAIN: bbr-s3-unversioned.cf-app.com
       INTEGRATION_CONFIG_FILE_PATH: external-blobstore-directors/aws-s3-unversioned/integration_config.json
   - task: acceptance-tests
     file: disaster-recovery-acceptance-tests/ci/drats-with-integration-config/task.yml
