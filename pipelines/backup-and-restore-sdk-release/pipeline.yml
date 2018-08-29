@@ -226,6 +226,8 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
   - aggregate:
+    - task: sdk-template-unit-tests
+      file: backup-and-restore-ci/tasks/sdk-template-unit-tests/task.yml
     - task: databases-unit-tests
       file: backup-and-restore-ci/tasks/database-unit-tests/task.yml
       privileged: true
