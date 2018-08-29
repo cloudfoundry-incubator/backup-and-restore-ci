@@ -493,6 +493,10 @@ jobs:
       S3_UNVERSIONED_BUCKET_REGION: eu-west-1
       S3_UNVERSIONED_BACKUP_BUCKET_NAME: bbr-system-test-s3-unversioned-backup-bucket
       S3_UNVERSIONED_BACKUP_BUCKET_REGION: us-east-1
+      S3_UNVERSIONED_BPM_BUCKET_NAME: sdk-system-test-unversioned-bpm
+      S3_UNVERSIONED_BPM_BUCKET_REGION: eu-west-1
+      S3_UNVERSIONED_BPM_BACKUP_BUCKET_NAME: sdk-system-test-unversioned-bpm-backup
+      S3_UNVERSIONED_BPM_BACKUP_BUCKET_REGION: eu-west-1
       MINIO_ACCESS_KEY: "((minio-access-key))"
       MINIO_SECRET_KEY: "((minio-secret-key))"
 
@@ -993,6 +997,10 @@ jobs:
       S3_UNVERSIONED_BUCKET_REGION: eu-west-1
       S3_UNVERSIONED_BACKUP_BUCKET_NAME: bbr-system-test-s3-unversioned-backup-bucket
       S3_UNVERSIONED_BACKUP_BUCKET_REGION: us-east-1
+      S3_UNVERSIONED_BPM_BUCKET_NAME: sdk-system-test-unversioned-bpm
+      S3_UNVERSIONED_BPM_BUCKET_REGION: eu-west-1
+      S3_UNVERSIONED_BPM_BACKUP_BUCKET_NAME: sdk-system-test-unversioned-bpm-backup
+      S3_UNVERSIONED_BPM_BACKUP_BUCKET_REGION: eu-west-1
 
 - name: s3-blobstore-system-tests-with-iam-instance-profile
   serial: true

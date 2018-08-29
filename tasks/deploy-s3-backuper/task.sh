@@ -40,4 +40,9 @@ bosh-cli --non-interactive \
   --var=s3-unversioned-backup-bucket-name="${S3_UNVERSIONED_BACKUP_BUCKET_NAME}" \
   --var=s3-unversioned-backup-bucket-region="${S3_UNVERSIONED_BACKUP_BUCKET_REGION}" \
   --var=minio-access-key="${MINIO_ACCESS_KEY}" \
-  --var=minio-secret-key="${MINIO_SECRET_KEY}"
+  --var=minio-secret-key="${MINIO_SECRET_KEY}" \
+  --var=s3-unversioned-bpm-bucket-name="${S3_UNVERSIONED_BPM_BUCKET_NAME}" \
+  --var=s3-unversioned-bpm-bucket-region="${S3_UNVERSIONED_BPM_BUCKET_REGION}" \
+  --var=s3-unversioned-bpm-backup-bucket-name="${S3_UNVERSIONED_BPM_BACKUP_BUCKET_NAME}" \
+  --var=s3-unversioned-bpm-backup-bucket-region="${S3_UNVERSIONED_BPM_BACKUP_BUCKET_REGION}"
+
