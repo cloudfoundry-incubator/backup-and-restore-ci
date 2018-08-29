@@ -84,6 +84,10 @@ jobs:
 - name: deploy-k-drats-master
   plan:
   - aggregate:
+    - get: kubo-disaster-recovery-acceptance-tests
+      trigger: true
+    - get: bbr-binary-release
+      trigger: true
     - get: bosh-backup-and-restore-meta
     - get: kubo-deployment
       trigger: true
@@ -144,9 +148,61 @@ jobs:
   - aggregate:
     - get: kubo-disaster-recovery-acceptance-tests
       trigger: true
+      passed: [deploy-k-drats-master]
     - get: bbr-binary-release
       trigger: true
+      passed: [deploy-k-drats-master]
   - task: run-k-drats
     file: kubo-disaster-recovery-acceptance-tests/ci/run-k-drats/task.yml
     input_mapping:
        k-drats-integration-config: kubo-disaster-recovery-acceptance-tests # dummy input to satisfy task
+
+- name: delete-k-drats-master
+  plan:
+  - aggregate:
+    - get: kubo-disaster-recovery-acceptance-tests
+      trigger: true
+      passed: [run-k-drats-master]
+    - get: bbr-binary-release
+      trigger: true
+      passed: [run-k-drats-master]
+    - get: bosh-backup-and-restore-meta
+  - put: k-drats-master
+    params:
+      delete:
+        enabled: true
+        force: true
+  - put: terraform
+    params:
+      terraform_source: bosh-backup-and-restore-meta/k-drats-master/terraform
+      env_name: k-drats-master
+      action: destroy
+      vars:
+        gcp_service_account_key: ((gcp_service_account_key))
+        network_name: maru-network
+    get_params:
+      action: destroy
+  - task: delete-k-drats-creds
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: maru
+      BOSH_DEPLOYMENT: k-drats-master
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
+          tag: v5.19.0
+      inputs:
+      - name: bbl-state
+      run:
+        path: bash
+        args:
+        - -uc
+        - |
+          pushd "bbl-state/$BBL_STATE_DIR"
+            eval "$(bbl print-env)"
+            credhub find -n $BOSH_DEPLOYMENT --output-json | jq -r .credentials[].name | xargs -L 1 credhub delete -n
+          popd
