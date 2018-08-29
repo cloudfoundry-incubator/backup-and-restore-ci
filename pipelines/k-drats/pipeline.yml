@@ -33,6 +33,13 @@ resources:
     private_key: ((git-private-key))
     tag_filter: v0.*
 
+- name: cf-deployment-concourse-tasks
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry/cf-deployment-concourse-tasks.git
+    private_key: ((git-private-key))
+    tag_filter: v7.*
+
 - name: bbr-binary-release
   type: github-release
   source:
@@ -82,6 +89,7 @@ jobs:
       trigger: true
     - get: xenial-stemcell
     - get: kubo-release
+    - get: cf-deployment-concourse-tasks
   - put: terraform
     params:
       terraform_source: bosh-backup-and-restore-meta/k-drats-master/terraform
@@ -122,6 +130,14 @@ jobs:
         deployment_name: k-drats-master
       vars_files:
       - kubernetes-master-host/vars.yml
+  - task: apply-specs
+    file: cf-deployment-concourse-tasks/run-errand/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: maru
+      DEPLOYMENT_NAME: k-drats-master
+      ERRAND_NAME: apply-specs
 
 - name: run-k-drats-master
   plan:
