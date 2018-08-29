@@ -1,0 +1,27 @@
+---
+resources:
+- name: kubo-disaster-recovery-acceptance-tests
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-incubator/kubo-disaster-recovery-acceptance-tests.git
+    branch: master
+
+- name: bbr-binary-release
+  type: github-release
+  source:
+    owner: cloudfoundry-incubator
+    repository: bosh-backup-and-restore
+    access_token: ((github-access-token))
+
+jobs:
+- name: run-k-drats-master
+  plan:
+  - aggregate:
+    - get: kubo-disaster-recovery-acceptance-tests
+      trigger: true
+    - get: bbr-binary-release
+      trigger: true
+  - task: run-k-drats
+    file: kubo-disaster-recovery-acceptance-tests/ci/run-k-drats/task.yml
+    input_mapping:
+       k-drats-integration-config: kubo-disaster-recovery-acceptance-tests # dummy input to satisfy task
