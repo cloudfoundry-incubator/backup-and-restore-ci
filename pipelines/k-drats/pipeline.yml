@@ -1,10 +1,37 @@
 ---
+resource_types:
+- name: terraform
+  type: docker-image
+  source:
+    repository: ljfranklin/terraform-resource
+
+- name: bosh-deployment
+  type: docker-image
+  source:
+    repository: cloudfoundry/bosh-deployment-resource
+
 resources:
 - name: kubo-disaster-recovery-acceptance-tests
   type: git
   source:
-    uri: https://github.com/cloudfoundry-incubator/kubo-disaster-recovery-acceptance-tests.git
+    uri: git@github.com:cloudfoundry-incubator/kubo-disaster-recovery-acceptance-tests.git
+    private_key: ((git-private-key))
     branch: master
+
+- name: bosh-backup-and-restore-meta
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: ((git-private-key))
+    git_crypt_key: ((git-crypt-key))
+    branch: master
+
+- name: kubo-deployment
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/kubo-deployment.git
+    private_key: ((git-private-key))
+    tag_filter: v0.*
 
 - name: bbr-binary-release
   type: github-release
@@ -13,7 +40,89 @@ resources:
     repository: bosh-backup-and-restore
     access_token: ((github-access-token))
 
+- name: kubo-release
+  type: github-release
+  source:
+    owner: cloudfoundry-incubator
+    repository: kubo-release
+    access_token: ((github-access-token))
+
+- name: terraform
+  type: terraform
+  source:
+    storage:
+      bucket: bbr-terraform-states
+      bucket_path: /
+      access_key_id: ((aws-access-key-id))
+      secret_access_key: ((aws-secret-access-key))
+      region_name: eu-west-1
+
+- name: k-drats-master
+  type: bosh-deployment
+  source:
+    deployment: k-drats-master
+    target: "((maru-bosh-director-url))"
+    client: "((maru-bosh-director-username))"
+    client_secret: "((maru-bosh-director-password))"
+    ca_cert: "((maru-bosh-director-ca-cert))"
+    jumpbox_url: "((maru-jumpbox-url)):22"
+    jumpbox_ssh_key: "((maru-jumpbox-ssh-key))"
+
+- name: xenial-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-google-kvm-ubuntu-xenial-go_agent
+
 jobs:
+- name: deploy-k-drats-master
+  plan:
+  - aggregate:
+    - get: bosh-backup-and-restore-meta
+    - get: kubo-deployment
+      trigger: true
+    - get: xenial-stemcell
+    - get: kubo-release
+  - put: terraform
+    params:
+      terraform_source: bosh-backup-and-restore-meta/k-drats-master/terraform
+      env_name: k-drats-master
+      delete_on_failure: true
+      vars:
+        gcp_service_account_key: ((gcp_service_account_key))
+        network_name: maru-network
+  - task: extract-kubernetes-master-host
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: cloudfoundrylondon/backup-and-restore-minimal}
+      inputs:
+      - name: terraform
+      outputs:
+      - name: kubernetes-master-host
+      run:
+        path: bash
+        args:
+        - -c
+        - |
+          echo "kubernetes_master_host: $(jq -r .external_ip < terraform/metadata)" > kubernetes-master-host/vars.yml
+  - put: k-drats-master
+    params:
+      manifest: kubo-deployment/manifests/cfcr.yml
+      stemcells:
+      - xenial-stemcell/*.tgz
+      releases:
+      - kubo-release/*.tgz
+      ops_files:
+      - kubo-deployment/manifests/ops-files/rename.yml
+      - kubo-deployment/manifests/ops-files/misc/single-master.yml
+      - kubo-deployment/manifests/ops-files/iaas/openstack/master-static-ip.yml
+      - kubo-deployment/manifests/ops-files/enable-bbr.yml
+      vars:
+        deployment_name: k-drats-master
+      vars_files:
+      - kubernetes-master-host/vars.yml
+
 - name: run-k-drats-master
   plan:
   - aggregate:
