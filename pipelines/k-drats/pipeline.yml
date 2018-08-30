@@ -31,7 +31,7 @@ resources:
 - name: backup-and-restore-ci
   type: git
   source:
-    uri: git@github.com:pivotal-cf/backup-and-restore-ci.git
+    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
     private_key: ((git-private-key))
     branch: master
 
