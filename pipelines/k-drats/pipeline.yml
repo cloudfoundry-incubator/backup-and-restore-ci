@@ -115,7 +115,7 @@ jobs:
       run:
         path: bash
         args:
-        - -c
+        - -ec
         - |
           echo "kubernetes_master_host: $(jq -r .external_ip < terraform/metadata)" > kubernetes-master-host/vars.yml
   - put: k-drats-master
@@ -200,9 +200,14 @@ jobs:
       run:
         path: bash
         args:
-        - -uc
+        - -euc
         - |
           pushd "bbl-state/$BBL_STATE_DIR"
             eval "$(bbl print-env)"
-            credhub find -n $BOSH_DEPLOYMENT --output-json | jq -r .credentials[].name | xargs -L 1 credhub delete -n
+
+            secrets="$(credhub find -n "$BOSH_DEPLOYMENT" --output-json || echo '{"credentials":[]}')"
+            for secret in $(jq -r .credentials[].name <<< "$secrets"); do
+              echo "Deleting secret: $secret"
+              credhub delete -n "$secret"
+            done
           popd
