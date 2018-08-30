@@ -1,4 +1,6 @@
 ---
+k-drats-master-deployment-name: &k-drats-master-deployment-name k-drats-master
+
 resource_types:
 - name: terraform
   type: docker-image
@@ -24,6 +26,13 @@ resources:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: ((git-private-key))
     git_crypt_key: ((git-crypt-key))
+    branch: master
+
+- name: backup-and-restore-ci
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/backup-and-restore-ci.git
+    private_key: ((git-private-key))
     branch: master
 
 - name: kubo-deployment
@@ -67,7 +76,7 @@ resources:
 - name: k-drats-master
   type: bosh-deployment
   source:
-    deployment: k-drats-master
+    deployment: *k-drats-master-deployment-name
     target: "((maru-bosh-director-url))"
     client: "((maru-bosh-director-username))"
     client_secret: "((maru-bosh-director-password))"
@@ -97,7 +106,7 @@ jobs:
   - put: terraform
     params:
       terraform_source: bosh-backup-and-restore-meta/k-drats-master/terraform
-      env_name: k-drats-master
+      env_name: *k-drats-master-deployment-name
       delete_on_failure: true
       vars:
         gcp_service_account_key: ((gcp_service_account_key))
@@ -131,7 +140,7 @@ jobs:
       - kubo-deployment/manifests/ops-files/iaas/openstack/master-static-ip.yml
       - kubo-deployment/manifests/ops-files/enable-bbr.yml
       vars:
-        deployment_name: k-drats-master
+        deployment_name: *k-drats-master-deployment-name
       vars_files:
       - kubernetes-master-host/vars.yml
   - task: apply-specs
@@ -140,7 +149,7 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
     params:
       BBL_STATE_DIR: maru
-      DEPLOYMENT_NAME: k-drats-master
+      DEPLOYMENT_NAME: *k-drats-master-deployment-name
       ERRAND_NAME: apply-specs
 
 - name: run-k-drats-master
@@ -152,6 +161,18 @@ jobs:
     - get: bbr-binary-release
       trigger: true
       passed: [deploy-k-drats-master]
+    - get: backup-and-restore-ci
+    - get: terraform
+      passed: [deploy-k-drats-master]
+    - get: bosh-backup-and-restore-meta
+  - task: extract-k-drats-config
+    file: backup-and-restore-ci/tasks/extract-k-drats-config/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: maru
+      BOSH_DIRECTOR_NAME: bosh-maru
+      BOSH_DEPLOYMENT: *k-drats-master-deployment-name
   - task: run-k-drats
     file: kubo-disaster-recovery-acceptance-tests/ci/run-k-drats/task.yml
     input_mapping:
@@ -175,7 +196,7 @@ jobs:
   - put: terraform
     params:
       terraform_source: bosh-backup-and-restore-meta/k-drats-master/terraform
-      env_name: k-drats-master
+      env_name: *k-drats-master-deployment-name
       action: destroy
       vars:
         gcp_service_account_key: ((gcp_service_account_key))
@@ -187,7 +208,7 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
     params:
       BBL_STATE_DIR: maru
-      BOSH_DEPLOYMENT: k-drats-master
+      BOSH_DEPLOYMENT: *k-drats-master-deployment-name
     config:
       platform: linux
       image_resource:
