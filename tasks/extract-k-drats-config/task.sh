@@ -13,7 +13,6 @@ password="$(bosh int <(credhub get -n "${BOSH_DIRECTOR_NAME}/${BOSH_DEPLOYMENT}/
 
 integration_config="{}"
 integration_config=$(echo "$integration_config" | jq ".timeout_in_minutes=${TIMEOUT_IN_MINUTES}")
-integration_config=$(echo "$integration_config" | jq ".kubo_deployment_name=\"${BOSH_DEPLOYMENT}\"")
 integration_config=$(echo "$integration_config" | jq ".kubo.cluster_name=\"${CLUSTER_NAME}\"")
 integration_config=$(echo "$integration_config" | jq ".kubo.api_server_url=\"https://${api_server_ip}:8443\"")
 integration_config=$(echo "$integration_config" | jq ".kubo.ca_cert=\"${ca_cert}\"")

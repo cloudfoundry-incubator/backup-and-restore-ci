@@ -181,6 +181,7 @@ jobs:
        bbl-state: bosh-backup-and-restore-meta
     params:
       BBL_STATE_DIR: maru
+      BOSH_DEPLOYMENT: *k-drats-master-deployment-name
 
 - name: delete-k-drats-master
   plan:
