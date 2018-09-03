@@ -1,4 +1,4 @@
-FROM relintdockerhubpushbot/cf-deployment-concourse-tasks:5.19.0
+FROM relintdockerhubpushbot/cf-deployment-concourse-tasks:v5.19.0
 
 # kubectl
 ENV KUBE_VERSION="v1.11.2"
