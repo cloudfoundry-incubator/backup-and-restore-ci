@@ -27,6 +27,15 @@ resources:
     private_key: ((git-private-key))
     branch: master
     paths: ["ci-docker-images/bosh-backup-and-restore/*"]
+
+- name: cf-deployment-with-kubectl-repo
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
+    private_key: ((git-private-key))
+    branch: master
+    paths: ["ci-docker-images/cf-deployment-with-kubectl/*"]
+
 - name: backup-and-restore-node-with-ssh-repo
   type: git
   source:
@@ -60,6 +69,13 @@ resources:
   type: docker-image
   source:
     repository: cloudfoundrylondon/backup-and-restore
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
+
+- name: cf-deployment-with-kubectl-docker-image
+  type: docker-image
+  source:
+    repository: cloudfoundrylondon/cf-deployment-with-kubectl
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
@@ -101,6 +117,16 @@ jobs:
   - put: backup-and-restore-minimal-docker-image
     params:
       build: backup-and-restore-minimal-repo/docker-images/backup-and-restore-minimal/
+
+- name: build-cf-deployment-with-kubectl
+  public: true
+  serial: true
+  plan:
+  - get: cf-deployment-with-kubectl-repo
+    trigger: true
+  - put: cf-deployment-with-kubectl-docker-image
+    params:
+      build: cf-deployment-with-kubectl-repo/docker-images/cf-deployment-with-kubectl/
 
 - name: build-bosh-backup-and-restore
   public: true
