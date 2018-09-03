@@ -126,7 +126,7 @@ jobs:
     trigger: true
   - put: cf-deployment-with-kubectl-docker-image
     params:
-      build: cf-deployment-with-kubectl-repo/docker-images/cf-deployment-with-kubectl/
+      build: cf-deployment-with-kubectl-repo/ci-docker-images/cf-deployment-with-kubectl/
 
 - name: build-bosh-backup-and-restore
   public: true
