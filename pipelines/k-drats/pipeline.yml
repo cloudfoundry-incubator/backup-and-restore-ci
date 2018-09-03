@@ -167,6 +167,7 @@ jobs:
     - get: terraform
       passed: [deploy-k-drats-master]
     - get: bosh-backup-and-restore-meta
+    - get: kubo-deployment
   - task: extract-k-drats-config
     file: backup-and-restore-ci/tasks/extract-k-drats-config/task.yml
     input_mapping:
