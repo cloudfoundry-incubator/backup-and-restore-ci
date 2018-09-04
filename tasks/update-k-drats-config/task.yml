@@ -11,11 +11,13 @@ inputs:
 - name: backup-and-restore-ci
 - name: terraform
 - name: bbl-state
-
-outputs:
 - name: k-drats-config
 
+outputs:
+- name: updated-k-drats-config
+
 params:
+  CONFIG_PATH: # Path to config in k-drats-config resource
   BBL_STATE_DIR:  # Path to bbl state inside bbl-state resource
   TIMEOUT_IN_MINUTES: 30
   CLUSTER_NAME: kubo
@@ -24,4 +26,4 @@ params:
   BOSH_DEPLOYMENT:  # Second level of path to credhub secrets
 
 run:
-  path: backup-and-restore-ci/tasks/extract-k-drats-config/task.sh
+  path: backup-and-restore-ci/tasks/update-k-drats-config/task.sh
