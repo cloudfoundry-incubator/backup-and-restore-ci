@@ -476,10 +476,10 @@ jobs:
     file: backup-and-restore-ci/tasks/deploy-s3-backuper/task.yml
     params:
       VARS_FILE: "minio/minio-certs.yml"
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
+      BOSH_CLIENT_SECRET: ((maru-lite-bosh-director-password))
+      BOSH_CLIENT: ((maru-lite-bosh-director-username))
       BOSH_DEPLOYMENT: s3-backuper
-      BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
+      BOSH_ENVIRONMENT: ((maru-lite-bosh-director-url))
       MANIFEST_NAME: s3-backuper.yml
       AWS_ACCESS_KEY_ID: ((aws-access-key-id))
       AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
@@ -982,9 +982,14 @@ jobs:
   - task: s3-blobstore-backuper-system-tests
     file: backup-and-restore-ci/tasks/s3-system-tests/task.yml
     params:
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
+      BOSH_CLIENT_SECRET: ((maru-lite-bosh-director-password))
+      BOSH_CLIENT: ((maru-lite-bosh-director-username))
       BOSH_DEPLOYMENT: s3-backuper
+      BOSH_ENVIRONMENT: ((maru-lite-bosh-director-url))
+      BOSH_CA_CERT: "((maru-lite-bosh-director-ca-cert))"
+      BOSH_GW_USER: jumpbox
+      BOSH_GW_HOST: "((maru-lite-jumpbox-address))"
+      BOSH_GW_PRIVATE_KEY: "((maru-lite-jumpbox-ssh-key))"
       AWS_ACCESS_KEY_ID: ((aws-access-key-id))
       AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
       AWS_TEST_BUCKET_NAME: bbr-system-test-bucket
