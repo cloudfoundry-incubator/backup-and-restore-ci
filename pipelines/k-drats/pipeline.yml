@@ -19,6 +19,8 @@ resources:
     uri: git@github.com:cloudfoundry-incubator/kubo-disaster-recovery-acceptance-tests.git
     private_key: ((git-private-key))
     branch: master
+    ignore_paths:
+    - README.md
 
 - name: bosh-backup-and-restore-meta
   type: git
