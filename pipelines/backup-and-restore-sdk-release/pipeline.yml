@@ -143,7 +143,7 @@ resources:
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
     branch: master
-    tag_filter: v3.*
+    tag_filter: v4.*
 
 - name: cf-deployment-gcs
   type: git
