@@ -125,7 +125,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-aws-s3]
     - get: bosh-backup-and-restore-meta
-      passed: [setup-infrastructure-aws-s3]
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
@@ -173,7 +172,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-aws-s3-unversioned]
     - get: bosh-backup-and-restore-meta
-      passed: [setup-infrastructure-aws-s3-unversioned]
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
@@ -221,7 +219,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-azure]
     - get: bosh-backup-and-restore-meta
-      passed: [setup-infrastructure-azure]
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
@@ -291,7 +288,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-aws-ec2]
     - get: bosh-backup-and-restore-meta
-      passed: [setup-infrastructure-aws-ec2]
   - put: terraform
     params:
       terraform_source: bosh-backup-and-restore-meta/external-blobstore-directors/aws-ec2/iam-roles-terraform/
@@ -350,7 +346,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-pr-ragdoll]
     - get: bosh-backup-and-restore-meta
-      passed: [setup-infrastructure-drats-pr-ragdoll]
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
@@ -398,7 +393,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-papillon]
     - get: bosh-backup-and-restore-meta
-      passed: [setup-infrastructure-drats-papillon]
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
@@ -446,7 +440,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-with-config-manx]
     - get: bosh-backup-and-restore-meta
-      passed: [setup-infrastructure-drats-with-config-manx]
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
@@ -492,7 +485,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-maru]
     - get: bosh-backup-and-restore-meta
-      passed: [setup-infrastructure-maru]
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
@@ -540,7 +532,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-maru-lite]
     - get: bosh-backup-and-restore-meta
-      passed: [setup-infrastructure-maru-lite]
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
@@ -588,7 +579,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-gcs]
     - get: bosh-backup-and-restore-meta
-      passed: [setup-infrastructure-gcs]
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
