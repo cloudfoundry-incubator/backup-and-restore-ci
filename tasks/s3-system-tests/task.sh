@@ -17,7 +17,7 @@ export BOSH_GW_PRIVATE_KEY="${PWD}/ssh.key"
 
 
 if [[ "$USE_BOSH_ALL_PROXY" = true ]]; then
-  export BOSH_ALL_PROXY="ssh+socks5://${BOSH_GW_USER}@${BOSH_GW_HOST}?private-key=${BOSH_GW_PRIVATE_KEY}"
+  export BOSH_ALL_PROXY="ssh+socks5://${BOSH_GW_USER}@${BOSH_GW_HOST}:22?private-key=${BOSH_GW_PRIVATE_KEY}"
 fi
 
 cd backup-and-restore-sdk-release/src/github.com/cloudfoundry-incubator/backup-and-restore-sdk-release-system-tests/s3
