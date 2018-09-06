@@ -989,7 +989,7 @@ jobs:
       passed:
       - deploy-aws-blobstore-sdk
   - task: s3-blobstore-backuper-system-tests
-    file: backup-and-restore-ci/tasks/s3-system-tests/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-s3/task.yml
     params:
       <<: *MARU_LITE_BOSH_CREDS
       BOSH_DEPLOYMENT: s3-backuper
@@ -1025,7 +1025,7 @@ jobs:
       passed:
       - deploy-aws-blobstore-sdk-with-iam-instance-profile
   - task: s3-blobstore-backuper-system-tests
-    file: backup-and-restore-ci/tasks/s3-system-tests/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-s3/task.yml
     params:
       FOCUS_SPEC: backs up and restores in-place # focus on one it to avoid redundant testing
       BOSH_ENVIRONMENT: "((ec2-bosh-director-url))"

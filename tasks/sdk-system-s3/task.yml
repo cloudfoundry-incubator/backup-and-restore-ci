@@ -27,7 +27,7 @@ inputs:
 - name: bosh-backup-and-restore-meta
 
 run:
-  path: backup-and-restore-ci/tasks/s3-system-tests/task.sh
+  path: backup-and-restore-ci/tasks/sdk-system-s3/task.sh
 
 params:
   FOCUS_SPEC:
