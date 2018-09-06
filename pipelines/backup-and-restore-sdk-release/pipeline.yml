@@ -7,6 +7,14 @@ maru-lite-director: &MARU_LITE_DIRECTOR
   jumpbox_url: "((maru-lite-jumpbox-address)):22"
   jumpbox_ssh_key: "((maru-lite-jumpbox-ssh-key))"
 
+ec2-director: &EC2_DIRECTOR
+  target: "((ec2-bosh-director-url))"
+  client: "((ec2-bosh-director-username))"
+  client_secret: "((ec2-bosh-director-password))"
+  ca_cert: "((ec2-bosh-director-ca-cert))"
+  jumpbox_url: "((ec2-jumpbox-url)):22"
+  jumpbox_ssh_key: "((ec2-jumpbox-ssh-key))"
+
 maru-lite-bosh-creds: &MARU_LITE_BOSH_CREDS
   BOSH_ENVIRONMENT: "((maru-lite-bosh-director-url))"
   BOSH_CLIENT: "((maru-lite-bosh-director-username))"
@@ -167,13 +175,8 @@ resources:
 - name: s3-backuper-with-iam-instance-profile-deployment
   type: bosh-deployment
   source:
+    <<: *EC2_DIRECTOR
     deployment: s3-backuper
-    target: "((ec2-bosh-director-url))"
-    client: "((ec2-bosh-director-username))"
-    client_secret: "((ec2-bosh-director-password))"
-    ca_cert: "((ec2-bosh-director-ca-cert))"
-    jumpbox_url: "((ec2-jumpbox-url))"
-    jumpbox_ssh_key: "((ec2-jumpbox-ssh-key))"
 
 - name: mysql-dev-deployment
   type: bosh-deployment
@@ -476,7 +479,6 @@ jobs:
     - get: release-tarball
       resource: release
       passed: [create-release]
-    - get: bosh-backup-and-restore-meta
     - get: xenial-stemcell
   - put: aws-blobstore-sdk-deployment
     params:
@@ -506,8 +508,6 @@ jobs:
         s3-unversioned-bpm-bucket-region: eu-west-1
         s3-unversioned-bpm-backup-bucket-name: sdk-system-test-unversioned-bpm-backup
         s3-unversioned-bpm-backup-bucket-region: eu-west-1
-      vars_files:
-      - bosh-backup-and-restore-meta/minio/minio-certs.yml
 
 - name: deploy-aws-blobstore-sdk-with-iam-instance-profile
   serial: true
@@ -991,14 +991,8 @@ jobs:
   - task: s3-blobstore-backuper-system-tests
     file: backup-and-restore-ci/tasks/s3-system-tests/task.yml
     params:
-      BOSH_CLIENT_SECRET: ((maru-lite-bosh-director-password))
-      BOSH_CLIENT: ((maru-lite-bosh-director-username))
+      <<: *MARU_LITE_BOSH_CREDS
       BOSH_DEPLOYMENT: s3-backuper
-      BOSH_ENVIRONMENT: ((maru-lite-bosh-director-url))
-      BOSH_CA_CERT: "((maru-lite-bosh-director-ca-cert))"
-      BOSH_GW_USER: jumpbox
-      BOSH_GW_HOST: "((maru-lite-jumpbox-address))"
-      BOSH_GW_PRIVATE_KEY: "((maru-lite-jumpbox-ssh-key))"
       AWS_ACCESS_KEY_ID: ((aws-access-key-id))
       AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
       AWS_TEST_BUCKET_NAME: bbr-system-test-bucket
@@ -1033,7 +1027,6 @@ jobs:
   - task: s3-blobstore-backuper-system-tests
     file: backup-and-restore-ci/tasks/s3-system-tests/task.yml
     params:
-      USE_BOSH_ALL_PROXY: true
       FOCUS_SPEC: backs up and restores in-place # focus on one it to avoid redundant testing
       BOSH_ENVIRONMENT: "((ec2-bosh-director-url))"
       BOSH_CLIENT_SECRET: "((ec2-bosh-director-password))"
