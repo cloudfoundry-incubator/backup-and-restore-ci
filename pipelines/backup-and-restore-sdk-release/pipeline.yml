@@ -199,6 +199,12 @@ resources:
     << : *MARU_LITE_DIRECTOR
     deployment: database-backup-restorer
 
+- name: aws-blobstore-sdk-deployment
+  type: bosh-deployment
+  source:
+    << : *MARU_LITE_DIRECTOR
+    deployment: s3-backuper
+
 - name: xenial-stemcell-aws
   type: bosh-io-stemcell
   source:
@@ -471,34 +477,37 @@ jobs:
       resource: release
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
-    - get: backup-and-restore-ci
-  - task: deploy-aws-blobstore-sdk
-    file: backup-and-restore-ci/tasks/deploy-s3-backuper/task.yml
+    - get: xenial-stemcell
+  - put: aws-blobstore-sdk-deployment
     params:
-      VARS_FILE: "minio/minio-certs.yml"
-      BOSH_CLIENT_SECRET: ((maru-lite-bosh-director-password))
-      BOSH_CLIENT: ((maru-lite-bosh-director-username))
-      BOSH_DEPLOYMENT: s3-backuper
-      BOSH_ENVIRONMENT: ((maru-lite-bosh-director-url))
-      MANIFEST_NAME: s3-backuper.yml
-      AWS_ACCESS_KEY_ID: ((aws-access-key-id))
-      AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
-      S3_BUCKET_NAME: bbr-system-test-bucket
-      S3_REGION: eu-west-1
-      S3_CLONED_BUCKET_NAME: bbr-system-test-bucket-clone
-      S3_CLONED_BUCKET_REGION: eu-central-1
-      S3_UNVERSIONED_BUCKET_NAME_FOR_VERSIONED_BACKUPER: bbr-system-test-bucket-unversioned
-      S3_UNVERSIONED_BUCKET_REGION_FOR_VERSIONED_BACKUPER: eu-west-1
-      S3_UNVERSIONED_BUCKET_NAME: bbr-system-test-s3-unversioned-bucket
-      S3_UNVERSIONED_BUCKET_REGION: eu-west-1
-      S3_UNVERSIONED_BACKUP_BUCKET_NAME: bbr-system-test-s3-unversioned-backup-bucket
-      S3_UNVERSIONED_BACKUP_BUCKET_REGION: us-east-1
-      S3_UNVERSIONED_BPM_BUCKET_NAME: sdk-system-test-unversioned-bpm
-      S3_UNVERSIONED_BPM_BUCKET_REGION: eu-west-1
-      S3_UNVERSIONED_BPM_BACKUP_BUCKET_NAME: sdk-system-test-unversioned-bpm-backup
-      S3_UNVERSIONED_BPM_BACKUP_BUCKET_REGION: eu-west-1
-      MINIO_ACCESS_KEY: "((minio-access-key))"
-      MINIO_SECRET_KEY: "((minio-secret-key))"
+      manifest: backup-and-restore-sdk-release/ci/manifests/s3-backuper.yml
+      stemcells:
+      - xenial-stemcell/*.tgz
+      releases:
+      - release-tarball/backup-and-restore-sdk-*.tgz
+      vars:
+        deployment-name: s3-backuper
+        availability_zone: z1
+        aws-access-key-id: ((aws-access-key-id))
+        aws-secret-access-key: ((aws-secret-access-key))
+        s3-bucket-name: bbr-system-test-bucket
+        s3-cloned-bucket-name: bbr-system-test-bucket-clone
+        s3-region: eu-west-1
+        s3-cloned-bucket-region: eu-central-1
+        s3-unversioned-bucket-name-for-versioned-backuper: bbr-system-test-bucket-unversioned
+        s3-unversioned-bucket-region-for-versioned-backuper: eu-west-1
+        s3-unversioned-bucket-name: bbr-system-test-s3-unversioned-bucket
+        s3-unversioned-bucket-region: eu-west-1
+        s3-unversioned-backup-bucket-name: bbr-system-test-s3-unversioned-backup-bucket
+        s3-unversioned-backup-bucket-region: us-east-1
+        minio-access-key: "((minio-access-key))"
+        minio-secret-key: "((minio-secret-key))"
+        s3-unversioned-bpm-bucket-name: sdk-system-test-unversioned-bpm
+        s3-unversioned-bpm-bucket-region: eu-west-1
+        s3-unversioned-bpm-backup-bucket-name: sdk-system-test-unversioned-bpm-backup
+        s3-unversioned-bpm-backup-bucket-region: eu-west-1
+      vars_files:
+      - bosh-backup-and-restore-meta/minio/minio-certs.yml
 
 - name: deploy-aws-blobstore-sdk-with-iam-instance-profile
   serial: true
