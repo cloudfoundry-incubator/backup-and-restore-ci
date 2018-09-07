@@ -54,7 +54,6 @@ groups:
   - build-rc
   - install-optional-components-on-pas
   - run-p-drats-on-pas
-  - transfer-bbr-binary-to-jumpbox
 
 - name: SHIPIT
   jobs:
@@ -571,22 +570,6 @@ jobs:
       OPS_MAN_PASS: ((ops-man-pass))
       OPS_MAN_SSH_KEY: ((ops-man-ssh-key))
       FOCUSED_SUITE_NAME: "cf-routing|app-uptime|cf-app|cf-uaa|cf-networking|cf-nfsbroker|cf-credhub|usage-service|notifications"
-
-- name: transfer-bbr-binary-to-jumpbox
-  serial_groups: [version]
-  plan:
-  - aggregate:
-    - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-meta
-    - get: rc
-      passed: [run-p-drats-on-pas]
-      trigger: true
-  - task: transfer-bbr-binary-to-jumpbox
-    file: backup-and-restore-ci/tasks/transfer-bbr-binary-to-jumpbox/task.yml
-    params:
-      BOSH_CLIENT_SECRET: ((genesis-bosh-director-password))
-      BOSH_CLIENT: ((genesis-bosh-director-username))
-      BOSH_TARGET: https://genesis-bosh.backup-and-restore.cf-app.com
 
 - name: build-final
   serial_groups: [version]
