@@ -1,5 +1,5 @@
 ---
-k-drats-deployment-name: &k-drats-deployment-name k-drats
+k-drats-deployment-name: &single-master-deployment-name cfcr-single-master
 
 resource_types:
 - name: terraform
@@ -78,7 +78,7 @@ resources:
 - name: k-drats
   type: bosh-deployment
   source:
-    deployment: *k-drats-deployment-name
+    deployment: *single-master-deployment-name
     target: "((maru-bosh-director-url))"
     client: "((maru-bosh-director-username))"
     client_secret: "((maru-bosh-director-password))"
@@ -105,14 +105,42 @@ jobs:
     - get: xenial-stemcell
     - get: kubo-release
     - get: cf-deployment-concourse-tasks
+  - task: add-vm-extension-to-cloud-config
+    params:
+      BOSH_DEPLOYMENT: *single-master-deployment-name
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
+          tag: v5.19.0
+      inputs:
+      - name: bosh-backup-and-restore-meta
+      run:
+        path: bash
+        args:
+        - -euc
+        - |
+          pushd "bosh-backup-and-restore-meta/maru"
+            eval "$(bbl print-env)"
+          popd
+
+          bosh update-config \
+            --non-interactive \
+            --type cloud \
+            --name "${BOSH_DEPLOYMENT}-master-lb" \
+            -v "deployment_name=${BOSH_DEPLOYMENT}" \
+            "bosh-backup-and-restore-meta/k-drats/cloud-config/master-lb-vm-extension.yml"
   - put: terraform
     params:
       terraform_source: bosh-backup-and-restore-meta/k-drats/terraform
-      env_name: *k-drats-deployment-name
+      env_name: *single-master-deployment-name
       delete_on_failure: true
       vars:
         gcp_service_account_key: ((gcp_service_account_key))
         network_name: maru-network
+        cfcr_deployment_name: *single-master-deployment-name
   - task: extract-kubernetes-master-host
     config:
       platform: linux
@@ -130,7 +158,7 @@ jobs:
         args:
         - -ec
         - |
-          echo "kubernetes_master_host: $(jq -r .external_ip < terraform/metadata)" > kubernetes-master-host/vars.yml
+          echo "kubernetes_master_host: $(jq -r '."master-lb"' < terraform/metadata)" > kubernetes-master-host/vars.yml
   - put: k-drats
     params:
       manifest: kubo-deployment/manifests/cfcr.yml
@@ -141,10 +169,11 @@ jobs:
       ops_files:
       - kubo-deployment/manifests/ops-files/rename.yml
       - kubo-deployment/manifests/ops-files/misc/single-master.yml
-      - kubo-deployment/manifests/ops-files/iaas/openstack/master-static-ip.yml
       - kubo-deployment/manifests/ops-files/enable-bbr.yml
+      - bosh-backup-and-restore-meta/k-drats/operations/add-master-lb-vm-extension.yml
+      - bosh-backup-and-restore-meta/k-drats/operations/configure-kubernetes-master-host.yml
       vars:
-        deployment_name: *k-drats-deployment-name
+        deployment_name: *single-master-deployment-name
       vars_files:
       - kubernetes-master-host/vars.yml
   - task: apply-specs
@@ -153,7 +182,7 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
     params:
       BBL_STATE_DIR: maru
-      DEPLOYMENT_NAME: *k-drats-deployment-name
+      DEPLOYMENT_NAME: *single-master-deployment-name
       ERRAND_NAME: apply-specs
 
 - name: run-k-drats
@@ -178,7 +207,7 @@ jobs:
       CONFIG_PATH: base_config.json
       BBL_STATE_DIR: maru
       BOSH_DIRECTOR_NAME: bosh-maru
-      BOSH_DEPLOYMENT: *k-drats-deployment-name
+      BOSH_DEPLOYMENT: *single-master-deployment-name
   - task: run-k-drats
     file: kubo-disaster-recovery-acceptance-tests/ci/run-k-drats/task.yml
     input_mapping:
@@ -186,7 +215,7 @@ jobs:
        k-drats-config: updated-k-drats-config
     params:
       BBL_STATE_DIR: maru
-      BOSH_DEPLOYMENT: *k-drats-deployment-name
+      BOSH_DEPLOYMENT: *single-master-deployment-name
       BOSH_DIRECTOR_NAME: bosh-maru
 
 - name: delete-k-drats
@@ -207,19 +236,44 @@ jobs:
   - put: terraform
     params:
       terraform_source: bosh-backup-and-restore-meta/k-drats/terraform
-      env_name: *k-drats-deployment-name
+      env_name: *single-master-deployment-name
       action: destroy
       vars:
         gcp_service_account_key: ((gcp_service_account_key))
         network_name: maru-network
     get_params:
       action: destroy
+  - task: delete-vm-extension-from-cloud-config
+    params:
+      BOSH_DEPLOYMENT: *single-master-deployment-name
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
+          tag: v5.19.0
+      inputs:
+      - name: bosh-backup-and-restore-meta
+      run:
+        path: bash
+        args:
+        - -euc
+        - |
+          pushd "bosh-backup-and-restore-meta/maru"
+            eval "$(bbl print-env)"
+          popd
+
+          bosh delete-config \
+            --non-interactive \
+            --type cloud \
+            --name "${BOSH_DEPLOYMENT}-master-lb"
   - task: delete-k-drats-creds
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
       BBL_STATE_DIR: maru
-      BOSH_DEPLOYMENT: *k-drats-deployment-name
+      BOSH_DEPLOYMENT: *single-master-deployment-name
     config:
       platform: linux
       image_resource:
