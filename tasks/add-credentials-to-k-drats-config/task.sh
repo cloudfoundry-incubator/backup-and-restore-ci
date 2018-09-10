@@ -12,8 +12,6 @@ ca_cert="$(bosh int <(credhub get -n "${BOSH_DIRECTOR_NAME}/${BOSH_DEPLOYMENT}/t
 password="$(bosh int <(credhub get -n "${BOSH_DIRECTOR_NAME}/${BOSH_DEPLOYMENT}/kubo-admin-password" --output-json) --path=/value)"
 
 config="$(cat "k-drats-config/$CONFIG_PATH")"
-config=$(echo "$config" | jq ".timeout_in_minutes=${TIMEOUT_IN_MINUTES}")
-config=$(echo "$config" | jq ".cluster_name=\"${CLUSTER_NAME}\"")
 config=$(echo "$config" | jq ".api_server_url=\"https://${api_server_ip}:8443\"")
 config=$(echo "$config" | jq ".ca_cert=\"${ca_cert}\"")
 config=$(echo "$config" | jq ".username=\"${KUBO_USERNAME}\"")

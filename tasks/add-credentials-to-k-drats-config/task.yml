@@ -19,11 +19,9 @@ outputs:
 params:
   CONFIG_PATH: # Path to config in k-drats-config resource
   BBL_STATE_DIR:  # Path to bbl state inside bbl-state resource
-  TIMEOUT_IN_MINUTES: 30
-  CLUSTER_NAME: kubo
   KUBO_USERNAME: admin
   BOSH_DIRECTOR_NAME:  # Top level of path to credhub secrets
   BOSH_DEPLOYMENT:  # Second level of path to credhub secrets
 
 run:
-  path: backup-and-restore-ci/tasks/update-k-drats-config/task.sh
+  path: backup-and-restore-ci/tasks/add-credentials-to-k-drats-config/task.sh

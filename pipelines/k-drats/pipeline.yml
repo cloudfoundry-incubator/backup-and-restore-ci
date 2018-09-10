@@ -204,15 +204,14 @@ jobs:
     - get: terraform
       passed: [deploy-k-drats]
     - get: bosh-backup-and-restore-meta
-  - task: update-k-drats-config
-    file: backup-and-restore-ci/tasks/update-k-drats-config/task.yml
+  - task: add-credentials-to-k-drats-config
+    file: backup-and-restore-ci/tasks/add-credentials-to-k-drats-config/task.yml
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      k-drats-config: kubo-disaster-recovery-acceptance-tests
+      k-drats-config: bosh-backup-and-restore-meta
     params:
-      CONFIG_PATH: base_config.json
+      CONFIG_PATH: maru/k-drats-config.json
       BBL_STATE_DIR: maru
-      BOSH_DIRECTOR_NAME: bosh-maru
       BOSH_DEPLOYMENT: *deployment-name
   - task: run-k-drats
     file: kubo-disaster-recovery-acceptance-tests/ci/run-k-drats/task.yml
