@@ -1,5 +1,5 @@
 ---
-k-drats-deployment-name: &single-master-deployment-name cfcr-single-master
+deployment-name: &deployment-name k-drats
 
 resource_types:
 - name: terraform
@@ -78,7 +78,7 @@ resources:
 - name: k-drats
   type: bosh-deployment
   source:
-    deployment: *single-master-deployment-name
+    deployment: *deployment-name
     target: "((maru-bosh-director-url))"
     client: "((maru-bosh-director-username))"
     client_secret: "((maru-bosh-director-password))"
@@ -93,6 +93,8 @@ resources:
 
 jobs:
 - name: deploy-k-drats
+  serial: true
+  serial_groups: [k-drats]
   plan:
   - aggregate:
     - get: kubo-disaster-recovery-acceptance-tests
@@ -107,7 +109,7 @@ jobs:
     - get: cf-deployment-concourse-tasks
   - task: add-vm-extension-to-cloud-config
     params:
-      BOSH_DEPLOYMENT: *single-master-deployment-name
+      BOSH_DEPLOYMENT: *deployment-name
     config:
       platform: linux
       image_resource:
@@ -129,18 +131,18 @@ jobs:
           bosh update-config \
             --non-interactive \
             --type cloud \
-            --name "${BOSH_DEPLOYMENT}-master-lb" \
+            --name "${BOSH_DEPLOYMENT}-lb" \
             -v "deployment_name=${BOSH_DEPLOYMENT}" \
             "bosh-backup-and-restore-meta/k-drats/cloud-config/master-lb-vm-extension.yml"
   - put: terraform
     params:
       terraform_source: bosh-backup-and-restore-meta/k-drats/terraform
-      env_name: *single-master-deployment-name
+      env_name: *deployment-name
       delete_on_failure: true
       vars:
         gcp_service_account_key: ((gcp_service_account_key))
         network_name: maru-network
-        cfcr_deployment_name: *single-master-deployment-name
+        cfcr_deployment_name: *deployment-name
   - task: extract-kubernetes-master-host
     config:
       platform: linux
@@ -173,7 +175,7 @@ jobs:
       - bosh-backup-and-restore-meta/k-drats/operations/add-master-lb-vm-extension.yml
       - bosh-backup-and-restore-meta/k-drats/operations/configure-kubernetes-master-host.yml
       vars:
-        deployment_name: *single-master-deployment-name
+        deployment_name: *deployment-name
       vars_files:
       - kubernetes-master-host/vars.yml
   - task: apply-specs
@@ -182,10 +184,12 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
     params:
       BBL_STATE_DIR: maru
-      DEPLOYMENT_NAME: *single-master-deployment-name
+      DEPLOYMENT_NAME: *deployment-name
       ERRAND_NAME: apply-specs
 
 - name: run-k-drats
+  serial: true
+  serial_groups: [k-drats]
   plan:
   - aggregate:
     - get: kubo-disaster-recovery-acceptance-tests
@@ -207,7 +211,7 @@ jobs:
       CONFIG_PATH: base_config.json
       BBL_STATE_DIR: maru
       BOSH_DIRECTOR_NAME: bosh-maru
-      BOSH_DEPLOYMENT: *single-master-deployment-name
+      BOSH_DEPLOYMENT: *deployment-name
   - task: run-k-drats
     file: kubo-disaster-recovery-acceptance-tests/ci/run-k-drats/task.yml
     input_mapping:
@@ -215,10 +219,12 @@ jobs:
        k-drats-config: updated-k-drats-config
     params:
       BBL_STATE_DIR: maru
-      BOSH_DEPLOYMENT: *single-master-deployment-name
+      BOSH_DEPLOYMENT: *deployment-name
       BOSH_DIRECTOR_NAME: bosh-maru
 
 - name: delete-k-drats
+  serial: true
+  serial_groups: [k-drats]
   plan:
   - aggregate:
     - get: kubo-disaster-recovery-acceptance-tests
@@ -236,16 +242,17 @@ jobs:
   - put: terraform
     params:
       terraform_source: bosh-backup-and-restore-meta/k-drats/terraform
-      env_name: *single-master-deployment-name
+      env_name: *deployment-name
       action: destroy
       vars:
         gcp_service_account_key: ((gcp_service_account_key))
         network_name: maru-network
+        cfcr_deployment_name: *deployment-name
     get_params:
       action: destroy
   - task: delete-vm-extension-from-cloud-config
     params:
-      BOSH_DEPLOYMENT: *single-master-deployment-name
+      BOSH_DEPLOYMENT: *deployment-name
     config:
       platform: linux
       image_resource:
@@ -267,13 +274,13 @@ jobs:
           bosh delete-config \
             --non-interactive \
             --type cloud \
-            --name "${BOSH_DEPLOYMENT}-master-lb"
+            --name "${BOSH_DEPLOYMENT}-lb"
   - task: delete-k-drats-creds
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
       BBL_STATE_DIR: maru
-      BOSH_DEPLOYMENT: *single-master-deployment-name
+      BOSH_DEPLOYMENT: *deployment-name
     config:
       platform: linux
       image_resource:
