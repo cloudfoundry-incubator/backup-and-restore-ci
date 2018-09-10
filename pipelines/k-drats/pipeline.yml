@@ -212,6 +212,7 @@ jobs:
     params:
       CONFIG_PATH: maru/k-drats-config.json
       BBL_STATE_DIR: maru
+      BOSH_DIRECTOR_NAME: bosh-maru
       BOSH_DEPLOYMENT: *deployment-name
   - task: run-k-drats
     file: kubo-disaster-recovery-acceptance-tests/ci/run-k-drats/task.yml
@@ -221,7 +222,6 @@ jobs:
     params:
       BBL_STATE_DIR: maru
       BOSH_DEPLOYMENT: *deployment-name
-      BOSH_DIRECTOR_NAME: bosh-maru
 
 - name: delete-k-drats
   serial: true
