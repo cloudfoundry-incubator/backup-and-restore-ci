@@ -133,7 +133,7 @@ jobs:
             --type cloud \
             --name "${BOSH_DEPLOYMENT}-lb" \
             -v "deployment_name=${BOSH_DEPLOYMENT}" \
-            "bosh-backup-and-restore-meta/k-drats/cloud-config/master-lb-vm-extension.yml"
+            "bosh-backup-and-restore-meta/k-drats/cloud-config/lb-vm-extension.yml"
   - put: terraform
     params:
       terraform_source: bosh-backup-and-restore-meta/k-drats/terraform
@@ -160,7 +160,7 @@ jobs:
         args:
         - -ec
         - |
-          echo "kubernetes_master_host: $(jq -r '."master-lb"' < terraform/metadata)" > kubernetes-master-host/vars.yml
+          echo "kubernetes_master_host: $(jq -r .lb < terraform/metadata)" > kubernetes-master-host/vars.yml
   - put: k-drats
     params:
       manifest: kubo-deployment/manifests/cfcr.yml
@@ -172,10 +172,12 @@ jobs:
       - kubo-deployment/manifests/ops-files/rename.yml
       - kubo-deployment/manifests/ops-files/misc/single-master.yml
       - kubo-deployment/manifests/ops-files/enable-bbr.yml
-      - bosh-backup-and-restore-meta/k-drats/operations/add-master-lb-vm-extension.yml
+      - bosh-backup-and-restore-meta/k-drats/operations/add-lb-vm-extension.yml
       - bosh-backup-and-restore-meta/k-drats/operations/configure-kubernetes-master-host.yml
+      - bosh-backup-and-restore-meta/k-drats/operations/configure-worker-instances.yml
       vars:
         deployment_name: *deployment-name
+        worker_instances: 1
       vars_files:
       - kubernetes-master-host/vars.yml
   - task: apply-specs
