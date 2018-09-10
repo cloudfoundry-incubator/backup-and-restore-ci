@@ -7,7 +7,7 @@ pushd "bbl-state/$BBL_STATE_DIR"
   eval "$(bbl print-env)"
 popd
 
-api_server_ip="$(jq -r '."master-lb"' < terraform/metadata)"
+api_server_ip="$(jq -r .lb < terraform/metadata)"
 ca_cert="$(bosh int <(credhub get -n "${BOSH_DIRECTOR_NAME}/${BOSH_DEPLOYMENT}/tls-kubernetes" --output-json) --path=/value/ca)"
 password="$(bosh int <(credhub get -n "${BOSH_DIRECTOR_NAME}/${BOSH_DEPLOYMENT}/kubo-admin-password" --output-json) --path=/value)"
 
