@@ -28,13 +28,13 @@ resources:
     branch: master
     paths: ["ci-docker-images/bosh-backup-and-restore/*"]
 
-- name: cf-deployment-with-kubectl-repo
+- name: k-drats
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
     private_key: ((git-private-key))
     branch: master
-    paths: ["ci-docker-images/cf-deployment-with-kubectl/*"]
+    paths: ["ci-docker-images/k-drats/*"]
 
 - name: backup-and-restore-node-with-ssh-repo
   type: git
@@ -72,10 +72,10 @@ resources:
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
-- name: cf-deployment-with-kubectl-docker-image
+- name: k-drats-docker-image
   type: docker-image
   source:
-    repository: cloudfoundrylondon/cf-deployment-with-kubectl
+    repository: cloudfoundrylondon/k-drats
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
@@ -118,15 +118,15 @@ jobs:
     params:
       build: backup-and-restore-minimal-repo/docker-images/backup-and-restore-minimal/
 
-- name: build-cf-deployment-with-kubectl
+- name: build-k-drats
   public: true
   serial: true
   plan:
-  - get: cf-deployment-with-kubectl-repo
+  - get: k-drats
     trigger: true
-  - put: cf-deployment-with-kubectl-docker-image
+  - put: k-drats-docker-image
     params:
-      build: cf-deployment-with-kubectl-repo/ci-docker-images/cf-deployment-with-kubectl/
+      build: k-drats/ci-docker-images/k-drats/
 
 - name: build-bosh-backup-and-restore
   public: true
