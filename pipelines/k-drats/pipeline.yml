@@ -30,13 +30,6 @@ resources:
     git_crypt_key: ((git-crypt-key))
     branch: master
 
-- name: backup-and-restore-ci
-  type: git
-  source:
-    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
-    private_key: ((git-private-key))
-    branch: master
-
 - name: kubo-deployment
   type: git
   source:
@@ -200,12 +193,11 @@ jobs:
     - get: bbr-binary-release
       trigger: true
       passed: [deploy-k-drats]
-    - get: backup-and-restore-ci
     - get: terraform
       passed: [deploy-k-drats]
     - get: bosh-backup-and-restore-meta
-  - task: add-credentials-to-k-drats-config
-    file: backup-and-restore-ci/tasks/add-credentials-to-k-drats-config/task.yml
+  - task: add-credentials-to-config
+    file: kubo-disaster-recovery-acceptance-tests/ci/add-credentials-to-config/task.yml
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
       k-drats-config: bosh-backup-and-restore-meta
