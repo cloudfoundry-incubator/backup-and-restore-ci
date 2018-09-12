@@ -1077,56 +1077,6 @@ jobs:
       AZURE_DIFFERENT_STORAGE_KEY: ((azure-different-storage-key))
       AZURE_DIFFERENT_CONTAINER_NAME: bbr-system-test-azure-different-container
 
-- name: deploy-gcs-blobstore-sdk
-  serial: true
-  plan:
-  - aggregate:
-    - get: backup-and-restore-ci
-    - get: backup-and-restore-sdk-release
-      passed:
-      - create-release
-      trigger: true
-    - get: release-tarball
-      resource: release
-      passed:
-      - create-release
-    - get: bosh-backup-and-restore-meta
-  - task: deploy-gcs-blobstore-sdk
-    file: backup-and-restore-ci/tasks/deploy-gcs-backuper/task.yml
-    params:
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
-      BOSH_DEPLOYMENT: gcs-backuper
-      BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
-      MANIFEST_NAME: gcs-backuper.yml
-      GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
-      GCS_BUCKET_NAME: bbr-system-test-gcs-bucket
-      GCS_CLONE_BUCKET_NAME: bbr-system-test-gcs-clone-bucket
-
-- name: gcs-blobstore-backuper-system-tests
-  serial: true
-  plan:
-  - get: backup-and-restore-ci
-  - get: backup-and-restore-sdk-release
-    passed:
-    - deploy-gcs-blobstore-sdk
-    trigger: true
-  - get: bosh-backup-and-restore-meta
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-gcs-blobstore-sdk
-  - task: gcs-blobstore-backuper-system-tests
-    file: backup-and-restore-ci/tasks/gcs-system-tests/task.yml
-    params:
-      GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
-      GCP_PROJECT_NAME: cf-backup-and-restore
-      GCS_BUCKET_NAME: bbr-system-test-gcs-bucket
-      GCS_CLONE_BUCKET_NAME: bbr-system-test-gcs-clone-bucket
-      BOSH_DEPLOYMENT: gcs-backuper
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
-
 - name: deploy-cf-with-external-s3-blobstore
   serial: true
   serial_groups: [bbr-s3]
@@ -1265,12 +1215,8 @@ jobs:
     - get: cf-deployment-gcs
     - get: backup-and-restore-sdk-release
       trigger: true
-      passed:
-      - gcs-blobstore-backuper-system-tests
     - get: release-tarball
       resource: release
-      passed:
-      - gcs-blobstore-backuper-system-tests
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
