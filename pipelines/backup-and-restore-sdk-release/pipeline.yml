@@ -208,6 +208,12 @@ resources:
     << : *MARU_LITE_DIRECTOR
     deployment: s3-backuper
 
+- name: azure-blobstore-sdk-deployment
+  type: bosh-deployment
+  source:
+    << : *MARU_LITE_DIRECTOR
+    deployment: azure-backuper
+
 - name: xenial-stemcell-aws
   type: bosh-io-stemcell
   source:
@@ -537,7 +543,6 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed: [create-release]
       trigger: true
@@ -545,20 +550,22 @@ jobs:
       resource: release
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
-  - task: deploy-azure-blobstore-sdk
-    file: backup-and-restore-ci/tasks/deploy-azure-backuper/task.yml
+    - get: xenial-stemcell
+  - put: azure-blobstore-sdk-deployment
     params:
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
-      BOSH_DEPLOYMENT: azure-backuper
-      BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
-      MANIFEST_NAME: azure-backuper.yml
-      AZURE_STORAGE_ACCOUNT: ((azure-storage-account))
-      AZURE_STORAGE_KEY: ((azure-storage-key))
-      AZURE_CONTAINER_NAME: bbr-system-test-azure-container
-      AZURE_DIFFERENT_STORAGE_ACCOUNT: ((azure-different-storage-account))
-      AZURE_DIFFERENT_STORAGE_KEY: ((azure-different-storage-key))
-      AZURE_DIFFERENT_CONTAINER_NAME: bbr-system-test-azure-different-container
+      manifest: backup-and-restore-sdk-release/ci/manifests/azure-backuper.yml
+      stemcells:
+      - xenial-stemcell/*.tgz
+      releases:
+      - release-tarball/backup-and-restore-sdk-*.tgz
+      vars:
+        deployment-name: azure-backuper
+        azure-container-name: bbr-system-test-azure-container
+        azure-storage-account: ((azure-storage-account))
+        azure-storage-key: ((azure-storage-key))
+        azure-different-storage-account: ((azure-different-storage-account))
+        azure-different-storage-key: ((azure-different-storage-key))
+        azure-different-container-name: bbr-system-test-azure-different-container
 
 - name: postgres-system-tests-9.6
   serial: true
@@ -1059,10 +1066,9 @@ jobs:
     passed:
     - deploy-azure-blobstore-sdk
   - task: azure-blobstore-backuper-system-tests
-    file: backup-and-restore-ci/tasks/azure-system-tests/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-azure/task.yml
     params:
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
+      <<: *MARU_LITE_BOSH_CREDS
       BOSH_DEPLOYMENT: azure-backuper
       AZURE_STORAGE_ACCOUNT: ((azure-storage-account))
       AZURE_STORAGE_KEY: ((azure-storage-key))
