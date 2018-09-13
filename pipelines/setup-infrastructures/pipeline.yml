@@ -122,13 +122,31 @@ jobs:
         repository: updated-bbl-state
         rebase: true
 
-- name: destroy-infrastructure-aws-s3
+- name: clean-up-aws-s3
   serial: true
   serial_groups: [aws-s3]
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-aws-s3]
+    - get: bosh-backup-and-restore-meta
+    - get: every-friday
+      trigger: true
+  - task: bosh-clean-up
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: external-blobstore-directors/aws-s3/
+      CLEAN_ALL: false
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+
+- name: destroy-infrastructure-aws-s3
+  serial: true
+  serial_groups: [aws-s3]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [clean-up-aws-s3]
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -169,13 +187,31 @@ jobs:
         repository: updated-bbl-state
         rebase: true
 
-- name: destroy-infrastructure-aws-s3-unversioned
+- name: clean-up-aws-s3-unversioned
   serial: true
   serial_groups: [aws-s3-unversioned]
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-aws-s3-unversioned]
+    - get: bosh-backup-and-restore-meta
+    - get: every-friday
+      trigger: true
+  - task: bosh-clean-up
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
+      CLEAN_ALL: false
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+
+- name: destroy-infrastructure-aws-s3-unversioned
+  serial: true
+  serial_groups: [aws-s3-unversioned]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [clean-up-aws-s3-unversioned]
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -216,13 +252,31 @@ jobs:
         repository: updated-bbl-state
         rebase: true
 
-- name: destroy-infrastructure-azure
+- name: clean-up-azure
   serial: true
   serial_groups: [azure]
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-azure]
+    - get: bosh-backup-and-restore-meta
+    - get: every-friday
+      trigger: true
+  - task: bosh-clean-up
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: external-blobstore-directors/azure/
+      CLEAN_ALL: false
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+
+- name: destroy-infrastructure-azure
+  serial: true
+  serial_groups: [azure]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [clean-up-azure]
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -285,13 +339,31 @@ jobs:
       vars:
         gcp_service_account_key: ((gcp_service_account_key))
 
-- name: destroy-infrastructure-aws-ec2
+- name: clean-up-aws-ec2
   serial: true
   serial_groups: [aws-ec2]
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-aws-ec2]
+    - get: bosh-backup-and-restore-meta
+    - get: every-friday
+      trigger: true
+  - task: bosh-clean-up
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: external-blobstore-directors/aws-ec2/
+      CLEAN_ALL: false
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+
+- name: destroy-infrastructure-aws-ec2
+  serial: true
+  serial_groups: [aws-ec2]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [clean-up-aws-ec2]
     - get: bosh-backup-and-restore-meta
   - put: terraform
     params:
@@ -343,13 +415,31 @@ jobs:
         repository: updated-bbl-state
         rebase: true
 
-- name: destroy-infrastructure-drats-pr-ragdoll
+- name: clean-up-drats-pr-ragdoll
   serial: true
   serial_groups: [drats-pr-ragdoll]
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-pr-ragdoll]
+    - get: bosh-backup-and-restore-meta
+    - get: every-friday
+      trigger: true
+  - task: bosh-clean-up
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: drats-pr-ragdoll/
+      CLEAN_ALL: false
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+
+- name: destroy-infrastructure-drats-pr-ragdoll
+  serial: true
+  serial_groups: [drats-pr-ragdoll]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [clean-up-drats-pr-ragdoll]
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -390,13 +480,31 @@ jobs:
         repository: updated-bbl-state
         rebase: true
 
-- name: destroy-infrastructure-drats-papillon
+- name: clean-up-drats-papillon
   serial: true
   serial_groups: [drats-papillon]
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-papillon]
+    - get: bosh-backup-and-restore-meta
+    - get: every-friday
+      trigger: true
+  - task: bosh-clean-up
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: drats-papillon/
+      CLEAN_ALL: false
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+
+- name: destroy-infrastructure-drats-papillon
+  serial: true
+  serial_groups: [drats-papillon]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [clean-up-drats-papillon]
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -437,13 +545,31 @@ jobs:
         repository: updated-bbl-state
         rebase: true
 
-- name: destroy-infrastructure-drats-with-config-manx
+- name: clean-up-drats-with-config-manx
   serial: true
   serial_groups: [drats-with-config-manx]
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-with-config-manx]
+    - get: bosh-backup-and-restore-meta
+    - get: every-friday
+      trigger: true
+  - task: bosh-clean-up
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: drats-with-config-manx/
+      CLEAN_ALL: false
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+
+- name: destroy-infrastructure-drats-with-config-manx
+  serial: true
+  serial_groups: [drats-with-config-manx]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [clean-up-drats-with-config-manx]
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -482,13 +608,31 @@ jobs:
         repository: updated-bbl-state
         rebase: true
 
-- name: destroy-infrastructure-maru
+- name: clean-up-maru
   serial: true
   serial_groups: [maru]
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-maru]
+    - get: bosh-backup-and-restore-meta
+    - get: every-friday
+      trigger: true
+  - task: bosh-clean-up
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: maru/
+      CLEAN_ALL: false
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+
+- name: destroy-infrastructure-maru
+  serial: true
+  serial_groups: [maru]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [clean-up-maru]
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -529,13 +673,31 @@ jobs:
         repository: updated-bbl-state
         rebase: true
 
-- name: destroy-infrastructure-maru-lite
+- name: clean-up-maru-lite
   serial: true
   serial_groups: [maru-lite]
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-maru-lite]
+    - get: bosh-backup-and-restore-meta
+    - get: every-friday
+      trigger: true
+  - task: bosh-clean-up
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: maru-lite/
+      CLEAN_ALL: false
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+
+- name: destroy-infrastructure-maru-lite
+  serial: true
+  serial_groups: [maru-lite]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [clean-up-maru-lite]
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -576,13 +738,31 @@ jobs:
         repository: updated-bbl-state
         rebase: true
 
-- name: destroy-infrastructure-gcs
+- name: clean-up-gcs
   serial: true
   serial_groups: [gcs]
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-gcs]
+    - get: bosh-backup-and-restore-meta
+    - get: every-friday
+      trigger: true
+  - task: bosh-clean-up
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: external-blobstore-directors/gcs/
+      CLEAN_ALL: false
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+
+- name: destroy-infrastructure-gcs
+  serial: true
+  serial_groups: [gcs]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+      passed: [clean-up-gcs]
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
