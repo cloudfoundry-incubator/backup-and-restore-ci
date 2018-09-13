@@ -78,20 +78,16 @@ resources:
     space: ((pws-tracker-bot-space))
     skip_cert_check: false
 
-- name: every-morning
+- name: every-tuesday
   type: time
   source:
-    start: 9:00 AM
-    stop: 10:00 AM
+    start: 8:00 AM
+    stop: 9:00 AM
     days:
-    - Monday
     - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
     location: Europe/London
 
-- name: every-week
+- name: every-friday
   type: time
   source:
     start: 8:00 AM
@@ -622,7 +618,9 @@ jobs:
   plan:
   - aggregate:
     - get: backup-and-restore-ci
-    - get: every-morning
+    - get: every-tuesday
+      trigger: true
+    - get: every-friday
       trigger: true
   - task: renew-environments
     tags: [platform-recovery-vsphere]
@@ -632,7 +630,7 @@ jobs:
 
 - name: delete-unattached-disks
   plan:
-  - get: every-week
+  - get: every-friday
     trigger: true
   - task: delete-unattached-disks
     params:
