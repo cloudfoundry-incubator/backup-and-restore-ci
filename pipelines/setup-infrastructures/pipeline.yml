@@ -91,6 +91,15 @@ resources:
     - Friday
     location: Europe/London
 
+- name: every-week
+  type: time
+  source:
+    start: 8:00 AM
+    stop: 9:00 AM
+    days:
+    - Friday
+    location: Europe/London
+
 jobs:
 - name: setup-infrastructure-aws-s3
   serial: true
@@ -620,3 +629,29 @@ jobs:
     file: backup-and-restore-ci/tasks/renew-env/task.yml
     params:
       ENVIRONMENTS: ((environments-to-renew))
+
+- name: delete-unattached-disks
+  plan:
+  - get: every-week
+    trigger: true
+  - task: delete-unattached-disks
+    params:
+      GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: google/cloud-sdk
+      params:
+        GCP_SERVICE_ACCOUNT_KEY:
+      run:
+        path: bash
+        args:
+        - -c
+        - |
+          set -eu
+          set -o pipefail
+
+          gcloud auth activate-service-account --key-file <(echo "$GCP_SERVICE_ACCOUNT_KEY")
+          gcloud compute disks list --filter="-users:*" --uri  | xargs gcloud compute disks delete --quiet
