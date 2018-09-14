@@ -575,7 +575,6 @@ jobs:
       OPS_MAN_USER: ((ops-man-user))
       OPS_MAN_PASS: ((ops-man-pass))
       OPS_MAN_SSH_KEY: ((ops-man-ssh-key))
-      FOCUSED_SUITE_NAME: "cf-routing|app-uptime|cf-app|cf-uaa|cf-networking|cf-nfsbroker|cf-credhub|usage-service|notifications"
 
 - name: build-final
   serial_groups: [version]
