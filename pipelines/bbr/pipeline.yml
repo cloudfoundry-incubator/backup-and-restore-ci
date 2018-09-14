@@ -538,6 +538,12 @@ jobs:
       OPS_MAN_URL: ((ops-man-url))
       OPS_MAN_USER: ((ops-man-user))
       OPS_MAN_PASS: ((ops-man-pass))
+  - task: configure-diego-cells
+    file: pivotal-disaster-recovery-acceptance-tests/ci/configure-diego-cells-pas/task.yml
+    params:
+      OPS_MAN_URL: ((ops-man-url))
+      OPS_MAN_USER: ((ops-man-user))
+      OPS_MAN_PASS: ((ops-man-pass))
   - task: enable-optional-components
     file: pivotal-disaster-recovery-acceptance-tests/ci/enable-optional-components-pas/task.yml
     privileged: true
