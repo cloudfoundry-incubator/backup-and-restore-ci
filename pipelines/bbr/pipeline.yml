@@ -251,6 +251,11 @@ resources:
   source:
     name: bosh-warden-boshlite-ubuntu-xenial-go_agent
 
+- name: trusty-lite-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-warden-boshlite-ubuntu-trusty-go_agent
+
 jobs:
 - name: create-director-test-releases
   plan:
@@ -396,6 +401,7 @@ jobs:
     - get: windows-stemcell
     - get: ubuntu-stemcell
     - get: xenial-lite-stemcell
+    - get: trusty-lite-stemcell
     - get: bosh-backup-and-restore
       passed: [unit]
       trigger: true
@@ -418,7 +424,7 @@ jobs:
       params:
         manifest: bosh-backup-and-restore/fixtures/many-bbr-scripts.yml
         stemcells:
-          - xenial-lite-stemcell/*.tgz
+          - trusty-lite-stemcell/*.tgz
 
 - name: system-deployment
   serial: true
