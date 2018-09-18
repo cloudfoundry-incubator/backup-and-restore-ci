@@ -53,12 +53,14 @@ groups:
   - upload-deployment-test-releases
   - unit
   - create-director-test-releases
-  - deploy-system-deployments
+  - deploy-system-deployment
+  - deploy-system-windows
   - deploy-bosh-directors
   - system-deployment
   - system-director
   - system-windows
-  - delete-system-deployments
+  - delete-system-deployment
+  - delete-system-windows
   - build-rc
   - install-optional-components-on-pas
   - run-p-drats-on-pas
@@ -239,11 +241,6 @@ resources:
   source:
     name: bosh-google-kvm-ubuntu-trusty-go_agent
 
-- name: xenial-lite-stemcell
-  type: bosh-io-stemcell
-  source:
-    name: bosh-warden-boshlite-ubuntu-xenial-go_agent
-
 jobs:
 - name: create-director-test-releases
   plan:
@@ -381,14 +378,31 @@ jobs:
       DOCKER_HOST: "tcp://10.0.3.12:4243"
       GITHUB_SSH_KEY: "((github-ssh-key))"
 
-- name: deploy-system-deployments
+- name: deploy-system-deployment
   serial: true
-  serial_groups: [systest-deployments]
+  serial_groups: [system-deployment]
+  plan:
+  - aggregate:
+    - get: trusty-stemcell
+    - get: bosh-backup-and-restore
+      passed: [unit]
+      trigger: true
+    - get: bbr-deployment-test-releases
+      passed: [upload-deployment-test-releases]
+      trigger: true
+  - put: many-bbr-scripts-deployment
+    params:
+      manifest: bosh-backup-and-restore/fixtures/many-bbr-scripts.yml
+      stemcells:
+        - trusty-stemcell/*.tgz
+
+- name: deploy-system-windows
+  serial: true
+  serial_groups: [system-windows]
   plan:
   - aggregate:
     - get: windows-stemcell
     - get: trusty-stemcell
-    - get: xenial-lite-stemcell
     - get: bosh-backup-and-restore
       passed: [unit]
       trigger: true
@@ -407,24 +421,19 @@ jobs:
         manifest: bosh-backup-and-restore/fixtures/jumpbox-windows-ci.yml
         stemcells:
         - trusty-stemcell/*.tgz
-    - put: many-bbr-scripts-deployment
-      params:
-        manifest: bosh-backup-and-restore/fixtures/many-bbr-scripts.yml
-        stemcells:
-          - trusty-stemcell/*.tgz
 
 - name: system-deployment
   serial: true
-  serial_groups: [systest-deployments]
+  serial_groups: [system-deployment]
   plan:
   - aggregate:
     - get: bosh-backup-and-restore
-      passed: [unit, deploy-system-deployments]
+      passed: [deploy-system-deployment]
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: bbr-deployment-test-releases
-      passed: [deploy-system-deployments]
+      passed: [deploy-system-deployment]
       trigger: true
   - aggregate:
     - task: system-deployment-without-uaa
@@ -462,29 +471,40 @@ jobs:
 
 - name: system-windows
   serial: true
-  serial_groups: [systest-deployments]
+  serial_groups: [system-windows]
   plan:
   - aggregate:
     - get: bosh-backup-and-restore
-      passed: [deploy-system-deployments]
+      passed: [deploy-system-windows]
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: bbr-deployment-test-releases
-      passed: [deploy-system-deployments]
+      passed: [deploy-system-windows]
       trigger: true
   - task: system-windows
     file: backup-and-restore-ci/tasks/bbr-system-windows/task.yml
     params:
       <<: *maru-bosh-env
 
-
-- name: delete-system-deployments
+- name: delete-system-deployment
   serial: true
-  serial_groups: [systest-deployments]
+  serial_groups: [system-deployment]
   plan:
   - get: bosh-backup-and-restore
-    passed: [system-windows, system-deployment]
+    passed: [system-deployment]
+    trigger: true
+  - put: many-bbr-scripts-deployment
+    params:
+      delete:
+        enabled: true
+
+- name: delete-system-windows
+  serial: true
+  serial_groups: [system-windows]
+  plan:
+  - get: bosh-backup-and-restore
+    passed: [system-windows]
     trigger: true
   - aggregate:
     - put: windows-vm-deployment
@@ -492,10 +512,6 @@ jobs:
         delete:
           enabled: true
     - put: jumpbox-windows-deployment
-      params:
-        delete:
-          enabled: true
-    - put: many-bbr-scripts-deployment
       params:
         delete:
           enabled: true
