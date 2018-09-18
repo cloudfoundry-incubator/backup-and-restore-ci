@@ -415,6 +415,7 @@ jobs:
 
 - name: system-deployment
   serial: true
+  serial_groups: [systest-deployments]
   plan:
   - aggregate:
     - get: bosh-backup-and-restore
