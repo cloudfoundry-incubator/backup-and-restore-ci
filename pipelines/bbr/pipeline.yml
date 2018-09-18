@@ -57,6 +57,7 @@ groups:
   - deploy-system-windows
   - deploy-bosh-directors
   - system-deployment
+  - system-deployment-bosh-all-proxy
   - system-director
   - system-windows
   - delete-system-deployment
@@ -448,6 +449,24 @@ jobs:
       file: backup-and-restore-ci/tasks/bbr-system-bosh-all-proxy/task.yml
       params:
         <<: *maru-bosh-env
+
+- name: system-deployment-bosh-all-proxy
+  serial: true
+  serial_groups: [system-deployment]
+  plan:
+  - aggregate:
+    - get: bosh-backup-and-restore
+      passed: [deploy-system-deployment]
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
+    - get: bbr-deployment-test-releases
+      passed: [deploy-system-deployment]
+      trigger: true
+  - task: system-bosh-all-proxy
+    file: backup-and-restore-ci/tasks/bbr-system-bosh-all-proxy/task.yml
+    params:
+      <<: *maru-bosh-env
 
 - name: system-director
   serial: true
