@@ -53,14 +53,14 @@ groups:
   - upload-deployment-test-releases
   - unit
   - create-director-test-releases
-  - deploy-system-deployment
+  - deploy-system-deployment-bosh-all-proxy
   - deploy-system-windows
   - deploy-bosh-directors
   - system-deployment
   - system-deployment-bosh-all-proxy
   - system-director
   - system-windows
-  - delete-system-deployment
+  - delete-system-deployment-bosh-all-proxy
   - delete-system-windows
   - build-rc
   - install-optional-components-on-pas
@@ -379,7 +379,7 @@ jobs:
       DOCKER_HOST: "tcp://10.0.3.12:4243"
       GITHUB_SSH_KEY: "((github-ssh-key))"
 
-- name: deploy-system-deployment
+- name: deploy-system-deployment-bosh-all-proxy
   serial: true
   serial_groups: [system-deployment]
   plan:
@@ -425,16 +425,15 @@ jobs:
 
 - name: system-deployment
   serial: true
-  serial_groups: [system-deployment]
   plan:
   - aggregate:
     - get: bosh-backup-and-restore
-      passed: [deploy-system-deployment]
+      passed: [unit]
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: bbr-deployment-test-releases
-      passed: [deploy-system-deployment]
+      passed: [upload-deployment-test-releases]
       trigger: true
   - aggregate:
     - task: system-deployment-without-uaa
@@ -445,23 +444,19 @@ jobs:
       file: backup-and-restore-ci/tasks/bbr-system-deployment/task.yml
       params:
         <<: *lite-bosh-uaa-env
-    - task: system-bosh-all-proxy
-      file: backup-and-restore-ci/tasks/bbr-system-bosh-all-proxy/task.yml
-      params:
-        <<: *maru-bosh-env
 
 - name: system-deployment-bosh-all-proxy
   serial: true
-  serial_groups: [system-deployment]
+  serial_groups: [system-deployment-bosh-all-proxy]
   plan:
   - aggregate:
     - get: bosh-backup-and-restore
-      passed: [deploy-system-deployment]
+      passed: [deploy-system-deployment-bosh-all-proxy]
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: bbr-deployment-test-releases
-      passed: [deploy-system-deployment]
+      passed: [deploy-system-deployment-bosh-all-proxy]
       trigger: true
   - task: system-bosh-all-proxy
     file: backup-and-restore-ci/tasks/bbr-system-bosh-all-proxy/task.yml
@@ -506,12 +501,12 @@ jobs:
     params:
       <<: *maru-bosh-env
 
-- name: delete-system-deployment
+- name: delete-system-deployment-bosh-all-proxy
   serial: true
-  serial_groups: [system-deployment]
+  serial_groups: [system-deployment-bosh-all-proxy]
   plan:
   - get: bosh-backup-and-restore
-    passed: [system-deployment]
+    passed: [system-deployment-bosh-all-proxy]
     trigger: true
   - put: many-bbr-scripts-deployment
     params:
@@ -540,7 +535,7 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-backup-and-restore
-      passed: [system-deployment, system-director, system-windows]
+      passed: [system-deployment, system-deployment-bosh-all-proxy, system-director, system-windows]
       trigger: true
       params:
         submodules: none
