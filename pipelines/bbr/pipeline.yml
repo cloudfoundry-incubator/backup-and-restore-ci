@@ -9,6 +9,14 @@ maru-bosh-env: &maru-bosh-env
   BOSH_GW_PRIVATE_KEY: "((maru-jumpbox-ssh-key))"
   USE_BOSH_ALL_PROXY: true
 
+maru-bosh-deployment-creds: &maru-bosh-deployment-creds
+  target: "((maru-bosh-director-url))"
+  client: "((maru-bosh-director-username))"
+  client_secret: "((maru-bosh-director-password))"
+  ca_cert: "((maru-bosh-director-ca-cert))"
+  jumpbox_url: "((maru-jumpbox-url)):22"
+  jumpbox_ssh_key: "((maru-jumpbox-ssh-key))"
+
 maru-lite-bosh-env: &maru-lite-bosh-env
   BOSH_ENVIRONMENT: "((maru-lite-bosh-director-url))"
   BOSH_CLIENT: "((maru-lite-bosh-director-username))"
@@ -207,41 +215,26 @@ resources:
   type: bosh-deployment
   source:
     deployment: redis-windows-ci
-    target: "((maru-bosh-director-url))"
-    client: "((maru-bosh-director-username))"
-    client_secret: "((maru-bosh-director-password))"
-    ca_cert: "((maru-bosh-director-ca-cert))"
-    jumpbox_url: "((maru-jumpbox-url)):22"
-    jumpbox_ssh_key: "((maru-jumpbox-ssh-key))"
+    <<: *maru-bosh-deployment-creds
 
 - name: many-bbr-scripts-deployment
   type: bosh-deployment
   source:
     deployment: many-bbr-scripts
-    target: "((maru-lite-bosh-director-url))"
-    client: "((maru-lite-bosh-director-username))"
-    client_secret: "((maru-lite-bosh-director-password))"
-    ca_cert: "((maru-lite-bosh-director-ca-cert))"
-    jumpbox_url: "((maru-lite-jumpbox-address)):22"
-    jumpbox_ssh_key: "((maru-lite-jumpbox-ssh-key))"
+    <<: *maru-bosh-deployment-creds
 
 - name: jumpbox-windows-deployment
   type: bosh-deployment
   source:
     deployment: jumpbox-windows-ci
-    target: "((maru-bosh-director-url))"
-    client: "((maru-bosh-director-username))"
-    client_secret: "((maru-bosh-director-password))"
-    ca_cert: "((maru-bosh-director-ca-cert))"
-    jumpbox_url: "((maru-jumpbox-url)):22"
-    jumpbox_ssh_key: "((maru-jumpbox-ssh-key))"
+    <<: *maru-bosh-deployment-creds
 
 - name: windows-stemcell
   type: bosh-io-stemcell
   source:
     name: bosh-google-kvm-windows2016-go_agent
 
-- name: ubuntu-stemcell
+- name: trusty-stemcell
   type: bosh-io-stemcell
   source:
     name: bosh-google-kvm-ubuntu-trusty-go_agent
@@ -250,11 +243,6 @@ resources:
   type: bosh-io-stemcell
   source:
     name: bosh-warden-boshlite-ubuntu-xenial-go_agent
-
-- name: trusty-lite-stemcell
-  type: bosh-io-stemcell
-  source:
-    name: bosh-warden-boshlite-ubuntu-trusty-go_agent
 
 jobs:
 - name: create-director-test-releases
@@ -350,11 +338,11 @@ jobs:
       params:
         RELEASE_NAME: many-bbr-jobs-release
         <<: *lite-bosh-uaa-env
-    - task: upload-many-bbr-jobs-release-maru-lite
+    - task: upload-many-bbr-jobs-release-maru
       file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
       params:
         RELEASE_NAME: many-bbr-jobs-release
-        <<: *maru-lite-bosh-env
+        <<: *maru-bosh-env
     - task: upload-redis-test-release-maru-bosh
       file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
       params:
@@ -399,9 +387,8 @@ jobs:
   plan:
   - aggregate:
     - get: windows-stemcell
-    - get: ubuntu-stemcell
+    - get: trusty-stemcell
     - get: xenial-lite-stemcell
-    - get: trusty-lite-stemcell
     - get: bosh-backup-and-restore
       passed: [unit]
       trigger: true
@@ -414,17 +401,17 @@ jobs:
         manifest: bosh-backup-and-restore/fixtures/redis-windows-ci.yml
         stemcells:
         - windows-stemcell/*.tgz
-        - ubuntu-stemcell/*.tgz
+        - trusty-stemcell/*.tgz
     - put: jumpbox-windows-deployment
       params:
         manifest: bosh-backup-and-restore/fixtures/jumpbox-windows-ci.yml
         stemcells:
-        - ubuntu-stemcell/*.tgz
+        - trusty-stemcell/*.tgz
     - put: many-bbr-scripts-deployment
       params:
         manifest: bosh-backup-and-restore/fixtures/many-bbr-scripts.yml
         stemcells:
-          - trusty-lite-stemcell/*.tgz
+          - trusty-stemcell/*.tgz
 
 - name: system-deployment
   serial: true
@@ -450,7 +437,7 @@ jobs:
     - task: system-bosh-all-proxy
       file: backup-and-restore-ci/tasks/bbr-system-bosh-all-proxy/task.yml
       params:
-        <<: *maru-lite-bosh-env
+        <<: *maru-bosh-env
 
 - name: system-director
   serial: true
