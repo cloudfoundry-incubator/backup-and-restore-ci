@@ -51,6 +51,7 @@ groups:
 - name: BUILD
   jobs:
   - upload-deployment-test-releases
+  - create-bosh-team-admin
   - unit
   - create-director-test-releases
   - deploy-system-deployment-bosh-all-proxy
@@ -361,6 +362,32 @@ jobs:
       params:
         RELEASE_NAME: lock-ordering-release
         <<: *lite-bosh-uaa-env
+
+- name: create-bosh-team-admin
+  serial: true
+  plan:
+  - get: backup-and-restore-ci
+  - aggregate:
+    - task: create-bosh-team-admin-garden-uaa
+      file: backup-and-restore-ci/tasks/bbr-create-bosh-team-admin/task.yml
+      params:
+        BOSH_ENVIRONMENT: lite-bosh-uaa.backup-and-restore.cf-app.com
+        UAA_CLIENT: ((lite-bosh-uaa-admin-client))
+        UAA_CLIENT_SECRET: ((lite-bosh-uaa-admin-client-secret))
+        BOSH_TEAM_CLIENT: ((bosh-team-admin))
+        BOSH_TEAM_CLIENT_SECRET: ((bosh-team-admin-secret))
+    - task: create-bosh-team-admin-maru-lite
+      file: backup-and-restore-ci/tasks/bbr-create-bosh-team-admin/task.yml
+      privileged: true
+      params:
+        BOSH_ENVIRONMENT: 10.0.0.6
+        UAA_CLIENT: ((maru-lite-uaa-admin-client))
+        UAA_CLIENT_SECRET: ((maru-lite-uaa-admin-client-secret))
+        BOSH_TEAM_CLIENT: ((bosh-team-admin))
+        BOSH_TEAM_CLIENT_SECRET: ((bosh-team-admin-secret))
+        JUMPBOX_HOST: ((maru-lite-jumpbox-address))
+        JUMPBOX_USER: jumpbox
+        JUMPBOX_PRIVATE_KEY: ((maru-lite-jumpbox-ssh-key))
 
 - name: unit
   serial: true
