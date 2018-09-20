@@ -17,6 +17,12 @@ fi
 
 uaac target "$BOSH_ENVIRONMENT:8443" --skip-ssl-validation
 uaac token client get "$UAA_CLIENT" --secret "$UAA_CLIENT_SECRET"
+
+if uaac clients | grep -q bbrsystemtest; then
+  echo "uaa client: $BOSH_TEAM_CLIENT already exists"
+  exit 0
+fi
+
 uaac client add "$BOSH_TEAM_CLIENT" \
   --authorities "bosh.teams.${BOSH_TEAM_CLIENT}.admin" \
   --authorized_grant_types client_credentials \
