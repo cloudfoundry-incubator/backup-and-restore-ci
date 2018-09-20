@@ -2,7 +2,7 @@
 
 set -eu
 
-if [ -z "$JUMPBOX_PRIVATE_KEY" ]; then
+if [ ! -z "$JUMPBOX_PRIVATE_KEY" ]; then
   eval "$(ssh-agent)"
   private_key_path="$(mktemp)"
   echo -e "$JUMPBOX_PRIVATE_KEY" > "$private_key_path"
