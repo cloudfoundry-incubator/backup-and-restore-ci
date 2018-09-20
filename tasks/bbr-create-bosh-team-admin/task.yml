@@ -1,0 +1,23 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source: {repository: cloudfoundrylondon/backup-and-restore}
+
+inputs:
+- name: backup-and-restore-ci
+
+params:
+  BOSH_ENVIRONMENT:
+  UAA_CLIENT:
+  UAA_CLIENT_SECRET:
+  BOSH_TEAM_CLIENT:
+  BOSH_TEAM_CLIENT_SECRET:
+  JUMPBOX_HOST:
+  JUMPBOX_USER:
+  JUMPBOX_PRIVATE_KEY:
+  DESTINATION_CIDR: 10.0.0.0/16
+
+run:
+  path: backup-and-restore-ci/tasks/bbr-create-bosh-team-admin/task.sh
