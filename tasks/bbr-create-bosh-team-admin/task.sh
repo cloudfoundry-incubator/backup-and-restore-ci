@@ -18,7 +18,7 @@ fi
 uaac target "$BOSH_ENVIRONMENT:8443" --skip-ssl-validation
 uaac token client get "$UAA_CLIENT" --secret "$UAA_CLIENT_SECRET"
 
-if uaac clients | grep -q bbrsystemtest; then
+if uaac clients | grep -q "$BOSH_TEAM_CLIENT"; then
   echo "uaa client: $BOSH_TEAM_CLIENT already exists"
   exit 0
 fi
