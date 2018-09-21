@@ -24,7 +24,7 @@ if uaac clients | grep -q "$BOSH_TEAM_CLIENT"; then
 fi
 
 uaac client add "$BOSH_TEAM_CLIENT" \
-  --authorities "bosh.teams.${BOSH_TEAM_CLIENT}.admin bosh.stemcells.upload" \
+  --authorities "bosh.teams.${BOSH_TEAM_CLIENT}.admin" \
   --authorized_grant_types client_credentials \
   --secret "$BOSH_TEAM_CLIENT_SECRET" \
   --no-interactive
