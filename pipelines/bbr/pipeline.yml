@@ -408,7 +408,7 @@ jobs:
 
 - name: deploy-system-deployment-bosh-all-proxy
   serial: true
-  serial_groups: [system-deployment]
+  serial_groups: [system-deployment-bosh-all-proxy]
   plan:
   - aggregate:
     - get: trusty-stemcell
