@@ -12,6 +12,7 @@ inputs:
 - name: backup-and-restore-ci
 
 params:
+  BOSH_CLIENT: admin
   BOSH_CLIENT_SECRET:
   BOSH_ENVIRONMENT:
   HOST_TO_BACKUP:
