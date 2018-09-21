@@ -27,6 +27,15 @@ maru-lite-bosh-env: &maru-lite-bosh-env
   BOSH_GW_PRIVATE_KEY: "((maru-lite-jumpbox-ssh-key))"
   USE_BOSH_ALL_PROXY: true
 
+maru-lite-bosh-team-creds: &maru-lite-bosh-team-creds
+  BOSH_ENVIRONMENT: "((maru-lite-bosh-director-url))"
+  BOSH_CLIENT: "((bosh-team-admin))"
+  BOSH_CLIENT_SECRET: "((bosh-team-admin-secret))"
+  BOSH_CA_CERT: "((maru-lite-bosh-director-ca-cert))"
+  BOSH_GW_USER: jumpbox
+  BOSH_GW_HOST: "((maru-lite-jumpbox-address)):22"
+  BOSH_GW_PRIVATE_KEY: "((maru-lite-jumpbox-ssh-key))"
+
 lite-bosh-env: &lite-bosh-env
   BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
   BOSH_CLIENT: ((garden-bosh-director-username))
@@ -55,6 +64,7 @@ groups:
   - unit
   - create-director-test-releases
   - deploy-system-deployment-bosh-all-proxy
+  - deploy-system-deployments-bosh-team
   - deploy-system-windows
   - deploy-bosh-directors
   - system-deployment
@@ -327,6 +337,11 @@ jobs:
       params:
         RELEASE_NAME: redis-test-release
         <<: *lite-bosh-env
+    - task: upload-redis-test-release-maru-lite
+      file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
+      params:
+        RELEASE_NAME: redis-test-release
+        <<: *maru-lite-bosh-env
     - task: upload-many-bbr-jobs-release-lite-bosh
       file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
       params:
@@ -367,27 +382,18 @@ jobs:
   serial: true
   plan:
   - get: backup-and-restore-ci
-  - aggregate:
-    - task: create-bosh-team-admin-garden-uaa
-      file: backup-and-restore-ci/tasks/bbr-create-bosh-team-admin/task.yml
-      params:
-        BOSH_ENVIRONMENT: lite-bosh-uaa.backup-and-restore.cf-app.com
-        UAA_CLIENT: ((lite-bosh-uaa-admin-client))
-        UAA_CLIENT_SECRET: ((lite-bosh-uaa-admin-client-secret))
-        BOSH_TEAM_CLIENT: ((bosh-team-admin))
-        BOSH_TEAM_CLIENT_SECRET: ((bosh-team-admin-secret))
-    - task: create-bosh-team-admin-maru-lite
-      file: backup-and-restore-ci/tasks/bbr-create-bosh-team-admin/task.yml
-      privileged: true
-      params:
-        BOSH_ENVIRONMENT: 10.0.0.6
-        UAA_CLIENT: ((maru-lite-uaa-admin-client))
-        UAA_CLIENT_SECRET: ((maru-lite-uaa-admin-client-secret))
-        BOSH_TEAM_CLIENT: ((bosh-team-admin))
-        BOSH_TEAM_CLIENT_SECRET: ((bosh-team-admin-secret))
-        JUMPBOX_HOST: ((maru-lite-jumpbox-address))
-        JUMPBOX_USER: jumpbox
-        JUMPBOX_PRIVATE_KEY: ((maru-lite-jumpbox-ssh-key))
+  - task: create-bosh-team-admin-maru-lite
+    file: backup-and-restore-ci/tasks/bbr-create-bosh-team-admin/task.yml
+    privileged: true
+    params:
+      BOSH_ENVIRONMENT: 10.0.0.6
+      UAA_CLIENT: ((maru-lite-uaa-admin-client))
+      UAA_CLIENT_SECRET: ((maru-lite-uaa-admin-client-secret))
+      BOSH_TEAM_CLIENT: ((bosh-team-admin))
+      BOSH_TEAM_CLIENT_SECRET: ((bosh-team-admin-secret))
+      JUMPBOX_HOST: ((maru-lite-jumpbox-address))
+      JUMPBOX_USER: jumpbox
+      JUMPBOX_PRIVATE_KEY: ((maru-lite-jumpbox-ssh-key))
 
 - name: unit
   serial: true
@@ -423,6 +429,35 @@ jobs:
       manifest: bosh-backup-and-restore/fixtures/many-bbr-scripts.yml
       stemcells:
         - trusty-stemcell/*.tgz
+
+- name: deploy-system-deployments-bosh-team
+  serial: true
+  serial_groups: [system-deployment-bosh-team]
+  plan:
+  - aggregate:
+    - get: bosh-backup-and-restore
+      passed: [unit]
+      trigger: true
+    - get: bbr-deployment-test-releases
+      passed: [upload-deployment-test-releases]
+      trigger: true
+    - get: backup-and-restore-ci
+  - aggregate:
+    - task: deploy-bosh-team-redis-1
+      file: backup-and-restore-ci/tasks/bbr-deploy-bosh-team/task.yml
+      params:
+        <<: *maru-lite-bosh-team-creds
+        DEPLOYMENT_NAME: redis-1
+    - task: deploy-bosh-team-redis-2
+      file: backup-and-restore-ci/tasks/bbr-deploy-bosh-team/task.yml
+      params:
+        <<: *maru-lite-bosh-team-creds
+        DEPLOYMENT_NAME: redis-2
+    - task: deploy-bosh-team-redis-3
+      file: backup-and-restore-ci/tasks/bbr-deploy-bosh-team/task.yml
+      params:
+        <<: *maru-lite-bosh-team-creds
+        DEPLOYMENT_NAME: redis-3
 
 - name: deploy-system-windows
   serial: true
@@ -489,6 +524,8 @@ jobs:
     file: backup-and-restore-ci/tasks/bbr-system-bosh-all-proxy/task.yml
     params:
       <<: *maru-bosh-env
+
+
 
 - name: system-director
   serial: true
