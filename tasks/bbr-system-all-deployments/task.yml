@@ -21,4 +21,4 @@ params:
   BOSH_GW_USER:
 
 run:
-  path: backup-and-restore-ci/tasks/bbr-system-bosh-team/task.sh
+  path: backup-and-restore-ci/tasks/bbr-system-all-deployments/task.sh
