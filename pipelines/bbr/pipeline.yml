@@ -17,6 +17,14 @@ maru-bosh-deployment-creds: &maru-bosh-deployment-creds
   jumpbox_url: "((maru-jumpbox-url)):22"
   jumpbox_ssh_key: "((maru-jumpbox-ssh-key))"
 
+maru-lite-bosh-deployment-creds: &maru-lite-bosh-deployment-creds
+  target: "((maru-lite-bosh-director-url))"
+  client: "((maru-lite-bosh-director-username))"
+  client_secret: "((maru-lite-bosh-director-password))"
+  ca_cert: "((maru-lite-bosh-director-ca-cert))"
+  jumpbox_url: "((maru-lite-jumpbox-address)):22"
+  jumpbox_ssh_key: "((maru-lite-jumpbox-ssh-key))"
+
 maru-lite-bosh-env: &maru-lite-bosh-env
   BOSH_ENVIRONMENT: "((maru-lite-bosh-director-url))"
   BOSH_CLIENT: "((maru-lite-bosh-director-username))"
@@ -73,6 +81,7 @@ groups:
   - system-all-deployments
   - delete-system-deployment-bosh-all-proxy
   - delete-system-windows
+  - delete-system-all-deployments
   - build-rc
   - install-optional-components-on-pas
   - run-p-drats-on-pas
@@ -242,6 +251,24 @@ resources:
   source:
     deployment: jumpbox-windows-ci
     <<: *maru-bosh-deployment-creds
+
+- name: all-deployments-redis-1-deployment
+  type: bosh-deployment
+  source:
+    deployment: redis-1
+    <<: *maru-lite-bosh-deployment-creds
+
+- name: all-deployments-redis-2-deployment
+  type: bosh-deployment
+  source:
+    deployment: redis-2
+    <<: *maru-lite-bosh-deployment-creds
+
+- name: all-deployments-redis-3-deployment
+  type: bosh-deployment
+  source:
+    deployment: redis-3
+    <<: *maru-lite-bosh-deployment-creds
 
 - name: windows-stemcell
   type: bosh-io-stemcell
@@ -573,6 +600,27 @@ jobs:
     params:
       <<: *maru-lite-bosh-team-creds
 
+- name: delete-system-all-deployments
+  serial: true
+  serial_groups: [system-all-deployments]
+  plan:
+  - get: bosh-backup-and-restore
+    passed: [system-all-deployments]
+    trigger: true
+  - aggregate:
+    - put: all-deployments-redis-1-deployment
+      params:
+        delete:
+          enabled: true
+    - put: all-deployments-redis-2-deployment
+      params:
+        delete:
+          enabled: true
+    - put: all-deployments-redis-3-deployment
+      params:
+        delete:
+          enabled: true
+
 - name: delete-system-deployment-bosh-all-proxy
   serial: true
   serial_groups: [system-deployment-bosh-all-proxy]
@@ -607,7 +655,7 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-backup-and-restore
-      passed: [system-deployment, system-deployment-bosh-all-proxy, system-director, system-windows]
+      passed: [system-all-deployments, system-deployment, system-deployment-bosh-all-proxy, system-director, system-windows]
       trigger: true
       params:
         submodules: none
