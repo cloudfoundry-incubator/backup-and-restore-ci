@@ -321,14 +321,6 @@ jobs:
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
     - get: xenial-stemcell
-  - task: deploy-backup-restore-sdk
-    file: backup-and-restore-ci/tasks/deploy/task.yml
-    params:
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
-      BOSH_DEPLOYMENT: backup-restorer
-      BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
-      MANIFEST_NAME: backup-restorer.yml
   - put: database-backup-restorer-deployment
     params:
       manifest: backup-and-restore-sdk-release/ci/manifests/database-backup-restorer.yml
@@ -577,7 +569,6 @@ jobs:
       - deploy-postgres-9.6
       - deploy-backup-restore-sdk
       trigger: true
-    - get: bosh-backup-and-restore-meta
     - get: release-tarball
       resource: release
       passed:
@@ -627,47 +618,37 @@ jobs:
       - deploy-external-gcp-dbs
       - deploy-backup-restore-sdk
       trigger: true
-    - get: bosh-backup-and-restore-meta
     - get: release-tarball
       resource: release
       passed:
       - deploy-external-gcp-dbs
       - deploy-backup-restore-sdk
   - task: postgres-system-tests
-    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
     params:
       TEST_SUITE_NAME: postgresql
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
+      <<: *MARU_LITE_BOSH_CREDS
       POSTGRES_PASSWORD: ((gcp-postgres-9-6-password))
       POSTGRES_HOSTNAME: ((gcp-postgres-9-6-hostname))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
-      SSH_PROXY_HOST: 104.199.27.23
-      SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
   - task: postgres-tls-system-tests
-    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
+      <<: *MARU_LITE_BOSH_CREDS
       POSTGRES_PASSWORD: ((gcp-postgres-9-6-password))
       POSTGRES_HOSTNAME: ((gcp-postgres-9-6-hostname))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
-      POSTGRES_CA_CERT_PATH: ((gcp-postgres-9-6-ca-cert-path))
-      SSH_PROXY_HOST: 104.199.27.23
-      SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
+      POSTGRES_CA_CERT: ((gcp-postgres-9-6-ca-cert))
       TEST_TLS_VERIFY_IDENTITY: false
       TEST_SSL_USER_REQUIRES_SSL: false
   - task: postgres-mutual-tls-system-tests
-    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
     params:
       TEST_SUITE_NAME: postgresql_mutual_tls
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
+      <<: *MARU_LITE_BOSH_CREDS
       POSTGRES_PASSWORD: ((gcp-postgres-9-6-password))
       POSTGRES_HOSTNAME: ((gcp-postgres-9-6-mutual-tls-hostname))
       POSTGRES_USERNAME: root
@@ -675,9 +656,6 @@ jobs:
       POSTGRES_CA_CERT_PATH: ((gcp-postgres-9-6-mutual-tls-ca-cert-path))
       POSTGRES_CLIENT_CERT_PATH: ((gcp-postgres-9-6-mutual-tls-client-cert-path))
       POSTGRES_CLIENT_KEY_PATH: ((gcp-postgres-9-6-mutual-tls-client-key-path))
-      SSH_PROXY_HOST: 104.199.27.23
-      SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
       TEST_TLS_VERIFY_IDENTITY: false
       TEST_SSL_USER_REQUIRES_SSL: false
 
@@ -691,39 +669,30 @@ jobs:
       - deploy-external-rds-dbs
       - deploy-backup-restore-sdk
       trigger: true
-    - get: bosh-backup-and-restore-meta
     - get: release-tarball
       resource: release
       passed:
       - deploy-external-rds-dbs
       - deploy-backup-restore-sdk
   - task: postgres-system-tests
-    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
     params:
       TEST_SUITE_NAME: postgresql
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
+      <<: *MARU_LITE_BOSH_CREDS
       POSTGRES_PASSWORD: ((rds-postgres-9-6-password))
       POSTGRES_HOSTNAME: ((rds-postgres-9-6-hostname))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
-      SSH_PROXY_HOST: 104.199.27.23
-      SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
   - task: postgres-tls-system-tests
-    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
+      <<: *MARU_LITE_BOSH_CREDS
       POSTGRES_PASSWORD: ((rds-postgres-9-6-password))
       POSTGRES_HOSTNAME: ((rds-postgres-9-6-hostname))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
-      POSTGRES_CA_CERT_PATH: ((rds-ca-cert-path))
-      SSH_PROXY_HOST: 104.199.27.23
-      SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
+      POSTGRES_CA_CERT: ((rds-ca-cert))
       TEST_SSL_USER_REQUIRES_SSL: false
 
 - name: postgres-system-tests-9.4
@@ -736,7 +705,6 @@ jobs:
       - deploy-postgres-9.4
       - deploy-backup-restore-sdk
       trigger: true
-    - get: bosh-backup-and-restore-meta
     - get: release-tarball
       resource: release
       passed:
@@ -762,39 +730,30 @@ jobs:
       - deploy-external-rds-dbs
       - deploy-backup-restore-sdk
       trigger: true
-    - get: bosh-backup-and-restore-meta
     - get: release-tarball
       resource: release
       passed:
       - deploy-external-rds-dbs
       - deploy-backup-restore-sdk
   - task: postgres-system-tests
-    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
     params:
       TEST_SUITE_NAME: postgresql
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
+      <<: *MARU_LITE_BOSH_CREDS
       POSTGRES_PASSWORD: ((rds-postgres-9-4-password))
       POSTGRES_HOSTNAME: ((rds-postgres-9-4-hostname))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
-      SSH_PROXY_HOST: 104.199.27.23
-      SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
   - task: postgres-tls-system-tests
-    file: backup-and-restore-ci/tasks/postgres-system-tests/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
+      <<: *MARU_LITE_BOSH_CREDS
       POSTGRES_PASSWORD: ((rds-postgres-9-4-password))
       POSTGRES_HOSTNAME: ((rds-postgres-9-4-hostname))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
-      POSTGRES_CA_CERT_PATH: ((rds-ca-cert-path))
-      SSH_PROXY_HOST: 104.199.27.23
-      SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
+      POSTGRES_CA_CERT: ((rds-ca-cert))
       TEST_SSL_USER_REQUIRES_SSL: false
 
 - name: mariadb-system-tests
@@ -843,18 +802,14 @@ jobs:
     - deploy-external-rds-dbs
     - deploy-backup-restore-sdk
   - task: mysql-system-tests
-    file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-mysql/task.yml
     params:
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
+      <<: *MARU_LITE_BOSH_CREDS
       MYSQL_PASSWORD: ((rds-5-5-password))
       MYSQL_HOSTNAME: ((rds-5-5-hostname))
       MYSQL_PORT: 3306
       MYSQL_USERNAME: root
-      SSH_PROXY_HOST: 104.199.27.23
-      SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
-      MYSQL_CA_CERT_PATH: ((rds-ca-cert-path))
+      MYSQL_CA_CERT: ((rds-ca-cert))
       TEST_TLS_MUTUAL_TLS: false
 
 - name: rds-mysql-5.6-system-tests
@@ -873,18 +828,14 @@ jobs:
     - deploy-external-rds-dbs
     - deploy-backup-restore-sdk
   - task: mysql-system-tests
-    file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-mysql/task.yml
     params:
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
+      <<: *MARU_LITE_BOSH_CREDS
       MYSQL_PASSWORD: ((rds-5-6-password))
       MYSQL_HOSTNAME: ((rds-5-6-hostname))
       MYSQL_PORT: 3306
       MYSQL_USERNAME: root
-      SSH_PROXY_HOST: 104.199.27.23
-      SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
-      MYSQL_CA_CERT_PATH: ((rds-ca-cert-path))
+      MYSQL_CA_CERT: ((rds-ca-cert))
       TEST_TLS_MUTUAL_TLS: false
 
 - name: rds-mysql-5.7-system-tests
@@ -903,18 +854,14 @@ jobs:
     - deploy-external-rds-dbs
     - deploy-backup-restore-sdk
   - task: mysql-system-tests
-    file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-mysql/task.yml
     params:
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
+      <<: *MARU_LITE_BOSH_CREDS
       MYSQL_PASSWORD: ((rds-5-7-password))
       MYSQL_HOSTNAME: ((rds-5-7-hostname))
       MYSQL_PORT: 3306
       MYSQL_USERNAME: root
-      SSH_PROXY_HOST: 104.199.27.23
-      SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
-      MYSQL_CA_CERT_PATH: ((rds-ca-cert-path))
+      MYSQL_CA_CERT: ((rds-ca-cert))
       TEST_TLS_MUTUAL_TLS: false
 
 - name: gcp-mysql-5.6-system-tests
@@ -933,17 +880,13 @@ jobs:
     - deploy-external-gcp-dbs
     - deploy-backup-restore-sdk
   - task: mysql-system-tests
-    file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-mysql/task.yml
     params:
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
+      <<: *MARU_LITE_BOSH_CREDS
       MYSQL_PASSWORD: ((gcp-mysql-5-6-password))
       MYSQL_HOSTNAME: ((gcp-mysql-5-6-hostname))
       MYSQL_PORT: 3306
       MYSQL_USERNAME: root
-      SSH_PROXY_HOST: 104.199.27.23
-      SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
       MYSQL_CA_CERT_PATH: ((gcp-mysql-5-6-ca-cert-path))
       MYSQL_CLIENT_CERT_PATH: ((gcp-mysql-5-6-client-cert-path))
       MYSQL_CLIENT_KEY_PATH: ((gcp-mysql-5-6-client-key-path))
@@ -965,20 +908,16 @@ jobs:
     - deploy-external-gcp-dbs
     - deploy-backup-restore-sdk
   - task: mysql-system-tests
-    file: backup-and-restore-ci/tasks/mysql-system-tests/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-mysql/task.yml
     params:
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
+      <<: *MARU_LITE_BOSH_CREDS
       MYSQL_PASSWORD: ((gcp-mysql-5-7-password))
       MYSQL_HOSTNAME: ((gcp-mysql-5-7-hostname))
       MYSQL_PORT: 3306
       MYSQL_USERNAME: root
-      SSH_PROXY_HOST: 104.199.27.23
-      SSH_PROXY_USER: vcap
-      SSH_PROXY_PRIVATE_KEY: ((lite-bosh-ssh-key))
-      MYSQL_CA_CERT_PATH: ((gcp-mysql-5-7-ca-cert-path))
-      MYSQL_CLIENT_CERT_PATH: ((gcp-mysql-5-7-client-cert-path))
-      MYSQL_CLIENT_KEY_PATH: ((gcp-mysql-5-7-client-key-path))
+      MYSQL_CA_CERT: ((gcp-mysql-5-7-ca-cert))
+      MYSQL_CLIENT_CERT: ((gcp-mysql-5-7-client-cert))
+      MYSQL_CLIENT_KEY: ((gcp-mysql-5-7-client-key))
       TEST_TLS_VERIFY_IDENTITY: false
 
 - name: s3-blobstore-backuper-system-tests
