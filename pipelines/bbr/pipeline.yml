@@ -63,14 +63,14 @@ groups:
   - unit
   - create-director-test-releases
   - deploy-system-deployment-bosh-all-proxy
-  - deploy-system-deployments-bosh-team
+  - deploy-system-all-deployments
   - deploy-system-windows
   - deploy-bosh-directors
   - system-deployment
   - system-deployment-bosh-all-proxy
   - system-director
   - system-windows
-  - system-bosh-team
+  - system-all-deployments
   - delete-system-deployment-bosh-all-proxy
   - delete-system-windows
   - build-rc
@@ -413,9 +413,9 @@ jobs:
       stemcells:
         - trusty-stemcell/*.tgz
 
-- name: deploy-system-deployments-bosh-team
+- name: deploy-system-all-deployments
   serial: true
-  serial_groups: [system-deployment-bosh-team]
+  serial_groups: [system-all-deployments]
   plan:
   - aggregate:
     - get: bosh-backup-and-restore
@@ -558,18 +558,18 @@ jobs:
     params:
       <<: *maru-bosh-env
 
-- name: system-bosh-team
+- name: system-all-deployments
   serial: true
-  serial_groups: [system-deployment-bosh-team]
+  serial_groups: [system-all-deployments]
   plan:
   - aggregate:
     - get: bosh-backup-and-restore
-      passed: [deploy-system-deployments-bosh-team]
+      passed: [deploy-system-all-deployments]
       trigger: true
     - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
-  - task: system-bosh-team
-    file: backup-and-restore-ci/tasks/bbr-system-bosh-team/task.yml
+  - task: system-all-deployments
+    file: backup-and-restore-ci/tasks/bbr-system-all-deployments/task.yml
     params:
       <<: *maru-lite-bosh-team-creds
 
