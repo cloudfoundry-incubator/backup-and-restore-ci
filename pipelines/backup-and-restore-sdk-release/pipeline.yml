@@ -285,12 +285,6 @@ jobs:
       trigger: true
     - get: version
       params: {pre: rc}
-  - task: bosh-clean-up
-    file: backup-and-restore-ci/tasks/bosh-clean-up/task.yml
-    params:
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
-      BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
   - task: create-dev-release
     file: backup-and-restore-ci/tasks/create-dev-release/task.yml
     params:
@@ -301,12 +295,6 @@ jobs:
       file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-*.tgz
   - put: version
     params: {file: version/number}
-  - task: upload-release
-    file: backup-and-restore-ci/tasks/upload-release/task.yml
-    params:
-      BOSH_CLIENT_SECRET: ((lite-bosh-director-password))
-      BOSH_CLIENT: ((lite-bosh-director-username))
-      BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
 
 - name: deploy-backup-restore-sdk
   serial: true
