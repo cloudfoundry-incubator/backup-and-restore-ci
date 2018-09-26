@@ -569,11 +569,6 @@ jobs:
       - deploy-postgres-9.6
       - deploy-backup-restore-sdk
       trigger: true
-    - get: release-tarball
-      resource: release
-      passed:
-      - deploy-postgres-9.6
-      - deploy-backup-restore-sdk
   - task: postgres-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
     params:
@@ -618,11 +613,6 @@ jobs:
       - deploy-external-gcp-dbs
       - deploy-backup-restore-sdk
       trigger: true
-    - get: release-tarball
-      resource: release
-      passed:
-      - deploy-external-gcp-dbs
-      - deploy-backup-restore-sdk
   - task: postgres-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
     params:
@@ -669,11 +659,6 @@ jobs:
       - deploy-external-rds-dbs
       - deploy-backup-restore-sdk
       trigger: true
-    - get: release-tarball
-      resource: release
-      passed:
-      - deploy-external-rds-dbs
-      - deploy-backup-restore-sdk
   - task: postgres-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
     params:
@@ -705,11 +690,6 @@ jobs:
       - deploy-postgres-9.4
       - deploy-backup-restore-sdk
       trigger: true
-    - get: release-tarball
-      resource: release
-      passed:
-      - deploy-postgres-9.4
-      - deploy-backup-restore-sdk
   - task: postgres-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
     params:
@@ -730,11 +710,6 @@ jobs:
       - deploy-external-rds-dbs
       - deploy-backup-restore-sdk
       trigger: true
-    - get: release-tarball
-      resource: release
-      passed:
-      - deploy-external-rds-dbs
-      - deploy-backup-restore-sdk
   - task: postgres-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
     params:
@@ -767,11 +742,6 @@ jobs:
       - deploy-backup-restore-sdk
       trigger: true
     - get: bosh-backup-and-restore-meta
-    - get: release-tarball
-      resource: release
-      passed:
-      - deploy-mysql
-      - deploy-backup-restore-sdk
   - task: mariadb-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-mysql/task.yml
     params:
@@ -796,11 +766,6 @@ jobs:
     - deploy-backup-restore-sdk
     trigger: true
   - get: bosh-backup-and-restore-meta
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-external-rds-dbs
-    - deploy-backup-restore-sdk
   - task: mysql-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-mysql/task.yml
     params:
@@ -822,11 +787,6 @@ jobs:
     - deploy-backup-restore-sdk
     trigger: true
   - get: bosh-backup-and-restore-meta
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-external-rds-dbs
-    - deploy-backup-restore-sdk
   - task: mysql-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-mysql/task.yml
     params:
@@ -848,11 +808,6 @@ jobs:
     - deploy-backup-restore-sdk
     trigger: true
   - get: bosh-backup-and-restore-meta
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-external-rds-dbs
-    - deploy-backup-restore-sdk
   - task: mysql-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-mysql/task.yml
     params:
@@ -874,11 +829,6 @@ jobs:
     - deploy-backup-restore-sdk
     trigger: true
   - get: bosh-backup-and-restore-meta
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-external-gcp-dbs
-    - deploy-backup-restore-sdk
   - task: mysql-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-mysql/task.yml
     params:
@@ -902,11 +852,6 @@ jobs:
     - deploy-backup-restore-sdk
     trigger: true
   - get: bosh-backup-and-restore-meta
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-external-gcp-dbs
-    - deploy-backup-restore-sdk
   - task: mysql-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-mysql/task.yml
     params:
@@ -930,10 +875,6 @@ jobs:
       - deploy-aws-blobstore-sdk
       trigger: true
     - get: bosh-backup-and-restore-meta
-    - get: release-tarball
-      resource: release
-      passed:
-      - deploy-aws-blobstore-sdk
   - task: s3-blobstore-backuper-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-s3/task.yml
     params:
@@ -966,10 +907,6 @@ jobs:
       - deploy-aws-blobstore-sdk-with-iam-instance-profile
       trigger: true
     - get: bosh-backup-and-restore-meta
-    - get: release-tarball
-      resource: release
-      passed:
-      - deploy-aws-blobstore-sdk-with-iam-instance-profile
   - task: s3-blobstore-backuper-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-s3/task.yml
     params:
@@ -1000,10 +937,6 @@ jobs:
     - deploy-azure-blobstore-sdk
     trigger: true
   - get: bosh-backup-and-restore-meta
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-azure-blobstore-sdk
   - task: azure-blobstore-backuper-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-azure/task.yml
     params:
@@ -1028,21 +961,6 @@ jobs:
     - get: cf-deployment-master
     - get: backup-and-restore-sdk-release
       trigger: true
-      passed:
-      - postgres-system-tests-9.4
-      - postgres-system-tests-9.6
-      - gcp-postgres-system-tests-9.6
-      - rds-postgres-system-tests-9.4
-      - rds-postgres-system-tests-9.6
-      - mariadb-system-tests
-      - s3-blobstore-backuper-system-tests
-      - rds-mysql-5.5-system-tests
-      - rds-mysql-5.6-system-tests
-      - rds-mysql-5.7-system-tests
-      - gcp-mysql-5.6-system-tests
-      - gcp-mysql-5.7-system-tests
-    - get: release-tarball
-      resource: release
       passed:
       - postgres-system-tests-9.4
       - postgres-system-tests-9.6
@@ -1107,10 +1025,6 @@ jobs:
       trigger: true
       passed:
       - azure-blobstore-backuper-system-tests
-    - get: release-tarball
-      resource: release
-      passed:
-      - azure-blobstore-backuper-system-tests
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
@@ -1154,8 +1068,6 @@ jobs:
     - get: cf-deployment-gcs
     - get: backup-and-restore-sdk-release
       trigger: true
-    - get: release-tarball
-      resource: release
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
@@ -1194,10 +1106,6 @@ jobs:
   - aggregate:
     - get: bosh-backup-and-restore-meta
       passed: [deploy-cf-with-external-gcs-blobstore]
-    - get: release-tarball
-      resource: release
-      passed:
-      - deploy-cf-with-external-gcs-blobstore
     - get: cf-deployment-gcs
       passed: [deploy-cf-with-external-gcs-blobstore]
       trigger: true
@@ -1262,10 +1170,6 @@ jobs:
   plan:
   - get: bosh-backup-and-restore-meta
     passed: [deploy-cf-with-external-azure-blobstore]
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-cf-with-external-azure-blobstore
   - get: cf-deployment-master
     passed: [deploy-cf-with-external-azure-blobstore]
     trigger: true
@@ -1330,10 +1234,6 @@ jobs:
   plan:
   - get: bosh-backup-and-restore-meta
     passed: [deploy-cf-with-external-s3-blobstore]
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-cf-with-external-s3-blobstore
   - get: cf-deployment-master
     passed: [deploy-cf-with-external-s3-blobstore]
     trigger: true
@@ -1414,11 +1314,6 @@ jobs:
       passed:
       - s3-blobstore-backuper-system-tests
       - s3-blobstore-system-tests-with-iam-instance-profile
-    - get: release-tarball
-      resource: release
-      passed:
-      - s3-blobstore-backuper-system-tests
-      - s3-blobstore-system-tests-with-iam-instance-profile
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
@@ -1454,10 +1349,6 @@ jobs:
   serial: true
   serial_groups: [bbr-s3-unversioned]
   plan:
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-cf-with-unversioned-external-s3-blobstore
   - get: cf-deployment-master
     resource: cf-deployment-master
     passed:
@@ -1536,13 +1427,6 @@ jobs:
       - run-drats-external-gcs-blobstore
       - run-drats-external-azure-blobstore
     - get: backup-and-restore-sdk-release-master
-    - get: release-tarball
-      resource: release
-      passed:
-      - run-drats-external-s3-blobstore
-      - run-drats-external-s3-unversioned-blobstore
-      - run-drats-external-gcs-blobstore
-      - run-drats-external-azure-blobstore
     - get: version
       params: {bump: major}
   - task: create-final-release
@@ -1592,13 +1476,6 @@ jobs:
       - run-drats-external-gcs-blobstore
       - run-drats-external-azure-blobstore
     - get: backup-and-restore-sdk-release-master
-    - get: release-tarball
-      resource: release
-      passed:
-      - run-drats-external-s3-blobstore
-      - run-drats-external-s3-unversioned-blobstore
-      - run-drats-external-gcs-blobstore
-      - run-drats-external-azure-blobstore
     - get: version
       params: {bump: minor}
   - task: create-final-release
@@ -1648,13 +1525,6 @@ jobs:
       - run-drats-external-gcs-blobstore
       - run-drats-external-azure-blobstore
     - get: backup-and-restore-sdk-release-master
-    - get: release-tarball
-      resource: release
-      passed:
-      - run-drats-external-s3-blobstore
-      - run-drats-external-s3-unversioned-blobstore
-      - run-drats-external-gcs-blobstore
-      - run-drats-external-azure-blobstore
     - get: version
       params: {bump: patch}
   - task: create-final-release
