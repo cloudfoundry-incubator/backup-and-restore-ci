@@ -75,7 +75,7 @@ groups:
   - deploy-system-windows
   - deploy-bosh-directors
   - system-deployment
-  - system-deployment-bosh-all-proxy
+  - system-bosh-all-proxy
   - system-director
   - system-windows
   - system-all-deployments
@@ -424,7 +424,7 @@ jobs:
 
 - name: deploy-system-deployment-bosh-all-proxy
   serial: true
-  serial_groups: [system-deployment-bosh-all-proxy]
+  serial_groups: [system-bosh-all-proxy]
   plan:
   - aggregate:
     - get: trusty-stemcell
@@ -529,9 +529,9 @@ jobs:
       params:
         <<: *lite-bosh-uaa-env
 
-- name: system-deployment-bosh-all-proxy
+- name: system-bosh-all-proxy
   serial: true
-  serial_groups: [system-deployment-bosh-all-proxy]
+  serial_groups: [system-bosh-all-proxy]
   plan:
   - aggregate:
     - get: bosh-backup-and-restore
@@ -546,6 +546,7 @@ jobs:
     file: backup-and-restore-ci/tasks/bbr-system-bosh-all-proxy/task.yml
     params:
       <<: *maru-bosh-env
+      DIRECTOR_SSH_KEY: ((maru-director-ssh-key))
 
 - name: system-director
   serial: true
@@ -623,10 +624,10 @@ jobs:
 
 - name: delete-system-deployment-bosh-all-proxy
   serial: true
-  serial_groups: [system-deployment-bosh-all-proxy]
+  serial_groups: [system-bosh-all-proxy]
   plan:
   - get: bosh-backup-and-restore
-    passed: [system-deployment-bosh-all-proxy]
+    passed: [system-bosh-all-proxy]
     trigger: true
   - put: many-bbr-scripts-deployment
     params:
