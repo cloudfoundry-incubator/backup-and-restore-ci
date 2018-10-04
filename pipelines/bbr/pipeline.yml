@@ -547,6 +547,7 @@ jobs:
     params:
       <<: *maru-bosh-env
       DIRECTOR_SSH_KEY: ((maru-director-ssh-key))
+      DIRECTOR_ADDRESS: 10.0.0.6
 
 - name: system-director
   serial: true
@@ -656,7 +657,7 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-backup-and-restore
-      passed: [system-all-deployments, system-deployment, system-deployment-bosh-all-proxy, system-director, system-windows]
+      passed: [system-all-deployments, system-deployment, system-bosh-all-proxy, system-director, system-windows]
       trigger: true
       params:
         submodules: none
