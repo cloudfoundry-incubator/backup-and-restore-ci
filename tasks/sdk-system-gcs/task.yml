@@ -27,9 +27,19 @@ inputs:
 - name: bosh-backup-and-restore-meta
 
 run:
-  path: backup-and-restore-ci/tasks/gcs-system-tests/task.sh
+  path: backup-and-restore-ci/tasks/sdk-system-gcs/task.sh
 
 params:
   GCP_SERVICE_ACCOUNT_KEY:
   GCP_PROJECT_NAME:
   GCS_BUCKET_NAME:
+  GCS_CLONE_BUCKET_NAME:
+
+  BOSH_DEPLOYMENT:
+  BOSH_ENVIRONMENT:
+  BOSH_CLIENT_SECRET:
+  BOSH_CLIENT:
+  BOSH_GW_PRIVATE_KEY:
+  BOSH_CA_CERT:
+  BOSH_GW_USER:
+  BOSH_GW_HOST:
