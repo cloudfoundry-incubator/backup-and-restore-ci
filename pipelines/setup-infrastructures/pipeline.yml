@@ -10,12 +10,6 @@ common_bbl_up_params: &COMMON_BBL_UP_PARAMS
   BBL_GCP_REGION: europe-west1
 
 resource_types:
-- name: git
-  type: docker-image
-  source:
-    repository: concourse/git-resource
-    tag: latest
-
 - name: terraform
   type: docker-image
   source:

@@ -6,12 +6,6 @@ resource_types:
     repository: jtarchie/pr
     tag: latest
 
-- name: git
-  type: docker-image
-  source:
-    repository: concourse/git-resource
-    tag: latest
-
 resources:
 - name: cf-deployment-concourse-tasks
   type: git

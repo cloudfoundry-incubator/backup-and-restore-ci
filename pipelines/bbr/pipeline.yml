@@ -103,12 +103,6 @@ resource_types:
   source:
     repository: cloudfoundry/bosh-deployment-resource
 
-- name: git
-  type: docker-image
-  source:
-    repository: concourse/git-resource
-    tag: latest
-
 resources:
 - name: bbr-director-test-releases
   type: git
