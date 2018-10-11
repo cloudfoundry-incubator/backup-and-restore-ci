@@ -1135,6 +1135,10 @@ jobs:
     params:
       BBL_STATE_DIR: external-blobstore-directors/gcs/
       SYSTEM_DOMAIN: bbr-gcs.cf-app.com
+      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-external-blobstore.yml operations/use-azure-storage-blobstore.yml operations/backup-and-restore/enable-backup-restore-azure.yml"
+      VARS_FILES: external-blobstore-directors/azure/cf-deployment-variables.yml
+
+
       OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-external-blobstore.yml operations/use-gcs-blobstore-service-account.yml operations/backup-and-restore/enable-backup-restore-gcs.yml"
       VARS_FILES: external-blobstore-directors/gcs/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
