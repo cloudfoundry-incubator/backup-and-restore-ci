@@ -24,6 +24,7 @@ class Bbr < Formula
     system "#{bin}/bbr", "version"
   end
 end
+
 EOF
 
   git status
