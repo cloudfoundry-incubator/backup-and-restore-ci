@@ -186,6 +186,13 @@ resources:
     access_key_id: ((pivnet-aws-access-key-id))
     secret_access_key: ((pivnet-aws-secret-access-key))
 
+- name: homebrew-tap
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry/homebrew-tap.git
+    branch: master
+    private_key: ((git-private-key))
+
 - name: rc
   type: s3
   source:
@@ -771,6 +778,7 @@ jobs:
       passed: [build-final]
       trigger: true
     - get: backup-and-restore-ci
+    - get: homebrew-tap
   - aggregate:
     - task: generate-release-metadata
       file: backup-and-restore-ci/tasks/generate-release-metadata/task.yml
@@ -803,3 +811,9 @@ jobs:
         commitish: bosh-backup-and-restore/.git/refs/heads/master
         globs:
         - release-with-metadata/*.tar
+  - task: update-homebrew-formula
+    file: backup-and-restore-ci/tasks/bbr-update-homebrew-formula/task.yml
+  - put: homebrew-tap
+    params:
+      repository: updated-homebrew-tap
+      rebase: true
