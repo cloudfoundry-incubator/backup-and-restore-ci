@@ -24,14 +24,12 @@ class Bbr < Formula
     system "#{bin}/bbr", "version"
   end
 end
-
 EOF
 
-  git status
   git add bbr.rb
   git config --global user.name "PCF Backup & Restore CI"
   git config --global user.email "cf-lazarus@pivotal.io"
   git commit -m "Release BBR CLI v${VERSION}"
 popd
 
-cp -r homebrew-tap updated-homebrew-tap
+cp -r homebrew-tap/. updated-homebrew-tap/
