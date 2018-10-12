@@ -1,0 +1,395 @@
+---
+resource_types:
+- name: pivnet
+  source:
+    repository: pivotalcf/pivnet-resource
+    tag: latest-final
+  type: docker-image
+
+- name: pull-request
+  source:
+    repository: jtarchie/pr
+    tag: latest
+  type: docker-image
+
+resources:
+- name: bbr-pipeline-tasks-repo
+  source:
+    branch: master
+    uri: https://github.com/pivotal-cf/bbr-pcf-pipeline-tasks.git
+  type: git
+
+- name: om-backup-artifact
+  type: s3
+  source: &S3_CREDS
+    access_key_id: ((storage-access-key-id))
+    bucket: ((backup-artifact-bucket))
+    endpoint: ((storage-endpoint))
+    region_name: ((storage-region))
+    secret_access_key: ((storage-secret-access-key))
+    versioned_file: installation.zip
+
+- name: ert-backup-bucket
+  type: s3
+  source:
+    <<: *S3_CREDS
+    versioned_file: ert-backup.tar
+
+- name: director-backup-bucket
+  type: s3
+  source:
+    <<: *S3_CREDS
+    versioned_file: director-backup.tar
+
+- name: bbr-release
+  type: pivnet
+  source:
+    api_token: ((pivnet-api-token))
+    product_slug: p-bosh-backup-and-restore
+
+- name: bbr-pipeline-tasks-prs
+  type: pull-request
+  source:
+    access_token: ((github-access-token))
+    private_key: ((git-private-key))
+    repo: pivotal-cf/bbr-pcf-pipeline-tasks
+    uri: git@github.com:pivotal-cf/bbr-pcf-pipeline-tasks.git
+
+groups:
+- name: master
+  jobs:
+  - export-om-installation
+  - bbr-backup-director
+  - bbr-backup-ert
+
+- name: pull-requests
+  jobs:
+  - export-om-installation-prs
+  - bbr-backup-director-prs
+  - bbr-cleanup-director-prs
+  - bbr-backup-ert-prs
+  - bbr-cleanup-ert-prs
+
+jobs:
+- name: export-om-installation
+  serial: true
+  plan:
+  - aggregate:
+    - get: bbr-pipeline-tasks-repo
+      trigger: true
+  - file: bbr-pipeline-tasks-repo/tasks/export-om-installation/task.yml
+    params:
+      OPSMAN_PASSWORD: ((opsman-password))
+      OPSMAN_URL: ((opsman-url))
+      OPSMAN_USERNAME: ((opsman-username))
+      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
+    task: export-om-installation
+  - params:
+      file: om-installation/installation.zip
+    put: om-backup-artifact
+
+- name: bbr-backup-ert
+  serial: true
+  serial_groups:
+  - backup-ert
+  plan:
+  - aggregate:
+    - get: bbr-pipeline-tasks-repo
+      trigger: true
+    - get: bbr-release
+      trigger: true
+  - file: bbr-pipeline-tasks-repo/tasks/extract-bbr-binary/task.yml
+    tags:
+    - ((concourse-worker-tag))
+    task: extract-binary
+  - file: bbr-pipeline-tasks-repo/tasks/bbr-backup-ert/task.yml
+    on_failure:
+      file: bbr-pipeline-tasks-repo/tasks/bbr-cleanup-ert/task.yml
+      params:
+        OPSMAN_PASSWORD: ((opsman-password))
+        OPSMAN_PRIVATE_KEY: ((opsman-private-key))
+        OPSMAN_URL: ((opsman-url))
+        OPSMAN_USERNAME: ((opsman-username))
+        SKIP_SSL_VALIDATION: ((skip-ssl-validation))
+      task: bbr-cleanup-ert
+    params:
+      OPSMAN_PASSWORD: ((opsman-password))
+      OPSMAN_PRIVATE_KEY: ((opsman-private-key))
+      OPSMAN_URL: ((opsman-url))
+      OPSMAN_USERNAME: ((opsman-username))
+      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
+    tags:
+    - ((concourse-worker-tag))
+    task: bbr-backup-ert
+  - params:
+      file: ert-backup-artifact/ert-backup.tar
+    put: ert-backup-bucket
+
+- name: bbr-backup-director
+  serial: true
+  serial_groups:
+  - backup-director
+  plan:
+  - aggregate:
+    - get: bbr-pipeline-tasks-repo
+      trigger: true
+    - get: bbr-release
+      trigger: true
+  - file: bbr-pipeline-tasks-repo/tasks/extract-bbr-binary/task.yml
+    tags:
+    - ((concourse-worker-tag))
+    task: extract-binary
+  - file: bbr-pipeline-tasks-repo/tasks/bbr-backup-director/task.yml
+    on_failure:
+      file: bbr-pipeline-tasks-repo/tasks/bbr-cleanup-director/task.yml
+      params:
+        OPSMAN_PASSWORD: ((opsman-password))
+        OPSMAN_URL: ((opsman-url))
+        OPSMAN_USERNAME: ((opsman-username))
+        SKIP_SSL_VALIDATION: ((skip-ssl-validation))
+      tags:
+      - ((concourse-worker-tag))
+      task: bbr-cleanup-director
+    params:
+      OPSMAN_PASSWORD: ((opsman-password))
+      OPSMAN_URL: ((opsman-url))
+      OPSMAN_USERNAME: ((opsman-username))
+      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
+    tags:
+    - ((concourse-worker-tag))
+    task: bbr-backup-director
+  - params:
+      file: director-backup-artifact/director-backup.tar
+    put: director-backup-bucket
+
+- name: export-om-installation-prs
+  serial: true
+  plan:
+  - get: bbr-pipeline-tasks-repo
+    resource: bbr-pipeline-tasks-prs
+    trigger: true
+  - params:
+      context: export-om-installation
+      path: bbr-pipeline-tasks-repo
+      status: pending
+    put: bbr-pipeline-tasks-prs
+  - file: bbr-pipeline-tasks-repo/tasks/export-om-installation/task.yml
+    on_failure:
+      params:
+        context: export-om-installation
+        path: bbr-pipeline-tasks-repo
+        status: failure
+      put: bbr-pipeline-tasks-prs
+    on_success:
+      params:
+        context: export-om-installation
+        path: bbr-pipeline-tasks-repo
+        status: success
+      put: bbr-pipeline-tasks-prs
+    params:
+      OPSMAN_PASSWORD: ((opsman-password))
+      OPSMAN_URL: ((opsman-url))
+      OPSMAN_USERNAME: ((opsman-username))
+      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
+    task: export-om-installation
+  - params:
+      file: om-installation/installation.zip
+    put: om-backup-artifact
+
+- name: bbr-backup-ert-prs
+  serial: true
+  serial_groups:
+  - backup-ert
+  plan:
+  - aggregate:
+    - get: bbr-pipeline-tasks-repo
+      resource: bbr-pipeline-tasks-prs
+      trigger: true
+    - get: bbr-release
+  - params:
+      context: bbr-backup-ert
+      path: bbr-pipeline-tasks-repo
+      status: pending
+    put: bbr-pipeline-tasks-prs
+  - file: bbr-pipeline-tasks-repo/tasks/extract-bbr-binary/task.yml
+    tags:
+    - ((concourse-worker-tag))
+    task: extract-binary
+  - file: bbr-pipeline-tasks-repo/tasks/bbr-backup-ert/task.yml
+    on_failure:
+      params:
+        context: bbr-backup-ert
+        path: bbr-pipeline-tasks-repo
+        status: failure
+      put: bbr-pipeline-tasks-prs
+    on_success:
+      params:
+        context: bbr-backup-ert
+        path: bbr-pipeline-tasks-repo
+        status: success
+      put: bbr-pipeline-tasks-prs
+    params:
+      OPSMAN_PASSWORD: ((opsman-password))
+      OPSMAN_PRIVATE_KEY: ((opsman-private-key))
+      OPSMAN_URL: ((opsman-url))
+      OPSMAN_USERNAME: ((opsman-username))
+      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
+    tags:
+    - ((concourse-worker-tag))
+    task: bbr-backup-ert
+  - params:
+      file: ert-backup-artifact/ert-backup.tar
+    put: ert-backup-bucket
+
+- name: bbr-backup-director-prs
+  serial: true
+  serial_groups:
+  - backup-director
+  plan:
+  - aggregate:
+    - get: bbr-pipeline-tasks-repo
+      resource: bbr-pipeline-tasks-prs
+      trigger: true
+    - get: bbr-release
+  - params:
+      context: bbr-backup-director
+      path: bbr-pipeline-tasks-repo
+      status: pending
+    put: bbr-pipeline-tasks-prs
+  - file: bbr-pipeline-tasks-repo/tasks/extract-bbr-binary/task.yml
+    tags:
+    - ((concourse-worker-tag))
+    task: extract-binary
+  - file: bbr-pipeline-tasks-repo/tasks/bbr-backup-director/task.yml
+    on_failure:
+      params:
+        context: bbr-backup-director
+        path: bbr-pipeline-tasks-repo
+        status: failure
+      put: bbr-pipeline-tasks-prs
+    on_success:
+      params:
+        context: bbr-backup-director
+        path: bbr-pipeline-tasks-repo
+        status: success
+      put: bbr-pipeline-tasks-prs
+    params:
+      OPSMAN_PASSWORD: ((opsman-password))
+      OPSMAN_URL: ((opsman-url))
+      OPSMAN_USERNAME: ((opsman-username))
+      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
+    tags:
+    - ((concourse-worker-tag))
+    task: bbr-backup-director
+  - params:
+      file: director-backup-artifact/director-backup.tar
+    put: director-backup-bucket
+
+- name: bbr-cleanup-ert-prs
+  serial: true
+  serial_groups:
+  - backup-ert
+  plan:
+  - aggregate:
+    - get: bbr-pipeline-tasks-prs
+      trigger: true
+    - get: bbr-release
+  - config:
+      image_resource:
+        source:
+          repository: cloudfoundrylondon/bbr-pipeline
+          tag: release-candidate
+        type: docker-image
+      inputs:
+      - name: bbr-release
+      outputs:
+      - name: binary
+      platform: linux
+      run:
+        args:
+        - -c
+        - |
+          tar -xvf bbr-release/bbr*.tar
+          cp releases/bbr binary/
+        path: sh
+    tags:
+    - ((concourse-worker-tag))
+    task: extract-binary
+  - file: bbr-pipeline-tasks-prs/tasks/bbr-cleanup-ert/task.yml
+    input_mapping:
+      bbr-pipeline-tasks-repo: bbr-pipeline-tasks-prs
+    on_failure:
+      params:
+        context: bbr-cleanup-ert
+        path: bbr-pipeline-tasks-prs
+        status: failure
+      put: bbr-pipeline-tasks-prs
+    on_success:
+      params:
+        context: bbr-cleanup-ert
+        path: bbr-pipeline-tasks-prs
+        status: success
+      put: bbr-pipeline-tasks-prs
+    params:
+      OPSMAN_PASSWORD: ((opsman-password))
+      OPSMAN_PRIVATE_KEY: ((opsman-private-key))
+      OPSMAN_URL: ((opsman-url))
+      OPSMAN_USERNAME: ((opsman-username))
+      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
+    tags:
+    - ((concourse-worker-tag))
+    task: bbr-cleanup-ert-prs
+
+- name: bbr-cleanup-director-prs
+  serial: true
+  serial_groups:
+  - backup-director
+  plan:
+  - aggregate:
+    - get: bbr-pipeline-tasks-prs
+      trigger: true
+    - get: bbr-release
+  - config:
+      image_resource:
+        source:
+          repository: cloudfoundrylondon/bbr-pipeline
+          tag: release-candidate
+        type: docker-image
+      inputs:
+      - name: bbr-release
+      outputs:
+      - name: binary
+      platform: linux
+      run:
+        args:
+        - -c
+        - |
+          tar -xvf bbr-release/bbr*.tar
+          cp releases/bbr binary/
+        path: sh
+    tags:
+    - ((concourse-worker-tag))
+    task: extract-binary
+  - file: bbr-pipeline-tasks-prs/tasks/bbr-cleanup-director/task.yml
+    input_mapping:
+      bbr-pipeline-tasks-repo: bbr-pipeline-tasks-prs
+    on_failure:
+      params:
+        context: bbr-cleanup-director
+        path: bbr-pipeline-tasks-prs
+        status: failure
+      put: bbr-pipeline-tasks-prs
+    on_success:
+      params:
+        context: bbr-cleanup-director
+        path: bbr-pipeline-tasks-prs
+        status: success
+      put: bbr-pipeline-tasks-prs
+    params:
+      OPSMAN_PASSWORD: ((opsman-password))
+      OPSMAN_URL: ((opsman-url))
+      OPSMAN_USERNAME: ((opsman-username))
+      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
+    tags:
+    - ((concourse-worker-tag))
+    task: bbr-cleanup-director-prs
