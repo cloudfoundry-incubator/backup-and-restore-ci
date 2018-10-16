@@ -190,6 +190,9 @@ jobs:
     - get: kubo-disaster-recovery-acceptance-tests
       trigger: true
       passed: [deploy-k-drats]
+    - get: kubo-deployment
+      trigger: true
+      passed: [deploy-k-drats]
     - get: bbr-binary-release
       trigger: true
       passed: [deploy-k-drats]
@@ -221,6 +224,9 @@ jobs:
   plan:
   - aggregate:
     - get: kubo-disaster-recovery-acceptance-tests
+      trigger: true
+      passed: [run-k-drats]
+    - get: kubo-deployment
       trigger: true
       passed: [run-k-drats]
     - get: bbr-binary-release
