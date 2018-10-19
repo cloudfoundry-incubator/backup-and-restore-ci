@@ -1,4 +1,3 @@
-#backup-and-restore-minimal is defined in the disaster-recovery-acceptance-tests repo
 FROM cloudfoundrylondon/backup-and-restore-minimal
 
 RUN apt-get update

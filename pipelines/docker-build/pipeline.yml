@@ -17,9 +17,9 @@ resources:
 - name: backup-and-restore-minimal-repo
   type: git
   source:
-    uri: https://github.com/cloudfoundry-incubator/disaster-recovery-acceptance-tests.git
+    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
     branch: master
-    paths: ["docker-images/backup-and-restore-minimal/*"]
+    paths: ["ci-docker-images/backup-and-restore-minimal/*"]
 - name: bosh-backup-and-restore-repo
   type: git
   source:
@@ -116,7 +116,7 @@ jobs:
     trigger: true
   - put: backup-and-restore-minimal-docker-image
     params:
-      build: backup-and-restore-minimal-repo/docker-images/backup-and-restore-minimal/
+      build: backup-and-restore-minimal-repo/ci-docker-images/backup-and-restore-minimal/
 
 - name: build-k-drats
   public: true
