@@ -27,9 +27,11 @@ inputs:
 - name: bosh-backup-and-restore-meta
 
 run:
-  path: backup-and-restore-ci/tasks/sdk-system-s3/task.sh
+  path: backup-and-restore-ci/tasks/sdk-system-blobstore/task.sh
 
 params:
+  TEST_SUITE_NAME:
+
   FOCUS_SPEC:
 
   BOSH_DEPLOYMENT:
