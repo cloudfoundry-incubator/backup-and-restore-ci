@@ -26,7 +26,7 @@ inputs:
 - name: backup-and-restore-sdk-release
 
 run:
-  path: backup-and-restore-ci/tasks/sdk-system-postgres/task.sh
+  path: backup-and-restore-ci/tasks/sdk-system-db/task.sh
 
 params:
   BOSH_ENVIRONMENT:
@@ -36,6 +36,14 @@ params:
   BOSH_GW_HOST:
   BOSH_GW_USER:
   BOSH_GW_PRIVATE_KEY:
+
+  MYSQL_HOSTNAME:
+  MYSQL_PORT:
+  MYSQL_USERNAME:
+  MYSQL_PASSWORD:
+  MYSQL_CA_CERT:
+  MYSQL_CLIENT_CERT:
+  MYSQL_CLIENT_KEY:
 
   POSTGRES_PASSWORD:
   POSTGRES_USERNAME:
@@ -49,6 +57,7 @@ params:
   SDK_DEPLOYMENT: database-backup-restorer
   SDK_INSTANCE_GROUP: database-backup-restorer
 
+  TEST_TLS: true
   TEST_TLS_VERIFY_IDENTITY: true
   TEST_SSL_USER_REQUIRES_SSL: true
 

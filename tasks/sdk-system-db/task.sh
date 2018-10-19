@@ -25,6 +25,7 @@ chmod 0400 "$ssh_proxy_key"
 export SSH_PROXY_HOST="$BOSH_GW_HOST"
 export SSH_PROXY_USER="$BOSH_GW_USER"
 export SSH_PROXY_KEY_FILE="$ssh_proxy_key"
+export BOSH_GW_PRIVATE_KEY="$ssh_proxy_key"
 
 export BOSH_ALL_PROXY="ssh+socks5://${BOSH_GW_USER}@${BOSH_GW_HOST}:22?private-key=${ssh_proxy_key}"
 
