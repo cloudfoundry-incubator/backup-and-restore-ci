@@ -871,9 +871,10 @@ jobs:
       trigger: true
     - get: bosh-backup-and-restore-meta
   - task: s3-blobstore-backuper-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-s3/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-blobstore/task.yml
     params:
       <<: *MARU_LITE_BOSH_CREDS
+      TEST_SUITE_NAME: s3
       BOSH_DEPLOYMENT: s3-backuper
       AWS_ACCESS_KEY_ID: ((aws-access-key-id))
       AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
@@ -903,8 +904,9 @@ jobs:
       trigger: true
     - get: bosh-backup-and-restore-meta
   - task: s3-blobstore-backuper-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-s3/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-blobstore/task.yml
     params:
+      TEST_SUITE_NAME: s3
       FOCUS_SPEC: backs up and restores in-place # focus on one it to avoid redundant testing
       BOSH_ENVIRONMENT: "((ec2-bosh-director-url))"
       BOSH_CLIENT_SECRET: "((ec2-bosh-director-password))"
@@ -933,9 +935,10 @@ jobs:
     trigger: true
   - get: bosh-backup-and-restore-meta
   - task: azure-blobstore-backuper-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-azure/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-blobstore/task.yml
     params:
       <<: *MARU_LITE_BOSH_CREDS
+      TEST_SUITE_NAME: azure
       BOSH_DEPLOYMENT: azure-backuper
       AZURE_STORAGE_ACCOUNT: ((azure-storage-account))
       AZURE_STORAGE_KEY: ((azure-storage-key))
@@ -984,8 +987,9 @@ jobs:
     passed:
     - deploy-gcs-blobstore-sdk
   - task: gcs-blobstore-backuper-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-gcs/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-blobstore/task.yml
     params:
+      TEST_SUITE_NAME: gcs
       GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
       GCP_PROJECT_NAME: cf-backup-and-restore
       GCS_BUCKET_NAME: bbr-system-test-gcs-bucket
