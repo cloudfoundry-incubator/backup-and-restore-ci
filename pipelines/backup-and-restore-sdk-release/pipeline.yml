@@ -559,7 +559,7 @@ jobs:
       - deploy-backup-restore-sdk
       trigger: true
   - task: postgres-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       TEST_SUITE_NAME: postgresql
       <<: *MARU_LITE_BOSH_CREDS
@@ -568,7 +568,7 @@ jobs:
       POSTGRES_USERNAME: test_user
       POSTGRES_PORT: 5432
   - task: postgres-tls-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
       <<: *MARU_LITE_BOSH_CREDS
@@ -579,7 +579,7 @@ jobs:
       POSTGRES_CA_CERT: ((postgres-96-ca-cert))
       TEST_TLS_VERIFY_IDENTITY: false
   - task: postgres-mutual-tls-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       TEST_SUITE_NAME: postgresql_mutual_tls
       <<: *MARU_LITE_BOSH_CREDS
@@ -603,7 +603,7 @@ jobs:
       - deploy-backup-restore-sdk
       trigger: true
   - task: postgres-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       TEST_SUITE_NAME: postgresql
       <<: *MARU_LITE_BOSH_CREDS
@@ -612,7 +612,7 @@ jobs:
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
   - task: postgres-tls-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
       <<: *MARU_LITE_BOSH_CREDS
@@ -624,7 +624,7 @@ jobs:
       TEST_TLS_VERIFY_IDENTITY: false
       TEST_SSL_USER_REQUIRES_SSL: false
   - task: postgres-mutual-tls-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       TEST_SUITE_NAME: postgresql_mutual_tls
       <<: *MARU_LITE_BOSH_CREDS
@@ -649,7 +649,7 @@ jobs:
       - deploy-backup-restore-sdk
       trigger: true
   - task: postgres-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       TEST_SUITE_NAME: postgresql
       <<: *MARU_LITE_BOSH_CREDS
@@ -658,7 +658,7 @@ jobs:
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
   - task: postgres-tls-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
       <<: *MARU_LITE_BOSH_CREDS
@@ -680,7 +680,7 @@ jobs:
       - deploy-backup-restore-sdk
       trigger: true
   - task: postgres-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       TEST_SUITE_NAME: postgresql
       POSTGRES_PASSWORD: *postgres-9-4-password
@@ -700,7 +700,7 @@ jobs:
       - deploy-backup-restore-sdk
       trigger: true
   - task: postgres-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       TEST_SUITE_NAME: postgresql
       <<: *MARU_LITE_BOSH_CREDS
@@ -709,7 +709,7 @@ jobs:
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
   - task: postgres-tls-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-postgres/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
       <<: *MARU_LITE_BOSH_CREDS
@@ -732,9 +732,10 @@ jobs:
       trigger: true
     - get: bosh-backup-and-restore-meta
   - task: mariadb-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-mysql/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       <<: *MARU_LITE_BOSH_CREDS
+      TEST_SUITE_NAME: mysql
       MYSQL_HOSTNAME: *mysql-host
       MYSQL_PORT: *mysql-port
       MYSQL_USERNAME: *mysql-username
@@ -756,9 +757,10 @@ jobs:
     trigger: true
   - get: bosh-backup-and-restore-meta
   - task: mysql-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-mysql/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       <<: *MARU_LITE_BOSH_CREDS
+      TEST_SUITE_NAME: mysql
       MYSQL_PASSWORD: ((rds-5-5-password))
       MYSQL_HOSTNAME: ((rds-5-5-hostname))
       MYSQL_PORT: 3306
@@ -777,9 +779,10 @@ jobs:
     trigger: true
   - get: bosh-backup-and-restore-meta
   - task: mysql-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-mysql/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       <<: *MARU_LITE_BOSH_CREDS
+      TEST_SUITE_NAME: mysql
       MYSQL_PASSWORD: ((rds-5-6-password))
       MYSQL_HOSTNAME: ((rds-5-6-hostname))
       MYSQL_PORT: 3306
@@ -798,9 +801,10 @@ jobs:
     trigger: true
   - get: bosh-backup-and-restore-meta
   - task: mysql-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-mysql/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       <<: *MARU_LITE_BOSH_CREDS
+      TEST_SUITE_NAME: mysql
       MYSQL_PASSWORD: ((rds-5-7-password))
       MYSQL_HOSTNAME: ((rds-5-7-hostname))
       MYSQL_PORT: 3306
@@ -819,9 +823,10 @@ jobs:
     trigger: true
   - get: bosh-backup-and-restore-meta
   - task: mysql-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-mysql/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       <<: *MARU_LITE_BOSH_CREDS
+      TEST_SUITE_NAME: mysql
       MYSQL_PASSWORD: ((gcp-mysql-5-6-password))
       MYSQL_HOSTNAME: ((gcp-mysql-5-6-hostname))
       MYSQL_PORT: 3306
@@ -842,9 +847,10 @@ jobs:
     trigger: true
   - get: bosh-backup-and-restore-meta
   - task: mysql-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-mysql/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       <<: *MARU_LITE_BOSH_CREDS
+      TEST_SUITE_NAME: mysql
       MYSQL_PASSWORD: ((gcp-mysql-5-7-password))
       MYSQL_HOSTNAME: ((gcp-mysql-5-7-hostname))
       MYSQL_PORT: 3306
