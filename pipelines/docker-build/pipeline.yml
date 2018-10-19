@@ -17,6 +17,7 @@ resources:
 - name: backup-and-restore-minimal-repo
   type: git
   source:
+    private_key: ((git-private-key))
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
     branch: master
     paths: ["ci-docker-images/backup-and-restore-minimal/*"]
