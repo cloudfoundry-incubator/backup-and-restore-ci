@@ -276,10 +276,10 @@ resources:
   source:
     name: bosh-google-kvm-windows2016-go_agent
 
-- name: trusty-stemcell
+- name: xenial-stemcell
   type: bosh-io-stemcell
   source:
-    name: bosh-google-kvm-ubuntu-trusty-go_agent
+    name: bosh-google-kvm-ubuntu-xenial-go_agent
 
 jobs:
 - name: create-director-test-releases
@@ -428,7 +428,7 @@ jobs:
   serial_groups: [system-bosh-all-proxy]
   plan:
   - aggregate:
-    - get: trusty-stemcell
+    - get: xenial-stemcell
     - get: bosh-backup-and-restore
       passed: [unit]
       trigger: true
@@ -439,7 +439,7 @@ jobs:
     params:
       manifest: bosh-backup-and-restore/fixtures/many-bbr-scripts.yml
       stemcells:
-        - trusty-stemcell/*.tgz
+        - xenial-stemcell/*.tgz
 
 - name: deploy-system-all-deployments
   serial: true
@@ -488,7 +488,7 @@ jobs:
   plan:
   - aggregate:
     - get: windows-stemcell
-    - get: trusty-stemcell
+    - get: xenial-stemcell
     - get: bosh-backup-and-restore
       passed: [unit]
       trigger: true
@@ -501,12 +501,12 @@ jobs:
         manifest: bosh-backup-and-restore/fixtures/redis-windows-ci.yml
         stemcells:
         - windows-stemcell/*.tgz
-        - trusty-stemcell/*.tgz
+        - xenial-stemcell/*.tgz
     - put: jumpbox-windows-deployment
       params:
         manifest: bosh-backup-and-restore/fixtures/jumpbox-windows-ci.yml
         stemcells:
-        - trusty-stemcell/*.tgz
+        - xenial-stemcell/*.tgz
 
 - name: system-deployment
   serial: true
