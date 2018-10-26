@@ -698,7 +698,7 @@ jobs:
       OPS_MAN_URL: ((ops-man-url))
       OPS_MAN_USER: ((ops-man-user))
       OPS_MAN_PASS: ((ops-man-pass))
-      OPS_MAN_VERSION: "2.2"
+      OPS_MAN_VERSION: "2.3"
 
 - name: run-p-drats-on-pas
   serial: true
