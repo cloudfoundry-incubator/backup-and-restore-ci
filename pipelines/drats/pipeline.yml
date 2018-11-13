@@ -105,6 +105,13 @@ jobs:
     params:
       BBL_STATE_DIR: drats-pr-ragdoll/
       ERRAND_NAME: nfsbrokerpush
+  - task: bosh-run-errand-smbbrokerpush
+    file: cf-deployment-concourse-tasks/run-errand/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: drats-pr-ragdoll/
+      ERRAND_NAME: smbbrokerpush
   - task: bosh-cleanup
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     input_mapping:
