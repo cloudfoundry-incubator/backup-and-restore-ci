@@ -154,6 +154,10 @@ jobs:
       OPS_FILES:  "operations/scale-to-one-az.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/enable-nfs-volume-service.yml operations/backup-and-restore/enable-backup-restore-nfs-broker.yml   operations/experimental/disable-interpolate-service-bindings.yml operations/experimental/enable-traffic-to-internal-networks.yml operations/experimental/enable-smb-volume-service.yml"
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+  - task: wait-for-cf-api
+    file: backup-and-restore-ci/tasks/wait-for-cf-api/task.yml
+    params:
+      CF_API_URL: https://api.drats-papillon.cf-app.com
   - task: bosh-run-errand-nfsbrokerpush
     file: cf-deployment-concourse-tasks/run-errand/task.yml
     input_mapping:
@@ -167,10 +171,6 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
     params:
       BBL_STATE_DIR: drats-papillon/
-  - task: wait-for-cf-api
-    file: backup-and-restore-ci/tasks/wait-for-cf-api/task.yml
-    params:
-      CF_API_URL: https://api.drats-papillon.cf-app.com
 
 
 - name: deploy-cf
