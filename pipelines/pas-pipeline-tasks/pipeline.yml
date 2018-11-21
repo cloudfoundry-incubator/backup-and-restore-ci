@@ -21,6 +21,7 @@ groups:
 
 - name: pull-requests
   jobs:
+  - validate-sample-pipeline-prs
   - export-om-installation-prs
   - bbr-backup-director-prs
   - bbr-cleanup-director-prs
@@ -106,6 +107,47 @@ jobs:
   - put: director-backup-bucket
     params:
       file: director-backup-artifact/director-backup.tar
+
+- name: validate-sample-pipeline-prs
+  plan:
+  - get: bbr-pipeline-tasks-repo
+    trigger: true
+    resource: bbr-pipeline-tasks-prs
+  - put: bbr-pipeline-tasks-prs
+    params:
+      context: validation-of-sample-pipeline
+      path: bbr-pipeline-tasks-repo
+      status: pending
+  - task: validate-pipeline-with-secrets
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: cloudfoundrylondon/bbr-pipeline
+          tag: final
+      inputs:
+      - name: bbr-pipeline-tasks-repo
+      run:
+        path: bash
+        args:
+        - -c
+        - |
+          set -e
+          bosh int bbr-pipeline-tasks-repo/pas-pipeline.sample.yml -l bbr-pipeline-tasks-repo/pas-secrets.sample.yml --var-errs --var-errs-unused
+          fly validate-pipeline -c bbr-pipeline-tasks-repo/pas-pipeline.sample.yml -l bbr-pipeline-tasks-repo/pas-secrets.sample.yml
+    on_failure:
+      put: bbr-pipeline-tasks-prs
+      params:
+        context: validation-of-sample-pipeline
+        path: bbr-pipeline-tasks-repo
+        status: failure
+    on_success:
+      put: bbr-pipeline-tasks-prs
+      params:
+        context: validation-of-sample-pipeline
+        path: bbr-pipeline-tasks-repo
+        status: success
 
 - name: export-om-installation-prs
   serial: true
