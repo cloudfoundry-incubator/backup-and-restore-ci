@@ -134,8 +134,10 @@ jobs:
         - -c
         - |
           set -e
-          bosh int bbr-pipeline-tasks-repo/pas-pipeline.sample.yml -l bbr-pipeline-tasks-repo/pas-secrets.sample.yml --var-errs --var-errs-unused
-          fly validate-pipeline -c bbr-pipeline-tasks-repo/pas-pipeline.sample.yml -l bbr-pipeline-tasks-repo/pas-secrets.sample.yml
+          pushd bbr-pipeline-tasks-repo/examples/
+            bosh int pas-pipeline.yml -l pas-secrets.yml --var-errs --var-errs-unused
+            fly validate-pipeline -c pas-pipeline.yml -l pas-secrets.yml
+          popd
     on_failure:
       put: bbr-pipeline-tasks-prs
       params:
