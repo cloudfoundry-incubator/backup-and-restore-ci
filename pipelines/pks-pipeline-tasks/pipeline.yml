@@ -1,6 +1,19 @@
 ---
+opsman_credentials: &opsman_credentials
+  SKIP_SSL_VALIDATION: ((skip-ssl-validation))
+  OPSMAN_URL: ((opsman-url))
+  OPSMAN_USERNAME: ((opsman-username))
+  OPSMAN_PASSWORD: ((opsman-password))
+  OPSMAN_PRIVATE_KEY: ((opsman-private-key))
+
+s3_credentials: &s3_credentials
+  bucket: ((aws-backup-bucket))
+  region_name: ((aws-backup-bucket-region))
+  access_key_id: ((aws-access-key-id))
+  secret_access_key: ((aws-secret-access-key))
+
 groups:
-- name: BBR-PKS-BACKUP
+- name: master
   jobs:
   - export-om-installation
   - lock-pks
@@ -42,12 +55,7 @@ jobs:
   - task: lock-pks
     file: bbr-pipeline-tasks-repo/tasks/lock-pks/task.yml
     params:
-      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
-      OPSMAN_URL: ((opsman-url))
-      OPSMAN_USERNAME: ((opsman-username))
-      OPSMAN_PASSWORD: ((opsman-password))
-      OPSMAN_PRIVATE_KEY: ((opsman-private-key))
-
+      <<: *opsman_credentials
 
 - name: bbr-backup-director
   serial: true
@@ -65,29 +73,17 @@ jobs:
     privileged: true
     file: bbr-pipeline-tasks-repo/tasks/bbr-backup-director/task.yml
     params:
-      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
-      OPSMAN_URL: ((opsman-url))
-      OPSMAN_USERNAME: ((opsman-username))
-      OPSMAN_PASSWORD: ((opsman-password))
-      OPSMAN_PRIVATE_KEY: ((opsman-private-key))
+      <<: *opsman_credentials
     on_failure:
       aggregate:
       - task: bbr-cleanup-director
         file: bbr-pipeline-tasks-repo/tasks/bbr-cleanup-director/task.yml
         params:
-          SKIP_SSL_VALIDATION: ((skip-ssl-validation))
-          OPSMAN_URL: ((opsman-url))
-          OPSMAN_USERNAME: ((opsman-username))
-          OPSMAN_PASSWORD: ((opsman-password))
-          OPSMAN_PRIVATE_KEY: ((opsman-private-key))
+          <<: *opsman_credentials
       - task: unlock-pks
         file: bbr-pipeline-tasks-repo/tasks/unlock-pks/task.yml
         params:
-          SKIP_SSL_VALIDATION: ((skip-ssl-validation))
-          OPSMAN_URL: ((opsman-url))
-          OPSMAN_USERNAME: ((opsman-username))
-          OPSMAN_PASSWORD: ((opsman-password))
-          OPSMAN_PRIVATE_KEY: ((opsman-private-key))
+          <<: *opsman_credentials
   - put: director-backup-bucket
     params:
       file: director-backup-artifact/director-backup.tar
@@ -107,29 +103,17 @@ jobs:
   - task: bbr-backup-pks
     file: bbr-pipeline-tasks-repo/tasks/bbr-backup-pks/task.yml
     params:
-      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
-      OPSMAN_URL: ((opsman-url))
-      OPSMAN_USERNAME: ((opsman-username))
-      OPSMAN_PASSWORD: ((opsman-password))
-      OPSMAN_PRIVATE_KEY: ((opsman-private-key))
+      <<: *opsman_credentials
     on_failure:
       aggregate:
       - task: bbr-cleanup-pks
         file: bbr-pipeline-tasks-repo/tasks/bbr-cleanup-pks/task.yml
         params:
-          SKIP_SSL_VALIDATION: ((skip-ssl-validation))
-          OPSMAN_URL: ((opsman-url))
-          OPSMAN_USERNAME: ((opsman-username))
-          OPSMAN_PASSWORD: ((opsman-password))
-          OPSMAN_PRIVATE_KEY: ((opsman-private-key))
+          <<: *opsman_credentials
       - task: unlock-pks
         file: bbr-pipeline-tasks-repo/tasks/unlock-pks/task.yml
         params:
-          SKIP_SSL_VALIDATION: ((skip-ssl-validation))
-          OPSMAN_URL: ((opsman-url))
-          OPSMAN_USERNAME: ((opsman-username))
-          OPSMAN_PASSWORD: ((opsman-password))
-          OPSMAN_PRIVATE_KEY: ((opsman-private-key))
+          <<: *opsman_credentials
   - put: pks-backup-bucket
     params:
       file: pks-backup-artifact/pks-backup.tar
@@ -149,29 +133,17 @@ jobs:
   - task: bbr-backup-pks-clusters
     file: bbr-pipeline-tasks-repo/tasks/bbr-backup-pks-clusters/task.yml
     params:
-      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
-      OPSMAN_URL: ((opsman-url))
-      OPSMAN_USERNAME: ((opsman-username))
-      OPSMAN_PASSWORD: ((opsman-password))
-      OPSMAN_PRIVATE_KEY: ((opsman-private-key))
+      <<: *opsman_credentials
     on_failure:
       aggregate:
       - task: unlock-pks
         file: bbr-pipeline-tasks-repo/tasks/unlock-pks/task.yml
         params:
-          SKIP_SSL_VALIDATION: ((skip-ssl-validation))
-          OPSMAN_URL: ((opsman-url))
-          OPSMAN_USERNAME: ((opsman-username))
-          OPSMAN_PASSWORD: ((opsman-password))
-          OPSMAN_PRIVATE_KEY: ((opsman-private-key))
+          <<: *opsman_credentials
       - task: bbr-cleanup-pks-clusters
         file: bbr-pipeline-tasks-repo/tasks/bbr-cleanup-pks-clusters/task.yml
         params:
-          SKIP_SSL_VALIDATION: ((skip-ssl-validation))
-          OPSMAN_URL: ((opsman-url))
-          OPSMAN_USERNAME: ((opsman-username))
-          OPSMAN_PASSWORD: ((opsman-password))
-          OPSMAN_PRIVATE_KEY: ((opsman-private-key))
+          <<: *opsman_credentials
   - put: pks-backup-bucket
     params:
       file: pks-clusters-backup-artifact/pks-clusters-backup.tar
@@ -189,11 +161,7 @@ jobs:
   - task: unlock-pks
     file: bbr-pipeline-tasks-repo/tasks/unlock-pks/task.yml
     params:
-      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
-      OPSMAN_URL: ((opsman-url))
-      OPSMAN_USERNAME: ((opsman-username))
-      OPSMAN_PASSWORD: ((opsman-password))
-      OPSMAN_PRIVATE_KEY: ((opsman-private-key))
+      <<: *opsman_credentials
 
 resource_types:
 - name: pivnet
@@ -218,21 +186,18 @@ resources:
 
 - name: om-backup-bucket
   type: s3
-  source: &S3_CREDS
+  source:
+    <<: *s3_credentials
     versioned_file: installation.zip
-    bucket: ((aws-backup-bucket))
-    region_name: ((aws-backup-bucket-region))
-    access_key_id: ((aws-access-key-id))
-    secret_access_key: ((aws-secret-access-key))
 
 - name: director-backup-bucket
   type: s3
   source:
-    <<: *S3_CREDS
+    <<: *s3_credentials
     versioned_file: director-backup.tar
 
 - name: pks-backup-bucket
   type: s3
   source:
-    <<: *S3_CREDS
+    <<: *s3_credentials
     versioned_file: pks-backup.tar
