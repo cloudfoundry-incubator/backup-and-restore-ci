@@ -1,59 +1,16 @@
 ---
-resource_types:
-- name: pivnet
-  source:
-    repository: pivotalcf/pivnet-resource
-    tag: latest-final
-  type: docker-image
+opsman_credentials: &opsman_credentials
+  SKIP_SSL_VALIDATION: ((skip-ssl-validation))
+  OPSMAN_URL: ((opsman-url))
+  OPSMAN_USERNAME: ((opsman-username))
+  OPSMAN_PASSWORD: ((opsman-password))
 
-- name: pull-request
-  source:
-    repository: jtarchie/pr
-    tag: latest
-  type: docker-image
-
-resources:
-- name: bbr-pipeline-tasks-repo
-  source:
-    branch: master
-    uri: https://github.com/pivotal-cf/bbr-pcf-pipeline-tasks.git
-  type: git
-
-- name: om-backup-artifact
-  type: s3
-  source: &S3_CREDS
-    access_key_id: ((storage-access-key-id))
-    bucket: ((backup-artifact-bucket))
-    endpoint: ((storage-endpoint))
-    region_name: ((storage-region))
-    secret_access_key: ((storage-secret-access-key))
-    versioned_file: installation.zip
-
-- name: ert-backup-bucket
-  type: s3
-  source:
-    <<: *S3_CREDS
-    versioned_file: ert-backup.tar
-
-- name: director-backup-bucket
-  type: s3
-  source:
-    <<: *S3_CREDS
-    versioned_file: director-backup.tar
-
-- name: bbr-release
-  type: pivnet
-  source:
-    api_token: ((pivnet-api-token))
-    product_slug: p-bosh-backup-and-restore
-
-- name: bbr-pipeline-tasks-prs
-  type: pull-request
-  source:
-    access_token: ((github-access-token))
-    private_key: ((git-private-key))
-    repo: pivotal-cf/bbr-pcf-pipeline-tasks
-    uri: git@github.com:pivotal-cf/bbr-pcf-pipeline-tasks.git
+s3_credentials: &s3_credentials
+  bucket: ((storage-backup-bucket))
+  region_name: ((storage-region))
+  access_key_id: ((storage-access-key-id))
+  secret_access_key: ((storage-secret-access-key))
+  endpoint: ((storage-endpoint))
 
 groups:
 - name: master
@@ -79,10 +36,7 @@ jobs:
       trigger: true
   - file: bbr-pipeline-tasks-repo/tasks/export-om-installation/task.yml
     params:
-      OPSMAN_PASSWORD: ((opsman-password))
-      OPSMAN_URL: ((opsman-url))
-      OPSMAN_USERNAME: ((opsman-username))
-      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
+      <<: *opsman_credentials
     task: export-om-installation
   - params:
       file: om-installation/installation.zip
@@ -106,18 +60,12 @@ jobs:
     on_failure:
       file: bbr-pipeline-tasks-repo/tasks/bbr-cleanup-ert/task.yml
       params:
-        OPSMAN_PASSWORD: ((opsman-password))
+        <<: *opsman_credentials
         OPSMAN_PRIVATE_KEY: ((opsman-private-key))
-        OPSMAN_URL: ((opsman-url))
-        OPSMAN_USERNAME: ((opsman-username))
-        SKIP_SSL_VALIDATION: ((skip-ssl-validation))
       task: bbr-cleanup-ert
     params:
-      OPSMAN_PASSWORD: ((opsman-password))
+      <<: *opsman_credentials
       OPSMAN_PRIVATE_KEY: ((opsman-private-key))
-      OPSMAN_URL: ((opsman-url))
-      OPSMAN_USERNAME: ((opsman-username))
-      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
     tags:
     - ((concourse-worker-tag))
     task: bbr-backup-ert
@@ -143,18 +91,12 @@ jobs:
     on_failure:
       file: bbr-pipeline-tasks-repo/tasks/bbr-cleanup-director/task.yml
       params:
-        OPSMAN_PASSWORD: ((opsman-password))
-        OPSMAN_URL: ((opsman-url))
-        OPSMAN_USERNAME: ((opsman-username))
-        SKIP_SSL_VALIDATION: ((skip-ssl-validation))
+        <<: *opsman_credentials
       tags:
       - ((concourse-worker-tag))
       task: bbr-cleanup-director
     params:
-      OPSMAN_PASSWORD: ((opsman-password))
-      OPSMAN_URL: ((opsman-url))
-      OPSMAN_USERNAME: ((opsman-username))
-      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
+      <<: *opsman_credentials
     tags:
     - ((concourse-worker-tag))
     task: bbr-backup-director
@@ -187,10 +129,7 @@ jobs:
         status: success
       put: bbr-pipeline-tasks-prs
     params:
-      OPSMAN_PASSWORD: ((opsman-password))
-      OPSMAN_URL: ((opsman-url))
-      OPSMAN_USERNAME: ((opsman-username))
-      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
+      <<: *opsman_credentials
     task: export-om-installation
   - params:
       file: om-installation/installation.zip
@@ -229,11 +168,8 @@ jobs:
         status: success
       put: bbr-pipeline-tasks-prs
     params:
-      OPSMAN_PASSWORD: ((opsman-password))
+      <<: *opsman_credentials
       OPSMAN_PRIVATE_KEY: ((opsman-private-key))
-      OPSMAN_URL: ((opsman-url))
-      OPSMAN_USERNAME: ((opsman-username))
-      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
     tags:
     - ((concourse-worker-tag))
     task: bbr-backup-ert
@@ -274,10 +210,7 @@ jobs:
         status: success
       put: bbr-pipeline-tasks-prs
     params:
-      OPSMAN_PASSWORD: ((opsman-password))
-      OPSMAN_URL: ((opsman-url))
-      OPSMAN_USERNAME: ((opsman-username))
-      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
+      <<: *opsman_credentials
     tags:
     - ((concourse-worker-tag))
     task: bbr-backup-director
@@ -294,24 +227,7 @@ jobs:
     - get: bbr-pipeline-tasks-prs
       trigger: true
     - get: bbr-release
-  - config:
-      image_resource:
-        source:
-          repository: cloudfoundrylondon/bbr-pipeline
-          tag: release-candidate
-        type: docker-image
-      inputs:
-      - name: bbr-release
-      outputs:
-      - name: binary
-      platform: linux
-      run:
-        args:
-        - -c
-        - |
-          tar -xvf bbr-release/bbr*.tar
-          cp releases/bbr binary/
-        path: sh
+  - file: bbr-pipeline-tasks-prs/tasks/extract-bbr-binary/task.yml
     tags:
     - ((concourse-worker-tag))
     task: extract-binary
@@ -331,11 +247,8 @@ jobs:
         status: success
       put: bbr-pipeline-tasks-prs
     params:
-      OPSMAN_PASSWORD: ((opsman-password))
+      <<: *opsman_credentials
       OPSMAN_PRIVATE_KEY: ((opsman-private-key))
-      OPSMAN_URL: ((opsman-url))
-      OPSMAN_USERNAME: ((opsman-username))
-      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
     tags:
     - ((concourse-worker-tag))
     task: bbr-cleanup-ert-prs
@@ -349,24 +262,7 @@ jobs:
     - get: bbr-pipeline-tasks-prs
       trigger: true
     - get: bbr-release
-  - config:
-      image_resource:
-        source:
-          repository: cloudfoundrylondon/bbr-pipeline
-          tag: release-candidate
-        type: docker-image
-      inputs:
-      - name: bbr-release
-      outputs:
-      - name: binary
-      platform: linux
-      run:
-        args:
-        - -c
-        - |
-          tar -xvf bbr-release/bbr*.tar
-          cp releases/bbr binary/
-        path: sh
+  - file: bbr-pipeline-tasks-prs/tasks/extract-bbr-binary/task.yml
     tags:
     - ((concourse-worker-tag))
     task: extract-binary
@@ -386,10 +282,58 @@ jobs:
         status: success
       put: bbr-pipeline-tasks-prs
     params:
-      OPSMAN_PASSWORD: ((opsman-password))
-      OPSMAN_URL: ((opsman-url))
-      OPSMAN_USERNAME: ((opsman-username))
-      SKIP_SSL_VALIDATION: ((skip-ssl-validation))
+      <<: *opsman_credentials
     tags:
     - ((concourse-worker-tag))
     task: bbr-cleanup-director-prs
+
+resource_types:
+- name: pivnet
+  source:
+    repository: pivotalcf/pivnet-resource
+    tag: latest-final
+  type: docker-image
+- name: pull-request
+  source:
+    repository: jtarchie/pr
+    tag: latest
+  type: docker-image
+
+resources:
+- name: bbr-pipeline-tasks-repo
+  source:
+    branch: master
+    uri: https://github.com/pivotal-cf/bbr-pcf-pipeline-tasks.git
+  type: git
+
+- name: bbr-pipeline-tasks-prs
+  type: pull-request
+  source:
+    access_token: ((github-access-token))
+    private_key: ((git-private-key))
+    repo: pivotal-cf/bbr-pcf-pipeline-tasks
+    uri: git@github.com:pivotal-cf/bbr-pcf-pipeline-tasks.git
+
+- name: om-backup-artifact
+  type: s3
+  source:
+    <<: *s3_credentials
+    versioned_file: installation.zip
+
+- name: ert-backup-bucket
+  type: s3
+  source:
+    <<: *s3_credentials
+    versioned_file: ert-backup.tar
+
+- name: director-backup-bucket
+  type: s3
+  source:
+    <<: *s3_credentials
+    versioned_file: director-backup.tar
+
+- name: bbr-release
+  type: pivnet
+  source:
+    api_token: ((pivnet-api-token))
+    product_slug: p-bosh-backup-and-restore
