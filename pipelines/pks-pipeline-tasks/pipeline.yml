@@ -7,10 +7,11 @@ opsman_credentials: &opsman_credentials
   OPSMAN_PRIVATE_KEY: ((opsman-private-key))
 
 s3_credentials: &s3_credentials
-  bucket: ((aws-backup-bucket))
-  region_name: ((aws-backup-bucket-region))
-  access_key_id: ((aws-access-key-id))
-  secret_access_key: ((aws-secret-access-key))
+  bucket: ((storage-backup-bucket))
+  region_name: ((storage-region))
+  access_key_id: ((storage-access-key-id))
+  secret_access_key: ((storage-secret-access-key))
+  endpoint: ((storage-endpoint))
 
 groups:
 - name: master
