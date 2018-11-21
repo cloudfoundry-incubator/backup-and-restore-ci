@@ -66,6 +66,14 @@ resources:
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
+- name: golang
+  type: docker-image
+  source:
+    repository: golang
+    tag: 1
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
+
 - name: bosh-backup-and-restore-docker-image
   type: docker-image
   source:
@@ -114,6 +122,8 @@ jobs:
   serial: true
   plan:
   - get: backup-and-restore-minimal-repo
+    trigger: true
+  - get: golang
     trigger: true
   - put: backup-and-restore-minimal-docker-image
     params:
