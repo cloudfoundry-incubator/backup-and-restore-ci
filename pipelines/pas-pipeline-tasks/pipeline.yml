@@ -15,6 +15,7 @@ s3_credentials: &s3_credentials
 groups:
 - name: master
   jobs:
+  - validate-sample-pipeline
   - export-om-installation
   - bbr-backup-director
   - bbr-backup-ert
@@ -29,6 +30,20 @@ groups:
   - bbr-cleanup-ert-prs
 
 jobs:
+- name: validate-sample-pipeline
+  plan:
+  - aggregate:
+    - get: bbr-pipeline-tasks-repo
+      trigger: true
+    - get: backup-and-restore-ci
+  - task: validate-pipeline
+    file: backup-and-restore-ci/tasks/validate-pipeline/task.yml
+    input_mapping:
+      pipeline: bbr-pipeline-tasks-repo
+    params:
+      PIPELINE_PATH: examples/pas-pipeline.yml
+      SECRETS_PATH: examples/pas-secrets.yml
+
 - name: export-om-installation
   serial: true
   plan:
