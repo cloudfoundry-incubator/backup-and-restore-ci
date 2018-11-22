@@ -13,17 +13,6 @@ s3_credentials: &s3_credentials
   secret_access_key: ((storage-secret-access-key))
   endpoint: ((storage-endpoint))
 
-groups:
-- name: master
-  jobs:
-  - validate-sample-pipeline
-  - export-om-installation
-  - lock-pks
-  - bbr-backup-director
-  - bbr-backup-pks
-  - bbr-backup-pks-clusters
-  - unlock-pks
-
 jobs:
 - name: validate-sample-pipeline
   plan:
@@ -108,10 +97,10 @@ jobs:
   - aggregate:
     - get: bbr-release
       trigger: true
-      passed: [bbr-backup-director]
+      passed: [lock-pks]
     - get: bbr-pipeline-tasks-repo
       trigger: true
-      passed: [bbr-backup-director]
+      passed: [lock-pks]
   - task: extract-binary
     file: bbr-pipeline-tasks-repo/tasks/extract-bbr-binary/task.yml
   - task: bbr-backup-pks
@@ -138,10 +127,10 @@ jobs:
   - aggregate:
     - get: bbr-release
       trigger: true
-      passed: [bbr-backup-pks]
+      passed: [lock-pks]
     - get: bbr-pipeline-tasks-repo
       trigger: true
-      passed: [bbr-backup-pks]
+      passed: [lock-pks]
   - task: extract-binary
     file: bbr-pipeline-tasks-repo/tasks/extract-bbr-binary/task.yml
   - task: bbr-backup-pks-clusters
@@ -168,10 +157,16 @@ jobs:
   - aggregate:
     - get: bbr-release
       trigger: true
-      passed: [bbr-backup-pks-clusters]
+      passed:
+      - bbr-backup-director
+      - bbr-backup-pks
+      - bbr-backup-pks-clusters
     - get: bbr-pipeline-tasks-repo
       trigger: true
-      passed: [bbr-backup-pks-clusters]
+      passed:
+      - bbr-backup-director
+      - bbr-backup-pks
+      - bbr-backup-pks-clusters
   - task: unlock-pks
     file: bbr-pipeline-tasks-repo/tasks/unlock-pks/task.yml
     params:
