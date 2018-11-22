@@ -1678,6 +1678,8 @@ jobs:
       vendored-package-release: golang-release
     params:
       VENDORED_PACKAGE_NAME: golang-1-linux
+      private_yml: ((private_yml))
+
   - put: backup-and-restore-sdk-release
     params:
       repository: release-with-updated-vendored-package

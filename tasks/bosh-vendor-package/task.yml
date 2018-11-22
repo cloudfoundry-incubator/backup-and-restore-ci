@@ -15,6 +15,7 @@ outputs:
 
 params:
   VENDORED_PACKAGE_NAME:
+  private_yml:
 
 run:
   path: backup-and-restore-ci/tasks/bosh-vendor-package/task.sh
