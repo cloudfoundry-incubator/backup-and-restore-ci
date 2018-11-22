@@ -3,7 +3,7 @@
 set -eu
 
 pushd release
-  "${private_yml}" > config/private.yml
+  echo "${private_yml}" > config/private.yml
   bosh-cli vendor-package "${VENDORED_PACKAGE_NAME}" ../vendored-package-release
 
   git add .
