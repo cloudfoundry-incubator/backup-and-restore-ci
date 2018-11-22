@@ -353,6 +353,10 @@ resources:
   source:
     branch: master
     uri: https://github.com/pivotal-cf/bbr-pcf-pipeline-tasks.git
+    ignore_paths:
+    - docker/*
+    - examples/*
+    - README.md
 
 - name: bbr-pipeline-tasks-prs
   type: pull-request
@@ -361,6 +365,8 @@ resources:
     private_key: ((git-private-key))
     repo: pivotal-cf/bbr-pcf-pipeline-tasks
     uri: git@github.com:pivotal-cf/bbr-pcf-pipeline-tasks.git
+    ignore_paths:
+    - docker/*
 
 - name: om-backup-artifact
   type: s3

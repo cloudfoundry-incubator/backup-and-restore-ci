@@ -178,6 +178,10 @@ resources:
     uri: git@github.com:pivotal-cf/bbr-pcf-pipeline-tasks.git
     private_key: ((git-private-key))
     branch: master
+    ignore_paths:
+    - docker/*
+    - examples/*
+    - README.md
 
 - name: bbr-release
   type: pivnet
