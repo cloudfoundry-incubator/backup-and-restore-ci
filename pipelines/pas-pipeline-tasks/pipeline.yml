@@ -110,34 +110,23 @@ jobs:
 
 - name: validate-sample-pipeline-prs
   plan:
-  - get: bbr-pipeline-tasks-repo
-    trigger: true
-    resource: bbr-pipeline-tasks-prs
+  - aggregate:
+    - get: bbr-pipeline-tasks-repo
+      trigger: true
+      resource: bbr-pipeline-tasks-prs
+    - get: backup-and-restore-ci
   - put: bbr-pipeline-tasks-prs
     params:
       context: validation-of-sample-pipeline
       path: bbr-pipeline-tasks-repo
       status: pending
-  - task: validate-pipeline-with-secrets
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          repository: cloudfoundrylondon/bbr-pipeline
-          tag: final
-      inputs:
-      - name: bbr-pipeline-tasks-repo
-      run:
-        path: bash
-        args:
-        - -c
-        - |
-          set -e
-          pushd bbr-pipeline-tasks-repo/examples/
-            bosh int pas-pipeline.yml -l pas-secrets.yml --var-errs --var-errs-unused
-            fly validate-pipeline -c pas-pipeline.yml -l pas-secrets.yml
-          popd
+  - task: validate-pipeline
+    file: backup-and-restore-ci/tasks/validate-pipeline/task.yml
+    input_mapping:
+      pipeline: bbr-pipeline-tasks-repo
+    params:
+      PIPELINE_PATH: examples/pas-pipeline.yml
+      SECRETS_PATH: examples/pas-secrets.yml
     on_failure:
       put: bbr-pipeline-tasks-prs
       params:
@@ -348,11 +337,19 @@ resource_types:
     tag: latest
 
 resources:
+- name: backup-and-restore-ci
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-incubator/backup-and-restore-ci.git
+    branch: master
+    private_key: ((git-private-key))
+
 - name: bbr-pipeline-tasks-repo
   type: git
   source:
     branch: master
     uri: https://github.com/pivotal-cf/bbr-pcf-pipeline-tasks.git
+    private_key: ((git-private-key))
     ignore_paths:
     - docker/*
     - README.md
