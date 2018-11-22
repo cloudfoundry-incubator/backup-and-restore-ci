@@ -355,8 +355,13 @@ resources:
     uri: https://github.com/pivotal-cf/bbr-pcf-pipeline-tasks.git
     ignore_paths:
     - docker/*
-    - examples/*
     - README.md
+    - tasks/bbr-backup-pks/*
+    - tasks/bbr-backup-pks-clusters/*
+    - tasks/bbr-cleanup-pks/*
+    - tasks/bbr-cleanup-pks-clusters/*
+    - tasks/lock-pks/*
+    - tasks/unlock-pks/*
 
 - name: bbr-pipeline-tasks-prs
   type: pull-request
@@ -367,6 +372,13 @@ resources:
     uri: git@github.com:pivotal-cf/bbr-pcf-pipeline-tasks.git
     ignore_paths:
     - docker/*
+    - README.md
+    - tasks/bbr-backup-pks/*
+    - tasks/bbr-backup-pks-clusters/*
+    - tasks/bbr-cleanup-pks/*
+    - tasks/bbr-cleanup-pks-clusters/*
+    - tasks/lock-pks/*
+    - tasks/unlock-pks/*
 
 - name: om-backup-artifact
   type: s3

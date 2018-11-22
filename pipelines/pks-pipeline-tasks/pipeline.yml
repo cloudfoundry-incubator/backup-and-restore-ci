@@ -180,8 +180,9 @@ resources:
     branch: master
     ignore_paths:
     - docker/*
-    - examples/*
     - README.md
+    - tasks/bbr-backup-ert/*
+    - tasks/bbr-cleanup-ert/*
 
 - name: bbr-release
   type: pivnet
