@@ -97,6 +97,14 @@ resources:
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
+- name: golang-docker-image
+  type: docker-image
+  source:
+    repository: golang
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
+    tag: 1
+
 jobs:
 - name: build-cfops
   public: true
@@ -135,8 +143,11 @@ jobs:
   public: true
   serial: true
   plan:
-  - get: backup-and-restore-minimal-repo
-    trigger: true
+  - aggregate:
+    - get: golang-docker-image
+      trigger: true
+    - get: backup-and-restore-minimal-repo
+      trigger: true
   - put: backup-and-restore-minimal-docker-image
     params:
       build: backup-and-restore-minimal-repo/ci-docker-images/backup-and-restore-minimal/
