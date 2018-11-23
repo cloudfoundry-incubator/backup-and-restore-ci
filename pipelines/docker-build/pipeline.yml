@@ -32,14 +32,6 @@ resources:
     branch: master
     paths: ["ci-docker-images/bosh-backup-and-restore/*"]
 
-- name: k-drats
-  type: git
-  source:
-    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
-    private_key: ((git-private-key))
-    branch: master
-    paths: ["ci-docker-images/k-drats/*"]
-
 - name: backup-and-restore-node-with-ssh-repo
   type: git
   source:
@@ -47,6 +39,14 @@ resources:
     private_key: ((git-private-key))
     branch: master
     paths: ["ci-docker-images/backup-and-restore-node-with-ssh/*"]
+
+- name: k-drats
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
+    private_key: ((git-private-key))
+    branch: master
+    paths: ["ci-docker-images/k-drats/*"]
 
 - name: cfops-docker-image
   type: docker-image
@@ -76,17 +76,17 @@ resources:
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
-- name: k-drats-docker-image
-  type: docker-image
-  source:
-    repository: cloudfoundrylondon/k-drats
-    username: ((dockerhub-username))
-    password: ((dockerhub-password))
-
 - name: backup-and-restore-node-with-ssh-docker-image
   type: docker-image
   source:
     repository: cloudfoundrylondon/backup-and-restore-node-with-ssh
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
+
+- name: k-drats-docker-image
+  type: docker-image
+  source:
+    repository: cloudfoundrylondon/k-drats
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
@@ -111,16 +111,6 @@ jobs:
     params:
       build: cfops-docs-repo/ci-docker-images/cfops-docs/
 
-- name: build-backup-and-restore-minimal
-  public: true
-  serial: true
-  plan:
-  - get: backup-and-restore-minimal-repo
-    trigger: true
-  - put: backup-and-restore-minimal-docker-image
-    params:
-      build: backup-and-restore-minimal-repo/ci-docker-images/backup-and-restore-minimal/
-
 - name: build-k-drats
   public: true
   serial: true
@@ -130,6 +120,16 @@ jobs:
   - put: k-drats-docker-image
     params:
       build: k-drats/ci-docker-images/k-drats/
+
+- name: build-backup-and-restore-minimal
+  public: true
+  serial: true
+  plan:
+  - get: backup-and-restore-minimal-repo
+    trigger: true
+  - put: backup-and-restore-minimal-docker-image
+    params:
+      build: backup-and-restore-minimal-repo/ci-docker-images/backup-and-restore-minimal/
 
 - name: build-bosh-backup-and-restore
   public: true
