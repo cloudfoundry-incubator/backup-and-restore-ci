@@ -7,6 +7,7 @@ resources:
     private_key: ((git-private-key))
     branch: master
     paths: ["ci-docker-images/cfops/*"]
+
 - name: cfops-docs-repo
   type: git
   source:
@@ -14,6 +15,7 @@ resources:
     private_key: ((git-private-key))
     branch: master
     paths: ["ci-docker-images/cfops-docs/*"]
+
 - name: backup-and-restore-minimal-repo
   type: git
   source:
@@ -21,6 +23,7 @@ resources:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
     branch: master
     paths: ["ci-docker-images/backup-and-restore-minimal/*"]
+
 - name: bosh-backup-and-restore-repo
   type: git
   source:
@@ -88,7 +91,6 @@ resources:
     password: ((dockerhub-password))
 
 jobs:
-
 - name: build-cfops
   public: true
   serial: true
@@ -137,6 +139,7 @@ jobs:
     trigger: true
   - get: backup-and-restore-minimal-docker-image
     trigger: true
+    passed: [build-backup-and-restore-minimal]
   - put: bosh-backup-and-restore-docker-image
     params:
       build: bosh-backup-and-restore-repo/ci-docker-images/bosh-backup-and-restore/
@@ -149,6 +152,7 @@ jobs:
     trigger: true
   - get: bosh-backup-and-restore-docker-image
     trigger: true
+    passed: [build-bosh-backup-and-restore]
   - put: backup-and-restore-node-with-ssh-docker-image
     params:
       build: backup-and-restore-node-with-ssh-repo/ci-docker-images/backup-and-restore-node-with-ssh/
