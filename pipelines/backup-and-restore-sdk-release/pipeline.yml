@@ -231,6 +231,7 @@ resources:
   type: git
   source:
     uri: https://github.com/bosh-packages/golang-release.git
+    tag_filter: v*
 
 jobs:
 - name: unit-tests
