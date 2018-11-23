@@ -1670,6 +1670,7 @@ jobs:
   - aggregate:
     - get: backup-and-restore-ci
     - get: golang-release
+      trigger: true
     - get: backup-and-restore-sdk-release
   - task: bosh-vendor-package
     file: backup-and-restore-ci/tasks/bosh-vendor-package/task.yml
@@ -1678,7 +1679,8 @@ jobs:
       vendored-package-release: golang-release
     params:
       VENDORED_PACKAGE_NAME: golang-1-linux
-      private_yml: ((private_yml))
+      AWS_ACCESS_KEY_ID: ((aws-access-key-id))
+      AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
 
   - put: backup-and-restore-sdk-release
     params:

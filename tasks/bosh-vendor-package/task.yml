@@ -13,9 +13,10 @@ inputs:
 outputs:
 - name: release-with-updated-vendored-package
 
-params:
-  VENDORED_PACKAGE_NAME:
-  private_yml:
-
 run:
   path: backup-and-restore-ci/tasks/bosh-vendor-package/task.sh
+
+params:
+  VENDORED_PACKAGE_NAME:
+  AWS_ACCESS_KEY_ID:
+  AWS_SECRET_ACCESS_KEY:
