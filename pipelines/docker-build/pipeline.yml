@@ -83,6 +83,13 @@ resources:
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
+- name: cf-deployment-concourse-tasks-docker-image
+  type: docker-image
+  source:
+    repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
+
 - name: k-drats-docker-image
   type: docker-image
   source:
@@ -115,8 +122,11 @@ jobs:
   public: true
   serial: true
   plan:
-  - get: k-drats
-    trigger: true
+  - aggregate:
+    - get: k-drats
+      trigger: true
+    - get: cf-deployment-concourse-tasks-docker-image
+      trigger: true
   - put: k-drats-docker-image
     params:
       build: k-drats/ci-docker-images/k-drats/
