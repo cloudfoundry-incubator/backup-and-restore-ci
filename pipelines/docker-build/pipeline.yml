@@ -160,9 +160,6 @@ jobs:
   plan:
   - get: backup-and-restore-node-with-ssh-repo
     trigger: true
-  - get: bosh-backup-and-restore-docker-image
-    trigger: true
-    passed: [build-bosh-backup-and-restore]
   - put: backup-and-restore-node-with-ssh-docker-image
     params:
       build: backup-and-restore-node-with-ssh-repo/ci-docker-images/backup-and-restore-node-with-ssh/
