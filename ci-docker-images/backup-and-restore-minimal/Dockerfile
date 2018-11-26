@@ -10,9 +10,8 @@ RUN go get github.com/onsi/gomega
 RUN go get -u github.com/golang/dep/cmd/dep
 
 RUN \
-  wget https://github.com/pivotal-cf/om/releases/download/0.24.0/om-linux --output-document="/usr/bin/om" && \
-  cd /usr/bin && \
-  chmod +x om
+  wget https://github.com/pivotal-cf/om/releases/download/0.42.0/om-linux --output-document="/usr/bin/om" && \
+  chmod +x /usr/bin/om
 
 RUN (curl -L "https://cli.run.pivotal.io/stable?version=6.36.1&release=linux64-binary&source=github" | tar -zx) && \
    mv cf /usr/bin && \
