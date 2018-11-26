@@ -21,5 +21,5 @@ set -eu
 export GOPATH="$PWD/backup-and-restore-sdk-release:$GOPATH"
 
 pushd "backup-and-restore-sdk-release/src/github.com/cloudfoundry-incubator/$PACKAGE_NAME"
-  ginkgo -r -p -v -keepGoing --flakeAttempts=2
+  ginkgo -r -p -v -keepGoing
 popd
