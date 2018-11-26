@@ -722,6 +722,7 @@ jobs:
       OPS_MAN_USER: ((ops-man-user))
       OPS_MAN_PASS: ((ops-man-pass))
       OPS_MAN_SSH_KEY: ((ops-man-ssh-key))
+      SKIP_SUITE_NAME: cf-smbbroker
 
 - name: build-final
   serial_groups: [version]
