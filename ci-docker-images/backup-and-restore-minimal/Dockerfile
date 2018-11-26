@@ -7,7 +7,10 @@ RUN \
 
 RUN go get github.com/onsi/ginkgo/ginkgo
 RUN go get github.com/onsi/gomega
-RUN go get -u github.com/golang/dep/cmd/dep
+
+RUN \
+  wget https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 --output-document="/usr/bin/dep" && \
+  chmod +x /usr/bin/dep
 
 RUN \
   wget https://github.com/pivotal-cf/om/releases/download/0.42.0/om-linux --output-document="/usr/bin/om" && \
