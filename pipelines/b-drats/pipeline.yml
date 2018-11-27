@@ -323,12 +323,20 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-deployment
+      passed: [run-b-drats-master]
+      trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: terraform
       passed: [run-b-drats-master]
       params:
         output_statefile: true
+    - get: bbr-binary-release
+      trigger: true
+      passed: [run-b-drats-master]
+    - get: bosh-disaster-recovery-acceptance-tests
+      passed: [run-b-drats-master]
+      trigger: true
   - task: bosh-delete-env
     file: backup-and-restore-ci/tasks/bosh-operation/task.yml
     input_mapping:
@@ -361,12 +369,20 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-deployment
+      passed: [run-b-drats-prs]
+      trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: terraform
       passed: [run-b-drats-prs]
       params:
         output_statefile: true
+    - get: bbr-binary-release
+      trigger: true
+      passed: [run-b-drats-prs]
+    - get: bosh-disaster-recovery-acceptance-tests-prs
+      passed: [run-b-drats-prs]
+      trigger: true
   - task: bosh-delete-env
     file: backup-and-restore-ci/tasks/bosh-operation/task.yml
     input_mapping:
