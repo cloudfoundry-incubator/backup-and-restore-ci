@@ -27,6 +27,7 @@ inputs:
 
 params:
   PACKAGE_NAME:
+  GINKGO_EXTRA_FLAGS:
 
 run:
-  path: backup-and-restore-ci/tasks/blobstore-unit-tests/task.sh
+  path: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.sh
