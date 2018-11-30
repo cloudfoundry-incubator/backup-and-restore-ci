@@ -21,5 +21,13 @@ set -eu
 export GOPATH="$PWD/backup-and-restore-sdk-release:$GOPATH"
 
 pushd "backup-and-restore-sdk-release/src/github.com/cloudfoundry-incubator/$PACKAGE_NAME"
-  ginkgo -r -p -keepGoing "$GINKGO_EXTRA_FLAGS"
+  ginkgo_cmd="ginkgo -r -p -keepGoing"
+
+  if [ -z "$GINKGO_EXTRA_FLAGS" ]; then
+    ginkgo_cmd="$ginkgo_cmd $GINKGO_EXTRA_FLAGS"
+  fi
+
+  set -x
+  $ginkgo_cmd
+  set +x
 popd
