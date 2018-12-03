@@ -254,7 +254,7 @@ jobs:
       file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
       params:
         PACKAGE_NAME: s3-blobstore-backup-restore
-        GINKGO_EXTRA_FLAGS: "--flakeAttempts=2"
+        GINKGO_EXTRA_FLAGS: "--flakeAttempts=3"
         TEST_AWS_ACCESS_KEY_ID: ((aws-access-key-id))
         TEST_AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
         TEST_ECS_ACCESS_KEY_ID: ((ecs-access-key-id))
