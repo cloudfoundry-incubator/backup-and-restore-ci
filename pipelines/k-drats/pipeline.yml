@@ -100,6 +100,30 @@ jobs:
     - get: xenial-stemcell
     - get: kubo-release
     - get: cf-deployment-concourse-tasks
+  - task: add-bosh-dns-to-runtime-config
+    params:
+      BOSH_DEPLOYMENT: *deployment-name
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
+          tag: v5.19.0
+      inputs:
+      - name: bosh-backup-and-restore-meta
+      run:
+        path: bash
+        args:
+        - -euc
+        - |
+          pushd "bosh-backup-and-restore-meta/maru"
+            eval "$(bbl print-env)"
+          popd
+
+          bosh update-runtime-config \
+            --non-interactive \
+            "bosh-backup-and-restore-meta/maru/bosh-deployment/runtime-configs/dns.yml"
   - task: add-vm-extension-to-cloud-config
     params:
       BOSH_DEPLOYMENT: *deployment-name
@@ -251,6 +275,31 @@ jobs:
         cfcr_deployment_name: *deployment-name
     get_params:
       action: destroy
+  - task: delete-bosh-dns-from-runtime-config
+    params:
+      BOSH_DEPLOYMENT: *deployment-name
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
+          tag: v5.19.0
+      inputs:
+      - name: bosh-backup-and-restore-meta
+      run:
+        path: bash
+        args:
+        - -euc
+        - |
+          pushd "bosh-backup-and-restore-meta/maru"
+            eval "$(bbl print-env)"
+          popd
+
+          bosh delete-config \
+            --non-interactive \
+            --type runtime \
+            --name "default"
   - task: delete-vm-extension-from-cloud-config
     params:
       BOSH_DEPLOYMENT: *deployment-name
