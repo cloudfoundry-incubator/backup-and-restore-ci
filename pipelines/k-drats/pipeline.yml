@@ -164,13 +164,13 @@ jobs:
       ops_files:
       - kubo-deployment/manifests/ops-files/rename.yml
       - kubo-deployment/manifests/ops-files/enable-bbr.yml
+      - kubo-deployment/manifests/ops-files/worker_count.yml
       - bosh-backup-and-restore-meta/k-drats/operations/add-lb-vm-extension.yml
       - bosh-backup-and-restore-meta/k-drats/operations/configure-kubernetes-master-host.yml
-      - bosh-backup-and-restore-meta/k-drats/operations/configure-worker-instances.yml
       - bosh-backup-and-restore-meta/k-drats/operations/deploy-dev-cfcr-etcd.yml
       vars:
         deployment_name: *deployment-name
-        worker_instances: 1
+        worker_count: 1
       vars_files:
       - kubernetes-master-host/vars.yml
   - task: apply-specs
