@@ -241,6 +241,7 @@ jobs:
     - get: backup-and-restore-sdk-release
       trigger: true
     - get: backup-and-restore-ci
+    - get: backup-and-restore-meta
   - aggregate:
     - task: sdk-template-unit-tests
       file: backup-and-restore-ci/tasks/sdk-template-unit-tests/task.yml
