@@ -279,7 +279,6 @@ jobs:
   plan:
   - aggregate:
     - get: backup-and-restore-sdk-release
-      trigger: true
       passed: [unit-tests]
     - get: backup-and-restore-ci
   - task: s3-blobstore-contract-tests

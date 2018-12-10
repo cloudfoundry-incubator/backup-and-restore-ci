@@ -29,4 +29,4 @@ params:
   PACKAGE_NAME:
 
 run:
-  path: backup-and-restore-ci/tasks/blobstore-unit-tests/task.sh
+  path: backup-and-restore-ci/tasks/blobstore-tests/task.sh
