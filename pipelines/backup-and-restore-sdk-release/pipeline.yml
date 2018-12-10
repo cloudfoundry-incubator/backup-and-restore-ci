@@ -497,6 +497,10 @@ jobs:
         s3-unversioned-bpm-bucket-region: eu-west-1
         s3-unversioned-bpm-backup-bucket-name: sdk-system-test-unversioned-bpm-backup
         s3-unversioned-bpm-backup-bucket-region: eu-west-1
+        s3-unversioned-large-number-of-files-bucket-name: sdk-large-number-of-files
+        s3-unversioned-large-number-of-files-bucket-region: eu-west-1
+        s3-unversioned-large-number-of-files-backup-bucket-name: sdk-large-number-of-files-backup
+        s3-unversioned-large-number-of-files-backup-bucket-region: eu-west-1
 
 - name: deploy-aws-blobstore-sdk-with-iam-instance-profile
   serial: true
@@ -894,6 +898,10 @@ jobs:
       S3_UNVERSIONED_BPM_BUCKET_REGION: eu-west-1
       S3_UNVERSIONED_BPM_BACKUP_BUCKET_NAME: sdk-system-test-unversioned-bpm-backup
       S3_UNVERSIONED_BPM_BACKUP_BUCKET_REGION: eu-west-1
+      S3-UNVERSIONED-LARGE-NUMBER-OF-FILES-BUCKET-NAME: sdk-large-number-of-files
+      S3-UNVERSIONED-LARGE-NUMBER-OF-FILES-BUCKET-REGION: eu-west-1
+      S3-UNVERSIONED-LARGE-NUMBER-OF-FILES-BACKUP-BUCKET-NAME: sdk-large-number-of-files-backup
+      S3-UNVERSIONED-LARGE-NUMBER-OF-FILES-BACKUP-BUCKET-REGION: eu-west-1
 
 - name: s3-blobstore-system-tests-with-iam-instance-profile
   serial: true
