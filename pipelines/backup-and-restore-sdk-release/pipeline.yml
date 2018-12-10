@@ -281,6 +281,7 @@ jobs:
   - aggregate:
     - get: backup-and-restore-sdk-release
       passed: [unit-tests]
+      trigger: true
     - get: backup-and-restore-ci
   - task: s3-blobstore-contract-tests
     file: backup-and-restore-ci/tasks/blobstore-tests/task.yml
