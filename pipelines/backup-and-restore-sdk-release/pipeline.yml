@@ -240,7 +240,6 @@ jobs:
   - aggregate:
     - get: backup-and-restore-sdk-release
       trigger: true
-    - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
   - aggregate:
     - task: sdk-template-unit-tests
@@ -250,17 +249,16 @@ jobs:
       privileged: true
       params:
         DOCKER_HOST: "tcp://10.0.3.12:4243"
-    - task: s3-blobstore-unit-tests
-      file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
+    - task: versioned-s3-blobstore-unit-tests
+      file: backup-and-restore-ci/tasks/blobstore-tests/task.yml
       params:
-        PACKAGE_NAME: s3-blobstore-backup-restore
-        GINKGO_EXTRA_FLAGS: "--flakeAttempts=3"
-        TEST_AWS_ACCESS_KEY_ID: ((aws-access-key-id))
-        TEST_AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
-        TEST_ECS_ACCESS_KEY_ID: ((ecs-access-key-id))
-        TEST_ECS_SECRET_ACCESS_KEY: ((ecs-secret-access-key))
+        PACKAGE_NAME: s3-blobstore-backup-restore/versioned
+    - task: unversioned-s3-blobstore-unit-tests
+      file: backup-and-restore-ci/tasks/blobstore-tests/task.yml
+      params:
+        PACKAGE_NAME: s3-blobstore-backup-restore/unversioned
     - task: azure-blobstore-unit-tests
-      file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
+      file: backup-and-restore-ci/tasks/blobstore-tests/task.yml
       params:
         PACKAGE_NAME: azure-blobstore-backup-restore
         AZURE_STORAGE_ACCOUNT: ((azure-storage-account))
@@ -271,10 +269,27 @@ jobs:
         AZURE_DIFFERENT_STORAGE_KEY: ((azure-different-storage-key))
         AZURE_CONTAINER_NAME_MANY_FILES: bbr-test-many-blobs-azure-container
     - task: gcs-blobstore-unit-tests
-      file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
+      file: backup-and-restore-ci/tasks/blobstore-tests/task.yml
       params:
         PACKAGE_NAME: gcs-blobstore-backup-restore
         GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
+
+- name: contract-tests
+  serial: true
+  plan:
+  - aggregate:
+    - get: backup-and-restore-sdk-release
+      trigger: true
+      passed: [unit-tests]
+    - get: backup-and-restore-ci
+  - task: s3-blobstore-contract-tests
+    file: backup-and-restore-ci/tasks/blobstore-tests/task.yml
+    params:
+      PACKAGE_NAME: s3-blobstore-backup-restore/s3
+      TEST_AWS_ACCESS_KEY_ID: ((aws-access-key-id))
+      TEST_AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
+      TEST_ECS_ACCESS_KEY_ID: ((ecs-access-key-id))
+      TEST_ECS_SECRET_ACCESS_KEY: ((ecs-secret-access-key))
 
 - name: create-release
   serial: true
@@ -284,7 +299,7 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
-      passed: [unit-tests]
+      passed: [contract-tests]
       trigger: true
     - get: version
       params: {pre: rc}
