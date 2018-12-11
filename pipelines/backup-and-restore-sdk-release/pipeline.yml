@@ -262,18 +262,10 @@ jobs:
       file: backup-and-restore-ci/tasks/blobstore-tests/task.yml
       params:
         PACKAGE_NAME: azure-blobstore-backup-restore
-        AZURE_STORAGE_ACCOUNT: ((azure-storage-account))
-        AZURE_STORAGE_KEY: ((azure-storage-key))
-        AZURE_STORAGE_ACCOUNT_NO_SOFT_DELETE: ((azure-storage-account-no-soft-delete))
-        AZURE_STORAGE_KEY_NO_SOFT_DELETE: ((azure-storage-key-no-soft-delete))
-        AZURE_DIFFERENT_STORAGE_ACCOUNT: ((azure-different-storage-account))
-        AZURE_DIFFERENT_STORAGE_KEY: ((azure-different-storage-key))
-        AZURE_CONTAINER_NAME_MANY_FILES: bbr-test-many-blobs-azure-container
     - task: gcs-blobstore-unit-tests
       file: backup-and-restore-ci/tasks/blobstore-tests/task.yml
       params:
         PACKAGE_NAME: gcs-blobstore-backup-restore
-        GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
 
 - name: contract-tests
   serial: true
@@ -283,14 +275,31 @@ jobs:
       passed: [unit-tests]
       trigger: true
     - get: backup-and-restore-ci
-  - task: s3-blobstore-contract-tests
-    file: backup-and-restore-ci/tasks/blobstore-tests/task.yml
-    params:
-      PACKAGE_NAME: s3-blobstore-backup-restore/s3
-      TEST_AWS_ACCESS_KEY_ID: ((aws-access-key-id))
-      TEST_AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
-      TEST_ECS_ACCESS_KEY_ID: ((ecs-access-key-id))
-      TEST_ECS_SECRET_ACCESS_KEY: ((ecs-secret-access-key))
+  - aggregate:
+    - task: s3-blobstore-contract-tests
+      file: backup-and-restore-ci/tasks/blobstore-tests/task.yml
+      params:
+        PACKAGE_NAME: s3-blobstore-backup-restore/s3
+        TEST_AWS_ACCESS_KEY_ID: ((aws-access-key-id))
+        TEST_AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
+        TEST_ECS_ACCESS_KEY_ID: ((ecs-access-key-id))
+        TEST_ECS_SECRET_ACCESS_KEY: ((ecs-secret-access-key))
+    - task: gcs-blobstore-contract-tests
+      file: backup-and-restore-ci/tasks/blobstore-tests/task.yml
+      params:
+        PACKAGE_NAME: gcs-blobstore-backup-restore/contract_test
+        GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
+    - task: azure-blobstore-contract-tests
+      file: backup-and-restore-ci/tasks/blobstore-tests/task.yml
+      params:
+        PACKAGE_NAME: azure-blobstore-backup-restore/contract_test
+        AZURE_STORAGE_ACCOUNT: ((azure-storage-account))
+        AZURE_STORAGE_KEY: ((azure-storage-key))
+        AZURE_STORAGE_ACCOUNT_NO_SOFT_DELETE: ((azure-storage-account-no-soft-delete))
+        AZURE_STORAGE_KEY_NO_SOFT_DELETE: ((azure-storage-key-no-soft-delete))
+        AZURE_DIFFERENT_STORAGE_ACCOUNT: ((azure-different-storage-account))
+        AZURE_DIFFERENT_STORAGE_KEY: ((azure-different-storage-key))
+        AZURE_CONTAINER_NAME_MANY_FILES: bbr-test-many-blobs-azure-container
 
 - name: create-release
   serial: true
