@@ -17,4 +17,5 @@ pushd "$(dirname "$0")"
     docker push "cloudfoundrylondon/backup-and-restore-bosh-stemcell:$VERSION"
   popd
   rm -rf workspace
+  public: true
 popd

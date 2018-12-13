@@ -32,6 +32,14 @@ resources:
     branch: master
     paths: ["ci-docker-images/bosh-backup-and-restore/*"]
 
+- name: bosh-lite-stemcell-repo
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
+    private_key: ((git-private-key))
+    branch: master
+    paths: ["ci-docker-images/bosh-lite-stemcell"]
+
 - name: backup-and-restore-node-with-ssh-repo
   type: git
   source:
@@ -164,6 +172,25 @@ jobs:
   - put: bosh-backup-and-restore-docker-image
     params:
       build: bosh-backup-and-restore-repo/ci-docker-images/bosh-backup-and-restore/
+
+- name: build-bosh-lite-stemcell
+  serial: true
+  plan:
+  - get: bosh-lite-stemcell-repo
+    trigger: true
+  - task: make-and-push-bosh-lite-stemcell
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: cloudfoundrylondon/backup-and-restore}
+      inputs:
+        - name: bosh-lite-stemcell-repo
+      run:
+        path: bash
+        args:
+        - -uc
+        - ./bosh-lite-stemcell-repo/ci-docker-images/bosh-lite-stemcell/make_and_push_bosh_stemcell.sh
 
 - name: build-backup-and-restore-node-with-ssh
   public: true
