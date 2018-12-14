@@ -3,8 +3,8 @@
 
 set -eu
 
-UBUNTU="xenial"
-VERSION="170.13"
+UBUNTU="trusty"
+VERSION="3541.31"
 
 wget "https://s3.amazonaws.com/bosh-core-stemcells/warden/bosh-stemcell-$VERSION-warden-boshlite-ubuntu-$UBUNTU-go_agent.tgz"
 tar xvf "bosh-stemcell-$VERSION-warden-boshlite-ubuntu-$UBUNTU-go_agent.tgz"
