@@ -234,7 +234,6 @@ jobs:
   - aggregate:
     - get: cf-deployment
       passed: [deploy-cf-prs]
-      trigger: true
     - get: disaster-recovery-acceptance-tests-prs
       trigger: true
       passed: [deploy-cf-prs]
@@ -369,7 +368,6 @@ jobs:
   - aggregate:
     - get: cf-deployment
       passed: [run-drats-prs]
-      trigger: true
     - get: disaster-recovery-acceptance-tests-prs
       trigger: true
       passed: [run-drats-prs]
