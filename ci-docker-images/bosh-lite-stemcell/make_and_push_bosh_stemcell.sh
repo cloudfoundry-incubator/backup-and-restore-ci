@@ -4,9 +4,9 @@
 set -eu
 
 UBUNTU="trusty"
-VERSION="3541.31"
+VERSION="3147"
 
-wget "https://s3.amazonaws.com/bosh-core-stemcells/warden/bosh-stemcell-$VERSION-warden-boshlite-ubuntu-$UBUNTU-go_agent.tgz"
+wget https://s3.amazonaws.com/bosh-warden-stemcells/bosh-stemcell-$VERSION-warden-boshlite-ubuntu-$UBUNTU-go_agent.tgz
 tar xvf "bosh-stemcell-$VERSION-warden-boshlite-ubuntu-$UBUNTU-go_agent.tgz"
 
 docker login --username "$DOCKER_USERNAME" --password "$DOCKER_PASSWORD"
