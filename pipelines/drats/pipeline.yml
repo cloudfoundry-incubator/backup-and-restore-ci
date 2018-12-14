@@ -70,7 +70,6 @@ jobs:
       trigger: true
       version: every
     - get: cf-deployment
-      trigger: true
     - get: bosh-backup-and-restore-meta
     - get: cf-deployment-concourse-tasks
     - get: backup-and-restore-ci
