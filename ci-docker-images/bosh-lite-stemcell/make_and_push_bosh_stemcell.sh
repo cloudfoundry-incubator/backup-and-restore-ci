@@ -5,13 +5,6 @@ set -eux
 
 : "${1?"Invalid Usage: $0 version_of_stemcell"}"
 
-eval "$(ssh-agent)"
-github_ssh_key=$(mktemp)
-# shellcheck disable=2153
-echo "$GITHUB_SSH_KEY" > "$github_ssh_key"
-chmod 400 "$github_ssh_key"
-ssh-add "$github_ssh_key"
-
 pushd "$(dirname "$0")"
   VERSION=$1
 
