@@ -1,24 +1,18 @@
 #!/usr/bin/env bash
 # Makes a docker image from a warden stemcell
 
-set -eux
+set -eu
 
-: "${1?"Invalid Usage: $0 version_of_stemcell"}"
+UBUNTU="xenial"
+VERSION="170.13"
+
+wget "https://s3.amazonaws.com/bosh-warden-stemcells/bosh-stemcell-$VERSION-warden-boshlite-ubuntu-$UBUNTU-go_agent.tgz"
+tar xvf "bosh-stemcell-$VERSION-warden-boshlite-ubuntu-$UBUNTU-go_agent.tgz"
 
 docker login --username "$DOCKER_USERNAME" --password "$DOCKER_PASSWORD"
+SHA=$(docker import image | cut -d':' -f2)
+docker tag "$SHA" "cloudfoundrylondon/backup-and-restore-bosh-stemcell:latest"
+docker push "cloudfoundrylondon/backup-and-restore-bosh-stemcell:latest"
+docker tag "$SHA" "cloudfoundrylondon/backup-and-restore-bosh-stemcell:$VERSION"
+docker push "cloudfoundrylondon/backup-and-restore-bosh-stemcell:$VERSION"
 
-pushd "$(dirname "$0")"
-  VERSION=$1
-
-  mkdir workspace
-  pushd workspace
-    wget "https://s3.amazonaws.com/bosh-warden-stemcells/bosh-stemcell-$VERSION-warden-boshlite-ubuntu-trusty-go_agent.tgz"
-    tar xvf "bosh-stemcell-$VERSION-warden-boshlite-ubuntu-trusty-go_agent.tgz"
-    SHA=$(docker import image | cut -d':' -f2)
-    docker tag "$SHA" "cloudfoundrylondon/backup-and-restore-bosh-stemcell:latest"
-    docker push "cloudfoundrylondon/backup-and-restore-bosh-stemcell:latest"
-    docker tag "$SHA" "cloudfoundrylondon/backup-and-restore-bosh-stemcell:$VERSION"
-    docker push "cloudfoundrylondon/backup-and-restore-bosh-stemcell:$VERSION"
-  popd
-  rm -rf workspace
-popd
