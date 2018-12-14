@@ -1,4 +1,4 @@
-FROM cloudfoundrylondon/backup-and-restore-bosh-stemcell:3262.2
+FROM cloudfoundrylondon/backup-and-restore-bosh-stemcell:latest
 
 RUN mkdir -p /var/vcap/store
 RUN mkdir -p /var/vcap/jobs
