@@ -179,6 +179,11 @@ jobs:
   - get: bosh-lite-stemcell-repo
     trigger: true
   - task: make-and-push-bosh-lite-stemcell
+    privileged: true
+    params:
+      DOCKER_HOST: "tcp://10.0.3.12:4243"
+      DOCKER_USERNAME: ((dockerhub-username))
+      DOCKER_PASSWORD: ((dockerhub-password))
     config:
       platform: linux
       image_resource:

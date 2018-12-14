@@ -5,6 +5,8 @@ set -eux
 
 : "${1?"Invalid Usage: $0 version_of_stemcell"}"
 
+docker login --username "$DOCKER_USERNAME" --password "$DOCKER_PASSWORD"
+
 pushd "$(dirname "$0")"
   VERSION=$1
 
