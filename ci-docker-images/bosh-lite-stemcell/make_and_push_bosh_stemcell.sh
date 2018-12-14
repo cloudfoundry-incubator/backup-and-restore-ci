@@ -6,7 +6,7 @@ set -eu
 UBUNTU="xenial"
 VERSION="170.13"
 
-wget "https://s3.amazonaws.com/bosh-warden-stemcells/bosh-stemcell-$VERSION-warden-boshlite-ubuntu-$UBUNTU-go_agent.tgz"
+wget "https://s3.amazonaws.com/bosh-core-stemcells/bosh-stemcell-$VERSION-warden-boshlite-ubuntu-$UBUNTU-go_agent.tgz"
 tar xvf "bosh-stemcell-$VERSION-warden-boshlite-ubuntu-$UBUNTU-go_agent.tgz"
 
 docker login --username "$DOCKER_USERNAME" --password "$DOCKER_PASSWORD"
