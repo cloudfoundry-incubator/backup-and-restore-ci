@@ -85,6 +85,7 @@ resources:
     password: ((dockerhub-password))
 
 - name: bosh-lite-stemcell-docker-image
+  type: docker-image
   source:
     repository: cloudfoundrylondon/backup-and-restore-bosh-stemcell
     username: ((dockerhub-username))
