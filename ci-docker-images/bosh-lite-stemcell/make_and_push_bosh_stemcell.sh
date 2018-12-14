@@ -15,6 +15,8 @@ pushd "$(dirname "$0")"
     wget "https://s3.amazonaws.com/bosh-warden-stemcells/bosh-stemcell-$VERSION-warden-boshlite-ubuntu-trusty-go_agent.tgz"
     tar xvf "bosh-stemcell-$VERSION-warden-boshlite-ubuntu-trusty-go_agent.tgz"
     SHA=$(docker import image | cut -d':' -f2)
+    docker tag "$SHA" "cloudfoundrylondon/backup-and-restore-bosh-stemcell:latest"
+    docker push "cloudfoundrylondon/backup-and-restore-bosh-stemcell:latest"
     docker tag "$SHA" "cloudfoundrylondon/backup-and-restore-bosh-stemcell:$VERSION"
     docker push "cloudfoundrylondon/backup-and-restore-bosh-stemcell:$VERSION"
   popd
