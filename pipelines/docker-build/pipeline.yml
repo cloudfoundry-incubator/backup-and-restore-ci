@@ -84,6 +84,12 @@ resources:
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
+- name: bosh-lite-stemcell-docker-image
+  source:
+    repository: cloudfoundrylondon/backup-and-restore-bosh-stemcell
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
+
 - name: backup-and-restore-node-with-ssh-docker-image
   type: docker-image
   source:
@@ -202,6 +208,8 @@ jobs:
   serial: true
   plan:
   - get: backup-and-restore-node-with-ssh-repo
+    trigger: true
+  - get: bosh-lite-stemcell-docker-image
     trigger: true
   - put: backup-and-restore-node-with-ssh-docker-image
     params:
