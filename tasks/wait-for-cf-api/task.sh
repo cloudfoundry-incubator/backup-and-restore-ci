@@ -5,6 +5,7 @@ call_cf_api() {
 }
 
 call_uaa_api() {
+    echo "curl -k ${CF_UAA_URL}"
     curl -k "${CF_UAA_URL}"
 }
 
@@ -19,7 +20,7 @@ for i in $(seq 1 "${RETRY_COUNT}"); do
     if [[ ${exit_code} -eq 0 ]]; then
       call_uaa_api
       exit_code=$?
-
+      echo "exit code: $exit_code"
       if [[ ${exit_code} -eq 0 ]]; then
           break
       fi
