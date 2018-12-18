@@ -4,6 +4,10 @@ call_cf_api() {
     cf api "${CF_API_URL}" --skip-ssl-validation
 }
 
+call_uaa_api() {
+    curl -k "${CF_UAA_URL}"
+}
+
 set -e
 curl "${CF_API_URL}" --fail --retry "${RETRY_COUNT}" --insecure
 set +e
@@ -13,7 +17,12 @@ for i in $(seq 1 "${RETRY_COUNT}"); do
     exit_code=$?
 
     if [[ ${exit_code} -eq 0 ]]; then
-        break
+      call_uaa_api
+      exit_code=$?
+
+      if [[ ${exit_code} -eq 0 ]]; then
+          break
+      fi
     fi
 
     sleep 15
@@ -32,4 +41,5 @@ for i in $(seq 1 "${RETRY_COUNT}"); do
     sleep 15
 
     call_cf_api
+    call_uaa_api
 done

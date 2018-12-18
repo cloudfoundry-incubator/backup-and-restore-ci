@@ -10,7 +10,8 @@ inputs:
 
 params:
   CF_API_URL:
-  RETRY_COUNT: 5
+  CF_UAA_URL:
+  RETRY_COUNT: 15
 
 run:
   path: backup-and-restore-ci/tasks/wait-for-cf-api/task.sh
