@@ -1,5 +1,34 @@
 ---
 resources:
+- name: bbr-pcf-pipeline-tasks
+  type: git
+  source:
+    uri: https://github.com/pivotal-cf/bbr-pcf-pipeline-tasks.git
+    branch: master
+    paths: [docker/Dockerfile]
+
+- name: bbr-pipeline-final
+  type: docker-image
+  source:
+    tag: final
+    repository: cloudfoundrylondon/bbr-pipeline
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
+
+- name: bbr-pipeline-rc
+  type: docker-image
+  source:
+    tag: release-candidate
+    repository: cloudfoundrylondon/bbr-pipeline
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
+
+- name: ubuntu-xenial
+  type: docker-image
+  source:
+    repository: ubuntu
+    tag: xenial
+
 - name: cfops-repo
   type: git
   source:
@@ -209,3 +238,75 @@ jobs:
   - put: backup-and-restore-node-with-ssh-docker-image
     params:
       build: backup-and-restore-node-with-ssh-repo/ci-docker-images/backup-and-restore-node-with-ssh/
+
+- name: build-bbr-pipeline-rc
+  serial: true
+  plan:
+  - get: ubuntu-xenial
+    trigger: true
+  - get: bbr-pcf-pipeline-tasks
+    trigger: true
+  - put: bbr-pipeline-rc
+    params:
+      build: bbr-pcf-pipeline-tasks/docker
+
+- name: test-bbr-pipeline-rc
+  serial: true
+  plan:
+  - get: bbr-pipeline-rc
+    trigger: true
+    passed: [build-bbr-pipeline-rc]
+    params:
+      skip_download: true
+  - task: test-for-required-binaries
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: cloudfoundrylondon/bbr-pipeline
+          tag: release-candidate
+      run:
+        path: bash
+        args:
+        - -c
+        - |
+          set -e
+          which om
+          which jq
+          which bosh
+          which ssh
+          which fly
+          which nc
+
+- name: promote-bbr-pipeline-rc
+  serial: true
+  plan:
+  - get: bbr-pipeline-rc
+    trigger: true
+    passed: [test-bbr-pipeline-rc]
+    params:
+      save: true
+  - task: write-tag-file
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: cloudfoundrylondon/bbr-pipeline
+          tag: release-candidate
+      outputs:
+      - name: tag_file
+      run:
+        path: bash
+        args:
+        - -c
+        - |
+          set -e
+          mkdir -p tag_file/
+          echo "final" > tag_file/tag
+  - put: bbr-pipeline-final
+    params:
+      load: bbr-pipeline-rc
+      tag_file: tag_file/tag
+
