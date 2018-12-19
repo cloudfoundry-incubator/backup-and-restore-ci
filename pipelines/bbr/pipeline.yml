@@ -44,16 +44,6 @@ maru-lite-bosh-team-creds: &maru-lite-bosh-team-creds
   BOSH_GW_HOST: "((maru-lite-jumpbox-address)):22"
   BOSH_GW_PRIVATE_KEY: "((maru-lite-jumpbox-ssh-key))"
 
-lite-bosh-env: &lite-bosh-env
-  BOSH_ENVIRONMENT: lite-bosh.backup-and-restore.cf-app.com
-  BOSH_CLIENT: ((garden-bosh-director-username))
-  BOSH_CLIENT_SECRET: ((garden-bosh-director-password))
-  BOSH_GW_HOST: lite-bosh.backup-and-restore.cf-app.com
-  BOSH_GW_USER: vcap
-  BOSH_GW_PRIVATE_KEY: bosh-backup-and-restore-meta/genesis-bosh/bosh.pem
-  BOSH_CA_CERT_PATH: bosh-backup-and-restore-meta/certs/lite-bosh.backup-and-restore.cf-app.com.crt
-  BOSH_CA_CERT: ((garden-bosh-director-ca-cert))
-
 lite-bosh-uaa-env: &lite-bosh-uaa-env
   BOSH_ENVIRONMENT: lite-bosh-uaa.backup-and-restore.cf-app.com
   BOSH_CLIENT: ((uaa-director-username))
@@ -360,21 +350,11 @@ jobs:
     - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
   - aggregate:
-    - task: upload-redis-test-release-lite-bosh
-      file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
-      params:
-        RELEASE_NAME: redis-test-release
-        <<: *lite-bosh-env
     - task: upload-redis-test-release-maru-lite
       file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
       params:
         RELEASE_NAME: redis-test-release
         <<: *maru-lite-bosh-env
-    - task: upload-many-bbr-jobs-release-lite-bosh
-      file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
-      params:
-        RELEASE_NAME: many-bbr-jobs-release
-        <<: *lite-bosh-env
     - task: upload-many-bbr-jobs-release-lite-bosh-uaa
       file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
       params:
@@ -395,11 +375,6 @@ jobs:
       params:
         RELEASE_NAME: redis-test-release
         <<: *lite-bosh-uaa-env
-    - task: upload-lock-ordering-release-lite-bosh
-      file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
-      params:
-        RELEASE_NAME: lock-ordering-release
-        <<: *lite-bosh-env
     - task: upload-lock-ordering-release-lite-bosh-uaa
       file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
       params:
@@ -520,15 +495,10 @@ jobs:
     - get: bbr-deployment-test-releases
       passed: [upload-deployment-test-releases]
       trigger: true
-  - aggregate:
-    - task: system-deployment-without-uaa
-      file: backup-and-restore-ci/tasks/bbr-system-deployment/task.yml
-      params:
-        <<: *lite-bosh-env
-    - task: system-deployment-with-uaa
-      file: backup-and-restore-ci/tasks/bbr-system-deployment/task.yml
-      params:
-        <<: *lite-bosh-uaa-env
+  - task: system-deployment-with-uaa
+    file: backup-and-restore-ci/tasks/bbr-system-deployment/task.yml
+    params:
+      <<: *lite-bosh-uaa-env
 
 - name: system-bosh-all-proxy
   serial: true
