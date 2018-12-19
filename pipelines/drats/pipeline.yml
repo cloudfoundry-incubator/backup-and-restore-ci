@@ -97,6 +97,7 @@ jobs:
     file: backup-and-restore-ci/tasks/wait-for-cf-api/task.yml
     params:
       CF_API_URL: https://api.drats-pr-ragdoll.cf-app.com
+      CF_UAA_URL: https://uaa.drats-pr-ragdoll.cf-app.com
   - task: bosh-run-errand-nfsbrokerpush
     file: cf-deployment-concourse-tasks/run-errand/task.yml
     input_mapping:
@@ -157,6 +158,7 @@ jobs:
     file: backup-and-restore-ci/tasks/wait-for-cf-api/task.yml
     params:
       CF_API_URL: https://api.drats-papillon.cf-app.com
+      CF_UAA_URL: https://uaa.drats-papillon.cf-app.com
   - task: bosh-run-errand-nfsbrokerpush
     file: cf-deployment-concourse-tasks/run-errand/task.yml
     input_mapping:
@@ -211,6 +213,8 @@ jobs:
     file: backup-and-restore-ci/tasks/wait-for-cf-api/task.yml
     params:
       CF_API_URL: https://api.drats-with-config-manx.cf-app.com
+      CF_UAA_URL: https://uaa.drats-with-config-manx.cf-app.com
+
   - task: bosh-run-errand-nfsbrokerpush
     file: cf-deployment-concourse-tasks/run-errand/task.yml
     input_mapping:
