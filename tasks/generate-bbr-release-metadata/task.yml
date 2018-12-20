@@ -1,0 +1,23 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source: {repository: cloudfoundrylondon/backup-and-restore}
+
+inputs:
+- name: backup-and-restore-ci
+- name: release
+- name: version-folder
+- name: template-folder
+
+params:
+  TEMPLATE_PATH:
+  VERSION_PATH:
+
+outputs:
+- name: pivnet-release-with-metadata/
+- name: github-release-with-metadata/
+
+run:
+  path: backup-and-restore-ci/tasks/generate-bbr-release-metadata/task.sh
