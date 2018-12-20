@@ -766,21 +766,20 @@ jobs:
         template-folder: bosh-backup-and-restore-meta
       params:
         TEMPLATE_PATH: templates/release-notes.md.erb
-  - aggregate:
-    - put: bbr-pivnet
-      params:
-        metadata_file: pivnet-release-with-metadata/release.yml
-        s3_filepath_prefix: product-files/bosh-backup-restore
-        file_glob: pivnet-release-with-metadata/bbr*
-    - put: bbr-release
-      params:
-        name: bosh-backup-and-restore-meta/bbr-current-release/version
-        tag: bosh-backup-and-restore-meta/bbr-current-release/version
-        tag_prefix: v
-        body: release-notes/release-notes.md
-        commitish: bosh-backup-and-restore/.git/refs/heads/master
-        globs:
-        - github-release-with-metadata/bbr*
+  - put: bbr-pivnet
+    params:
+      metadata_file: pivnet-release-with-metadata/release.yml
+      s3_filepath_prefix: product-files/bosh-backup-restore
+      file_glob: pivnet-release-with-metadata/bbr*
+  - put: bbr-release
+    params:
+      name: bosh-backup-and-restore-meta/bbr-current-release/version
+      tag: bosh-backup-and-restore-meta/bbr-current-release/version
+      tag_prefix: v
+      body: release-notes/release-notes.md
+      commitish: bosh-backup-and-restore/.git/refs/heads/master
+      globs:
+      - github-release-with-metadata/bbr*
   - task: update-homebrew-formula
     file: backup-and-restore-ci/tasks/bbr-update-homebrew-formula/task.yml
   - put: homebrew-tap
