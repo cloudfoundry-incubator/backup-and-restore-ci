@@ -24,11 +24,11 @@ https://s3-eu-west-1.amazonaws.com/bosh-backup-and-restore-builds/bbr-$VERSION.t
 
 [Backup and Restore Bot]" > bbr-build/message
 
-LINUX=bbr-linux-amd64
+LINUX="bbr-$VERSION-linux-amd64"
 mv "$BBR_REPO"/releases/bbr bbr-build/"$LINUX"
 cat "$BBR_REPO"/releases/checksum.sha256 | cut -d' ' -f1  | sed -n '1p' > bbr-build/"$LINUX".sha256
 
-DARWIN=bbr-darwin-amd64
+DARWIN="bbr-$VERSION-darwin-amd64"
 mv "$BBR_REPO"/releases/bbr-mac bbr-build/"$DARWIN"
 cat "$BBR_REPO"/releases/checksum.sha256 | cut -d' ' -f1  | sed -n '2p' > bbr-build/"$DARWIN".sha256
 

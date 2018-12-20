@@ -18,11 +18,11 @@ release_tar="bbr-${VERSION}.tar"
 cp "release/${release_tar}" $github_folder/
 cp "release/${release_tar}" $pivnet_folder/
 
-linux_binary=bbr-linux-amd64
-create_release_for $linux_binary
+linux_binary="bbr-${VERSION}-linux-amd64"
+create_release_for "$linux_binary"
 
-darwin_binary=bbr-darwin-amd64
-create_release_for $darwin_binary
+darwin_binary="bbr-${VERSION}-darwin-amd64"
+create_release_for "$darwin_binary"
 
 export LINUX_BINARY="${pivnet_folder}/${linux_binary}"
 export DARWIN_BINARY="${pivnet_folder}/${darwin_binary}"
