@@ -17,4 +17,4 @@ params:
   TEMPLATE_PATH:
 
 run:
-  path: backup-and-restore-ci/tasks/generate-release-notes/task
+  path: backup-and-restore-ci/tasks/generate-release-notes/task.sh
