@@ -64,6 +64,7 @@ groups:
   - deploy-system-all-deployments
   - deploy-system-windows
   - deploy-bosh-directors
+  - deploy-test-bosh-director
   - system-deployment
   - system-bosh-all-proxy
   - system-director
@@ -87,7 +88,7 @@ resource_types:
     repository: pivotalcf/pivnet-resource
     tag: latest-final
 
-- name: bosh-deployment
+- name: bosh-deployment-resource
   type: docker-image
   source:
     repository: cloudfoundry/bosh-deployment-resource
@@ -216,37 +217,37 @@ resources:
     branch: master
 
 - name: windows-vm-deployment
-  type: bosh-deployment
+  type: bosh-deployment-resource
   source:
     deployment: redis-windows-ci
     <<: *maru-bosh-deployment-creds
 
 - name: many-bbr-scripts-deployment
-  type: bosh-deployment
+  type: bosh-deployment-resource
   source:
     deployment: many-bbr-scripts
     <<: *maru-bosh-deployment-creds
 
 - name: jumpbox-windows-deployment
-  type: bosh-deployment
+  type: bosh-deployment-resource
   source:
     deployment: jumpbox-windows-ci
     <<: *maru-bosh-deployment-creds
 
 - name: all-deployments-redis-1-deployment
-  type: bosh-deployment
+  type: bosh-deployment-resource
   source:
     deployment: redis-1
     <<: *maru-lite-bosh-deployment-creds
 
 - name: all-deployments-redis-2-deployment
-  type: bosh-deployment
+  type: bosh-deployment-resource
   source:
     deployment: redis-2
     <<: *maru-lite-bosh-deployment-creds
 
 - name: all-deployments-redis-3-deployment
-  type: bosh-deployment
+  type: bosh-deployment-resource
   source:
     deployment: redis-3
     <<: *maru-lite-bosh-deployment-creds
@@ -260,6 +261,29 @@ resources:
   type: bosh-io-stemcell
   source:
     name: bosh-google-kvm-ubuntu-xenial-go_agent
+
+- name: bosh-deployment
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/bosh-deployment.git
+
+- name: bosh-director-release
+  type: bosh-io-release
+  source:
+    repository: cloudfoundry/bosh
+
+- name: test-bosh-director-deployment
+  type: bosh-deployment-resource
+  source:
+    deployment: test-bosh-director
+    vars_store:
+      provider: gcs
+      config:
+        bucket: bbr-test-bosh-director
+        file_name: vars-store.yml
+        json_key: ((gcp_service_account_key))
+    <<: *maru-bosh-deployment-creds
 
 jobs:
 - name: create-director-test-releases
@@ -300,6 +324,37 @@ jobs:
   - put: dummy-bbr-script-release-bucket
     params:
       file: bbr-test-release-build/test-bosh-backup-and-restore-release-*.tgz
+
+- name: deploy-test-bosh-director
+  serial: true
+  serial_groups: [bosh-directors]
+  plan:
+  - aggregate:
+    - get: bosh-director-release
+      trigger: true
+      params:
+        tarball: false
+    - get: bosh-deployment
+    - get: bosh-backup-and-restore-meta
+    - get: bbr-director-test-releases
+      trigger: true
+      passed: [create-director-test-releases]
+    - get: xenial-stemcell
+  - put: test-bosh-director-deployment
+    params:
+      manifest: bosh-deployment/bosh.yml
+      stemcells:
+        - xenial-stemcell/*.tgz
+      ops_files:
+      - bosh-deployment/gcp/cpi.yml
+      - bosh-deployment/jumpbox-user.yml
+      - bosh-backup-and-restore-meta/test-bosh-director/deployment-name-ops.yml
+      - bosh-backup-and-restore-meta/test-bosh-director/use-cloud-config-ops.yml
+      vars:
+        director_name: test-bosh-director
+        internal_ip: 10.0.16.190
+        project_id: cf-backup-and-restore
+        gcp_credentials_json: ((gcp_service_account_key))
 
 - name: deploy-bosh-directors
   serial: true
