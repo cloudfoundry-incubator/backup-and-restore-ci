@@ -78,8 +78,7 @@ groups:
 
 - name: SHIPIT
   jobs:
-  - build-final
-  - publish-release
+  - build-and-publish-final
 
 resource_types:
 - name: pivnet
@@ -187,15 +186,6 @@ resources:
   type: s3
   source:
     bucket: bosh-backup-and-restore-builds
-    region_name: eu-west-1
-    regexp: bbr-(.*)\.tar
-    access_key_id: ((aws-access-key-id))
-    secret_access_key: ((aws-secret-access-key))
-
-- name: release
-  type: s3
-  source:
-    bucket: bosh-backup-and-restore-final-builds
     region_name: eu-west-1
     regexp: bbr-(.*)\.tar
     access_key_id: ((aws-access-key-id))
@@ -694,7 +684,7 @@ jobs:
       OPS_MAN_SSH_KEY: ((ops-man-ssh-key))
       SKIP_SUITE_NAME: cf-smbbroker
 
-- name: build-final
+- name: build-and-publish-final
   serial_groups: [version]
   plan:
   - aggregate:
@@ -707,6 +697,7 @@ jobs:
         submodules: none
         disable_git_lfs: true
     - get: backup-and-restore-ci
+    - get: homebrew-tap
   - task: get-version
     config:
       platform: linux
@@ -728,34 +719,13 @@ jobs:
     file: backup-and-restore-ci/tasks/bbr-build/task.yml
     input_mapping:
       version: bbr-version
-  - put: release
-    params: {file: bbr-build/bbr-*}
-  - put: version
-    params: {file: bbr-version/number}
-
-- name: publish-release
-  serial: true
-  plan:
   - aggregate:
-    - get: bosh-backup-and-restore-meta
-      resource: release-trigger
-      passed: [build-final]
-    - get: bosh-backup-and-restore
-      passed: [build-final]
-      params:
-        submodules: none
-        disable_git_lfs: true
-    - get: release
-      passed: [build-final]
-      trigger: true
-    - get: backup-and-restore-ci
-    - get: homebrew-tap
-  - aggregate:
-    - task: generate-release-metadata
-      file: backup-and-restore-ci/tasks/generate-release-metadata/task.yml
+    - task: generate-bbr-release-metadata
+      file: backup-and-restore-ci/tasks/generate-bbr-release-metadata/task.yml
       input_mapping:
         version-folder: bosh-backup-and-restore-meta
         template-folder: bosh-backup-and-restore-meta
+        release: bbr-build
       params:
         TEMPLATE_PATH: templates/release.yml.erb
         VERSION_PATH: bbr-current-release/version
