@@ -1677,8 +1677,8 @@ jobs:
   - get: github-release
     passed: [create-backup-and-restore-sdk-addon-release]
     trigger: true
-  - task: generate-release-metadata
-    file: backup-and-restore-ci/tasks/generate-release-metadata/task.yml
+  - task: generate-sdk-release-metadata
+    file: backup-and-restore-ci/tasks/generate-sdk-release-metadata/task.yml
     input_mapping:
       release: backup-and-restore-sdk-addon-release
       version-folder: github-release
