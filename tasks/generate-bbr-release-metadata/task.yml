@@ -16,8 +16,8 @@ params:
   VERSION_PATH:
 
 outputs:
-- name: pivnet-release-with-metadata/
-- name: github-release-with-metadata/
+- name: pivnet-release-with-metadata
+- name: github-release-with-metadata
 
 run:
   path: backup-and-restore-ci/tasks/generate-bbr-release-metadata/task.sh
