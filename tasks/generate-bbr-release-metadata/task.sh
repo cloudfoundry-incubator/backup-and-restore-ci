@@ -14,14 +14,18 @@ function create_release_for {
 version=$(cat "version-folder/${VERSION_PATH}")
 export VERSION="$version"
 
-export RELEASE_TAR="bbr-${VERSION}.tar"
-cp "release/${RELEASE_TAR}" $github_folder/
-cp "release/${RELEASE_TAR}" $pivnet_folder/
+release_tar="bbr-${VERSION}.tar"
+cp "release/${release_tar}" $github_folder/
+cp "release/${release_tar}" $pivnet_folder/
 
-export LINUX_BINARY=bbr-linux-amd64
-create_release_for $LINUX_BINARY
+linux_binary=bbr-linux-amd64
+create_release_for $linux_binary
 
-export DARWIN_BINARY=bbr-darwin-amd64
-create_release_for $DARWIN_BINARY
+darwin_binary=bbr-darwin-amd64
+create_release_for $darwin_binary
+
+export LINUX_BINARY="${pivnet_folder}/${linux_binary}"
+export DARWIN_BINARY="${pivnet_folder}/${darwin_binary}"
+export RELEASE_TAR="${pivnet_folder}/${release_tar}"
 
 erb -T- "template-folder/${TEMPLATE_PATH}" > $pivnet_folder/release.yml
