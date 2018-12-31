@@ -826,4 +826,8 @@ jobs:
           set -o pipefail
 
           gcloud auth activate-service-account --key-file <(echo "$GCP_SERVICE_ACCOUNT_KEY")
-          gcloud compute disks list --filter="-users:*" --uri  | xargs gcloud compute disks delete --quiet
+          if gcloud compute disks list --filter="-users:*" --uri | grep "Listed 0 items."; then
+              gcloud compute disks list --filter="-users:*" --uri  | xargs gcloud compute disks delete --quiet
+          else
+              echo "No unattached disks to delete"
+          fi
