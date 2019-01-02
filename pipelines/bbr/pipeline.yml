@@ -61,11 +61,9 @@ groups:
   jobs:
   - upload-deployment-test-releases
   - unit
-  - create-director-test-releases
   - deploy-system-deployment-bosh-all-proxy
   - deploy-system-all-deployments
   - deploy-system-windows
-  - deploy-bosh-directors
   - deploy-test-bosh-director
   - system-deployment
   - system-bosh-all-proxy
@@ -115,25 +113,6 @@ resources:
     - redis-test-release
     - lock-ordering-release
     - many-bbr-jobs-release
-
-- name: dummy-bbr-script-release-bucket
-  type: s3
-  source:
-    bucket: bosh-backup-and-restore-test-releases
-    region_name: eu-west-1
-    regexp: test-bosh-backup-and-restore-release-(.*).tgz
-    access_key_id: ((aws-access-key-id))
-    secret_access_key: ((aws-secret-access-key))
-
-- name: test-release-version
-  type: semver
-  source:
-    bucket: bosh-backup-and-restore-test-releases
-    region_name: eu-west-1
-    key: current-dev-version
-    initial_version: 0.0.0
-    access_key_id: ((aws-access-key-id))
-    secret_access_key: ((aws-secret-access-key))
 
 - name: bosh-backup-and-restore
   type: git
@@ -282,45 +261,6 @@ resources:
     <<: *maru-bosh-deployment-creds
 
 jobs:
-- name: create-director-test-releases
-  plan:
-  - aggregate:
-    - get: bbr-director-test-releases
-      trigger: true
-    - get: test-release-version
-      params: {pre: "dev"}
-  - task: create-release
-    input_mapping:
-      version: test-release-version
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source: {repository: cloudfoundrylondon/backup-and-restore}
-      inputs:
-        - name: bbr-director-test-releases
-        - name: version
-      outputs:
-        - name: bbr-test-release-build
-      run:
-        path: bash
-        args:
-        - -uc
-        - |
-          set -ex
-          export VERSION=$(cat version/number)
-          pushd bbr-director-test-releases/test-bosh-backup-and-restore-release
-            bosh-cli create-release \
-              --version=$VERSION \
-              --tarball=../../bbr-test-release-build/test-bosh-backup-and-restore-release-$VERSION.tgz \
-              --force
-          popd
-  - put: test-release-version
-    params: {file: test-release-version/number}
-  - put: dummy-bbr-script-release-bucket
-    params:
-      file: bbr-test-release-build/test-bosh-backup-and-restore-release-*.tgz
-
 - name: deploy-test-bosh-director
   serial: true
   serial_groups: [bosh-directors]
@@ -352,36 +292,6 @@ jobs:
         project_id: cf-backup-and-restore
         gcp_credentials_json: ((gcp_service_account_key))
         test_release_path: /tmp/build/put/bbr-director-test-releases/test-bosh-backup-and-restore-release
-
-- name: deploy-bosh-directors
-  serial: true
-  serial_groups: [bosh-directors]
-  plan:
-  - aggregate:
-    - get: bosh-backup-and-restore-meta
-    - get: dummy-bbr-script-release-bucket
-      trigger: true
-      passed: [create-director-test-releases]
-    - get: backup-and-restore-ci
-  - aggregate:
-    - task: deploy-dev-bosh
-      file: backup-and-restore-ci/tasks/deploy-bosh-director/task.yml
-      params:
-        DIRECTOR_ENV: dev-bosh-director
-      ensure:
-        put: bosh-backup-and-restore-meta
-        params:
-          repository: bosh-backup-and-restore-meta-updated
-          rebase: true
-    - task: deploy-test-bosh
-      file: backup-and-restore-ci/tasks/deploy-bosh-director/task.yml
-      params:
-        DIRECTOR_ENV: test-bosh-director
-      ensure:
-        put: bosh-backup-and-restore-meta
-        params:
-          repository: bosh-backup-and-restore-meta-updated
-          rebase: true
 
 - name: upload-deployment-test-releases
   serial: true
