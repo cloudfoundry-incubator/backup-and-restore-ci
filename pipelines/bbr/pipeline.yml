@@ -54,6 +54,8 @@ lite-bosh-uaa-env: &lite-bosh-uaa-env
   BOSH_CA_CERT_PATH: bosh-backup-and-restore-meta/certs/lite-bosh-uaa.backup-and-restore.cf-app.com.crt
   BOSH_CA_CERT: ((uaa-director-ca-cert))
 
+test-bosh-director-ip: &test-bosh-director-ip 10.0.16.190
+
 groups:
 - name: BUILD
   jobs:
@@ -277,12 +279,6 @@ resources:
   type: bosh-deployment-resource
   source:
     deployment: test-bosh-director
-    vars_store:
-      provider: gcs
-      config:
-        bucket: bbr-test-bosh-director
-        file_name: vars-store.yml
-        json_key: ((gcp_service_account_key))
     <<: *maru-bosh-deployment-creds
 
 jobs:
@@ -338,23 +334,24 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: bbr-director-test-releases
       trigger: true
-      passed: [create-director-test-releases]
     - get: xenial-stemcell
   - put: test-bosh-director-deployment
     params:
       manifest: bosh-deployment/bosh.yml
       stemcells:
-        - xenial-stemcell/*.tgz
+      - xenial-stemcell/*.tgz
       ops_files:
       - bosh-deployment/gcp/cpi.yml
       - bosh-deployment/jumpbox-user.yml
       - bosh-backup-and-restore-meta/test-bosh-director/deployment-name-ops.yml
       - bosh-backup-and-restore-meta/test-bosh-director/use-cloud-config-ops.yml
+      - bosh-backup-and-restore-meta/test-bosh-director/add-test-releases.yml
       vars:
         director_name: test-bosh-director
-        internal_ip: 10.0.16.190
+        internal_ip: *test-bosh-director-ip
         project_id: cf-backup-and-restore
         gcp_credentials_json: ((gcp_service_account_key))
+        test_release_path: /tmp/build/put/bbr-director-test-releases/test-bosh-backup-and-restore-release
 
 - name: deploy-bosh-directors
   serial: true
@@ -575,15 +572,25 @@ jobs:
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-    - get: dummy-bbr-script-release-bucket
-      passed: [deploy-bosh-directors]
+    - get: bosh-director-release
+      passed: [deploy-test-bosh-director]
+      trigger: true
+    - get: bbr-director-test-releases
+      passed: [deploy-test-bosh-director]
       trigger: true
   - task: system-director
     file: backup-and-restore-ci/tasks/bbr-system-director/task.yml
     params:
-      BOSH_ENVIRONMENT: genesis-bosh.backup-and-restore.cf-app.com
-      BOSH_CLIENT_SECRET: ((genesis-bosh-director-password))
-      HOST_TO_BACKUP: 10.0.0.7
+      JUMPBOX_HOST: "((maru-jumpbox-url)):22"
+      JUMPBOX_USER: jumpbox
+      JUMPBOX_PRIVATE_KEY: "((maru-jumpbox-ssh-key))"
+      CREDHUB_SERVER: "((maru-credhub-server))"
+      CREDHUB_CLIENT: "((maru-credhub-client))"
+      CREDHUB_SECRET: "((maru-credhub-secret))"
+      CREDHUB_PROXY: "((maru-credhub-proxy))"
+      CREDHUB_CA_CERT: "((maru-credhub-ca_cert))"
+      DIRECTOR_HOST: *test-bosh-director-ip
+      DIRECTOR_SSH_USERNAME: jumpbox
 
 - name: system-windows
   serial: true

@@ -12,10 +12,19 @@ inputs:
 - name: backup-and-restore-ci
 
 params:
-  BOSH_CLIENT: admin
-  BOSH_CLIENT_SECRET:
-  BOSH_ENVIRONMENT:
-  HOST_TO_BACKUP:
+  JUMPBOX_HOST:
+  JUMPBOX_USER:
+  JUMPBOX_PRIVATE_KEY:
+  
+  CREDHUB_SERVER:
+  CREDHUB_CLIENT:
+  CREDHUB_SECRET:
+  CREDHUB_PROXY: 
+  CREDHUB_CA_CERT:
+  BOSH_DEPLOYMENT: test-bosh-director
+
+  DIRECTOR_HOST:
+  DIRECTOR_SSH_USERNAME: jumpbox
 
 run:
   path: backup-and-restore-ci/tasks/bbr-system-director/task.sh
