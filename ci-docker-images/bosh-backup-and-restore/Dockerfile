@@ -37,3 +37,8 @@ RUN export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
     apt-get update && apt-get install -y google-cloud-sdk=${CLOUD_SDK_VERSION}-0 $INSTALL_COMPONENTS
 
 RUN gem install cf-uaac
+
+RUN \
+  wget https://github.com/cloudfoundry-incubator/credhub-cli/releases/download/2.2.0/credhub-linux-2.2.0.tgz -P /tmp && \
+  tar xzvf /tmp/credhub-linux-2.2.0.tgz -C /usr/local/bin && \
+  chmod +x /usr/local/bin/credhub
