@@ -131,7 +131,7 @@ resources:
   source:
     user: cloudfoundry-incubator
     repository: backup-and-restore-sdk-release
-    draft: true
+    drafts: true
     access_token: ((github-access-token))
 
 - name: cf-deployment-concourse-tasks
