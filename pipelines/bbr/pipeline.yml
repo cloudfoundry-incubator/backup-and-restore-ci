@@ -283,6 +283,7 @@ jobs:
       ops_files:
       - bosh-deployment/gcp/cpi.yml
       - bosh-deployment/jumpbox-user.yml
+      - bosh-deployment/bbr.yml
       - bosh-backup-and-restore-meta/test-bosh-director/deployment-name-ops.yml
       - bosh-backup-and-restore-meta/test-bosh-director/use-cloud-config-ops.yml
       - bosh-backup-and-restore-meta/test-bosh-director/add-test-releases.yml
