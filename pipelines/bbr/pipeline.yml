@@ -494,7 +494,7 @@ jobs:
     params:
       JUMPBOX_HOST: "((maru-jumpbox-url)):22"
       JUMPBOX_USER: jumpbox
-      JUMPBOX_PRIVATE_KEY: "((maru-jumpbox-ssh-key))"
+      JUMPBOX_SSH_KEY: "((maru-jumpbox-ssh-key))"
       CREDHUB_SERVER: "((maru-credhub-server))"
       CREDHUB_CLIENT: "((maru-credhub-client))"
       CREDHUB_SECRET: "((maru-credhub-secret))"

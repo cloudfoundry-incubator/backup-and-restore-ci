@@ -19,12 +19,17 @@ echo -e "${director_ssh_key}" > "$DIRECTOR_SSH_KEY_PATH"
 chmod 0600 "$DIRECTOR_SSH_KEY_PATH"
 export DIRECTOR_SSH_KEY_PATH
 
-# Set BOSH_ALL_PROXY to run bbr through SSH tunnel
-jumpbox_private_key_path="$(mktemp)"
-echo -e "${JUMPBOX_PRIVATE_KEY}" > "$jumpbox_private_key_path"
-chmod 0600 "$jumpbox_private_key_path"
+# Write Jumpbox SSH key to file
+jumpbox_ssh_key_path="$(mktemp)"
+echo -e "${JUMPBOX_SSH_KEY}" > "$jumpbox_ssh_key_path"
+chmod 0600 "$jumpbox_ssh_key_path"
 
-export BOSH_ALL_PROXY="ssh+socks5://${JUMPBOX_USER}@${JUMPBOX_HOST}?private-key=${jumpbox_private_key_path}"
+# Create tunnel to Director via Jumpbox
+ssh-add "$jumpbox_ssh_key_path"
+sshuttle -r "${JUMPBOX_USER}@${JUMPBOX_HOST}" "$DIRECTOR_HOST/32" \
+  --daemon \
+  -e 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ServerAliveInterval=600'
+sleep 5
 
 # Set up GOPATH
 export GOPATH=$PWD
