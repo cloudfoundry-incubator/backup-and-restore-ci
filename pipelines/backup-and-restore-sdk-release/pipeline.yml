@@ -146,13 +146,6 @@ resources:
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
     branch: master
-    tag_filter: v4.*
-
-- name: cf-deployment-gcs
-  type: git
-  source:
-    uri: https://github.com/ChunyiLyu/cf-deployment.git
-    branch: develop
 
 - name: bbr-binary-release
   type: github-release
@@ -1151,7 +1144,7 @@ jobs:
       trigger: true
     - get: bbr-binary-release
       trigger: true
-    - get: cf-deployment-gcs
+    - get: cf-deployment-master
     - get: backup-and-restore-sdk-release
       trigger: true
       passed:
@@ -1163,15 +1156,15 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      cf-deployment: cf-deployment-gcs
+      cf-deployment: cf-deployment-master
     params:
       BBL_STATE_DIR: external-blobstore-directors/gcs/
   - task: deploy-cf-with-external-gcs
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      cf-deployment: cf-deployment-gcs
-      ops-files: cf-deployment-gcs
+      cf-deployment: cf-deployment-master
+      ops-files: cf-deployment-master
       vars-store: bosh-backup-and-restore-meta
       vars-files: bosh-backup-and-restore-meta
       release: backup-and-restore-sdk-release
@@ -1195,7 +1188,7 @@ jobs:
   - aggregate:
     - get: bosh-backup-and-restore-meta
       passed: [deploy-cf-with-external-gcs-blobstore]
-    - get: cf-deployment-gcs
+    - get: cf-deployment-master
       passed: [deploy-cf-with-external-gcs-blobstore]
       trigger: true
     - get: backup-and-restore-sdk-release
@@ -1425,7 +1418,7 @@ jobs:
     params:
       BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
       SYSTEM_DOMAIN: bbr-s3-unversioned.cf-app.com
-      OPS_FILES: "operations/scale-to-one-az.yml operations/workaround/use-3-azs-for-router.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-external-blobstore.yml operations/use-s3-blobstore.yml operations/backup-and-restore/enable-backup-restore-s3-unversioned.yml"
+      OPS_FILES: "operations/scale-to-one-az.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-external-blobstore.yml operations/use-s3-blobstore.yml operations/backup-and-restore/enable-backup-restore-s3-unversioned.yml"
       VARS_FILES: external-blobstore-directors/aws-s3-unversioned/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
