@@ -55,6 +55,7 @@ lite-bosh-uaa-env: &lite-bosh-uaa-env
   BOSH_CA_CERT: ((uaa-director-ca-cert))
 
 test-bosh-director-ip: &test-bosh-director-ip 10.0.16.190
+test-bosh-director-deployment: &test-bosh-director-deployment test-bosh-director
 
 groups:
 - name: BUILD
@@ -257,7 +258,7 @@ resources:
 - name: test-bosh-director-deployment
   type: bosh-deployment-resource
   source:
-    deployment: test-bosh-director
+    deployment: *test-bosh-director-deployment
     <<: *maru-bosh-deployment-creds
 
 jobs:
@@ -498,10 +499,10 @@ jobs:
       CREDHUB_SERVER: "((maru-credhub-server))"
       CREDHUB_CLIENT: "((maru-credhub-client))"
       CREDHUB_SECRET: "((maru-credhub-secret))"
-      CREDHUB_PROXY: "((maru-credhub-proxy))"
       CREDHUB_CA_CERT: "((maru-credhub-ca_cert))"
       DIRECTOR_HOST: *test-bosh-director-ip
       DIRECTOR_SSH_USERNAME: jumpbox
+      BOSH_DEPLOYMENT: *test-bosh-director-deployment
 
 - name: system-windows
   serial: true

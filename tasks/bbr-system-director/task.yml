@@ -19,12 +19,11 @@ params:
   CREDHUB_SERVER:
   CREDHUB_CLIENT:
   CREDHUB_SECRET:
-  CREDHUB_PROXY:
   CREDHUB_CA_CERT:
-  BOSH_DEPLOYMENT: test-bosh-director
+  BOSH_DEPLOYMENT:
 
   DIRECTOR_HOST:
-  DIRECTOR_SSH_USERNAME: jumpbox
+  DIRECTOR_SSH_USERNAME:
 
 run:
   path: backup-and-restore-ci/tasks/bbr-system-director/task.sh
