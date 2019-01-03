@@ -14,4 +14,3 @@ export PATH=$PATH:$GOPATH/bin
 
 cd src/github.com/cloudfoundry-incubator/bosh-backup-and-restore
 make test-ci
-make clean-docker || true
