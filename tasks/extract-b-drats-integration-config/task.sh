@@ -14,7 +14,7 @@ bosh_client="${BOSH_CLIENT}"
 bosh_client_secret="$(bosh-cli int --path=/admin_password "${BOSH_VARS_STORE_PATH}")"
 bosh_ca_cert="$(bosh-cli int --path=/director_ssl/ca "${BOSH_VARS_STORE_PATH}")"
 include_deployment_testcase="${INCLUDE_DEPLOYMENT_TESTCASE}"
-stemcell_path="$STEMCELL_PATH"
+stemcell_path=$(cat stemcell/url)
 
 integration_config="{}"
 
