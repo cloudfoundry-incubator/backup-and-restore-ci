@@ -21,6 +21,7 @@ params:
   TIMEOUT_IN_MINUTES: 30
   BOSH_CLIENT: admin
   INCLUDE_DEPLOYMENT_TESTCASE: true
+  STEMCELL_PATH:
 
 run:
   path: backup-and-restore-ci/tasks/extract-b-drats-integration-config/task.sh
