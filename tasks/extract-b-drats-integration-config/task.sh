@@ -14,6 +14,8 @@ bosh_client="${BOSH_CLIENT}"
 bosh_client_secret="$(bosh-cli int --path=/admin_password "${BOSH_VARS_STORE_PATH}")"
 bosh_ca_cert="$(bosh-cli int --path=/director_ssl/ca "${BOSH_VARS_STORE_PATH}")"
 include_deployment_testcase="${INCLUDE_DEPLOYMENT_TESTCASE}"
+include_truncate_db_blobstore_testcase="${INCLUDE_TRUNCATE_DB_BLOBSTORE_TESTCASE}"
+include_clean_up_testcase="${INCLUDE_CLEAN_UP_TESTCASE}"
 stemcell_path=$(cat stemcell/url)
 
 integration_config="{}"
@@ -24,7 +26,7 @@ do
   integration_config=$(echo ${integration_config} | jq ".${var}=\"${!var}\"")
 done
 
-other_vars="include_deployment_testcase timeout_in_minutes"
+other_vars="include_deployment_testcase include_clean_up_testcase include_truncate_db_blobstore_testcase timeout_in_minutes"
 for var in $other_vars
 do
   integration_config=$(echo "${integration_config}" | jq ".${var}=${!var}")
