@@ -64,7 +64,7 @@ groups:
   - deploy-system-deployment-bosh-all-proxy
   - deploy-system-all-deployments
   - deploy-system-windows
-  - deploy-test-bosh-director
+  - deploy-system-director
   - system-deployment
   - system-bosh-all-proxy
   - system-director
@@ -261,7 +261,7 @@ resources:
     <<: *maru-bosh-deployment-creds
 
 jobs:
-- name: deploy-test-bosh-director
+- name: deploy-system-director
   serial: true
   serial_groups: [bosh-directors]
   plan:
@@ -484,10 +484,10 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: bosh-director-release
-      passed: [deploy-test-bosh-director]
+      passed: [deploy-system-director]
       trigger: true
     - get: bbr-director-test-releases
-      passed: [deploy-test-bosh-director]
+      passed: [deploy-system-director]
       trigger: true
   - task: system-director
     file: backup-and-restore-ci/tasks/bbr-system-director/task.yml
