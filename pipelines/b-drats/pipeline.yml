@@ -64,6 +64,11 @@ resources:
       secret_access_key: ((aws-secret-access-key))
       region_name: eu-west-1
 
+- name: gcs-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-google-kvm-ubuntu-xenial-go_agent
+
 jobs:
 - name: deploy-bosh-bengal-tiger
   serial: true
@@ -199,21 +204,6 @@ jobs:
         path: bosh-disaster-recovery-acceptance-tests-prs
         status: failure
         context: b-drats
-  - task: upload-b-drats-stemcell
-    file: backup-and-restore-ci/tasks/upload-b-drats-stemcell/task.yml
-    input_mapping:
-      terraform-state: terraform
-      bosh-vars-store: bosh-backup-and-restore-meta
-    params:
-      STEMCELL_URL: https://bosh.io/d/stemcells/bosh-google-kvm-ubuntu-trusty-go_agent?v=3586.7
-      BOSH_VARS_STORE_PATH: b-drats-black-panther/creds.yml
-      BOSH_CLIENT: admin
-    on_failure:
-      put: bosh-disaster-recovery-acceptance-tests-prs
-      params:
-        path: bosh-disaster-recovery-acceptance-tests-prs
-        status: failure
-        context: b-drats
   - task: update-b-drats-resurrection
     file: backup-and-restore-ci/tasks/update-b-drats-resurrection/task.yml
     input_mapping:
@@ -280,6 +270,7 @@ jobs:
       passed: [deploy-bosh-black-panther]
       params:
         output_statefile: true
+    - get: gcs-stemcell
   - put: bosh-disaster-recovery-acceptance-tests-prs
     params:
       path: bosh-disaster-recovery-acceptance-tests-prs
@@ -290,8 +281,10 @@ jobs:
     input_mapping:
       terraform-state: terraform
       bosh-vars-store: bosh-backup-and-restore-meta
+      stemcell: gcs-stemcell
     params:
       BOSH_VARS_STORE_PATH: bosh-vars-store/b-drats-black-panther/creds.yml
+      STEMCELL_PATH: stemcell/stemcell.tgz
     on_failure:
       put: bosh-disaster-recovery-acceptance-tests-prs
       params:
@@ -304,6 +297,7 @@ jobs:
       INTEGRATION_CONFIG_PATH: b-drats-integration-config/integration_config.json
     input_mapping:
       bosh-disaster-recovery-acceptance-tests: bosh-disaster-recovery-acceptance-tests-prs
+      stemcell: gcs-stemcell
     on_failure:
       put: bosh-disaster-recovery-acceptance-tests-prs
       params:
