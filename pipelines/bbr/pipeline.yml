@@ -71,6 +71,7 @@ groups:
   - system-director
   - system-windows
   - system-all-deployments
+  - delete-system-director
   - delete-system-deployment-bosh-all-proxy
   - delete-system-windows
   - delete-system-all-deployments
@@ -264,7 +265,7 @@ resources:
 jobs:
 - name: deploy-system-director
   serial: true
-  serial_groups: [bosh-directors]
+  serial_groups: [system-director]
   plan:
   - aggregate:
     - get: bosh-director-release
@@ -477,7 +478,7 @@ jobs:
 
 - name: system-director
   serial: true
-  serial_groups: [bosh-directors]
+  serial_groups: [system-director]
   plan:
   - aggregate:
     - get: bosh-backup-and-restore
@@ -538,6 +539,18 @@ jobs:
     file: backup-and-restore-ci/tasks/bbr-system-all-deployments/task.yml
     params:
       <<: *maru-lite-bosh-team-creds
+
+- name: delete-system-director
+  serial: true
+  serial_groups: [system-director]
+  plan:
+  - get: bosh-backup-and-restore
+    passed: [system-director]
+    trigger: true
+  - put: test-bosh-director-deployment
+    params:
+      delete:
+        enabled: true
 
 - name: delete-system-all-deployments
   serial: true
