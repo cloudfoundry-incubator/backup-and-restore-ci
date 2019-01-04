@@ -285,9 +285,10 @@ jobs:
       - bosh-deployment/gcp/cpi.yml
       - bosh-deployment/jumpbox-user.yml
       - bosh-deployment/bbr.yml
+      - bosh-deployment/misc/bosh-dev.yml
       - bosh-backup-and-restore-meta/test-bosh-director/deployment-name-ops.yml
-      - bosh-backup-and-restore-meta/test-bosh-director/use-cloud-config-ops.yml
-      - bosh-backup-and-restore-meta/test-bosh-director/add-test-releases.yml
+      - bosh-backup-and-restore-meta/test-bosh-director/add-test-releases-ops.yml
+      - bosh-backup-and-restore-meta/test-bosh-director/use-latest-stemcell-version-ops.yml
       vars:
         director_name: test-bosh-director
         internal_ip: *test-bosh-director-ip
