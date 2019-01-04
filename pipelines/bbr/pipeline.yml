@@ -605,7 +605,7 @@ jobs:
   - task: build
     file: backup-and-restore-ci/tasks/bbr-build/task.yml
   - put: rc
-    params: {file: bbr-build/bbr-*}
+    params: {file: bbr-build/bbr-*.tar}
   - put: version
     params: {file: version/number}
 
