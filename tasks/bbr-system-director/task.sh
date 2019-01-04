@@ -31,7 +31,13 @@ ssh-add "$jumpbox_ssh_key_path"
 sshuttle -r "${JUMPBOX_USER}@${JUMPBOX_HOST}" "$DIRECTOR_HOST/32" \
   --daemon \
   -e 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ServerAliveInterval=600'
+echo "Establishing tunnel to Director via Jumpbox..."
 sleep 5
+
+if ! stat sshuttle.pid > /dev/null 2>&1; then
+  echo "Failed to start sshuttle daemon"
+  exit 1
+fi
 
 # Set up GOPATH
 export GOPATH=$PWD

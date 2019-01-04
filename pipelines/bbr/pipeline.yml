@@ -492,6 +492,7 @@ jobs:
       trigger: true
   - task: system-director
     file: backup-and-restore-ci/tasks/bbr-system-director/task.yml
+    privileged: true
     params:
       JUMPBOX_HOST: "((maru-jumpbox-url)):22"
       JUMPBOX_USER: jumpbox
