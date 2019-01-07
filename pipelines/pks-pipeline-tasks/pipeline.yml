@@ -112,6 +112,35 @@ jobs:
     params:
       PIPELINE_PATH: examples/pks-pipeline.yml
       SECRETS_PATH: examples/pks-secrets.yml
+  - task: ensure-ci-includes-sample-pipeline
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: cloudfoundrylondon/backup-and-restore
+      inputs:
+      - name: backup-and-restore-ci
+      - name: bbr-pipeline-tasks-repo
+      run:
+        path: bash
+        args:
+        - -euc
+        - |
+          set -o pipefail
+
+          git config --global --remove-section url."git@github.com:"
+
+          go get -u github.com/sahilm/yamldiff
+
+          yamldiff \
+            --file1 bbr-pipeline-tasks-repo/examples/pks-pipeline.yml \
+            --file2 backup-and-restore-ci/pipelines/pks-pipeline-tasks/pipeline.yml
+
+          exit "$(yamldiff \
+            --file1 bbr-pipeline-tasks-repo/examples/pks-pipeline.yml \
+            --file2 backup-and-restore-ci/pipelines/pks-pipeline-tasks/pipeline.yml \
+            | grep '^\-' | wc -l)"
 
 - name: export-om-installation
   serial: true
