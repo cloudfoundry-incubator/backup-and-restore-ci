@@ -330,8 +330,6 @@ jobs:
       terraform_source: bosh-backup-and-restore-meta/external-blobstore-directors/aws-ec2/iam-roles-terraform/
       env_name: external-blobstore-aws-ec2
       delete_on_failure: true
-      vars:
-        gcp_service_account_key: ((gcp_service_account_key))
 
 - name: clean-up-aws-ec2
   serial: true
