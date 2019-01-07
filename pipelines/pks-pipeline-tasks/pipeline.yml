@@ -149,7 +149,6 @@ jobs:
     file: bbr-pipeline-tasks-repo/tasks/extract-bbr-binary/task.yml
   - aggregate:
     - task: bbr-backup-director
-      privileged: true
       file: bbr-pipeline-tasks-repo/tasks/bbr-backup-director/task.yml
       params:
         <<: *opsman_credentials
