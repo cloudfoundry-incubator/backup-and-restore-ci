@@ -831,3 +831,27 @@ jobs:
           else
               echo "No unattached disks to delete"
           fi
+
+- name: setup-gcp-iam-role-bosh-director
+  plan:
+  - get: bosh-backup-and-restore-meta
+  - put: terraform
+    params:
+      terraform_source: bosh-backup-and-restore-meta/terraform/bosh-director-iam-role/gcp
+      env_name: gcp-iam-role-bosh-director
+      delete_on_failure: true
+      vars:
+        gcp_service_account_key: ((gcp_iam_role_manager_service_account_key))
+
+- name: destroy-gcp-iam-role-bosh-director
+  plan:
+  - get: bosh-backup-and-restore-meta
+  - put: terraform
+    params:
+      terraform_source: bosh-backup-and-restore-meta/terraform/bosh-director-iam-role/gcp
+      env_name: gcp-iam-role-bosh-director
+      action: destroy
+      vars:
+        gcp_service_account_key: ((gcp_iam_role_manager_service_account_key))
+    get_params:
+      action: destroy
