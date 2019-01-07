@@ -13,6 +13,19 @@ s3_credentials: &s3_credentials
   secret_access_key: ((storage-secret-access-key))
   endpoint: ((storage-endpoint))
 
+groups:
+- name: master
+  jobs:
+  - export-om-installation
+  - bbr-backup-pks-foundation
+  - validate-sample-pipeline
+
+- name: pull-requests
+  jobs:
+  - bbr-backup-pks-foundation-prs
+  - validate-sample-pipeline-prs
+
+
 jobs:
 - name: validate-sample-pipeline
   plan:
@@ -105,12 +118,210 @@ jobs:
     params:
       <<: *opsman_credentials
 
+- name: validate-sample-pipeline-prs
+  plan:
+  - aggregate:
+    - get: bbr-pipeline-tasks-repo
+      trigger: true
+      resource: bbr-pipeline-tasks-prs
+    - get: backup-and-restore-ci
+  - put: bbr-pipeline-tasks-prs
+    params:
+      context: validation-of-sample-pks-pipeline
+      path: bbr-pipeline-tasks-repo
+      status: pending
+  - task: validate-pipeline
+    file: backup-and-restore-ci/tasks/validate-pipeline/task.yml
+    input_mapping:
+      pipeline: bbr-pipeline-tasks-repo
+    params:
+      PIPELINE_PATH: examples/pks-pipeline.yml
+      SECRETS_PATH: examples/pks-secrets.yml
+    on_failure:
+      put: bbr-pipeline-tasks-prs
+      params:
+        context: validation-of-sample-pks-pipeline
+        path: bbr-pipeline-tasks-prs
+        status: failure
+    on_success:
+      put: bbr-pipeline-tasks-prs
+      params:
+        context: validation-of-sample-pks-pipeline
+        path: bbr-pipeline-tasks-prs
+        status: success
+
+- name: bbr-backup-pks-foundation-prs
+  plan:
+  - aggregate:
+    - get: bbr-release
+    - get: bbr-pipeline-tasks-repo
+      trigger: true
+      resource: bbr-pipeline-tasks-prs
+  - aggregate:
+    - put: bbr-pipeline-tasks-prs
+      params:
+        context: lock-pks
+        path: bbr-pipeline-tasks-repo
+        status: pending
+    - put: bbr-pipeline-tasks-prs
+      params:
+        context: bbr-backup-pks
+        path: bbr-pipeline-tasks-repo
+        status: pending
+    - put: bbr-pipeline-tasks-prs
+      params:
+        context: bbr-cleanup-pks
+        path: bbr-pipeline-tasks-repo
+        status: pending
+    - put: bbr-pipeline-tasks-prs
+      params:
+        context: bbr-backup-pks-clusters
+        path: bbr-pipeline-tasks-repo
+        status: pending
+    - put: bbr-pipeline-tasks-prs
+      params:
+        context: bbr-cleanup-pks-clusters
+        path: bbr-pipeline-tasks-repo
+        status: pending
+    - put: bbr-pipeline-tasks-prs
+      params:
+        context: unlock-pks
+        path: bbr-pipeline-tasks-repo
+        status: pending
+  - task: lock-pks
+    file: bbr-pipeline-tasks-repo/tasks/lock-pks/task.yml
+    params:
+      <<: *opsman_credentials
+    on_success:
+      put: bbr-pipeline-tasks-prs
+      params:
+        context: lock-pks
+        path: bbr-pipeline-tasks-repo
+        status: success
+    on_failure:
+      put: bbr-pipeline-tasks-prs
+      params:
+        context: lock-pks
+        path: bbr-pipeline-tasks-repo
+        status: failure
+  - task: extract-binary
+    file: bbr-pipeline-tasks-repo/tasks/extract-bbr-binary/task.yml
+  - aggregate:
+    - task: bbr-backup-pks
+      file: bbr-pipeline-tasks-repo/tasks/bbr-backup-pks/task.yml
+      params:
+        <<: *opsman_credentials
+      on_failure:
+        put: bbr-pipeline-tasks-prs
+        params:
+          context: bbr-backup-pks
+          path: bbr-pipeline-tasks-repo
+          status: failure
+      ensure:
+        task: bbr-cleanup-pks
+        file: bbr-pipeline-tasks-repo/tasks/bbr-cleanup-pks/task.yml
+        params:
+          <<: *opsman_credentials
+        on_success:
+          put: bbr-pipeline-tasks-prs
+          params:
+            context: bbr-cleanup-pks
+            path: bbr-pipeline-tasks-repo
+            status: success
+        on_failure:
+          put: bbr-pipeline-tasks-prs
+          params:
+            context: bbr-cleanup-pks
+            path: bbr-pipeline-tasks-repo
+            status: failure
+    - task: bbr-backup-pks-clusters
+      file: bbr-pipeline-tasks-repo/tasks/bbr-backup-pks-clusters/task.yml
+      params:
+        <<: *opsman_credentials
+      on_failure:
+        put: bbr-pipeline-tasks-prs
+        params:
+          context: bbr-backup-pks-clusters
+          path: bbr-pipeline-tasks-repo
+          status: failure
+      ensure:
+        task: bbr-cleanup-pks-clusters
+        file: bbr-pipeline-tasks-repo/tasks/bbr-cleanup-pks-clusters/task.yml
+        params:
+          <<: *opsman_credentials
+        on_success:
+          put: bbr-pipeline-tasks-prs
+          params:
+            context: bbr-cleanup-pks-clusters
+            path: bbr-pipeline-tasks-repo
+            status: success
+        on_failure:
+          put: bbr-pipeline-tasks-prs
+          params:
+            context: bbr-cleanup-pks-clusters
+            path: bbr-pipeline-tasks-repo
+            status: failure
+  - aggregate:
+    - put: pks-backup-bucket
+      params:
+        file: pks-backup-artifact/pks-backup.tar
+      on_success:
+        put: bbr-pipeline-tasks-prs
+        params:
+          context: bbr-backup-pks
+          path: bbr-pipeline-tasks-repo
+          status: success
+      on_failure:
+        put: bbr-pipeline-tasks-prs
+        params:
+          context: bbr-backup-pks
+          path: bbr-pipeline-tasks-repo
+          status: failure
+    - put: pks-backup-bucket
+      params:
+        file: pks-clusters-backup-artifact/pks-clusters-backup.tar
+      on_success:
+        put: bbr-pipeline-tasks-prs
+        params:
+          context: bbr-backup-pks-clusters
+          path: bbr-pipeline-tasks-repo
+          status: success
+      on_failure:
+        put: bbr-pipeline-tasks-prs
+        params:
+          context: bbr-backup-pks-clusters
+          path: bbr-pipeline-tasks-repo
+          status: failure
+  ensure:
+    task: unlock-pks
+    file: bbr-pipeline-tasks-repo/tasks/unlock-pks/task.yml
+    params:
+      <<: *opsman_credentials
+    on_success:
+      put: bbr-pipeline-tasks-prs
+      params:
+        context: unlock-pks
+        path: bbr-pipeline-tasks-repo
+        status: success
+    on_failure:
+      put: bbr-pipeline-tasks-prs
+      params:
+        context: unlock-pks
+        path: bbr-pipeline-tasks-repo
+        status: failure
+
 resource_types:
 - name: pivnet
   type: docker-image
   source:
     repository: pivotalcf/pivnet-resource
     tag: latest-final
+
+- name: pull-request
+  type: docker-image
+  source:
+    repository: jtarchie/pr
+    tag: latest
 
 resources:
 - name: backup-and-restore-ci
@@ -131,6 +342,22 @@ resources:
     - README.md
     - tasks/bbr-backup-ert/*
     - tasks/bbr-cleanup-ert/*
+
+- name: bbr-pipeline-tasks-prs
+  type: pull-request
+  source:
+    access_token: ((github-access-token))
+    private_key: ((git-private-key))
+    repo: pivotal-cf/bbr-pcf-pipeline-tasks
+    uri: git@github.com:pivotal-cf/bbr-pcf-pipeline-tasks.git
+    ignore_paths:
+    - docker/*
+    - README.md
+    - tasks/bbr-backup-ert/*
+    - tasks/bbr-cleanup-ert/*
+    - tasks/bbr-backup-director/*
+    - tasks/bbr-cleanup-director/*
+    - tasks/export-om-installation/*
 
 - name: bbr-release
   type: pivnet
