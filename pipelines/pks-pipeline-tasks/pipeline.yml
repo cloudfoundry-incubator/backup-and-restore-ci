@@ -98,7 +98,6 @@ groups:
   - bbr-backup-pks-foundation-prs
   - validate-sample-pipeline-prs
 
-
 jobs:
 - name: validate-sample-pipeline
   plan:
@@ -134,6 +133,8 @@ jobs:
       file: om-installation/installation.zip
 
 - name: bbr-backup-pks-foundation
+  serial: true
+  serial_groups: [bbr-backup-pks-foundation]
   plan:
   - aggregate:
     - get: bbr-release
@@ -224,6 +225,8 @@ jobs:
         status: success
 
 - name: bbr-backup-pks-foundation-prs
+  serial: true
+  serial_groups: [bbr-backup-pks-foundation]
   plan:
   - aggregate:
     - get: bbr-release
