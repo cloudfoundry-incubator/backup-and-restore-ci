@@ -23,9 +23,10 @@ RUN git clone https://github.com/AGWA/git-crypt.git && \
 RUN git config --global url."git@github.com:".insteadOf "https://github.com/"
 RUN mkdir -p ~/.ssh && ssh-keyscan -H github.com > ~/.ssh/known_hosts
 
-RUN wget https://get.docker.com/builds/Linux/x86_64/docker-1.11.0.tgz && \
-  tar xvf docker-1.11.0.tgz && \
-  sudo cp docker/docker /bin
+RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-18.09.0.tgz && \
+  tar xvf docker-18.09.0.tgz && \
+  chmod +x docker/* && \
+  sudo cp docker/* /bin
 
 RUN (wget https://releases.hashicorp.com/terraform/0.11.7/terraform_0.11.7_linux_386.zip && unzip terraform_0.11.7_linux_386.zip -d /bin/)
 
