@@ -13,6 +13,79 @@ s3_credentials: &s3_credentials
   secret_access_key: ((storage-secret-access-key))
   endpoint: ((storage-endpoint))
 
+resource_types:
+- name: pivnet
+  type: docker-image
+  source:
+    repository: pivotalcf/pivnet-resource
+    tag: latest-final
+
+- name: pull-request
+  type: docker-image
+  source:
+    repository: jtarchie/pr
+    tag: latest
+
+resources:
+- name: backup-and-restore-ci
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-incubator/backup-and-restore-ci.git
+    branch: master
+    private_key: ((git-private-key))
+
+- name: bbr-pipeline-tasks-repo
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bbr-pcf-pipeline-tasks.git
+    private_key: ((git-private-key))
+    branch: master
+    ignore_paths:
+    - docker/*
+    - README.md
+    - tasks/bbr-backup-ert/*
+    - tasks/bbr-cleanup-ert/*
+
+- name: bbr-pipeline-tasks-prs
+  type: pull-request
+  source:
+    access_token: ((github-access-token))
+    private_key: ((git-private-key))
+    repo: pivotal-cf/bbr-pcf-pipeline-tasks
+    uri: git@github.com:pivotal-cf/bbr-pcf-pipeline-tasks.git
+    ignore_paths:
+    - docker/*
+    - README.md
+    - tasks/bbr-backup-ert/*
+    - tasks/bbr-cleanup-ert/*
+    - tasks/bbr-backup-director/*
+    - tasks/bbr-cleanup-director/*
+    - tasks/export-om-installation/*
+
+- name: bbr-release
+  type: pivnet
+  source:
+    api_token: ((pivnet-api-token))
+    product_slug: p-bosh-backup-and-restore
+
+- name: om-backup-bucket
+  type: s3
+  source:
+    <<: *s3_credentials
+    versioned_file: installation.zip
+
+- name: director-backup-bucket
+  type: s3
+  source:
+    <<: *s3_credentials
+    versioned_file: director-backup.tar
+
+- name: pks-backup-bucket
+  type: s3
+  source:
+    <<: *s3_credentials
+    versioned_file: pks-backup.tar
+
 groups:
 - name: master
   jobs:
@@ -309,76 +382,3 @@ jobs:
         context: unlock-pks
         path: bbr-pipeline-tasks-repo
         status: failure
-
-resource_types:
-- name: pivnet
-  type: docker-image
-  source:
-    repository: pivotalcf/pivnet-resource
-    tag: latest-final
-
-- name: pull-request
-  type: docker-image
-  source:
-    repository: jtarchie/pr
-    tag: latest
-
-resources:
-- name: backup-and-restore-ci
-  type: git
-  source:
-    uri: https://github.com/cloudfoundry-incubator/backup-and-restore-ci.git
-    branch: master
-    private_key: ((git-private-key))
-
-- name: bbr-pipeline-tasks-repo
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf/bbr-pcf-pipeline-tasks.git
-    private_key: ((git-private-key))
-    branch: master
-    ignore_paths:
-    - docker/*
-    - README.md
-    - tasks/bbr-backup-ert/*
-    - tasks/bbr-cleanup-ert/*
-
-- name: bbr-pipeline-tasks-prs
-  type: pull-request
-  source:
-    access_token: ((github-access-token))
-    private_key: ((git-private-key))
-    repo: pivotal-cf/bbr-pcf-pipeline-tasks
-    uri: git@github.com:pivotal-cf/bbr-pcf-pipeline-tasks.git
-    ignore_paths:
-    - docker/*
-    - README.md
-    - tasks/bbr-backup-ert/*
-    - tasks/bbr-cleanup-ert/*
-    - tasks/bbr-backup-director/*
-    - tasks/bbr-cleanup-director/*
-    - tasks/export-om-installation/*
-
-- name: bbr-release
-  type: pivnet
-  source:
-    api_token: ((pivnet-api-token))
-    product_slug: p-bosh-backup-and-restore
-
-- name: om-backup-bucket
-  type: s3
-  source:
-    <<: *s3_credentials
-    versioned_file: installation.zip
-
-- name: director-backup-bucket
-  type: s3
-  source:
-    <<: *s3_credentials
-    versioned_file: director-backup.tar
-
-- name: pks-backup-bucket
-  type: s3
-  source:
-    <<: *s3_credentials
-    versioned_file: pks-backup.tar
