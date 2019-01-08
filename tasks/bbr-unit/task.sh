@@ -12,5 +12,8 @@ ssh-add "$github_ssh_key"
 export GOPATH=$PWD
 export PATH=$PATH:$GOPATH/bin
 
+# fixes error Error response from daemon: client is newer than server
+export DOCKER_API_VERSION=1.23
+
 cd src/github.com/cloudfoundry-incubator/bosh-backup-and-restore
 make test-ci
