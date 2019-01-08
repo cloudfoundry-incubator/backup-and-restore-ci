@@ -59,7 +59,7 @@ resources:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
     private_key: ((git-private-key))
     branch: master
-    paths: ["ci-docker-images/bosh-backup-and-restore/*"]
+    paths: ["ci-docker-images/backup-and-restore/*"]
 
 - name: bosh-lite-stemcell-repo
   type: git
@@ -202,7 +202,7 @@ jobs:
     passed: [build-backup-and-restore-minimal]
   - put: bosh-backup-and-restore-docker-image
     params:
-      build: bosh-backup-and-restore-repo/ci-docker-images/bosh-backup-and-restore/
+      build: bosh-backup-and-restore-repo/ci-docker-images/backup-and-restore/
 
 - name: build-bosh-lite-stemcell
   serial: true
