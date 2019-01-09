@@ -5,7 +5,7 @@ set -eu
 git config --global user.name "PCF Backup & Restore CI"
 git config --global user.email "cf-lazarus@pivotal.io"
 
-pushd bosh-backup-and-restore-meta/terraform/aws
+pushd bosh-backup-and-restore-meta/terraform/bbr-sdk-system-tests/aws
   terraform init
   terraform apply \
   -var "aws_access_key=${AWS_ACCESS_KEY}" \
@@ -20,7 +20,7 @@ pushd bosh-backup-and-restore-meta/terraform/aws
 popd
 
 pushd bosh-backup-and-restore-meta/
-  git add terraform/aws/terraform.tfstate*
+  git add terraform/bbr-sdk-system-tests/aws/terraform.tfstate*
   if git commit -m "Update terraform-state" ; then
     echo "Update terraform-state"
   else

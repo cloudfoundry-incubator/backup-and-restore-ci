@@ -5,7 +5,7 @@ set -eu
 save_server_certs() {
   CERTS_DIR=ci/backup-and-restore-sdk-release/certs/gcp-"$1"
   mkdir -p "${CERTS_DIR}"
-  INSTANCE_NAME="$(terraform output -state=terraform/gcp/terraform.tfstate "$1"-name)"
+  INSTANCE_NAME="$(terraform output -state=terraform/bbr-sdk-system-tests/gcp/terraform.tfstate "$1"-name)"
   gcloud sql instances describe "${INSTANCE_NAME}" --format='value(serverCaCert.cert)' > "$CERTS_DIR"/test-server-cert.pem
   if ! gcloud sql ssl-certs list --instance "${INSTANCE_NAME}" | grep "test-client-cert "
   then
@@ -18,7 +18,7 @@ save_server_certs() {
 git config --global user.name "PCF Backup & Restore CI"
 git config --global user.email "cf-lazarus@pivotal.io"
 
-pushd bosh-backup-and-restore-meta/terraform/gcp
+pushd bosh-backup-and-restore-meta/terraform/bbr-sdk-system-tests/gcp
   terraform init
   terraform apply \
   -var "mysql-5-6-password=${MYSQL_5_6_PASSWORD}" \
@@ -28,7 +28,7 @@ pushd bosh-backup-and-restore-meta/terraform/gcp
 popd
 
 pushd bosh-backup-and-restore-meta/
-  git add terraform/gcp/terraform.tfstate*
+  git add terraform/bbr-sdk-system-tests/gcp/terraform.tfstate*
   if git commit -m "Update terraform-state" ; then
     echo "Update terraform-state"
   else
