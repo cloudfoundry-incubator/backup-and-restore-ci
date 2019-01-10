@@ -53,7 +53,7 @@ resources:
     branch: master
     paths: ["ci-docker-images/backup-and-restore-minimal/*"]
 
-- name: bosh-backup-and-restore-repo
+- name: backup-and-restore-repo
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
@@ -67,7 +67,7 @@ resources:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
     private_key: ((git-private-key))
     branch: master
-    paths: ["ci-docker-images/bosh-lite-stemcell"]
+    paths: ["ci-docker-images/bosh-lite-stemcell/*"]
 
 - name: backup-and-restore-node-with-ssh-repo
   type: git
@@ -106,7 +106,7 @@ resources:
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
-- name: bosh-backup-and-restore-docker-image
+- name: backup-and-restore-docker-image
   type: docker-image
   source:
     repository: cloudfoundrylondon/backup-and-restore
@@ -192,17 +192,17 @@ jobs:
     params:
       build: backup-and-restore-minimal-repo/ci-docker-images/backup-and-restore-minimal/
 
-- name: build-bosh-backup-and-restore
+- name: build-backup-and-restore
   serial: true
   plan:
-  - get: bosh-backup-and-restore-repo
+  - get: backup-and-restore-repo
     trigger: true
   - get: backup-and-restore-minimal-docker-image
     trigger: true
     passed: [build-backup-and-restore-minimal]
-  - put: bosh-backup-and-restore-docker-image
+  - put: backup-and-restore-docker-image
     params:
-      build: bosh-backup-and-restore-repo/ci-docker-images/backup-and-restore/
+      build: backup-and-restore-repo/ci-docker-images/backup-and-restore/
 
 - name: build-bosh-lite-stemcell
   serial: true
