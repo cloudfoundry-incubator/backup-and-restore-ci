@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
-set -e
+set -eu
 
-export username=$1
-export key=$2
+username=$1
+key=$2
+
 groupadd -f vcap
-useradd --shell /bin/bash --create-home  $username
-usermod -aG sudo $username
-usermod -aG vcap $username
+useradd --shell /bin/bash --create-home "$username"
+usermod -aG sudo "$username"
+usermod -aG vcap "$username"
 
-mkdir -p /home/$1/.ssh
-echo $key > /home/$1/.ssh/authorized_keys
+mkdir -p "/home/$1/.ssh"
+echo "$key" > "/home/$1/.ssh/authorized_keys"

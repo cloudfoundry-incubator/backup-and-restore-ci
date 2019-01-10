@@ -3,16 +3,16 @@
 
 set -eu
 
-UBUNTU="trusty"
-VERSION="3147"
+version="170.16"
 
-wget https://s3.amazonaws.com/bosh-warden-stemcells/bosh-stemcell-$VERSION-warden-boshlite-ubuntu-$UBUNTU-go_agent.tgz
-tar xvf "bosh-stemcell-$VERSION-warden-boshlite-ubuntu-$UBUNTU-go_agent.tgz"
+wget -O stemcell.tgz "https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-xenial-go_agent?v=$version"
+tar xvf stemcell.tgz
 
 docker login --username "$DOCKER_USERNAME" --password "$DOCKER_PASSWORD"
-SHA=$(docker import image | cut -d':' -f2)
-docker tag "$SHA" "cloudfoundrylondon/backup-and-restore-bosh-stemcell:latest"
-docker push "cloudfoundrylondon/backup-and-restore-bosh-stemcell:latest"
-docker tag "$SHA" "cloudfoundrylondon/backup-and-restore-bosh-stemcell:$VERSION"
-docker push "cloudfoundrylondon/backup-and-restore-bosh-stemcell:$VERSION"
+sha=$(docker import image | cut -d':' -f2)
 
+docker tag "$sha" "cloudfoundrylondon/backup-and-restore-bosh-stemcell:latest"
+docker push "cloudfoundrylondon/backup-and-restore-bosh-stemcell:latest"
+
+docker tag "$sha" "cloudfoundrylondon/backup-and-restore-bosh-stemcell:$version"
+docker push "cloudfoundrylondon/backup-and-restore-bosh-stemcell:$version"
