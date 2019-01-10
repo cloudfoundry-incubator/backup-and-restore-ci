@@ -29,10 +29,10 @@ resources:
     repository: ubuntu
     tag: xenial
 
-- name: xenial-lite-stemcell
+- name: trusty-lite-stemcell
   type: bosh-io-stemcell
   source:
-    name: bosh-warden-boshlite-ubuntu-xenial-go_agent
+    name: bosh-warden-boshlite-ubuntu-trusty-go_agent
 
 - name: cfops-repo
   type: git
@@ -204,11 +204,11 @@ jobs:
 - name: build-bosh-lite-stemcell
   serial: true
   plan:
-  - get: xenial-lite-stemcell
+  - get: trusty-lite-stemcell
     trigger: true
   - task: extract-stemcell-image
     input_mapping:
-      stemcell: xenial-lite-stemcell
+      stemcell: trusty-lite-stemcell
     config:
       platform: linux
       image_resource:
@@ -227,7 +227,7 @@ jobs:
   - put: bosh-lite-stemcell-docker-image
     params:
       import_file: stemcell-image/image
-      tag_file: xenial-lite-stemcell/version
+      tag_file: trusty-lite-stemcell/version
       tag_as_latest: true
 
 - name: build-backup-and-restore-node-with-ssh
