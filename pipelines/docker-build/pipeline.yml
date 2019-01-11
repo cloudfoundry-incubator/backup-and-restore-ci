@@ -199,6 +199,8 @@ jobs:
   - get: backup-and-restore-minimal-docker-image
     trigger: true
     passed: [build-backup-and-restore-minimal]
+    params:
+      skip_download: true
   - put: backup-and-restore-docker-image
     params:
       build: backup-and-restore-repo/ci-docker-images/backup-and-restore/
@@ -224,6 +226,8 @@ jobs:
   - get: bosh-lite-stemcell-docker-image
     trigger: true
     passed: [build-bosh-lite-stemcell]
+    params:
+      skip_download: true
   - put: backup-and-restore-node-with-ssh-docker-image
     params:
       build: backup-and-restore-node-with-ssh-repo/ci-docker-images/backup-and-restore-node-with-ssh/
