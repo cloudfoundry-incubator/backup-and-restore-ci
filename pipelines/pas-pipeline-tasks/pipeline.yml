@@ -22,6 +22,7 @@ groups:
 
 - name: pull-requests
   jobs:
+  - trigger-pr
   - validate-sample-pipeline-prs
   - export-om-installation-prs
   - bbr-backup-director-prs
@@ -123,12 +124,18 @@ jobs:
     params:
       file: director-backup-artifact/director-backup.tar
 
+- name: trigger-pr
+  serial: true
+  plan:
+  - get: bbr-pipeline-tasks-prs
+
 - name: validate-sample-pipeline-prs
   plan:
   - aggregate:
     - get: bbr-pipeline-tasks-repo
       trigger: true
       resource: bbr-pipeline-tasks-prs
+      passed: [trigger-pr]
     - get: backup-and-restore-ci
   - put: bbr-pipeline-tasks-prs
     params:
@@ -161,6 +168,7 @@ jobs:
   - get: bbr-pipeline-tasks-repo
     trigger: true
     resource: bbr-pipeline-tasks-prs
+    passed: [trigger-pr]
   - put: bbr-pipeline-tasks-prs
     params:
       context: export-om-installation
@@ -195,6 +203,7 @@ jobs:
     - get: bbr-pipeline-tasks-repo
       trigger: true
       resource: bbr-pipeline-tasks-prs
+      passed: [trigger-pr]
     - get: bbr-release
   - put: bbr-pipeline-tasks-prs
     params:
@@ -237,6 +246,7 @@ jobs:
     - get: bbr-pipeline-tasks-repo
       trigger: true
       resource: bbr-pipeline-tasks-prs
+      passed: [trigger-pr]
     - get: bbr-release
   - put: bbr-pipeline-tasks-prs
     params:
@@ -277,6 +287,7 @@ jobs:
   - aggregate:
     - get: bbr-pipeline-tasks-prs
       trigger: true
+      passed: [trigger-pr]
     - get: bbr-release
   - task: extract-binary
     file: bbr-pipeline-tasks-prs/tasks/extract-bbr-binary/task.yml
@@ -312,6 +323,7 @@ jobs:
   - aggregate:
     - get: bbr-pipeline-tasks-prs
       trigger: true
+      passed: [trigger-pr]
     - get: bbr-release
   - task: extract-binary
     file: bbr-pipeline-tasks-prs/tasks/extract-bbr-binary/task.yml
