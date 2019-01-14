@@ -238,11 +238,13 @@ jobs:
       passed: [deploy-bosh-bengal-tiger]
       params:
         output_statefile: true
+    - get: gcs-stemcell
   - task: extract-b-drats-integration-config
     file: backup-and-restore-ci/tasks/extract-b-drats-integration-config/task.yml
     input_mapping:
       terraform-state: terraform
       bosh-vars-store: bosh-backup-and-restore-meta
+      stemcell: gcs-stemcell
     params:
       BOSH_VARS_STORE_PATH: bosh-vars-store/b-drats-bengal-tiger/creds.yml
   - task: run-b-drats
@@ -283,7 +285,6 @@ jobs:
       stemcell: gcs-stemcell
     params:
       BOSH_VARS_STORE_PATH: bosh-vars-store/b-drats-black-panther/creds.yml
-      STEMCELL_PATH: stemcell/stemcell.tgz
     on_failure:
       put: bosh-disaster-recovery-acceptance-tests-prs
       params:
