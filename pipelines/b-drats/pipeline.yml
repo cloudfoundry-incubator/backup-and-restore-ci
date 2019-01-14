@@ -87,7 +87,7 @@ jobs:
       env_name: b-drats-bengal-tiger
       delete_on_failure: true
       vars:
-        gcp_service_account_key: ((gcp_service_account_key))
+        gcp_service_account_key: ((terraform_service_account_key))
     get_params:
       output_statefile: true
   - task: bosh-create-env
@@ -100,7 +100,7 @@ jobs:
       OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml bbr.yml"
       DIRECTOR_NAME: "bengal-tiger"
       BOSH_OPERATION: "create-env"
-      GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
+      GCP_SERVICE_ACCOUNT_KEY: ((director_service_account_key))
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -156,7 +156,7 @@ jobs:
       env_name: b-drats-black-panther
       delete_on_failure: true
       vars:
-        gcp_service_account_key: ((gcp_service_account_key))
+        gcp_service_account_key: ((terraform_service_account_key))
     get_params:
       output_statefile: true
     on_failure:
@@ -175,7 +175,7 @@ jobs:
       OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml bbr.yml"
       DIRECTOR_NAME: "black-panther"
       BOSH_OPERATION: "create-env"
-      GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
+      GCP_SERVICE_ACCOUNT_KEY: ((director_service_account_key))
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -340,7 +340,7 @@ jobs:
       OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml"
       DIRECTOR_NAME: "bengal-tiger"
       BOSH_OPERATION: "delete-env"
-      GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
+      GCP_SERVICE_ACCOUNT_KEY: ((director_service_account_key))
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -352,7 +352,7 @@ jobs:
       env_name: b-drats-bengal-tiger
       action: destroy
       vars:
-        gcp_service_account_key: ((gcp_service_account_key))
+        gcp_service_account_key: ((terraform_service_account_key))
     get_params:
       action: destroy
 
@@ -386,7 +386,7 @@ jobs:
       OPS_FILES: "gcp/cpi.yml external-ip-not-recommended.yml jumpbox-user.yml"
       DIRECTOR_NAME: "black-panther"
       BOSH_OPERATION: "delete-env"
-      GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
+      GCP_SERVICE_ACCOUNT_KEY: ((director_service_account_key))
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -404,7 +404,7 @@ jobs:
       env_name: b-drats-black-panther
       action: destroy
       vars:
-        gcp_service_account_key: ((gcp_service_account_key))
+        gcp_service_account_key: ((terraform_service_account_key))
     get_params:
       action: destroy
     on_failure:
