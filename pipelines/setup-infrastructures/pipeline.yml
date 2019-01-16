@@ -316,15 +316,6 @@ jobs:
       params:
         repository: updated-bbl-state
         rebase: true
-  - task: add-iam-instance-profile-vm-extension
-    file: backup-and-restore-ci/tasks/update-cloud-config/task.yml
-    params:
-      OPS_FILE_PATH: external-blobstore-directors/aws-ec2/ops-files/add-iam-instance-profile-vm-extension.yml
-      BBL_STATE_DIR: external-blobstore-directors/aws-ec2
-    input_mapping:
-      bbl-state: updated-bbl-state
-      bbl-config: bosh-backup-and-restore-meta
-      ops-files: bosh-backup-and-restore-meta
   - put: terraform
     params:
       terraform_source: bosh-backup-and-restore-meta/external-blobstore-directors/aws-ec2/iam-roles-terraform/
