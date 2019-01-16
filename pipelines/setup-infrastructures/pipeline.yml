@@ -596,7 +596,7 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      NAME: dns
+      NAME: default
       TYPE: runtime
       BBL_STATE_DIR: maru
       CONFIG_PATH: bosh-deployment/runtime-configs/dns.yml
@@ -671,7 +671,7 @@ jobs:
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
     params:
-      NAME: dns
+      NAME: default
       TYPE: runtime
       BBL_STATE_DIR: maru-lite
       CONFIG_PATH: bosh-deployment/runtime-configs/dns.yml
