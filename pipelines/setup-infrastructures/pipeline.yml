@@ -590,6 +590,15 @@ jobs:
       params:
         repository: updated-bbl-state
         rebase: true
+  - task: update-runtime-config-bosh-dns
+    file: backup-and-restore-ci/tasks/update-config/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      NAME: dns
+      TYPE: runtime
+      BBL_STATE_DIR: maru
+      CONFIG_PATH: bosh-deployment/runtime-configs/dns.yml
 
 - name: clean-up-maru
   serial: true
@@ -655,6 +664,15 @@ jobs:
       params:
         repository: updated-bbl-state
         rebase: true
+  - task: update-runtime-config-bosh-dns
+    file: backup-and-restore-ci/tasks/update-config/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      NAME: dns
+      TYPE: runtime
+      BBL_STATE_DIR: maru-lite
+      CONFIG_PATH: bosh-deployment/runtime-configs/dns.yml
 
 - name: clean-up-maru-lite
   serial: true
