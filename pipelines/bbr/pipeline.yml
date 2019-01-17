@@ -7,7 +7,6 @@ maru-bosh-env: &maru-bosh-env
   BOSH_GW_HOST: "((maru-jumpbox-url)):22"
   BOSH_GW_USER: jumpbox
   BOSH_GW_PRIVATE_KEY: "((maru-jumpbox-ssh-key))"
-  USE_BOSH_ALL_PROXY: true
 
 maru-bosh-deployment-creds: &maru-bosh-deployment-creds
   target: "((maru-bosh-director-url))"
@@ -33,7 +32,6 @@ maru-lite-bosh-env: &maru-lite-bosh-env
   BOSH_GW_USER: jumpbox
   BOSH_GW_HOST: "((maru-lite-jumpbox-address)):22"
   BOSH_GW_PRIVATE_KEY: "((maru-lite-jumpbox-ssh-key))"
-  USE_BOSH_ALL_PROXY: true
 
 maru-lite-bosh-team-creds: &maru-lite-bosh-team-creds
   BOSH_ENVIRONMENT: "((maru-lite-bosh-director-url))"

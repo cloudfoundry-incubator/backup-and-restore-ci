@@ -21,7 +21,6 @@ params:
   BOSH_GW_HOST: # optional, gateway host to establish BOSH_ALL_PROXY; needs to include port
   BOSH_GW_PRIVATE_KEY: # optional
   BOSH_GW_USER: # optional
-  USE_BOSH_ALL_PROXY: false # set to true when using a gateway
 
 run:
   path: backup-and-restore-ci/tasks/bbr-system-windows/task.sh
