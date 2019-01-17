@@ -44,16 +44,6 @@ maru-lite-bosh-team-creds: &maru-lite-bosh-team-creds
   BOSH_GW_HOST: "((maru-lite-jumpbox-address)):22"
   BOSH_GW_PRIVATE_KEY: "((maru-lite-jumpbox-ssh-key))"
 
-lite-bosh-uaa-env: &lite-bosh-uaa-env
-  BOSH_ENVIRONMENT: lite-bosh-uaa.backup-and-restore.cf-app.com
-  BOSH_CLIENT: ((uaa-director-username))
-  BOSH_CLIENT_SECRET: ((uaa-director-password))
-  BOSH_GW_HOST: lite-bosh-uaa.backup-and-restore.cf-app.com
-  BOSH_GW_USER: jumpbox
-  BOSH_GW_PRIVATE_KEY: bosh-backup-and-restore-meta/garden-bosh-uaa/bosh.pem
-  BOSH_CA_CERT_PATH: bosh-backup-and-restore-meta/certs/lite-bosh-uaa.backup-and-restore.cf-app.com.crt
-  BOSH_CA_CERT: ((uaa-director-ca-cert))
-
 test-bosh-director-ip: &test-bosh-director-ip 10.0.16.190
 test-bosh-director-deployment: &test-bosh-director-deployment test-bosh-director
 
@@ -318,7 +308,7 @@ jobs:
       file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
       params:
         RELEASE_NAME: many-bbr-jobs-release
-        <<: *lite-bosh-uaa-env
+        <<: *maru-lite-bosh-env
     - task: upload-many-bbr-jobs-release-maru
       file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
       params:
@@ -333,12 +323,12 @@ jobs:
       file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
       params:
         RELEASE_NAME: redis-test-release
-        <<: *lite-bosh-uaa-env
+        <<: *maru-lite-bosh-env
     - task: upload-lock-ordering-release-lite-bosh-uaa
       file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
       params:
         RELEASE_NAME: lock-ordering-release
-        <<: *lite-bosh-uaa-env
+        <<: *maru-lite-bosh-env
 
 - name: unit
   serial: true
@@ -457,7 +447,7 @@ jobs:
   - task: system-deployment-with-uaa
     file: backup-and-restore-ci/tasks/bbr-system-deployment/task.yml
     params:
-      <<: *lite-bosh-uaa-env
+      <<: *maru-lite-bosh-env
 
 - name: system-bosh-all-proxy
   serial: true
