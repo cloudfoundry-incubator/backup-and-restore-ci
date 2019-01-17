@@ -15,11 +15,10 @@ params:
   BOSH_ENVIRONMENT:
   BOSH_CLIENT:
   BOSH_CLIENT_SECRET:
-  BOSH_CA_CERT_PATH: # path to bosh director ca cert
-  BOSH_GW_HOST: # optional, gateway host to establish BOSH_ALL_PROXY; needs to include port
-  BOSH_GW_PRIVATE_KEY: # optional
-  BOSH_GW_USER: # optional
-  USE_BOSH_ALL_PROXY: false
+  BOSH_CA_CERT:
+  BOSH_GW_HOST:
+  BOSH_GW_PRIVATE_KEY:
+  BOSH_GW_USER:
 
 run:
   path: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.sh
