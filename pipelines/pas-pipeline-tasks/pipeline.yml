@@ -44,6 +44,35 @@ jobs:
     params:
       PIPELINE_PATH: examples/pas-pipeline.yml
       SECRETS_PATH: examples/pas-secrets.yml
+  - task: ensure-ci-includes-sample-pipeline
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: cloudfoundrylondon/backup-and-restore
+      inputs:
+      - name: backup-and-restore-ci
+      - name: bbr-pipeline-tasks-repo
+      run:
+        path: bash
+        args:
+        - -euc
+        - |
+          set -o pipefail
+
+          git config --global --remove-section url."git@github.com:"
+
+          go get -u github.com/sahilm/yamldiff
+
+          yamldiff \
+            --file1 bbr-pipeline-tasks-repo/examples/pas-pipeline.yml \
+            --file2 backup-and-restore-ci/pipelines/pas-pipeline-tasks/pipeline.yml
+
+          exit "$(yamldiff \
+            --file1 bbr-pipeline-tasks-repo/examples/pas-pipeline.yml \
+            --file2 backup-and-restore-ci/pipelines/pas-pipeline-tasks/pipeline.yml \
+            | grep '^\-' | grep -v 'OPSMAN_PRIVATE_KEY' | wc -l)"
 
 - name: export-om-installation
   serial: true
