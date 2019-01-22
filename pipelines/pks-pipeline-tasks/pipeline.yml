@@ -236,6 +236,7 @@ jobs:
     - get: bbr-pipeline-tasks-repo
       resource: bbr-pipeline-tasks-prs
       passed: [trigger-pr]
+      trigger: true
     - get: backup-and-restore-ci
   - put: bbr-pipeline-tasks-prs
     params:
@@ -271,6 +272,7 @@ jobs:
     - get: bbr-pipeline-tasks-repo
       resource: bbr-pipeline-tasks-prs
       passed: [trigger-pr]
+      trigger: true
   - aggregate:
     - put: bbr-pipeline-tasks-prs
       params:
