@@ -45,6 +45,8 @@ resources:
     - README.md
     - tasks/bbr-backup-ert/*
     - tasks/bbr-cleanup-ert/*
+    - tasks/bbr-backup-pas/*
+    - tasks/bbr-cleanup-pas/*
 
 - name: bbr-pipeline-tasks-prs
   type: pull-request
@@ -58,6 +60,8 @@ resources:
     - README.md
     - tasks/bbr-backup-ert/*
     - tasks/bbr-cleanup-ert/*
+    - tasks/bbr-backup-pas/*
+    - tasks/bbr-cleanup-pas/*
     - tasks/bbr-backup-director/*
     - tasks/bbr-cleanup-director/*
     - tasks/export-om-installation/*
