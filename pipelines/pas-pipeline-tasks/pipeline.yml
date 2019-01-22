@@ -18,7 +18,7 @@ groups:
   - validate-sample-pipeline
   - export-om-installation
   - bbr-backup-director
-  - bbr-backup-ert
+  - bbr-backup-pas
 
 - name: pull-requests
   jobs:
@@ -27,8 +27,8 @@ groups:
   - export-om-installation-prs
   - bbr-backup-director-prs
   - bbr-cleanup-director-prs
-  - bbr-backup-ert-prs
-  - bbr-cleanup-ert-prs
+  - bbr-backup-pas-prs
+  - bbr-cleanup-pas-prs
 
 jobs:
 - name: validate-sample-pipeline
@@ -62,10 +62,10 @@ jobs:
     params:
       file: om-installation/installation.zip
 
-- name: bbr-backup-ert
+- name: bbr-backup-pas
   serial: true
   serial_groups:
-  - backup-ert
+  - backup-pas
   plan:
   - aggregate:
     - get: bbr-pipeline-tasks-repo
@@ -76,22 +76,22 @@ jobs:
     file: bbr-pipeline-tasks-repo/tasks/extract-bbr-binary/task.yml
     tags:
     - ((concourse-worker-tag))
-  - task: bbr-backup-ert
-    file: bbr-pipeline-tasks-repo/tasks/bbr-backup-ert/task.yml
+  - task: bbr-backup-pas
+    file: bbr-pipeline-tasks-repo/tasks/bbr-backup-pas/task.yml
     params:
       <<: *opsman_credentials
       OPSMAN_PRIVATE_KEY: ((opsman-private-key))
     tags:
     - ((concourse-worker-tag))
     on_failure:
-      task: bbr-cleanup-ert
-      file: bbr-pipeline-tasks-repo/tasks/bbr-cleanup-ert/task.yml
+      task: bbr-cleanup-pas
+      file: bbr-pipeline-tasks-repo/tasks/bbr-cleanup-pas/task.yml
       params:
         <<: *opsman_credentials
         OPSMAN_PRIVATE_KEY: ((opsman-private-key))
-  - put: ert-backup-bucket
+  - put: pas-backup-bucket
     params:
-      file: ert-backup-artifact/ert-backup.tar
+      file: pas-backup-artifact/pas-backup.tar
 
 - name: bbr-backup-director
   serial: true
@@ -194,10 +194,10 @@ jobs:
     params:
       file: om-installation/installation.zip
 
-- name: bbr-backup-ert-prs
+- name: bbr-backup-pas-prs
   serial: true
   serial_groups:
-  - backup-ert
+  - backup-pas
   plan:
   - aggregate:
     - get: bbr-pipeline-tasks-repo
@@ -207,15 +207,15 @@ jobs:
     - get: bbr-release
   - put: bbr-pipeline-tasks-prs
     params:
-      context: bbr-backup-ert
+      context: bbr-backup-pas
       path: bbr-pipeline-tasks-repo
       status: pending
   - task: extract-binary
     file: bbr-pipeline-tasks-repo/tasks/extract-bbr-binary/task.yml
     tags:
     - ((concourse-worker-tag))
-  - task: bbr-backup-ert
-    file: bbr-pipeline-tasks-repo/tasks/bbr-backup-ert/task.yml
+  - task: bbr-backup-pas
+    file: bbr-pipeline-tasks-repo/tasks/bbr-backup-pas/task.yml
     params:
       <<: *opsman_credentials
       OPSMAN_PRIVATE_KEY: ((opsman-private-key))
@@ -224,18 +224,18 @@ jobs:
     on_failure:
       put: bbr-pipeline-tasks-prs
       params:
-        context: bbr-backup-ert
+        context: bbr-backup-pas
         path: bbr-pipeline-tasks-repo
         status: failure
     on_success:
       put: bbr-pipeline-tasks-prs
       params:
-        context: bbr-backup-ert
+        context: bbr-backup-pas
         path: bbr-pipeline-tasks-repo
         status: success
-  - put: ert-backup-bucket
+  - put: pas-backup-bucket
     params:
-      file: ert-backup-artifact/ert-backup.tar
+      file: pas-backup-artifact/pas-backup.tar
 
 - name: bbr-backup-director-prs
   serial: true
@@ -279,10 +279,10 @@ jobs:
     params:
       file: director-backup-artifact/director-backup.tar
 
-- name: bbr-cleanup-ert-prs
+- name: bbr-cleanup-pas-prs
   serial: true
   serial_groups:
-  - backup-ert
+  - backup-pas
   plan:
   - aggregate:
     - get: bbr-pipeline-tasks-prs
@@ -293,8 +293,8 @@ jobs:
     file: bbr-pipeline-tasks-prs/tasks/extract-bbr-binary/task.yml
     tags:
     - ((concourse-worker-tag))
-  - task: bbr-cleanup-ert-prs
-    file: bbr-pipeline-tasks-prs/tasks/bbr-cleanup-ert/task.yml
+  - task: bbr-cleanup-pas-prs
+    file: bbr-pipeline-tasks-prs/tasks/bbr-cleanup-pas/task.yml
     params:
       <<: *opsman_credentials
       OPSMAN_PRIVATE_KEY: ((opsman-private-key))
@@ -305,13 +305,13 @@ jobs:
     on_failure:
       put: bbr-pipeline-tasks-prs
       params:
-        context: bbr-cleanup-ert
+        context: bbr-cleanup-pas
         path: bbr-pipeline-tasks-prs
         status: failure
     on_success:
       put: bbr-pipeline-tasks-prs
       params:
-        context: bbr-cleanup-ert
+        context: bbr-cleanup-pas
         path: bbr-pipeline-tasks-prs
         status: success
 
@@ -410,11 +410,11 @@ resources:
     <<: *s3_credentials
     versioned_file: installation.zip
 
-- name: ert-backup-bucket
+- name: pas-backup-bucket
   type: s3
   source:
     <<: *s3_credentials
-    versioned_file: ert-backup.tar
+    versioned_file: pas-backup.tar
 
 - name: director-backup-bucket
   type: s3
