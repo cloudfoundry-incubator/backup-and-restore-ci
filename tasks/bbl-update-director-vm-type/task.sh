@@ -2,8 +2,9 @@
 
 set -eu
 
-bosh interpolate -o "backup-and-restore-meta/$OPS_FILE_PATH" "bosh-deployment/gcp/bosh-lite-vm-type.yml" > tmpfile
+bosh_deployment="backup-and-restore-meta/maru-lite/bosh-deployment"
 
-mv tmpfile bosh-deployment/gcp/bosh-lite-vm-type.yml
+bosh interpolate -o "backup-and-restore-meta/$OPS_FILE_PATH" "$bosh_deployment/gcp/bosh-lite-vm-type.yml" > updated_ops_file
+mv updated_ops_file "$bosh_deployment/gcp/bosh-lite-vm-type.yml"
 
-cp -r bosh-deployment/ updated-bosh-deployment
+cp -r backup-and-restore-meta/ updated-meta

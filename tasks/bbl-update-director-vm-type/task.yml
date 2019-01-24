@@ -7,11 +7,10 @@ image_resource:
     repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
 
 inputs:
-- name: bosh-deployment
 - name: bosh-backup-and-restore-meta
 
 outputs:
-- name: updated-bosh-deployment
+- name: updated-meta
 
 params:
   OPS_FILE_PATH:
