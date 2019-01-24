@@ -90,6 +90,19 @@ resources:
     - Friday
     location: Europe/London
 
+- name: everyday
+  type: time
+  source:
+    start: 8:00 AM
+    stop: 9:00 AM
+    days:
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    location: Europe/London
+
 jobs:
 - name: setup-infrastructure-aws-s3
   serial: true
@@ -124,7 +137,7 @@ jobs:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-aws-s3]
     - get: bosh-backup-and-restore-meta
-    - get: every-friday
+    - get: everyday
       trigger: true
   - task: bosh-clean-up
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
@@ -189,7 +202,7 @@ jobs:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-aws-s3-unversioned]
     - get: bosh-backup-and-restore-meta
-    - get: every-friday
+    - get: everyday
       trigger: true
   - task: bosh-clean-up
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
@@ -254,7 +267,7 @@ jobs:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-azure]
     - get: bosh-backup-and-restore-meta
-    - get: every-friday
+    - get: everyday
       trigger: true
   - task: bosh-clean-up
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
@@ -330,7 +343,7 @@ jobs:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-aws-ec2]
     - get: bosh-backup-and-restore-meta
-    - get: every-friday
+    - get: everyday
       trigger: true
   - task: bosh-clean-up
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
@@ -406,7 +419,7 @@ jobs:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-pr-ragdoll]
     - get: bosh-backup-and-restore-meta
-    - get: every-friday
+    - get: everyday
       trigger: true
   - task: bosh-clean-up
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
@@ -471,7 +484,7 @@ jobs:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-papillon]
     - get: bosh-backup-and-restore-meta
-    - get: every-friday
+    - get: everyday
       trigger: true
   - task: bosh-clean-up
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
@@ -536,7 +549,7 @@ jobs:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-drats-with-config-manx]
     - get: bosh-backup-and-restore-meta
-    - get: every-friday
+    - get: everyday
       trigger: true
   - task: bosh-clean-up
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
@@ -609,7 +622,7 @@ jobs:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-maru]
     - get: bosh-backup-and-restore-meta
-    - get: every-friday
+    - get: everyday
       trigger: true
   - task: bosh-clean-up
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
@@ -684,7 +697,7 @@ jobs:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-maru-lite]
     - get: bosh-backup-and-restore-meta
-    - get: every-friday
+    - get: everyday
       trigger: true
   - task: bosh-clean-up
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
@@ -749,7 +762,7 @@ jobs:
     - get: cf-deployment-concourse-tasks
       passed: [setup-infrastructure-gcs]
     - get: bosh-backup-and-restore-meta
-    - get: every-friday
+    - get: everyday
       trigger: true
   - task: bosh-clean-up
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
