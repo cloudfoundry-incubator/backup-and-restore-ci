@@ -1,6 +1,8 @@
 FROM cloudfoundrylondon/backup-and-restore-minimal
 
-RUN apt-get update
+RUN apt-get update && \
+    apt-get -y install apt-utils gnupg2 build-essential
+
 RUN apt-get install apt-transport-https
 RUN echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ stretch main" | \
   tee /etc/apt/sources.list.d/azure-cli.list
@@ -9,7 +11,7 @@ RUN curl -L https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
 
 RUN \
   apt-get update && \
-  apt-get install -y ruby ruby-dev ruby-bundler file libssl-dev wbritish awscli lsb-release openjdk-8-jdk default-mysql-client azure-cli && \
+  DEBIAN_FRONTEND=noninteractive apt-get install -y ruby ruby-dev ruby-bundler file libssl-dev wbritish awscli lsb-release openjdk-8-jdk default-mysql-client azure-cli && \
   rm -rf /var/lib/apt/lists/*
 
 RUN \
