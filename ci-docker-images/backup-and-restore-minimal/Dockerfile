@@ -1,4 +1,6 @@
-FROM golang:1
+FROM ubuntu:bionic
+
+ENV go_version 1.11.5
 
 RUN \
   apt-get update && \
@@ -27,3 +29,11 @@ RUN \
   chmod +x bosh-cli
 
 RUN ln -s /usr/bin/bosh-cli /usr/bin/bosh
+
+ENV GOPATH /go
+ENV PATH /go/bin:/usr/local/go/bin:$PATH
+RUN \
+  wget https://golang.org/dl/go${go_version}.linux-amd64.tar.gz -P /tmp && \
+  tar xzvf /tmp/go${go_version}.linux-amd64.tar.gz -C /usr/local && \
+  mkdir ${GOPATH} && \
+  rm -rf /tmp/*
