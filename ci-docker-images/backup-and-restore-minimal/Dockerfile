@@ -1,10 +1,13 @@
 FROM ubuntu:bionic
 
 ENV go_version 1.11.5
+ENV cf_cli_version 6.42.0
+ENV bosh_cli_version 5.4.0
+ENV om_cli_version 0.51.0
 
 RUN \
   apt-get update && \
-  apt-get install -y sudo unzip jq sshuttle parallel vim wget curl git && \
+  apt-get install -y sudo unzip jq sshuttle parallel vim wget curl git sed && \
   rm -rf /var/lib/apt/lists/*
 
 ENV GOPATH /go
@@ -18,23 +21,24 @@ RUN \
 RUN go get github.com/onsi/ginkgo/ginkgo
 RUN go get github.com/onsi/gomega
 
+# dep
 RUN \
   wget https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 --output-document="/usr/bin/dep" && \
   chmod +x /usr/bin/dep
 
+# OM-cli
 RUN \
-  wget https://github.com/pivotal-cf/om/releases/download/0.42.0/om-linux --output-document="/usr/bin/om" && \
+  wget https://github.com/pivotal-cf/om/releases/download/${om_cli_version}/om-linux --output-document="/usr/bin/om" && \
   chmod +x /usr/bin/om
 
-RUN (curl -L "https://cli.run.pivotal.io/stable?version=6.36.1&release=linux64-binary&source=github" | tar -zx) && \
-   mv cf /usr/bin && \
-   chmod +x /usr/bin/cf
-
+# bosh-cli
 RUN \
-  wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-5.0.1-linux-amd64 --output-document="/usr/bin/bosh-cli" && \
-  cd /usr/bin && \
-  echo "f1f1ee58a7eb872568c85db19a17b697990a7452 bosh-cli" | sha1sum -c - && \
-  chmod +x bosh-cli
+  wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-${bosh_cli_version}-linux-amd64 --output-document="/usr/bin/bosh" && \
+  chmod +x /usr/bin/bosh
 
-RUN ln -s /usr/bin/bosh-cli /usr/bin/bosh
-
+# cf-cli
+RUN \
+  cd /tmp && \
+  wget -q -O cf.deb "https://cli.run.pivotal.io/stable?release=debian64&version=${cf_cli_version}&source=github-rel" && \
+  dpkg -i cf.deb && \
+  rm cf.deb
