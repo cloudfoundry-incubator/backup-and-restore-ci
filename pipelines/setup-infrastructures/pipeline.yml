@@ -663,17 +663,49 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: bosh-bootloader
     - get: backup-and-restore-ci
+  - task: update-director-vm-size
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
+      inputs:
+        - name: bosh-bootloader
+        - name: bosh-backup-and-restore-meta
+      outputs:
+        - name: bbl-updated-config
+      run:
+        path: bash
+        args:
+        - -c
+        - |
+          set -eu
+          set -o pipefail
+
+          cp -r bosh-bootloader/plan-patches/bosh-lite-gcp/. bbl-updated-config/config
+          echo -e "---
+          # Configure sizes for bosh-lite on gcp
+          - type: replace
+            path: /resource_pools/name=vms/cloud_properties/machine_type
+            value: n1-standard-16
+          " > bbl-updated-config/config/update-director-vm-size.yml
+
+          APPEND="-o \${BBL_STATE_DIR}/update-director-vm-size.yml"
+          FILE=bbl-updated-config/config/create-director-override.sh
+          echo "$(cat $FILE) $APPEND" > $FILE
+
   - task: setup-infrastructure
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
       << : *COMMON_BBL_UP_PARAMS
       BBL_STATE_DIR: maru-lite/
       BBL_ENV_NAME: maru-lite
+      BBL_CONFIG_DIR: config/
       SKIP_LB_CREATION: true
-      BBL_CONFIG_DIR: plan-patches/bosh-lite-gcp/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      bbl-config: bosh-bootloader
+      bbl-config: bbl-updated-config
     ensure:
       put: bosh-backup-and-restore-meta
       params:
