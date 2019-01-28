@@ -4,7 +4,7 @@ ENV go_version 1.11.5
 
 RUN \
   apt-get update && \
-  apt-get install -y sudo unzip jq sshuttle parallel vim wget curl git && \
+  apt-get install -y sudo unzip jq sshuttle parallel vim && \
   rm -rf /var/lib/apt/lists/*
 
 ENV GOPATH /go
