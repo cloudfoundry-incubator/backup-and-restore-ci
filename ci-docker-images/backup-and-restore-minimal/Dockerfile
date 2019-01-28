@@ -7,14 +7,6 @@ RUN \
   apt-get install -y sudo unzip jq sshuttle parallel vim && \
   rm -rf /var/lib/apt/lists/*
 
-ENV GOPATH /go
-ENV PATH /go/bin:/usr/local/go/bin:$PATH
-RUN \
-  wget https://golang.org/dl/go${go_version}.linux-amd64.tar.gz -P /tmp && \
-  tar xzvf /tmp/go${go_version}.linux-amd64.tar.gz -C /usr/local && \
-  mkdir ${GOPATH} && \
-  rm -rf /tmp/*
-
 RUN go get github.com/onsi/ginkgo/ginkgo
 RUN go get github.com/onsi/gomega
 
@@ -38,3 +30,10 @@ RUN \
 
 RUN ln -s /usr/bin/bosh-cli /usr/bin/bosh
 
+ENV GOPATH /go
+ENV PATH /go/bin:/usr/local/go/bin:$PATH
+RUN \
+  wget https://golang.org/dl/go${go_version}.linux-amd64.tar.gz -P /tmp && \
+  tar xzvf /tmp/go${go_version}.linux-amd64.tar.gz -C /usr/local && \
+  mkdir ${GOPATH} && \
+  rm -rf /tmp/*
