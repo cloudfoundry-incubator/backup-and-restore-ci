@@ -7,7 +7,7 @@ ENV om_cli_version 0.51.0
 
 RUN \
   apt-get update && \
-  apt-get install -y sudo unzip jq sshuttle parallel vim wget curl git sed && \
+  apt-get install -y sudo apt-utils gnupg unzip jq sshuttle parallel vim wget curl git sed g++ gcc make && \
   rm -rf /var/lib/apt/lists/*
 
 ENV GOPATH /go

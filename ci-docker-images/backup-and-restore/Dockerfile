@@ -7,6 +7,8 @@ RUN echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ stret
 RUN apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
 RUN curl -L https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN \
   apt-get update && \
   apt-get install -y ruby ruby-dev ruby-bundler file libssl-dev wbritish awscli lsb-release openjdk-8-jdk default-mysql-client azure-cli && \
