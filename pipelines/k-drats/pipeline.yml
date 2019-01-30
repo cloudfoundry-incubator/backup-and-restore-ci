@@ -79,11 +79,6 @@ resources:
     jumpbox_url: "((maru-jumpbox-url)):22"
     jumpbox_ssh_key: "((maru-jumpbox-ssh-key))"
 
-- name: xenial-stemcell
-  type: bosh-io-stemcell
-  source:
-    name: bosh-google-kvm-ubuntu-xenial-go_agent
-
 jobs:
 - name: deploy-k-drats
   serial: true
@@ -97,9 +92,16 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: kubo-deployment
       trigger: true
-    - get: xenial-stemcell
     - get: kubo-release
     - get: cf-deployment-concourse-tasks
+  - task: upload-stemcell
+    file: cf-deployment-concourse-tasks/bosh-upload-stemcells/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      cf-deployment: kubo-deployment
+    params:
+      BBL_STATE_DIR: maru
+      MANIFEST_FILE: manifests/cfcr.yml
   - task: add-vm-extension-to-cloud-config
     params:
       BOSH_DEPLOYMENT: *deployment-name
@@ -157,8 +159,6 @@ jobs:
   - put: k-drats
     params:
       manifest: kubo-deployment/manifests/cfcr.yml
-      stemcells:
-      - xenial-stemcell/*.tgz
       releases:
       - kubo-release/*.tgz
       ops_files:
