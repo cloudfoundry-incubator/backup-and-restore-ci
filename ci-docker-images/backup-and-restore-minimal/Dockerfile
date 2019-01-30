@@ -3,7 +3,7 @@ FROM ubuntu:bionic
 ENV go_version 1.11.5
 ENV cf_cli_version 6.42.0
 ENV bosh_cli_version 5.4.0
-ENV om_cli_version 0.51.0
+ENV om_cli_version 0.42.0
 
 RUN \
   apt-get update && \
@@ -34,7 +34,9 @@ RUN \
 # bosh-cli
 RUN \
   wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-${bosh_cli_version}-linux-amd64 --output-document="/usr/bin/bosh" && \
-  chmod +x /usr/bin/bosh
+  chmod +x /usr/bin/bosh && \
+  cp /usr/bin/bosh /usr/bin/bosh-cli && \
+  chmod +x /usr/bin/bosh-cli
 
 # cf-cli
 RUN \
