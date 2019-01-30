@@ -891,3 +891,27 @@ jobs:
         gcp_service_account_key: ((gcp_iam_role_manager_service_account_key))
     get_params:
       action: destroy
+
+- name: setup-gcp-iam-role-bbl
+  plan:
+  - get: bosh-backup-and-restore-meta
+  - put: terraform
+    params:
+      terraform_source: bosh-backup-and-restore-meta/terraform/bbl-iam-role/gcp
+      env_name: gcp-iam-role-bbl
+      delete_on_failure: true
+      vars:
+        gcp_service_account_key: ((gcp_iam_role_manager_service_account_key))
+
+- name: destroy-gcp-iam-role-bbl
+  plan:
+  - get: bosh-backup-and-restore-meta
+  - put: terraform
+    params:
+      terraform_source: bosh-backup-and-restore-meta/terraform/bbl-iam-role/gcp
+      env_name: gcp-iam-role-bbl
+      action: destroy
+      vars:
+        gcp_service_account_key: ((gcp_iam_role_manager_service_account_key))
+    get_params:
+      action: destroy
