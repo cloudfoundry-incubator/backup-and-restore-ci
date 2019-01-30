@@ -10,6 +10,10 @@ RUN \
   apt-get install -y sudo apt-utils gnupg unzip jq sshuttle parallel vim wget curl git sed g++ gcc make && \
   rm -rf /var/lib/apt/lists/*
 
+RUN \
+  git config --global user.name "root" && \
+  git config --global user.email "root"
+
 ENV GOPATH /go
 ENV PATH /go/bin:/usr/local/go/bin:$PATH
 RUN \
