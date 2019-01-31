@@ -42,7 +42,7 @@ maru-lite-bosh-team-creds: &maru-lite-bosh-team-creds
   BOSH_GW_HOST: "((maru-lite-jumpbox-address)):22"
   BOSH_GW_PRIVATE_KEY: "((maru-lite-jumpbox-ssh-key))"
 
-test-bosh-director-ip: &test-bosh-director-ip 10.0.16.190
+test-bosh-director-ip: &test-bosh-director-ip 10.0.255.190
 test-bosh-director-deployment: &test-bosh-director-deployment test-bosh-director
 
 groups:
