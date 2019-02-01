@@ -16,11 +16,11 @@ bosh_ca_cert="$(bosh-cli int --path=/director_ssl/ca "${BOSH_VARS_STORE_PATH}")"
 include_deployment_testcase="${INCLUDE_DEPLOYMENT_TESTCASE}"
 include_truncate_db_blobstore_testcase="${INCLUDE_TRUNCATE_DB_BLOBSTORE_TESTCASE}"
 include_clean_up_testcase="${INCLUDE_CLEAN_UP_TESTCASE}"
-stemcell_path=$(cat stemcell/url)
+stemcell_src=$(cat stemcell/url)
 
 integration_config="{}"
 
-string_vars="bosh_host bosh_ssh_username bosh_ssh_private_key bosh_client bosh_client_secret bosh_ca_cert stemcell_path"
+string_vars="bosh_host bosh_ssh_username bosh_ssh_private_key bosh_client bosh_client_secret bosh_ca_cert stemcell_src"
 for var in $string_vars
 do
   integration_config=$(echo ${integration_config} | jq ".${var}=\"${!var}\"")
