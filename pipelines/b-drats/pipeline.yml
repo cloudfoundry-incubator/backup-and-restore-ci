@@ -116,6 +116,7 @@ jobs:
       CLOUD_CONFIG_PATH: gcp/cloud-config.yml
       BOSH_VARS_STORE_PATH: b-drats-bengal-tiger/creds.yml
       BOSH_CLIENT: admin
+  - task: update-b-drats-resurrection
     file: backup-and-restore-ci/tasks/update-b-drats-resurrection/task.yml
     input_mapping:
       terraform-state: terraform
