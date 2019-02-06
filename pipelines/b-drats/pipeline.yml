@@ -24,7 +24,6 @@ resources:
   source:
     repo: cloudfoundry-incubator/bosh-disaster-recovery-acceptance-tests
     access_token: ((github-access-token))
-    branch: master
 
 - name: bosh-disaster-recovery-acceptance-tests
   type: git
