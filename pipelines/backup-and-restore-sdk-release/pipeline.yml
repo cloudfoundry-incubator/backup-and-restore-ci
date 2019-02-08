@@ -46,6 +46,12 @@ postgres-9-6-ssl-password: &postgres-9-6-ssl-password postgres_password
 postgres-9-6-tls-username: &postgres-9-6-tls-username mutual_tls_user
 postgres-9-6-tls-common-name: &postgres-9-6-tls-common-name postgres96
 
+postgres-10-6-deployment-name: &postgres-10-6-deployment-name postgres-10-6-dev
+postgres-10-6-host: &postgres-10-6-host 10.244.1.12
+postgres-10-6-port: &postgres-10-6-port 5432
+postgres-10-6-username: &postgres-10-6-username test_user
+postgres-10-6-password: &postgres-10-6-password postgres_password
+
 resource_types:
 - name: pivnet
   type: docker-image
@@ -183,6 +189,12 @@ resources:
   source:
     << : *MARU_LITE_DIRECTOR
     deployment: *postgres-9-6-deployment-name
+
+- name: postgres-10.6-dev-deployment
+  type: bosh-deployment
+  source:
+    << : *MARU_LITE_DIRECTOR
+    deployment: *postgres-10-6-deployment-name
 
 - name: database-backup-restorer-deployment
   type: bosh-deployment
@@ -395,6 +407,29 @@ jobs:
     params:
       <<: *MARU_LITE_BOSH_CREDS
       BOSH_DEPLOYMENT: *postgres-9-6-deployment-name
+
+- name: deploy-postgres-10.6
+  serial: true
+  plan:
+  - aggregate:
+    - get: backup-and-restore-sdk-release
+      passed: [create-release]
+      trigger: true
+    - get: release-tarball
+      resource: release
+      passed: [create-release]
+    - get: xenial-stemcell
+  - put: postgres-10.6-dev-deployment
+    params:
+      manifest: backup-and-restore-sdk-release/ci/manifests/postgres-10.6.yml
+      stemcells:
+      - xenial-stemcell/*.tgz
+      vars:
+        deployment-name: *postgres-10-6-deployment-name
+        db_username: *postgres-10-6-username
+        db_password: *postgres-10-6-password
+        db_host: *postgres-10-6-host
+        availability_zone: z1
 
 - name: deploy-mysql
   serial: true
@@ -710,6 +745,27 @@ jobs:
       POSTGRES_USERNAME: *postgres-9-4-username
       POSTGRES_PORT: *postgres-9-4-port
       <<: *MARU_LITE_BOSH_CREDS
+
+- name: postgres-system-tests-10.6
+  serial: true
+  plan:
+  - aggregate:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-postgres-10.6
+      - deploy-backup-restore-sdk
+      trigger: true
+  - task: postgres-system-tests
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+    params:
+      TEST_SUITE_NAME: postgresql
+      POSTGRES_PASSWORD: *postgres-10-6-password
+      POSTGRES_HOSTNAME: *postgres-10-6-host
+      POSTGRES_USERNAME: *postgres-10-6-username
+      POSTGRES_PORT: *postgres-10-6-port
+      <<: *MARU_LITE_BOSH_CREDS
+
 
 - name: rds-postgres-system-tests-9.4
   serial: true
