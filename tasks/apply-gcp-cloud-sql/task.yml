@@ -16,6 +16,8 @@ params:
   MYSQL_5_6_PASSWORD:
   MYSQL_5_7_PASSWORD:
   POSTGRES_9_6_PASSWORD:
+  DIRECTOR_EXTERNAL_IP:
+  DIRECTOR_JUMPBOX_IP:
 
 run:
   path: backup-and-restore-ci/tasks/apply-gcp-cloud-sql/task.sh

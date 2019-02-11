@@ -24,6 +24,8 @@ pushd bosh-backup-and-restore-meta/terraform/bbr-sdk-system-tests/gcp
   -var "mysql-5-6-password=${MYSQL_5_6_PASSWORD}" \
   -var "mysql-5-7-password=${MYSQL_5_7_PASSWORD}" \
   -var "postgres-9-6-password=${POSTGRES_9_6_PASSWORD}" \
+  -var "director-external-ip=${DIRECTOR_EXTERNAL_IP}" \
+  -var "director-jumpbox-ip=${DIRECTOR_JUMPBOX_IP}" \
   -auto-approve
 popd
 

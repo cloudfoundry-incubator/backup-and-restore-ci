@@ -503,6 +503,8 @@ jobs:
       MYSQL_5_6_PASSWORD: ((gcp-mysql-5-6-password))
       MYSQL_5_7_PASSWORD: ((gcp-mysql-5-7-password))
       POSTGRES_9_6_PASSWORD: ((gcp-postgres-9-6-password))
+      DIRECTOR_EXTERNAL_IP: ((maru-lite-bosh-director-external-ip))
+      DIRECTOR_JUMPBOX_IP: "((maru-lite-jumpbox-address))"
     ensure:
       put: bosh-backup-and-restore-meta
       params:
