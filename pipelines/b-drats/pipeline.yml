@@ -131,7 +131,6 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-deployment
-      trigger: true
     - get: bosh-disaster-recovery-acceptance-tests-prs
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
