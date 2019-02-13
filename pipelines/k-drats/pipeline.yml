@@ -167,7 +167,6 @@ jobs:
       - kubo-deployment/manifests/ops-files/worker_count.yml
       - bosh-backup-and-restore-meta/k-drats/operations/add-lb-vm-extension.yml
       - bosh-backup-and-restore-meta/k-drats/operations/configure-kubernetes-master-host.yml
-      - bosh-backup-and-restore-meta/k-drats/operations/deploy-dev-cfcr-etcd.yml
       vars:
         deployment_name: *deployment-name
         worker_count: 1
