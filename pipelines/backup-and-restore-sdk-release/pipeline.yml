@@ -326,7 +326,7 @@ jobs:
   - put: version
     params: {file: version/number}
 
-- name: deploy-backup-restore-sdk
+- name: deploy-database-sdk
   serial: true
   plan:
   - aggregate:
@@ -591,7 +591,7 @@ jobs:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
-      - deploy-backup-restore-sdk
+      - deploy-database-sdk
       trigger: true
   - aggregate:
     - task: postgres-system-tests-9.4
@@ -653,7 +653,7 @@ jobs:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
-      - deploy-backup-restore-sdk
+      - deploy-database-sdk
       trigger: true
   - task: postgres-system-tests-9.6
     file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
@@ -698,7 +698,7 @@ jobs:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
-      - deploy-backup-restore-sdk
+      - deploy-database-sdk
       trigger: true
   - aggregate:
     - task: postgres-system-tests-9.4
@@ -750,7 +750,7 @@ jobs:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
-      - deploy-backup-restore-sdk
+      - deploy-database-sdk
       trigger: true
     - get: bosh-backup-and-restore-meta
   - task: mariadb-system-tests
@@ -775,7 +775,7 @@ jobs:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
-      - deploy-backup-restore-sdk
+      - deploy-database-sdk
       trigger: true
     - get: bosh-backup-and-restore-meta
   - aggregate:
@@ -820,7 +820,7 @@ jobs:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
-      - deploy-backup-restore-sdk
+      - deploy-database-sdk
       trigger: true
     - get: bosh-backup-and-restore-meta
   - aggregate:
