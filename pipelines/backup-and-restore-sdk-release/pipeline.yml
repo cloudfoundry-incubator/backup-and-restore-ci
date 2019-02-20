@@ -743,7 +743,7 @@ jobs:
         POSTGRES_CA_CERT: ((rds-ca-cert))
         TEST_SSL_USER_REQUIRES_SSL: false
 
-- name: mariadb-system-tests
+- name: mysql-system-tests
   serial: true
   plan:
   - aggregate:
@@ -753,7 +753,7 @@ jobs:
       - deploy-database-sdk
       trigger: true
     - get: bosh-backup-and-restore-meta
-  - task: mariadb-system-tests
+  - task: mysql-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       <<: *MARU_LITE_BOSH_CREDS
@@ -1009,7 +1009,7 @@ jobs:
       - postgres-system-tests
       - postgres-system-tests-rds
       - postgres-system-tests-gcp
-      - mariadb-system-tests
+      - mysql-system-tests
       - mysql-system-tests-rds
       - mysql-system-tests-gcp
       - s3-blobstore-backuper-system-tests
