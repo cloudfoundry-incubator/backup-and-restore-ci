@@ -977,10 +977,6 @@ jobs:
     - deploy-gcs-blobstore-sdk
     trigger: true
   - get: bosh-backup-and-restore-meta
-  - get: release-tarball
-    resource: release
-    passed:
-    - deploy-gcs-blobstore-sdk
   - task: gcs-blobstore-backuper-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-blobstore/task.yml
     params:
