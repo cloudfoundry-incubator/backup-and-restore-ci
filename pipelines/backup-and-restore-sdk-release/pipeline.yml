@@ -722,6 +722,25 @@ jobs:
         POSTGRES_HOSTNAME: ((rds-postgres-9-4-hostname))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
+    - task: postgres-system-tests-9.6
+      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      params:
+        TEST_SUITE_NAME: postgresql
+        <<: *MARU_LITE_BOSH_CREDS
+        POSTGRES_PASSWORD: ((rds-postgres-9-6-password))
+        POSTGRES_HOSTNAME: ((rds-postgres-9-6-hostname))
+        POSTGRES_USERNAME: root
+        POSTGRES_PORT: 5432
+    - task: postgres-system-tests-10.6
+      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      params:
+        TEST_SUITE_NAME: postgresql
+        <<: *MARU_LITE_BOSH_CREDS
+        POSTGRES_PASSWORD: ((rds-postgres-10-6-password))
+        POSTGRES_HOSTNAME: ((rds-postgres-10-6-hostname))
+        POSTGRES_USERNAME: root
+        POSTGRES_PORT: 5432
+  - aggregate:
     - task: postgres-tls-system-tests-9.4
       file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
       params:
@@ -733,16 +752,6 @@ jobs:
         POSTGRES_PORT: 5432
         POSTGRES_CA_CERT: ((rds-ca-cert))
         TEST_SSL_USER_REQUIRES_SSL: false
-  - aggregate:
-    - task: postgres-system-tests-9.6
-      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
-      params:
-        TEST_SUITE_NAME: postgresql
-        <<: *MARU_LITE_BOSH_CREDS
-        POSTGRES_PASSWORD: ((rds-postgres-9-6-password))
-        POSTGRES_HOSTNAME: ((rds-postgres-9-6-hostname))
-        POSTGRES_USERNAME: root
-        POSTGRES_PORT: 5432
     - task: postgres-tls-system-tests-9.6
       file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
       params:
@@ -750,6 +759,17 @@ jobs:
         <<: *MARU_LITE_BOSH_CREDS
         POSTGRES_PASSWORD: ((rds-postgres-9-6-password))
         POSTGRES_HOSTNAME: ((rds-postgres-9-6-hostname))
+        POSTGRES_USERNAME: root
+        POSTGRES_PORT: 5432
+        POSTGRES_CA_CERT: ((rds-ca-cert))
+        TEST_SSL_USER_REQUIRES_SSL: false
+    - task: postgres-tls-system-tests-10.6
+      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      params:
+        TEST_SUITE_NAME: postgresql_tls
+        <<: *MARU_LITE_BOSH_CREDS
+        POSTGRES_PASSWORD: ((rds-postgres-10-6-password))
+        POSTGRES_HOSTNAME: ((rds-postgres-10-6-hostname))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
         POSTGRES_CA_CERT: ((rds-ca-cert))
