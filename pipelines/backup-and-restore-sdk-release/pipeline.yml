@@ -328,6 +328,7 @@ jobs:
 
 - name: deploy-database-sdk
   serial: true
+  serial_groups: [database-sdk]
   plan:
   - aggregate:
     - get: backup-and-restore-ci
@@ -586,6 +587,7 @@ jobs:
 
 - name: postgres-system-tests
   serial: true
+  serial_groups: [database-sdk]
   plan:
   - aggregate:
     - get: backup-and-restore-ci
@@ -745,6 +747,7 @@ jobs:
 
 - name: mysql-system-tests
   serial: true
+  serial_groups: [database-sdk]
   plan:
   - aggregate:
     - get: backup-and-restore-ci
