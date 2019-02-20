@@ -584,7 +584,7 @@ jobs:
         azure-different-storage-key: ((azure-different-storage-key))
         azure-different-container-name: bbr-system-test-azure-different-container
 
-- name: postgres-system-tests-9.6
+- name: postgres-system-tests
   serial: true
   plan:
   - aggregate:
@@ -594,16 +594,35 @@ jobs:
       - deploy-postgres
       - deploy-backup-restore-sdk
       trigger: true
-  - task: postgres-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
-    params:
-      TEST_SUITE_NAME: postgresql
-      <<: *MARU_LITE_BOSH_CREDS
-      POSTGRES_PASSWORD: postgres_password
-      POSTGRES_HOSTNAME: *postgres-9-6-host
-      POSTGRES_USERNAME: test_user
-      POSTGRES_PORT: 5432
-  - task: postgres-tls-system-tests
+  - aggregate:
+    - task: postgres-system-tests-9.4
+      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      params:
+        TEST_SUITE_NAME: postgresql
+        POSTGRES_PASSWORD: *postgres-9-4-password
+        POSTGRES_HOSTNAME: *postgres-9-4-host
+        POSTGRES_USERNAME: *postgres-9-4-username
+        POSTGRES_PORT: *postgres-9-4-port
+        <<: *MARU_LITE_BOSH_CREDS
+    - task: postgres-system-tests-9.6
+      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      params:
+        TEST_SUITE_NAME: postgresql
+        <<: *MARU_LITE_BOSH_CREDS
+        POSTGRES_PASSWORD: postgres_password
+        POSTGRES_HOSTNAME: *postgres-9-6-host
+        POSTGRES_USERNAME: test_user
+        POSTGRES_PORT: 5432
+    - task: postgres-system-tests-10.6
+      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      params:
+        TEST_SUITE_NAME: postgresql
+        POSTGRES_PASSWORD: *postgres-10-6-password
+        POSTGRES_HOSTNAME: *postgres-10-6-host
+        POSTGRES_USERNAME: *postgres-10-6-username
+        POSTGRES_PORT: *postgres-10-6-port
+        <<: *MARU_LITE_BOSH_CREDS
+  - task: postgres-tls-system-tests-9.6
     file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
@@ -614,7 +633,7 @@ jobs:
       POSTGRES_PORT: 5432
       POSTGRES_CA_CERT: ((postgres-96-ca-cert))
       TEST_TLS_VERIFY_IDENTITY: false
-  - task: postgres-mutual-tls-system-tests
+  - task: postgres-mutual-tls-system-tests-9.6
     file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       TEST_SUITE_NAME: postgresql_mutual_tls
@@ -704,46 +723,6 @@ jobs:
       POSTGRES_PORT: 5432
       POSTGRES_CA_CERT: ((rds-ca-cert))
       TEST_SSL_USER_REQUIRES_SSL: false
-
-- name: postgres-system-tests-9.4
-  serial: true
-  plan:
-  - aggregate:
-    - get: backup-and-restore-ci
-    - get: backup-and-restore-sdk-release
-      passed:
-      - deploy-postgres
-      - deploy-backup-restore-sdk
-      trigger: true
-  - task: postgres-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
-    params:
-      TEST_SUITE_NAME: postgresql
-      POSTGRES_PASSWORD: *postgres-9-4-password
-      POSTGRES_HOSTNAME: *postgres-9-4-host
-      POSTGRES_USERNAME: *postgres-9-4-username
-      POSTGRES_PORT: *postgres-9-4-port
-      <<: *MARU_LITE_BOSH_CREDS
-
-- name: postgres-system-tests-10.6
-  serial: true
-  plan:
-  - aggregate:
-    - get: backup-and-restore-ci
-    - get: backup-and-restore-sdk-release
-      passed:
-      - deploy-postgres
-      - deploy-backup-restore-sdk
-      trigger: true
-  - task: postgres-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
-    params:
-      TEST_SUITE_NAME: postgresql
-      POSTGRES_PASSWORD: *postgres-10-6-password
-      POSTGRES_HOSTNAME: *postgres-10-6-host
-      POSTGRES_USERNAME: *postgres-10-6-username
-      POSTGRES_PORT: *postgres-10-6-port
-      <<: *MARU_LITE_BOSH_CREDS
 
 - name: rds-postgres-system-tests-9.4
   serial: true
@@ -1071,8 +1050,7 @@ jobs:
     - get: backup-and-restore-sdk-release
       trigger: true
       passed:
-      - postgres-system-tests-9.4
-      - postgres-system-tests-9.6
+      - postgres-system-tests
       - gcp-postgres-system-tests-9.6
       - rds-postgres-system-tests-9.4
       - rds-postgres-system-tests-9.6
