@@ -281,6 +281,7 @@ jobs:
       - bosh-backup-and-restore-meta/test-bosh-director/deployment-name-ops.yml
       - bosh-backup-and-restore-meta/test-bosh-director/add-test-releases-ops.yml
       - bosh-backup-and-restore-meta/test-bosh-director/use-latest-stemcell-version-ops.yml
+      - bosh-backup-and-restore-meta/test-bosh-director/set-sdk-version-to-1-14.yml
       vars:
         director_name: test-bosh-director
         internal_ip: *test-bosh-director-ip
