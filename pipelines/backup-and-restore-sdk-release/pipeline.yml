@@ -768,68 +768,50 @@ jobs:
       TEST_TLS_VERIFY_IDENTITY: false
       TEST_TLS_MUTUAL_TLS: false
 
-- name: rds-mysql-5.5-system-tests
+- name: mysql-system-tests-rds
   serial: true
   plan:
-  - get: backup-and-restore-ci
-  - get: backup-and-restore-sdk-release
-    passed:
-    - deploy-backup-restore-sdk
-    trigger: true
-  - get: bosh-backup-and-restore-meta
-  - task: mysql-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
-    params:
-      <<: *MARU_LITE_BOSH_CREDS
-      TEST_SUITE_NAME: mysql
-      MYSQL_PASSWORD: ((rds-5-5-password))
-      MYSQL_HOSTNAME: ((rds-5-5-hostname))
-      MYSQL_PORT: 3306
-      MYSQL_USERNAME: root
-      MYSQL_CA_CERT: ((rds-ca-cert))
-      TEST_TLS_MUTUAL_TLS: false
-
-- name: rds-mysql-5.6-system-tests
-  serial: true
-  plan:
-  - get: backup-and-restore-ci
-  - get: backup-and-restore-sdk-release
-    passed:
-    - deploy-backup-restore-sdk
-    trigger: true
-  - get: bosh-backup-and-restore-meta
-  - task: mysql-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
-    params:
-      <<: *MARU_LITE_BOSH_CREDS
-      TEST_SUITE_NAME: mysql
-      MYSQL_PASSWORD: ((rds-5-6-password))
-      MYSQL_HOSTNAME: ((rds-5-6-hostname))
-      MYSQL_PORT: 3306
-      MYSQL_USERNAME: root
-      MYSQL_CA_CERT: ((rds-ca-cert))
-      TEST_TLS_MUTUAL_TLS: false
-
-- name: rds-mysql-5.7-system-tests
-  serial: true
-  plan:
-  - get: backup-and-restore-ci
-  - get: backup-and-restore-sdk-release
-    passed:
-    - deploy-backup-restore-sdk
-    trigger: true
-  - get: bosh-backup-and-restore-meta
-  - task: mysql-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
-    params:
-      <<: *MARU_LITE_BOSH_CREDS
-      TEST_SUITE_NAME: mysql
-      MYSQL_PASSWORD: ((rds-5-7-password))
-      MYSQL_HOSTNAME: ((rds-5-7-hostname))
-      MYSQL_PORT: 3306
-      MYSQL_USERNAME: root
-      MYSQL_CA_CERT: ((rds-ca-cert))
-      TEST_TLS_MUTUAL_TLS: false
+  - aggregate:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-backup-restore-sdk
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+  - aggregate:
+    - task: mysql-system-tests-5.5
+      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      params:
+        <<: *MARU_LITE_BOSH_CREDS
+        TEST_SUITE_NAME: mysql
+        MYSQL_PASSWORD: ((rds-5-5-password))
+        MYSQL_HOSTNAME: ((rds-5-5-hostname))
+        MYSQL_PORT: 3306
+        MYSQL_USERNAME: root
+        MYSQL_CA_CERT: ((rds-ca-cert))
+        TEST_TLS_MUTUAL_TLS: false
+    - task: mysql-system-tests-5.6
+      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      params:
+        <<: *MARU_LITE_BOSH_CREDS
+        TEST_SUITE_NAME: mysql
+        MYSQL_PASSWORD: ((rds-5-6-password))
+        MYSQL_HOSTNAME: ((rds-5-6-hostname))
+        MYSQL_PORT: 3306
+        MYSQL_USERNAME: root
+        MYSQL_CA_CERT: ((rds-ca-cert))
+        TEST_TLS_MUTUAL_TLS: false
+    - task: mysql-system-tests-5.7
+      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      params:
+        <<: *MARU_LITE_BOSH_CREDS
+        TEST_SUITE_NAME: mysql
+        MYSQL_PASSWORD: ((rds-5-7-password))
+        MYSQL_HOSTNAME: ((rds-5-7-hostname))
+        MYSQL_PORT: 3306
+        MYSQL_USERNAME: root
+        MYSQL_CA_CERT: ((rds-ca-cert))
+        TEST_TLS_MUTUAL_TLS: false
 
 - name: gcp-mysql-5.6-system-tests
   serial: true
@@ -1036,10 +1018,8 @@ jobs:
       - postgres-system-tests-rds
       - postgres-system-tests-gcp
       - mariadb-system-tests
+      - mysql-system-tests-rds
       - s3-blobstore-backuper-system-tests
-      - rds-mysql-5.5-system-tests
-      - rds-mysql-5.6-system-tests
-      - rds-mysql-5.7-system-tests
       - gcp-mysql-5.6-system-tests
       - gcp-mysql-5.7-system-tests
     - get: cf-deployment-concourse-tasks
