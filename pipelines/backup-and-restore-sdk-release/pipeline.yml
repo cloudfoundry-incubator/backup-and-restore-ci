@@ -646,7 +646,7 @@ jobs:
       POSTGRES_CLIENT_KEY: ((postgres-96-client-key))
       TEST_TLS_VERIFY_IDENTITY: false
 
-- name: gcp-postgres-system-tests-9.6
+- name: postgres-system-tests-gcp
   serial: true
   plan:
   - aggregate:
@@ -655,7 +655,7 @@ jobs:
       passed:
       - deploy-backup-restore-sdk
       trigger: true
-  - task: postgres-system-tests
+  - task: postgres-system-tests-9.6
     file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       TEST_SUITE_NAME: postgresql
@@ -664,7 +664,7 @@ jobs:
       POSTGRES_HOSTNAME: ((gcp-postgres-9-6-hostname))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
-  - task: postgres-tls-system-tests
+  - task: postgres-tls-system-tests-9.6
     file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
@@ -676,7 +676,7 @@ jobs:
       POSTGRES_CA_CERT: ((gcp-postgres-9-6-ca-cert))
       TEST_TLS_VERIFY_IDENTITY: false
       TEST_SSL_USER_REQUIRES_SSL: false
-  - task: postgres-mutual-tls-system-tests
+  - task: postgres-mutual-tls-system-tests-9.6
     file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       TEST_SUITE_NAME: postgresql_mutual_tls
@@ -1034,7 +1034,7 @@ jobs:
       passed:
       - postgres-system-tests
       - postgres-system-tests-rds
-      - gcp-postgres-system-tests-9.6
+      - postgres-system-tests-gcp
       - mariadb-system-tests
       - s3-blobstore-backuper-system-tests
       - rds-mysql-5.5-system-tests
