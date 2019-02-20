@@ -350,7 +350,7 @@ jobs:
         deployment-name: database-backup-restorer
         availability_zone: z1
 
-- name: deploy-postgres-9.4
+- name: deploy-postgres
   serial: true
   plan:
   - aggregate:
@@ -361,74 +361,52 @@ jobs:
       resource: release
       passed: [create-release]
     - get: xenial-stemcell
-  - put: postgres-9.4-dev-deployment
-    params:
-      manifest: backup-and-restore-sdk-release/ci/manifests/postgres-9.4.yml
-      stemcells:
-      - xenial-stemcell/*.tgz
-      vars:
-        deployment-name: *postgres-9-4-deployment-name
-        db_username: *postgres-9-4-username
-        db_password: *postgres-9-4-password
-        db_host: *postgres-9-4-host
-        availability_zone: z1
-
-- name: deploy-postgres-9.6
-  serial: true
-  plan:
-  - aggregate:
-    - get: backup-and-restore-ci
-    - get: backup-and-restore-sdk-release
-      passed: [create-release]
-      trigger: true
-    - get: release-tarball
-      resource: release
-      passed: [create-release]
     - get: bosh-backup-and-restore-meta
-  - put: postgres-9.6-dev-deployment
-    params:
-      manifest: backup-and-restore-sdk-release/ci/manifests/postgres-9.6.yml
-      vars:
-        deployment-name: *postgres-9-6-deployment-name
-        db_username: *postgres-9-6-username
-        db_password: *postgres-9-6-password
-        ssl_username: *postgres-9-6-ssl-username
-        ssl_password: *postgres-9-6-ssl-password
-        tls_username: *postgres-9-6-tls-username
-        tls_common_name: *postgres-9-6-tls-common-name
-        db_host: *postgres-9-6-host
-        db_port: *postgres-9-6-port
-        availability_zone: z1
-      vars_files:
-      - bosh-backup-and-restore-meta/ci/backup-and-restore-sdk-release/vars/postgres-96-vars.yml
+    - get: backup-and-restore-ci
+  - aggregate:
+    - put: postgres-9.4-dev-deployment
+      params:
+        manifest: backup-and-restore-sdk-release/ci/manifests/postgres-9.4.yml
+        stemcells:
+        - xenial-stemcell/*.tgz
+        vars:
+          deployment-name: *postgres-9-4-deployment-name
+          db_username: *postgres-9-4-username
+          db_password: *postgres-9-4-password
+          db_host: *postgres-9-4-host
+          availability_zone: z1
+    - put: postgres-9.6-dev-deployment
+      params:
+        manifest: backup-and-restore-sdk-release/ci/manifests/postgres-9.6.yml
+        vars:
+          deployment-name: *postgres-9-6-deployment-name
+          db_username: *postgres-9-6-username
+          db_password: *postgres-9-6-password
+          ssl_username: *postgres-9-6-ssl-username
+          ssl_password: *postgres-9-6-ssl-password
+          tls_username: *postgres-9-6-tls-username
+          tls_common_name: *postgres-9-6-tls-common-name
+          db_host: *postgres-9-6-host
+          db_port: *postgres-9-6-port
+          availability_zone: z1
+        vars_files:
+        - bosh-backup-and-restore-meta/ci/backup-and-restore-sdk-release/vars/postgres-96-vars.yml
+    - put: postgres-10.6-dev-deployment
+      params:
+        manifest: backup-and-restore-sdk-release/ci/manifests/postgres-10.6.yml
+        stemcells:
+        - xenial-stemcell/*.tgz
+        vars:
+          deployment-name: *postgres-10-6-deployment-name
+          db_username: *postgres-10-6-username
+          db_password: *postgres-10-6-password
+          db_host: *postgres-10-6-host
+          availability_zone: z1
   - task: create-ssl-user
     file: backup-and-restore-ci/tasks/create-ssl-user/task.yml
     params:
       <<: *MARU_LITE_BOSH_CREDS
       BOSH_DEPLOYMENT: *postgres-9-6-deployment-name
-
-- name: deploy-postgres-10.6
-  serial: true
-  plan:
-  - aggregate:
-    - get: backup-and-restore-sdk-release
-      passed: [create-release]
-      trigger: true
-    - get: release-tarball
-      resource: release
-      passed: [create-release]
-    - get: xenial-stemcell
-  - put: postgres-10.6-dev-deployment
-    params:
-      manifest: backup-and-restore-sdk-release/ci/manifests/postgres-10.6.yml
-      stemcells:
-      - xenial-stemcell/*.tgz
-      vars:
-        deployment-name: *postgres-10-6-deployment-name
-        db_username: *postgres-10-6-username
-        db_password: *postgres-10-6-password
-        db_host: *postgres-10-6-host
-        availability_zone: z1
 
 - name: deploy-mysql
   serial: true
@@ -613,7 +591,7 @@ jobs:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
-      - deploy-postgres-9.6
+      - deploy-postgres
       - deploy-backup-restore-sdk
       trigger: true
   - task: postgres-system-tests
@@ -734,7 +712,7 @@ jobs:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
-      - deploy-postgres-9.4
+      - deploy-postgres
       - deploy-backup-restore-sdk
       trigger: true
   - task: postgres-system-tests
@@ -754,7 +732,7 @@ jobs:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
-      - deploy-postgres-10.6
+      - deploy-postgres
       - deploy-backup-restore-sdk
       trigger: true
   - task: postgres-system-tests
@@ -766,7 +744,6 @@ jobs:
       POSTGRES_USERNAME: *postgres-10-6-username
       POSTGRES_PORT: *postgres-10-6-port
       <<: *MARU_LITE_BOSH_CREDS
-
 
 - name: rds-postgres-system-tests-9.4
   serial: true
