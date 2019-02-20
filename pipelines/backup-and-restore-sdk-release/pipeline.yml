@@ -488,7 +488,7 @@ jobs:
         repository: bosh-backup-and-restore-meta-output/bosh-backup-and-restore-meta
         rebase: true
 
-- name: deploy-aws-blobstore-sdk
+- name: deploy-s3-blobstore-sdk
   serial: true
   plan:
   - aggregate:
@@ -532,7 +532,7 @@ jobs:
         s3-unversioned-large-number-of-files-backup-bucket-name: sdk-large-number-of-files-backup
         s3-unversioned-large-number-of-files-backup-bucket-region: eu-west-1
 
-- name: deploy-aws-blobstore-sdk-with-iam-instance-profile
+- name: deploy-s3-blobstore-sdk-with-iam-instance-profile
   serial: true
   plan:
   - aggregate:
@@ -884,7 +884,7 @@ jobs:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
-      - deploy-aws-blobstore-sdk
+      - deploy-s3-blobstore-sdk
       trigger: true
     - get: bosh-backup-and-restore-meta
   - task: s3-blobstore-backuper-system-tests
@@ -921,7 +921,7 @@ jobs:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
-      - deploy-aws-blobstore-sdk-with-iam-instance-profile
+      - deploy-s3-blobstore-sdk-with-iam-instance-profile
       trigger: true
     - get: bosh-backup-and-restore-meta
   - task: s3-blobstore-backuper-system-tests
