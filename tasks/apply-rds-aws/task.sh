@@ -16,6 +16,7 @@ pushd bosh-backup-and-restore-meta/terraform/bbr-sdk-system-tests/aws
   -var "mysql_5_7_password=${MYSQL_5_7_PASSWORD}" \
   -var "postgres_9_4_password=${POSTGRES_9_4_PASSWORD}" \
   -var "postgres_9_6_password=${POSTGRES_9_6_PASSWORD}" \
+  -var "postgres_10_6_password=${POSTGRES_10_6_PASSWORD}" \
   -auto-approve
 popd
 
@@ -27,4 +28,5 @@ pushd bosh-backup-and-restore-meta/
     echo "No deploy occurred; bailing out"
   fi
 popd
+
 cp -r bosh-backup-and-restore-meta/ bosh-backup-and-restore-meta-output/

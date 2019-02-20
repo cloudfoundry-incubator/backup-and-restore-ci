@@ -21,6 +21,7 @@ params:
   MYSQL_5_7_PASSWORD:
   POSTGRES_9_4_PASSWORD:
   POSTGRES_9_6_PASSWORD:
+  POSTGRES_10_6_PASSWORD:
 
 run:
   path: backup-and-restore-ci/tasks/apply-rds-aws/task.sh
