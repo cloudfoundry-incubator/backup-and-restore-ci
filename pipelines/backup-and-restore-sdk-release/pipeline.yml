@@ -353,6 +353,7 @@ jobs:
 
 - name: deploy-postgres
   serial: true
+  serial_groups: [postgres]
   plan:
   - aggregate:
     - get: backup-and-restore-sdk-release
@@ -411,6 +412,7 @@ jobs:
 
 - name: deploy-mysql
   serial: true
+  serial_groups: [mysql]
   plan:
   - aggregate:
     - get: backup-and-restore-ci
@@ -437,6 +439,7 @@ jobs:
 
 - name: deploy-external-rds-dbs
   serial: true
+  serial_groups: [external-rds-dbs]
   plan:
   - aggregate:
     - get: backup-and-restore-sdk-release
@@ -465,6 +468,7 @@ jobs:
 
 - name: deploy-external-gcp-dbs
   serial: true
+  serial_groups: [external-gcp-dbs]
   plan:
   - aggregate:
     - get: backup-and-restore-sdk-release
@@ -561,6 +565,7 @@ jobs:
 
 - name: deploy-azure-blobstore-sdk
   serial: true
+  serial_groups: [azure-blobstore-sdk]
   plan:
   - aggregate:
     - get: backup-and-restore-sdk-release
@@ -589,7 +594,7 @@ jobs:
 
 - name: postgres-system-tests
   serial: true
-  serial_groups: [database-sdk]
+  serial_groups: [database-sdk, postgres]
   plan:
   - aggregate:
     - get: backup-and-restore-ci
@@ -652,6 +657,7 @@ jobs:
 
 - name: postgres-system-tests-gcp
   serial: true
+  serial_groups: [database-sdk, external-gcp-dbs]
   plan:
   - aggregate:
     - get: backup-and-restore-ci
@@ -697,6 +703,7 @@ jobs:
 
 - name: postgres-system-tests-rds
   serial: true
+  serial_groups: [database-sdk, external-rds-dbs]
   plan:
   - aggregate:
     - get: backup-and-restore-ci
@@ -749,7 +756,7 @@ jobs:
 
 - name: mysql-system-tests
   serial: true
-  serial_groups: [database-sdk]
+  serial_groups: [database-sdk, mysql]
   plan:
   - aggregate:
     - get: backup-and-restore-ci
@@ -775,6 +782,7 @@ jobs:
 
 - name: mysql-system-tests-rds
   serial: true
+  serial_groups: [database-sdk, external-rds-dbs]
   plan:
   - aggregate:
     - get: backup-and-restore-ci
@@ -820,6 +828,7 @@ jobs:
 
 - name: mysql-system-tests-gcp
   serial: true
+  serial_groups: [database-sdk, external-gcp-dbs]
   plan:
   - aggregate:
     - get: backup-and-restore-ci
@@ -929,6 +938,7 @@ jobs:
 
 - name: azure-blobstore-backuper-system-tests
   serial: true
+  serial_groups: [azure-blobstore-sdk]
   plan:
   - get: backup-and-restore-ci
   - get: backup-and-restore-sdk-release
@@ -951,6 +961,7 @@ jobs:
 
 - name: deploy-gcs-blobstore-sdk
   serial: true
+  serial_groups: [gcs-blobstore-sdk]
   plan:
   - aggregate:
     - get: backup-and-restore-sdk-release
@@ -977,6 +988,7 @@ jobs:
 
 - name: gcs-blobstore-backuper-system-tests
   serial: true
+  serial_groups: [gcs-blobstore-sdk]
   plan:
   - get: backup-and-restore-ci
   - get: backup-and-restore-sdk-release
