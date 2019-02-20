@@ -591,7 +591,6 @@ jobs:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
-      - deploy-postgres
       - deploy-backup-restore-sdk
       trigger: true
   - aggregate:
@@ -654,7 +653,6 @@ jobs:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
-      - deploy-external-gcp-dbs
       - deploy-backup-restore-sdk
       trigger: true
   - task: postgres-system-tests
@@ -700,7 +698,6 @@ jobs:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
-      - deploy-external-rds-dbs
       - deploy-backup-restore-sdk
       trigger: true
   - task: postgres-system-tests
@@ -731,7 +728,6 @@ jobs:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
-      - deploy-external-rds-dbs
       - deploy-backup-restore-sdk
       trigger: true
   - task: postgres-system-tests
@@ -762,7 +758,6 @@ jobs:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
-      - deploy-mysql
       - deploy-backup-restore-sdk
       trigger: true
     - get: bosh-backup-and-restore-meta
@@ -787,7 +782,6 @@ jobs:
   - get: backup-and-restore-ci
   - get: backup-and-restore-sdk-release
     passed:
-    - deploy-external-rds-dbs
     - deploy-backup-restore-sdk
     trigger: true
   - get: bosh-backup-and-restore-meta
@@ -809,7 +803,6 @@ jobs:
   - get: backup-and-restore-ci
   - get: backup-and-restore-sdk-release
     passed:
-    - deploy-external-rds-dbs
     - deploy-backup-restore-sdk
     trigger: true
   - get: bosh-backup-and-restore-meta
@@ -831,7 +824,6 @@ jobs:
   - get: backup-and-restore-ci
   - get: backup-and-restore-sdk-release
     passed:
-    - deploy-external-rds-dbs
     - deploy-backup-restore-sdk
     trigger: true
   - get: bosh-backup-and-restore-meta
@@ -853,7 +845,6 @@ jobs:
   - get: backup-and-restore-ci
   - get: backup-and-restore-sdk-release
     passed:
-    - deploy-external-gcp-dbs
     - deploy-backup-restore-sdk
     trigger: true
   - get: bosh-backup-and-restore-meta
@@ -877,7 +868,6 @@ jobs:
   - get: backup-and-restore-ci
   - get: backup-and-restore-sdk-release
     passed:
-    - deploy-external-gcp-dbs
     - deploy-backup-restore-sdk
     trigger: true
   - get: bosh-backup-and-restore-meta
