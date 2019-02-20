@@ -1010,7 +1010,7 @@ jobs:
 
 - name: deploy-cf-with-external-s3-blobstore
   serial: true
-  serial_groups: [bbr-s3]
+  serial_groups: [drats-s3-versioned]
   plan:
   - aggregate:
     - get: disaster-recovery-acceptance-tests
@@ -1068,7 +1068,7 @@ jobs:
 
 - name: deploy-cf-with-external-azure-blobstore
   serial: true
-  serial_groups: [bbr-azure]
+  serial_groups: [drats-azure]
   plan:
   - aggregate:
     - get: disaster-recovery-acceptance-tests
@@ -1114,7 +1114,7 @@ jobs:
 
 - name: deploy-cf-with-external-gcs-blobstore
   serial: true
-  serial_groups: [bbr-gcs]
+  serial_groups: [drats-gcs]
   plan:
   - aggregate:
     - get: disaster-recovery-acceptance-tests
@@ -1160,7 +1160,7 @@ jobs:
 
 - name: run-drats-external-gcs-blobstore
   serial: true
-  serial_groups: [bbr-gcs]
+  serial_groups: [drats-gcs]
   plan:
   - aggregate:
     - get: bosh-backup-and-restore-meta
@@ -1200,7 +1200,7 @@ jobs:
 
 - name: delete-cf-deployment-external-gcs-blobstore
   serial: true
-  serial_groups: [bbr-gcs]
+  serial_groups: [drats-gcs]
   plan:
   - aggregate:
     - get: disaster-recovery-acceptance-tests
@@ -1225,7 +1225,7 @@ jobs:
 
 - name: run-drats-external-azure-blobstore
   serial: true
-  serial_groups: [bbr-azure]
+  serial_groups: [drats-azure]
   plan:
   - get: bosh-backup-and-restore-meta
     passed: [deploy-cf-with-external-azure-blobstore]
@@ -1264,7 +1264,7 @@ jobs:
 
 - name: delete-cf-deployment-external-azure-blobstore
   serial: true
-  serial_groups: [bbr-azure]
+  serial_groups: [drats-azure]
   plan:
   - aggregate:
     - get: disaster-recovery-acceptance-tests
@@ -1289,7 +1289,7 @@ jobs:
 
 - name: run-drats-external-s3-blobstore
   serial: true
-  serial_groups: [bbr-s3]
+  serial_groups: [drats-s3-versioned]
   plan:
   - get: bosh-backup-and-restore-meta
     passed: [deploy-cf-with-external-s3-blobstore]
@@ -1328,7 +1328,7 @@ jobs:
 
 - name: delete-cf-deployment-external-s3-blobstore
   serial: true
-  serial_groups: [bbr-s3]
+  serial_groups: [drats-s3-versioned]
   plan:
   - aggregate:
     - get: disaster-recovery-acceptance-tests
@@ -1359,7 +1359,7 @@ jobs:
 
 - name: deploy-cf-with-unversioned-external-s3-blobstore
   serial: true
-  serial_groups: [bbr-s3-unversioned]
+  serial_groups: [drats-s3-unversioned]
   plan:
   - aggregate:
     - get: disaster-recovery-acceptance-tests
@@ -1407,7 +1407,7 @@ jobs:
 
 - name: run-drats-external-s3-unversioned-blobstore
   serial: true
-  serial_groups: [bbr-s3-unversioned]
+  serial_groups: [drats-s3-unversioned]
   plan:
   - get: cf-deployment-master
     resource: cf-deployment-master
@@ -1451,7 +1451,7 @@ jobs:
 
 - name: delete-cf-deployment-external-s3-unversioned-blobstore
   serial: true
-  serial_groups: [bbr-s3-unversioned]
+  serial_groups: [drats-s3-unversioned]
   plan:
   - aggregate:
     - get: disaster-recovery-acceptance-tests
