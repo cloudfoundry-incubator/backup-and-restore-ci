@@ -491,6 +491,7 @@ jobs:
 
 - name: deploy-s3-blobstore-sdk
   serial: true
+  serial_groups: [s3-blobstore-sdk]
   plan:
   - aggregate:
     - get: backup-and-restore-sdk-release
@@ -535,6 +536,7 @@ jobs:
 
 - name: deploy-s3-blobstore-sdk-with-iam-instance-profile
   serial: true
+  serial_groups: [s3-blobstore-sdk-with-iam-instance-profile]
   plan:
   - aggregate:
     - get: backup-and-restore-sdk-release
@@ -856,6 +858,7 @@ jobs:
 
 - name: s3-blobstore-backuper-system-tests
   serial: true
+  serial_groups: [s3-blobstore-sdk]
   plan:
   - aggregate:
     - get: backup-and-restore-ci
@@ -893,6 +896,7 @@ jobs:
 
 - name: s3-blobstore-system-tests-with-iam-instance-profile
   serial: true
+  serial_groups: [s3-blobstore-sdk-with-iam-instance-profile]
   plan:
   - aggregate:
     - get: backup-and-restore-ci
