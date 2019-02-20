@@ -691,7 +691,7 @@ jobs:
       TEST_TLS_VERIFY_IDENTITY: false
       TEST_SSL_USER_REQUIRES_SSL: false
 
-- name: rds-postgres-system-tests-9.6
+- name: postgres-system-tests-rds
   serial: true
   plan:
   - aggregate:
@@ -700,56 +700,48 @@ jobs:
       passed:
       - deploy-backup-restore-sdk
       trigger: true
-  - task: postgres-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
-    params:
-      TEST_SUITE_NAME: postgresql
-      <<: *MARU_LITE_BOSH_CREDS
-      POSTGRES_PASSWORD: ((rds-postgres-9-6-password))
-      POSTGRES_HOSTNAME: ((rds-postgres-9-6-hostname))
-      POSTGRES_USERNAME: root
-      POSTGRES_PORT: 5432
-  - task: postgres-tls-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
-    params:
-      TEST_SUITE_NAME: postgresql_tls
-      <<: *MARU_LITE_BOSH_CREDS
-      POSTGRES_PASSWORD: ((rds-postgres-9-6-password))
-      POSTGRES_HOSTNAME: ((rds-postgres-9-6-hostname))
-      POSTGRES_USERNAME: root
-      POSTGRES_PORT: 5432
-      POSTGRES_CA_CERT: ((rds-ca-cert))
-      TEST_SSL_USER_REQUIRES_SSL: false
-
-- name: rds-postgres-system-tests-9.4
-  serial: true
-  plan:
   - aggregate:
-    - get: backup-and-restore-ci
-    - get: backup-and-restore-sdk-release
-      passed:
-      - deploy-backup-restore-sdk
-      trigger: true
-  - task: postgres-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
-    params:
-      TEST_SUITE_NAME: postgresql
-      <<: *MARU_LITE_BOSH_CREDS
-      POSTGRES_PASSWORD: ((rds-postgres-9-4-password))
-      POSTGRES_HOSTNAME: ((rds-postgres-9-4-hostname))
-      POSTGRES_USERNAME: root
-      POSTGRES_PORT: 5432
-  - task: postgres-tls-system-tests
-    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
-    params:
-      TEST_SUITE_NAME: postgresql_tls
-      <<: *MARU_LITE_BOSH_CREDS
-      POSTGRES_PASSWORD: ((rds-postgres-9-4-password))
-      POSTGRES_HOSTNAME: ((rds-postgres-9-4-hostname))
-      POSTGRES_USERNAME: root
-      POSTGRES_PORT: 5432
-      POSTGRES_CA_CERT: ((rds-ca-cert))
-      TEST_SSL_USER_REQUIRES_SSL: false
+    - task: postgres-system-tests-9.4
+      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      params:
+        TEST_SUITE_NAME: postgresql
+        <<: *MARU_LITE_BOSH_CREDS
+        POSTGRES_PASSWORD: ((rds-postgres-9-4-password))
+        POSTGRES_HOSTNAME: ((rds-postgres-9-4-hostname))
+        POSTGRES_USERNAME: root
+        POSTGRES_PORT: 5432
+    - task: postgres-tls-system-tests-9.4
+      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      params:
+        TEST_SUITE_NAME: postgresql_tls
+        <<: *MARU_LITE_BOSH_CREDS
+        POSTGRES_PASSWORD: ((rds-postgres-9-4-password))
+        POSTGRES_HOSTNAME: ((rds-postgres-9-4-hostname))
+        POSTGRES_USERNAME: root
+        POSTGRES_PORT: 5432
+        POSTGRES_CA_CERT: ((rds-ca-cert))
+        TEST_SSL_USER_REQUIRES_SSL: false
+  - aggregate:
+    - task: postgres-system-tests-9.6
+      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      params:
+        TEST_SUITE_NAME: postgresql
+        <<: *MARU_LITE_BOSH_CREDS
+        POSTGRES_PASSWORD: ((rds-postgres-9-6-password))
+        POSTGRES_HOSTNAME: ((rds-postgres-9-6-hostname))
+        POSTGRES_USERNAME: root
+        POSTGRES_PORT: 5432
+    - task: postgres-tls-system-tests-9.6
+      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      params:
+        TEST_SUITE_NAME: postgresql_tls
+        <<: *MARU_LITE_BOSH_CREDS
+        POSTGRES_PASSWORD: ((rds-postgres-9-6-password))
+        POSTGRES_HOSTNAME: ((rds-postgres-9-6-hostname))
+        POSTGRES_USERNAME: root
+        POSTGRES_PORT: 5432
+        POSTGRES_CA_CERT: ((rds-ca-cert))
+        TEST_SSL_USER_REQUIRES_SSL: false
 
 - name: mariadb-system-tests
   serial: true
@@ -1041,9 +1033,8 @@ jobs:
       trigger: true
       passed:
       - postgres-system-tests
+      - postgres-system-tests-rds
       - gcp-postgres-system-tests-9.6
-      - rds-postgres-system-tests-9.4
-      - rds-postgres-system-tests-9.6
       - mariadb-system-tests
       - s3-blobstore-backuper-system-tests
       - rds-mysql-5.5-system-tests
