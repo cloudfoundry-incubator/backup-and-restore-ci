@@ -51,13 +51,6 @@ resources:
     repository: bosh-backup-and-restore
     access_token: ((github-access-token))
 
-- name: kubo-release
-  type: github-release
-  source:
-    owner: cloudfoundry-incubator
-    repository: kubo-release
-    access_token: ((github-access-token))
-
 - name: terraform
   type: terraform
   source:
@@ -92,7 +85,6 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: kubo-deployment
       trigger: true
-    - get: kubo-release
     - get: cf-deployment-concourse-tasks
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcells/task.yml
@@ -159,8 +151,6 @@ jobs:
   - put: k-drats
     params:
       manifest: kubo-deployment/manifests/cfcr.yml
-      releases:
-      - kubo-release/*.tgz
       ops_files:
       - kubo-deployment/manifests/ops-files/rename.yml
       - kubo-deployment/manifests/ops-files/enable-bbr.yml
