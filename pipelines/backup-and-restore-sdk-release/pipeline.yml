@@ -910,6 +910,8 @@ jobs:
       S3_UNVERSIONED_LARGE_NUMBER_OF_FILES_BUCKET_REGION: eu-west-1
       S3_UNVERSIONED_LARGE_NUMBER_OF_FILES_BACKUP_BUCKET_NAME: sdk-large-number-of-files-backup
       S3_UNVERSIONED_LARGE_NUMBER_OF_FILES_BACKUP_BUCKET_REGION: eu-west-1
+      S3_UNVERSIONED_CLONE_BUCKET_NAME: sdk-unversioned-clone
+      S3_UNVERSIONED_CLONE_BUCKET_REGION: us-east-1
 
 - name: s3-blobstore-system-tests-with-iam-instance-profile
   serial: true
