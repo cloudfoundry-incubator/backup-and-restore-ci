@@ -34,5 +34,5 @@ run:
 
     pushd "backup-and-restore-sdk-release"
       bundle
-      rspec spec/
+      bundle exec rspec
     popd
