@@ -532,6 +532,8 @@ jobs:
         s3-unversioned-large-number-of-files-bucket-region: eu-west-1
         s3-unversioned-large-number-of-files-backup-bucket-name: sdk-large-number-of-files-backup
         s3-unversioned-large-number-of-files-backup-bucket-region: eu-west-1
+        s3-unversioned-clone-bucket-name: sdk-unversioned-clone
+        s3-unversioned-clone-bucket-region: us-east-1
 
 - name: deploy-s3-blobstore-sdk-with-iam-instance-profile
   serial: true
