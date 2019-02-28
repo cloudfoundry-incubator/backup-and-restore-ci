@@ -70,6 +70,7 @@ groups:
 - name: SHIPIT
   jobs:
   - build-and-publish-final
+  - update-homebrew-formula
 
 resource_types:
 - name: pivnet
@@ -179,6 +180,13 @@ resources:
     repository: bosh-backup-and-restore
     access_token: ((github-access-token))
     drafts: true
+
+- name: bbr-final-release
+  type: github-release
+  source:
+    user: cloudfoundry-incubator
+    repository: bosh-backup-and-restore
+    access_token: ((github-access-token))
 
 - name: pivotal-disaster-recovery-acceptance-tests
   type: git
@@ -737,8 +745,19 @@ jobs:
       commitish: bosh-backup-and-restore/.git/refs/heads/master
       globs:
       - github-release-with-metadata/bbr*
+
+- name: update-homebrew-formula
+  serial: true
+  plan:
+  - aggregate:
+    - get: backup-and-restore-ci
+    - get: homebrew-tap
+    - get: bbr-final-release
+      trigger: true
   - task: update-homebrew-formula
     file: backup-and-restore-ci/tasks/bbr-update-homebrew-formula/task.yml
+    input_mapping:
+      bbr-release: bbr-final-release
   - put: homebrew-tap
     params:
       repository: updated-homebrew-tap
