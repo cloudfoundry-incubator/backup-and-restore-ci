@@ -278,14 +278,17 @@ jobs:
       trigger: true
     - get: backup-and-restore-ci
   - aggregate:
-    - task: s3-blobstore-contract-tests
+    - task: aws-s3-blobstore-contract-tests
       file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
       params:
         PACKAGE_NAME: s3-blobstore-backup-restore/s3bucket
-        TEST_AWS_ACCESS_KEY_ID: ((aws-access-key-id))
-        TEST_AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
-        TEST_ECS_ACCESS_KEY_ID: ((ecs-access-key-id))
-        TEST_ECS_SECRET_ACCESS_KEY: ((ecs-secret-access-key))
+        S3_LIVE_REGION: "eu-west-1"
+        S3_BACKUP_REGION: "eu-central-1"
+        S3_ENDPOINT: ""
+        S3_ACCESS_KEY_ID: ((aws-access-key-id))
+        S3_SECRET_ACCESS_KEY: ((aws-secret-access-key))
+        S3_BIG_FILE_BUCKET: "large-blob-test-bucket-unversioned"
+        S3_EMPTY_BUCKET: "bbr-integration-test-bucket-empty"
     - task: gcs-blobstore-contract-tests
       file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
       params:
