@@ -46,11 +46,17 @@ postgres-9-6-ssl-password: &postgres-9-6-ssl-password postgres_password
 postgres-9-6-tls-username: &postgres-9-6-tls-username mutual_tls_user
 postgres-9-6-tls-common-name: &postgres-9-6-tls-common-name postgres96
 
-postgres-10-6-deployment-name: &postgres-10-6-deployment-name postgres-10-6-dev
-postgres-10-6-host: &postgres-10-6-host 10.244.1.12
-postgres-10-6-port: &postgres-10-6-port 5432
-postgres-10-6-username: &postgres-10-6-username test_user
-postgres-10-6-password: &postgres-10-6-password postgres_password
+postgres-10-deployment-name: &postgres-10-deployment-name postgres-10-dev
+postgres-10-host: &postgres-10-host 10.244.1.12
+postgres-10-port: &postgres-10-port 5432
+postgres-10-username: &postgres-10-username test_user
+postgres-10-password: &postgres-10-password postgres_password
+
+postgres-11-deployment-name: &postgres-11-deployment-name postgres-11-dev
+postgres-11-host: &postgres-11-host 10.244.1.13
+postgres-11-port: &postgres-11-port 5432
+postgres-11-username: &postgres-11-username test_user
+postgres-11-password: &postgres-11-password postgres_password
 
 resource_types:
 - name: pivnet
@@ -190,11 +196,17 @@ resources:
     << : *MARU_LITE_DIRECTOR
     deployment: *postgres-9-6-deployment-name
 
-- name: postgres-10.6-dev-deployment
+- name: postgres-10-dev-deployment
   type: bosh-deployment
   source:
     << : *MARU_LITE_DIRECTOR
-    deployment: *postgres-10-6-deployment-name
+    deployment: *postgres-10-deployment-name
+
+- name: postgres-11-dev-deployment
+  type: bosh-deployment
+  source:
+    << : *MARU_LITE_DIRECTOR
+    deployment: *postgres-11-deployment-name
 
 - name: database-backup-restorer-deployment
   type: bosh-deployment
@@ -394,16 +406,27 @@ jobs:
           availability_zone: z1
         vars_files:
         - bosh-backup-and-restore-meta/ci/backup-and-restore-sdk-release/vars/postgres-96-vars.yml
-    - put: postgres-10.6-dev-deployment
+    - put: postgres-10-dev-deployment
       params:
-        manifest: backup-and-restore-sdk-release/ci/manifests/postgres-10.6.yml
+        manifest: backup-and-restore-sdk-release/ci/manifests/postgres-10.yml
         stemcells:
         - xenial-stemcell/*.tgz
         vars:
-          deployment-name: *postgres-10-6-deployment-name
-          db_username: *postgres-10-6-username
-          db_password: *postgres-10-6-password
-          db_host: *postgres-10-6-host
+          deployment-name: *postgres-10-deployment-name
+          db_username: *postgres-10-username
+          db_password: *postgres-10-password
+          db_host: *postgres-10-host
+          availability_zone: z1
+    - put: postgres-11-dev-deployment
+      params:
+        manifest: backup-and-restore-sdk-release/ci/manifests/postgres-11.yml
+        stemcells:
+        - xenial-stemcell/*.tgz
+        vars:
+          deployment-name: *postgres-11-deployment-name
+          db_username: *postgres-11-username
+          db_password: *postgres-11-password
+          db_host: *postgres-11-host
           availability_zone: z1
   - task: create-ssl-user
     file: backup-and-restore-ci/tasks/create-ssl-user/task.yml
@@ -618,14 +641,23 @@ jobs:
         POSTGRES_HOSTNAME: *postgres-9-6-host
         POSTGRES_USERNAME: test_user
         POSTGRES_PORT: 5432
-    - task: postgres-system-tests-10.6
+    - task: postgres-system-tests-10
       file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
       params:
         TEST_SUITE_NAME: postgresql
-        POSTGRES_PASSWORD: *postgres-10-6-password
-        POSTGRES_HOSTNAME: *postgres-10-6-host
-        POSTGRES_USERNAME: *postgres-10-6-username
-        POSTGRES_PORT: *postgres-10-6-port
+        POSTGRES_PASSWORD: *postgres-10-password
+        POSTGRES_HOSTNAME: *postgres-10-host
+        POSTGRES_USERNAME: *postgres-10-username
+        POSTGRES_PORT: *postgres-10-port
+        <<: *MARU_LITE_BOSH_CREDS
+    - task: postgres-system-tests-11
+      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      params:
+        TEST_SUITE_NAME: postgresql
+        POSTGRES_PASSWORD: *postgres-11-password
+        POSTGRES_HOSTNAME: *postgres-11-host
+        POSTGRES_USERNAME: *postgres-11-username
+        POSTGRES_PORT: *postgres-11-port
         <<: *MARU_LITE_BOSH_CREDS
   - task: postgres-tls-system-tests-9.6
     file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
