@@ -1,0 +1,20 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source: {repository: cloudfoundrylondon/backup-and-restore}
+
+inputs:
+- name: backup-and-restore-ci
+
+run:
+  path: backup-and-restore-ci/tasks/create-s3-bucket/task.sh
+
+params:
+  ENDPOINT: https://s3.amazonaws.com
+  BUCKET_NAME:
+  AWS_SECRET_ACCESS_KEY:
+  AWS_ACCESS_KEY_ID:
+  AWS_DEFAULT_REGION: eu-west-1
+  VERSIONED: false
