@@ -758,7 +758,7 @@ jobs:
         POSTGRES_HOSTNAME: ((rds-postgres-9-6-hostname))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
-    - task: postgres-system-tests-10.6
+    - task: postgres-system-tests-10
       file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
       params:
         TEST_SUITE_NAME: postgresql
