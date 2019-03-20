@@ -44,6 +44,8 @@ maru-lite-bosh-team-creds: &maru-lite-bosh-team-creds
 
 test-bosh-director-ip: &test-bosh-director-ip 10.0.255.190
 test-bosh-director-deployment: &test-bosh-director-deployment test-bosh-director
+bbr-p-drats-pas-blobstore-bucket: &bbr-p-drats-blobstore-bucket bbr-p-drats-pas-blobstore
+
 
 groups:
 - name: BUILD
@@ -64,7 +66,7 @@ groups:
   - delete-system-windows
   - delete-system-all-deployments
   - build-rc
-  - install-optional-components-on-pas
+  - configure-p-drats-pas
   - run-p-drats-on-pas
 
 - name: SHIPIT
@@ -629,17 +631,35 @@ jobs:
   - put: version
     params: {file: version/number}
 
-- name: install-optional-components-on-pas
+- name: configure-p-drats-pas
   serial: true
   serial_groups: [p-drats]
   plan:
-  - get: pivotal-disaster-recovery-acceptance-tests
-  - task: enable-internal-blobstore
-    file: pivotal-disaster-recovery-acceptance-tests/ci/enable-internal-blobstore-pas/task.yml
+  - aggregate:
+    - get: backup-and-restore-ci
+    - get: pivotal-disaster-recovery-acceptance-tests
+  - task: create-blobstore-bucket
+    file: backup-and-restore-ci/tasks/create-s3-bucket/task.yml
+    params:
+      ENDPOINT: ((ecs-endpoint))
+      BUCKET_NAME: *bbr-p-drats-blobstore-bucket
+      AWS_SECRET_ACCESS_KEY: ((ecs-secret-access-key))
+      AWS_ACCESS_KEY_ID: ((ecs-access-key-id))
+      VERSIONED: true
+  - task: enable-external-blobstore
+    file: pivotal-disaster-recovery-acceptance-tests/ci/enable-external-blobstore-pas/task.yml
     params:
       OPS_MAN_URL: ((ops-man-url))
       OPS_MAN_USER: ((ops-man-user))
       OPS_MAN_PASS: ((ops-man-pass))
+      ENDPOINT: ((ecs-endpoint))
+      BUILDPACKS_BUCKET: *bbr-p-drats-blobstore-bucket
+      DROPLETS_BUCKET: *bbr-p-drats-blobstore-bucket
+      PACKAGES_BUCKET: *bbr-p-drats-blobstore-bucket
+      RESOURCES_BUCKET: *bbr-p-drats-blobstore-bucket
+      ACCESS_KEY: ((ecs-access-key-id))
+      SECRET_KEY: ((ecs-secret-access-key))
+      REGION: eu-west-1
   - task: configure-diego-cells
     file: pivotal-disaster-recovery-acceptance-tests/ci/configure-diego-cells-pas/task.yml
     params:
