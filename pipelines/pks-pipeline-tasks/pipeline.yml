@@ -90,6 +90,12 @@ resources:
     <<: *s3_credentials
     versioned_file: pks-backup.tar
 
+- name: pks-clusters-backup-bucket
+  type: s3
+  source:
+    <<: *s3_credentials
+    versioned_file: pks-clusters-backup.tar
+
 groups:
 - name: master
   jobs:
@@ -393,7 +399,7 @@ jobs:
           context: bbr-backup-pks
           path: bbr-pipeline-tasks-repo
           status: failure
-    - put: pks-backup-bucket
+    - put: pks-clusters-backup-bucket
       params:
         file: pks-clusters-backup-artifact/pks-clusters-backup.tar
       on_success:
