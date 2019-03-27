@@ -222,7 +222,7 @@ jobs:
     - put: pks-backup-bucket
       params:
         file: pks-backup-artifact/pks-backup.tar
-    - put: pks-backup-bucket
+    - put: pks-clusters-backup-bucket
       params:
         file: pks-clusters-backup-artifact/pks-clusters-backup.tar
   ensure:
