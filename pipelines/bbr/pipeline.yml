@@ -350,7 +350,7 @@ jobs:
     file: backup-and-restore-ci/tasks/bbr-unit/task.yml
     privileged: true
     params:
-      DOCKER_HOST: "tcp://10.0.3.12:4243"
+      DOCKER_HOST: "tcp://10.0.255.1:4243"
       GITHUB_SSH_KEY: "((github-ssh-key))"
 
 - name: deploy-system-deployment-bosh-all-proxy
