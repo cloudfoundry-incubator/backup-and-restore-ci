@@ -10,7 +10,7 @@ inputs:
 - name: golang-docker-image
 
 outputs:
-- name: backup-and-restore-minimal-repo
+- name: bumped-backup-and-restore-minimal
 
 run:
   path: backup-and-restore-minimal-repo/tasks/bump-dependencies/task.sh

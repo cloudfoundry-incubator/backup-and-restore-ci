@@ -30,5 +30,6 @@ commit_changes() {
 }
 
 bump_golang
-cat "backup-and-restore-minimal-repo/${minimal_dockerfile}"
 commit_changes
+
+git clone backup-and-restore-minimal-repo bumped-backup-and-restore-minimal
