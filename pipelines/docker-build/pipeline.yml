@@ -58,7 +58,9 @@ resources:
     private_key: ((git-private-key))
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
     branch: master
-    paths: ["ci-docker-images/backup-and-restore-minimal/*"]
+    paths:
+    - "ci-docker-images/backup-and-restore-minimal/*"
+    - "tasks/bump-dependencies/*"
 
 - name: backup-and-restore-repo
   type: git
@@ -188,39 +190,10 @@ jobs:
     - get: golang-docker-image
       trigger: true
   - task: bump-golang-version
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          repository: cloudfoundrylondon/backup-and-restore-minimal
-      inputs:
-      - name: backup-and-restore-minimal-repo
-      - name: golang-docker-image
-      run:
-        path: bash
-        args:
-        - -c
-        - |
-          set -e
-          eval $(jq -r .env[1] golang-docker-image/metadata.json)
-
-          minimal_dockerfile="ci-docker-images/backup-and-restore-minimal/Dockerfile"
-
-          pushd backup-and-restore-minimal-repo
-            sed -i' ' "s/ENV go_version.*$/ENV go_version ${GOLANG_VERSION}/" $minimal_dockerfile
-            if [[ -n $(git status --porcelain $minimal_dockerfile) ]]; then
-              git add $minimal_dockerfile
-              git config --global user.name "PCF Backup & Restore CI"
-              git config --global user.email "cf-lazarus@pivotal.io"
-              if git commit -m "Update golang in backup-and-restore-minimal to v${GOLANG_VERSION}"; then
-                echo "Updated backup-and-restore-minimal docker image"
-              else
-                echo "No changes to image"
-              fi
-              git push
-            fi
-          popd
+    file: backup-and-restore-minimal-repo/tasks/bump-dependencies/task.yml
+  - put: backup-and-restore-minimal-repo
+    params:
+      repository: bumped-backup-and-restore-minimal
   - put: backup-and-restore-minimal-docker-image
     params:
       build: backup-and-restore-minimal-repo/ci-docker-images/backup-and-restore-minimal/
