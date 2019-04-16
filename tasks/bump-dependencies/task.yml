@@ -1,0 +1,14 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cloudfoundrylondon/backup-and-restore-minimal
+
+inputs:
+- name: backup-and-restore-minimal-repo
+- name: golang-docker-image
+
+run:
+  path: backup-and-restore-minimal-repo/tasks/bump-dependencies/task.sh
+          
