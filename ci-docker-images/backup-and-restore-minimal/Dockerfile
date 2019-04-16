@@ -1,6 +1,6 @@
 FROM ubuntu:bionic
 
-ENV go_version 1.12.4
+ENV go_version 1.12.3
 ENV cf_cli_version 6.42.0
 ENV bosh_cli_version 5.4.0
 ENV om_cli_version 0.42.0
