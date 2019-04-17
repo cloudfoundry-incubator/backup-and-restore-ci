@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -eu
+set -o pipefail
 
 minimal_dockerfile="ci-docker-images/backup-and-restore-minimal/Dockerfile"
 
