@@ -27,7 +27,7 @@ if [ -z "$RELEASE_NAME" ]; then
 fi
 
 pushd backup-and-restore-sdk-release
-  bosh-cli create-release \
+  bosh create-release \
     --version "$VERSION" \
     --name=${RELEASE_NAME} \
     --tarball="../backup-and-restore-sdk-release-build/${RELEASE_NAME}-$VERSION.tgz" --force

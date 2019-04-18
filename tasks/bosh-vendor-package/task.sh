@@ -11,7 +11,7 @@ blobstore:
     secret_access_key: $AWS_SECRET_ACCESS_KEY
 " > config/private.yml
 
-  bosh-cli vendor-package "${VENDORED_PACKAGE_NAME}" ../vendored-package-release
+  bosh vendor-package "${VENDORED_PACKAGE_NAME}" ../vendored-package-release
 
   git add .
 

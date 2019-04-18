@@ -23,7 +23,7 @@ chmod 0600 "${PWD}/ssh.key"
 export BOSH_GW_PRIVATE_KEY="${PWD}/ssh.key"
 export BOSH_ALL_PROXY="ssh+socks5://${BOSH_GW_USER}@${BOSH_GW_HOST}:22?private-key=${BOSH_GW_PRIVATE_KEY}"
 
-bosh-cli \
+bosh \
   --deployment "${BOSH_DEPLOYMENT}" \
   ssh \
   -c 'echo -e "hostssl all mutual_tls_user 0.0.0.0/0 cert map=cnmap\nhostssl all ssl_user 0.0.0.0/0 md5\nhost all test_user 0.0.0.0/0 md5" | sudo tee /var/vcap/jobs/postgres/config/pg_hba.conf && sudo /var/vcap/bosh/bin/monit restart postgres && while ! nc -z localhost 5432 </dev/null; do sleep 1; done'

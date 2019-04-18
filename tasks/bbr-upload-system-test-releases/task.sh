@@ -9,5 +9,5 @@ export BOSH_ALL_PROXY="ssh+socks5://${BOSH_GW_USER}@${BOSH_GW_HOST}?private-key=
 
 cd "bbr-deployment-test-releases/${RELEASE_NAME}"
 
-bosh-cli -n create-release --force
-bosh-cli upload-release --rebase
+bosh -n create-release --force
+bosh upload-release --rebase

@@ -24,7 +24,7 @@ TAG=$(cat github-release/tag)
 pushd backup-and-restore-sdk-release
   git checkout "${TAG}"
 
-  bosh-cli create-release \
+  bosh create-release \
     --version "${VERSION}" \
     --name="backup-and-restore-sdk-addon" \
     --tarball="../backup-and-restore-sdk-release-build/backup-and-restore-sdk-addon-${VERSION}.tgz"
