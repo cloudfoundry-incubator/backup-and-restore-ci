@@ -23,6 +23,7 @@ params:
   INCLUDE_DEPLOYMENT_TESTCASE: true
   INCLUDE_CLEAN_UP_TESTCASE: true
   INCLUDE_TRUNCATE_DB_BLOBSTORE_TESTCASE: true
+  INCLUDE_CREDHUB_TESTCASE: true
 
 run:
   path: backup-and-restore-ci/tasks/extract-b-drats-integration-config/task.sh
