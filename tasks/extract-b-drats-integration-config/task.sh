@@ -16,7 +16,7 @@ bosh_ca_cert="$(bosh int --path=/director_ssl/ca "${BOSH_VARS_STORE_PATH}")"
 include_deployment_testcase="${INCLUDE_DEPLOYMENT_TESTCASE}"
 include_truncate_db_blobstore_testcase="${INCLUDE_TRUNCATE_DB_BLOBSTORE_TESTCASE}"
 include_credhub_testcase="${INCLUDE_CREDHUB_TESTCASE}"
-credhub_client="admin"
+credhub_client=${CREDHUB_CLIENT}
 credhub_client_secret="$(bosh int --path=/credhub_admin_client_secret "$BOSH_VARS_STORE_PATH")"
 credhub_ca_cert="$(bosh int --path=/credhub_ca/ca "$BOSH_VARS_STORE_PATH")"
 stemcell_src=$(cat stemcell/url)
