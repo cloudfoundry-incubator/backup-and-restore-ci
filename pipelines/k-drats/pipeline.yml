@@ -232,7 +232,6 @@ jobs:
       BOSH_DEPLOYMENT: *deployment-name
       CONFIG_PATH: maru/k-drats-config.json
 
-
 - name: delete-k-drats
   serial: true
   serial_groups: [k-drats]
@@ -312,7 +311,7 @@ jobs:
           pushd "bbl-state/$BBL_STATE_DIR"
             eval "$(bbl print-env)"
 
-            secrets="$(credhub find -n "$BOSH_DEPLOYMENT" --output-json || echo '{"credentials":[]}')"
+            secrets="$(credhub find -n "${BOSH_DEPLOYMENT}/" --output-json || echo '{"credentials":[]}')"
             for secret in $(jq -r .credentials[].name <<< "$secrets"); do
               echo "Deleting secret: $secret"
               credhub delete -n "$secret"
@@ -532,7 +531,7 @@ jobs:
           pushd "bbl-state/$BBL_STATE_DIR"
             eval "$(bbl print-env)"
 
-            secrets="$(credhub find -n "$BOSH_DEPLOYMENT" --output-json || echo '{"credentials":[]}')"
+            secrets="$(credhub find -n "${BOSH_DEPLOYMENT}/" --output-json || echo '{"credentials":[]}')"
             for secret in $(jq -r .credentials[].name <<< "$secrets"); do
               echo "Deleting secret: $secret"
               credhub delete -n "$secret"
