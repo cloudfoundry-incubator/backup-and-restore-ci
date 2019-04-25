@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034,SC2153
 
-set -eu
+set -euo pipefail
 
 pushd terraform-state
   bosh_host="$(terraform output director-ip)"
@@ -16,11 +16,14 @@ bosh_ca_cert="$(bosh int --path=/director_ssl/ca "${BOSH_VARS_STORE_PATH}")"
 include_deployment_testcase="${INCLUDE_DEPLOYMENT_TESTCASE}"
 include_truncate_db_blobstore_testcase="${INCLUDE_TRUNCATE_DB_BLOBSTORE_TESTCASE}"
 include_credhub_testcase="${INCLUDE_CREDHUB_TESTCASE}"
+credhub_client="admin"
+credhub_client_secret="$(bosh int --path=/credhub_admin_client_secret "$BOSH_VARS_STORE_PATH")"
+credhub_ca_cert="$(bosh int --path=/credhub_ca/ca "$BOSH_VARS_STORE_PATH")"
 stemcell_src=$(cat stemcell/url)
 
 integration_config="{}"
 
-string_vars="bosh_host bosh_ssh_username bosh_ssh_private_key bosh_client bosh_client_secret bosh_ca_cert stemcell_src"
+string_vars="bosh_host bosh_ssh_username bosh_ssh_private_key bosh_client bosh_client_secret bosh_ca_cert stemcell_src credhub_client_secret credhub_client credhub_ca_cert"
 for var in $string_vars
 do
   integration_config=$(echo ${integration_config} | jq ".${var}=\"${!var}\"")
