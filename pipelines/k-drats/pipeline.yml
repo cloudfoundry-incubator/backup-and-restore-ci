@@ -1,5 +1,6 @@
 ---
 deployment-name: &deployment-name k-drats
+deployment-name-prs: &deployment-name-prs k-drats-prs
 
 resource_types:
 - name: terraform
@@ -12,6 +13,12 @@ resource_types:
   source:
     repository: cloudfoundry/bosh-deployment-resource
 
+- name: pull-request
+  type: docker-image
+  source:
+    repository: jtarchie/pr
+    tag: latest
+
 resources:
 - name: kubo-disaster-recovery-acceptance-tests
   type: git
@@ -21,6 +28,12 @@ resources:
     branch: master
     ignore_paths:
     - README.md
+
+- name: kubo-disaster-recovery-acceptance-tests-prs
+  type: pull-request
+  source:
+    repo: cloudfoundry-incubator/kubo-disaster-recovery-acceptance-tests
+    access_token: ((github-access-token))
 
 - name: bosh-backup-and-restore-meta
   type: git
@@ -65,6 +78,17 @@ resources:
   type: bosh-deployment
   source:
     deployment: *deployment-name
+    target: "((maru-bosh-director-url))"
+    client: "((maru-bosh-director-username))"
+    client_secret: "((maru-bosh-director-password))"
+    ca_cert: "((maru-bosh-director-ca-cert))"
+    jumpbox_url: "((maru-jumpbox-url)):22"
+    jumpbox_ssh_key: "((maru-jumpbox-ssh-key))"
+
+- name: k-drats-prs
+  type: bosh-deployment
+  source:
+    deployment: *deployment-name-prs
     target: "((maru-bosh-director-url))"
     client: "((maru-bosh-director-username))"
     client_secret: "((maru-bosh-director-password))"
@@ -271,6 +295,226 @@ jobs:
     params:
       BBL_STATE_DIR: maru
       BOSH_DEPLOYMENT: *deployment-name
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
+          tag: v5.19.0
+      inputs:
+      - name: bbl-state
+      run:
+        path: bash
+        args:
+        - -euc
+        - |
+          pushd "bbl-state/$BBL_STATE_DIR"
+            eval "$(bbl print-env)"
+
+            secrets="$(credhub find -n "$BOSH_DEPLOYMENT" --output-json || echo '{"credentials":[]}')"
+            for secret in $(jq -r .credentials[].name <<< "$secrets"); do
+              echo "Deleting secret: $secret"
+              credhub delete -n "$secret"
+            done
+          popd
+
+- name: deploy-k-drats-prs
+  serial: true
+  serial_groups: [k-drats-prs]
+  plan:
+  - aggregate:
+    - get: kubo-disaster-recovery-acceptance-tests-prs
+    - get: bbr-binary-release
+    - get: bosh-backup-and-restore-meta
+    - get: kubo-deployment
+    - get: cf-deployment-concourse-tasks
+  - task: upload-stemcell
+    file: cf-deployment-concourse-tasks/bosh-upload-stemcells/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      cf-deployment: kubo-deployment
+    params:
+      BBL_STATE_DIR: maru
+      MANIFEST_FILE: manifests/cfcr.yml
+  - task: add-vm-extension-to-cloud-config
+    params:
+      BOSH_DEPLOYMENT: *deployment-name-prs
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
+          tag: v5.19.0
+      inputs:
+      - name: bosh-backup-and-restore-meta
+      run:
+        path: bash
+        args:
+        - -euc
+        - |
+          pushd "bosh-backup-and-restore-meta/maru"
+            eval "$(bbl print-env)"
+          popd
+
+          bosh update-config \
+            --non-interactive \
+            --type cloud \
+            --name "${BOSH_DEPLOYMENT}-lb" \
+            -v "deployment_name=${BOSH_DEPLOYMENT}" \
+            "bosh-backup-and-restore-meta/k-drats/cloud-config/lb-vm-extension.yml"
+  - put: terraform
+    params:
+      terraform_source: bosh-backup-and-restore-meta/k-drats/terraform
+      env_name: *deployment-name-prs
+      delete_on_failure: true
+      vars:
+        gcp_service_account_key: ((gcp_service_account_key))
+        network_name: maru-network
+        cfcr_deployment_name: *deployment-name-prs
+  - task: extract-kubernetes-master-host
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
+          tag: v5.19.0
+      inputs:
+      - name: terraform
+      outputs:
+      - name: kubernetes-master-host
+      run:
+        path: bash
+        args:
+        - -ec
+        - |
+          echo "kubernetes_master_host: $(jq -r .lb < terraform/metadata)" > kubernetes-master-host/vars.yml
+  - put: k-drats-prs
+    params:
+      manifest: kubo-deployment/manifests/cfcr.yml
+      ops_files:
+      - kubo-deployment/manifests/ops-files/rename.yml
+      - kubo-deployment/manifests/ops-files/enable-bbr.yml
+      - kubo-deployment/manifests/ops-files/worker_count.yml
+      - bosh-backup-and-restore-meta/k-drats/operations/add-lb-vm-extension.yml
+      - bosh-backup-and-restore-meta/k-drats/operations/configure-kubernetes-master-host.yml
+      vars:
+        deployment_name: *deployment-name-prs
+        worker_count: 1
+      vars_files:
+      - kubernetes-master-host/vars.yml
+  - task: apply-specs
+    file: cf-deployment-concourse-tasks/run-errand/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: maru
+      DEPLOYMENT_NAME: *deployment-name-prs
+      ERRAND_NAME: apply-specs
+
+- name: run-k-drats-prs
+  serial: true
+  serial_groups: [k-drats-prs]
+  plan:
+  - aggregate:
+    - get: kubo-disaster-recovery-acceptance-tests-prs
+      trigger: true
+      passed: [deploy-k-drats-prs]
+    - get: kubo-deployment
+      trigger: true
+      passed: [deploy-k-drats-prs]
+    - get: bbr-binary-release
+      trigger: true
+      passed: [deploy-k-drats-prs]
+    - get: terraform
+      passed: [deploy-k-drats-prs]
+    - get: bosh-backup-and-restore-meta
+  - task: set-kubeconfig
+    file: kubo-disaster-recovery-acceptance-tests-prs/ci/set-kubeconfig/task.yml
+    input_mapping:
+      kubo-disaster-recovery-acceptance-tests: kubo-disaster-recovery-acceptance-tests-prs
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      CONFIG_PATH: maru/k-drats-config.json
+      BBL_STATE_DIR: maru
+      BOSH_DIRECTOR_NAME: bosh-maru
+      BOSH_DEPLOYMENT: *deployment-name-prs
+  - task: run-k-drats
+    file: kubo-disaster-recovery-acceptance-tests-prs/ci/run-k-drats/task.yml
+    input_mapping:
+       kubo-disaster-recovery-acceptance-tests: kubo-disaster-recovery-acceptance-tests-prs
+       bbl-state: bosh-backup-and-restore-meta
+       kubeconfig: kubeconfig
+       k-drats-config: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: maru
+      BOSH_DEPLOYMENT: *deployment-name-prs
+      CONFIG_PATH: maru/k-drats-config.json
+
+- name: delete-k-drats-prs
+  serial: true
+  serial_groups: [k-drats-prs]
+  plan:
+  - aggregate:
+    - get: kubo-disaster-recovery-acceptance-tests-prs
+      trigger: true
+      passed: [run-k-drats-prs]
+    - get: kubo-deployment
+      trigger: true
+      passed: [run-k-drats-prs]
+    - get: bbr-binary-release
+      trigger: true
+      passed: [run-k-drats-prs]
+    - get: bosh-backup-and-restore-meta
+  - put: k-drats-prs
+    params:
+      delete:
+        enabled: true
+        force: true
+  - put: terraform
+    params:
+      terraform_source: bosh-backup-and-restore-meta/k-drats/terraform
+      env_name: *deployment-name-prs
+      action: destroy
+      vars:
+        gcp_service_account_key: ((gcp_service_account_key))
+        network_name: maru-network
+        cfcr_deployment_name: *deployment-name-prs
+    get_params:
+      action: destroy
+  - task: delete-vm-extension-from-cloud-config
+    params:
+      BOSH_DEPLOYMENT: *deployment-name-prs
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
+          tag: v5.19.0
+      inputs:
+      - name: bosh-backup-and-restore-meta
+      run:
+        path: bash
+        args:
+        - -euc
+        - |
+          pushd "bosh-backup-and-restore-meta/maru"
+            eval "$(bbl print-env)"
+          popd
+
+          bosh delete-config \
+            --non-interactive \
+            --type cloud \
+            --name "${BOSH_DEPLOYMENT}-lb"
+  - task: delete-k-drats-creds
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: maru
+      BOSH_DEPLOYMENT: *deployment-name-prs
     config:
       platform: linux
       image_resource:
