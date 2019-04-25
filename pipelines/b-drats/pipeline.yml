@@ -274,6 +274,7 @@ jobs:
       stemcell: gcs-stemcell
     params:
       BOSH_VARS_STORE_PATH: bosh-vars-store/b-drats-black-panther/creds.yml
+      CREDHUB_SERVER: https://10.0.0.6:8844
     on_failure:
       put: bosh-disaster-recovery-acceptance-tests-prs
       params:
