@@ -19,7 +19,8 @@ include_credhub_testcase="${INCLUDE_CREDHUB_TESTCASE}"
 credhub_client=${CREDHUB_CLIENT}
 credhub_client_secret="$(bosh int --path=/credhub_admin_client_secret "$BOSH_VARS_STORE_PATH")"
 credhub_server=${CREDHUB_SERVER}
-credhub_ca_cert="$(bosh int --path=/credhub_ca/ca "$BOSH_VARS_STORE_PATH")"
+credhub_ca_cert="$( bosh interpolate "$BOSH_VARS_STORE_PATH" --path=/credhub_tls/ca )
+$( bosh interpolate "$BOSH_VARS_STORE_PATH" --path=/uaa_ssl/ca )"
 stemcell_src=$(cat stemcell/url)
 
 integration_config="{}"
