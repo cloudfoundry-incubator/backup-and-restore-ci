@@ -164,12 +164,6 @@ jobs:
     params:
       BBL_STATE_DIR: drats-papillon/
       ERRAND_NAME: nfsbrokerpush
-  - task: bosh-cleanup
-    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-    params:
-      BBL_STATE_DIR: drats-papillon/
   - task: bosh-run-errand-smbbrokerpush
     file: cf-deployment-concourse-tasks/run-errand/task.yml
     input_mapping:
@@ -177,7 +171,12 @@ jobs:
     params:
       BBL_STATE_DIR: drats-papillon/
       ERRAND_NAME: smbbrokerpush
-
+  - task: bosh-cleanup
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: drats-papillon/
 
 - name: deploy-cf
   serial: true
@@ -227,12 +226,6 @@ jobs:
     params:
       BBL_STATE_DIR: drats-with-config-manx/
       ERRAND_NAME: nfsbrokerpush
-  - task: bosh-cleanup
-    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-    params:
-      BBL_STATE_DIR: drats-with-config-manx/
   - task: bosh-run-errand-smbbrokerpush
     file: cf-deployment-concourse-tasks/run-errand/task.yml
     input_mapping:
@@ -240,6 +233,12 @@ jobs:
     params:
       BBL_STATE_DIR: drats-with-config-manx/
       ERRAND_NAME: smbbrokerpush
+  - task: bosh-cleanup
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: drats-with-config-manx/
 
 ### RUN TESTS
 
