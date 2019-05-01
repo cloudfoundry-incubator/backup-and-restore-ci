@@ -10,6 +10,7 @@ inputs:
 - name: terraform-state
 - name: bosh-vars-store
 - name: backup-and-restore-ci
+- name: opsfiles
 
 params:
   CLOUD_CONFIG_PATH:
