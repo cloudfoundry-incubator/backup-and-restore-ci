@@ -19,6 +19,12 @@ resources:
     branch: master
     uri: https://github.com/cloudfoundry/bosh-deployment.git
 
+- name: jumpbox-deployment
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/jumpbox-deployment.git
+
 - name: bosh-disaster-recovery-acceptance-tests-prs
   type: pull-request
   source:
@@ -125,12 +131,13 @@ jobs:
       BOSH_VARS_STORE_PATH: b-drats-bengal-tiger/creds.yml
       BOSH_CLIENT: admin
 
-- name: deploy-bosh-black-panther
+- name: deploy-b-drats-prs
   serial: true
-  serial_groups: [black-panther]
+  serial_groups: [prs]
   plan:
   - aggregate:
     - get: bosh-deployment
+    - get: jumpbox-deployment
     - get: bosh-disaster-recovery-acceptance-tests-prs
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
@@ -141,10 +148,11 @@ jobs:
       context: b-drats
   - put: terraform
     params:
-      terraform_source: bosh-backup-and-restore-meta/b-drats-black-panther/
-      env_name: b-drats-black-panther
+      terraform_source: bosh-backup-and-restore-meta/terraform/b-drats/gcp/
+      env_name: b-drats-prs
       delete_on_failure: true
       vars:
+        environment_name: b-drats-prs
         gcp_service_account_key: ((terraform_service_account_key))
     get_params:
       output_statefile: true
@@ -154,15 +162,36 @@ jobs:
         path: bosh-disaster-recovery-acceptance-tests-prs
         status: failure
         context: b-drats
-  - task: bosh-create-env
-    file: backup-and-restore-ci/tasks/bosh-operation/task.yml
+  - task: jumpbox-create-env
+    file: backup-and-restore-ci/tasks/jumpbox-operation/task.yml
     input_mapping:
       bosh-state: bosh-backup-and-restore-meta
       terraform-state: terraform
     params:
-      ENVIRONMENT_NAME: "b-drats-black-panther"
-      OPS_FILES: "gcp/cpi.yml uaa.yml credhub.yml external-ip-not-recommended.yml external-ip-not-recommended-uaa.yml jumpbox-user.yml bbr.yml"
-      DIRECTOR_NAME: "black-panther"
+      ENVIRONMENT_NAME: "b-drats-prs/jumpbox"
+      BOSH_OPERATION: "create-env"
+      GCP_SERVICE_ACCOUNT_KEY: ((director_service_account_key))
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: bosh-state-updated
+        rebase: true
+    on_failure:
+      put: bosh-disaster-recovery-acceptance-tests-prs
+      params:
+        path: bosh-disaster-recovery-acceptance-tests-prs
+        status: failure
+        context: b-drats
+  - task: bosh-create-env
+    file: backup-and-restore-ci/tasks/bosh-operation/task.yml
+    input_mapping:
+      bosh-state: bosh-state-updated
+      opsfiles: bosh-backup-and-restore-meta
+      terraform-state: terraform
+    params:
+      ENVIRONMENT_NAME: "b-drats-prs/director"
+      JUMPBOX_ENVIRONMENT_NAME: "b-drats-prs/jumpbox"
+      DIRECTOR_NAME: "b-drats-prs"
       BOSH_OPERATION: "create-env"
       GCP_SERVICE_ACCOUNT_KEY: ((director_service_account_key))
     ensure:
@@ -181,33 +210,34 @@ jobs:
     input_mapping:
       cloud-config: bosh-deployment
       terraform-state: terraform
-      bosh-vars-store: bosh-backup-and-restore-meta
+      bosh-vars-store: bosh-state-updated
     params:
       CLOUD_CONFIG_PATH: gcp/cloud-config.yml
-      BOSH_VARS_STORE_PATH: b-drats-black-panther/creds.yml
+      BOSH_VARS_STORE_PATH: b-drats-prs/director/creds.yml
       BOSH_CLIENT: admin
+      JUMPBOX_VARS_STORE_PATH: b-drats-prs/jumpbox/creds.yml
     on_failure:
       put: bosh-disaster-recovery-acceptance-tests-prs
       params:
         path: bosh-disaster-recovery-acceptance-tests-prs
         status: failure
         context: b-drats
-  - task: update-b-drats-resurrection
-    file: backup-and-restore-ci/tasks/update-b-drats-resurrection/task.yml
-    input_mapping:
-      terraform-state: terraform
-      bosh-vars-store: bosh-backup-and-restore-meta
-    params:
-      RESURRECTION: "off"
-      BOSH_VARS_STORE_PATH: b-drats-black-panther/creds.yml
-      BOSH_CLIENT: admin
-    on_failure:
-      put: bosh-disaster-recovery-acceptance-tests-prs
-      params:
-        path: bosh-disaster-recovery-acceptance-tests-prs
-        status: failure
-        context: b-drats
-
+#   - task: update-b-drats-resurrection
+#     file: backup-and-restore-ci/tasks/update-b-drats-resurrection/task.yml
+#     input_mapping:
+#       terraform-state: terraform
+#       bosh-vars-store: bosh-backup-and-restore-meta
+#     params:
+#       RESURRECTION: "off"
+#       BOSH_VARS_STORE_PATH: b-drats-black-panther/creds.yml
+#       BOSH_CLIENT: admin
+#     on_failure:
+#       put: bosh-disaster-recovery-acceptance-tests-prs
+#       params:
+#         path: bosh-disaster-recovery-acceptance-tests-prs
+#         status: failure
+#         context: b-drats
+#
 - name: run-b-drats-master
   serial: true
   serial_groups: [bengal-tiger]
@@ -243,21 +273,21 @@ jobs:
 
 - name: run-b-drats-prs
   serial: true
-  serial_groups: [black-panther]
+  serial_groups: [prs]
   plan:
   - aggregate:
     - get: bosh-disaster-recovery-acceptance-tests-prs
-      passed: [deploy-bosh-black-panther]
+      passed: [deploy-b-drats-prs]
       trigger: true
     - get: bosh-deployment
-      passed: [deploy-bosh-black-panther]
+      passed: [deploy-b-drats-prs]
       trigger: true
     - get: bbr-binary-release
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: terraform
-      passed: [deploy-bosh-black-panther]
+      passed: [deploy-b-drats-prs]
       params:
         output_statefile: true
     - get: gcs-stemcell
@@ -348,7 +378,7 @@ jobs:
 
 - name: destroy-bosh-black-panther
   serial: true
-  serial_groups: [black-panther]
+  serial_groups: [prs]
   plan:
   - aggregate:
     - get: bosh-deployment
