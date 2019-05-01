@@ -15,6 +15,7 @@ params:
   CLOUD_CONFIG_PATH:
   BOSH_VARS_STORE_PATH:  # Path to bosh director vars-store YAML file
   BOSH_CLIENT:
+  JUMPBOX_VARS_STORE_PATH:
 
 run:
   path: backup-and-restore-ci/tasks/update-b-drats-cloud-config/task.sh
