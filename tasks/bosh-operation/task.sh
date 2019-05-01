@@ -10,7 +10,7 @@ jumpbox_private_key="$(mktemp)"
 bosh interpolate --path /jumpbox_ssh/private_key "bosh-state/${JUMPBOX_ENVIRONMENT_NAME}/creds.yml" > "${jumpbox_private_key}"
 
 pushd terraform-state
-  jumbox_ip="$(terraform output jumpbox-ip)"
+  jumpbox_ip="$(terraform output jumpbox-ip)"
   internal_gw="$(terraform output internal-gw)"
   internal_ip="$(terraform output director-internal-ip)"
   zone="$(terraform output zone1)"
@@ -38,7 +38,7 @@ function commit_bosh_state() {
 trap commit_bosh_state EXIT
 
 
-export BOSH_ALL_PROXY="ssh+socks5://jumpbox@${jumbox_ip}:22?private-key=${jumpbox_private_key}"
+export BOSH_ALL_PROXY="ssh+socks5://jumpbox@${jumpbox_ip}:22?private-key=${jumpbox_private_key}"
 
 pushd bosh-deployment
     # shellcheck disable=SC2086   # we need to expand $opsfiles_arguments
