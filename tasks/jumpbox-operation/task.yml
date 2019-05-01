@@ -1,0 +1,23 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source: {repository: cloudfoundrylondon/backup-and-restore}
+
+inputs:
+- name: backup-and-restore-ci
+- name: bosh-state
+- name: jumpbox-deployment
+- name: terraform-state
+
+outputs:
+- name: bosh-state-updated
+
+params:
+  ENVIRONMENT_NAME:
+  GCP_SERVICE_ACCOUNT_KEY:
+  BOSH_OPERATION: create-env # Set bosh command to run, e.g. create-env or delete-env
+
+run:
+  path: backup-and-restore-ci/tasks/jumpbox-operation/task.sh
