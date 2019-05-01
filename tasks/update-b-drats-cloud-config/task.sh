@@ -7,7 +7,7 @@ jumpbox_private_key="$(mktemp)"
 bosh interpolate --path /jumpbox_ssh/private_key "bosh-vars-store/${JUMPBOX_VARS_STORE_PATH}" > "${jumpbox_private_key}"
 
 pushd terraform-state
-    bosh_host="$(terraform output director-ip)"
+    bosh_host="$(terraform output director-internal-ip)"
     jumpbox_ip="$(terraform output jumpbox-ip)"
     jumpbox_internal_ip="$(terraform output jumpbox-internal-ip)"
     internal_gw="$(terraform output internal-gw)"
