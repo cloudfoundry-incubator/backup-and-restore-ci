@@ -211,6 +211,7 @@ jobs:
       cloud-config: bosh-deployment
       terraform-state: terraform
       bosh-vars-store: bosh-state-updated
+      opsfiles: bosh-backup-and-restore-meta
     params:
       CLOUD_CONFIG_PATH: gcp/cloud-config.yml
       BOSH_VARS_STORE_PATH: b-drats-prs/director/creds.yml
