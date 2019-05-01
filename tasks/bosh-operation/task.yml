@@ -10,16 +10,15 @@ inputs:
 - name: bosh-state
 - name: bosh-deployment
 - name: terraform-state
+- name: opsfiles
 
 outputs:
 - name: bosh-state-updated
 
 params:
-  BOSH_STATE_DIR: bosh-state
-  BOSH_STATE_OUTPUT_DIR: bosh-state-updated
-  OPS_FILES:
   DIRECTOR_NAME:
   ENVIRONMENT_NAME:
+  JUMPBOX_ENVIRONMENT_NAME:
   GCP_SERVICE_ACCOUNT_KEY:
   BOSH_OPERATION: create-env # Set bosh command to run, e.g. create-env or delete-env
 
