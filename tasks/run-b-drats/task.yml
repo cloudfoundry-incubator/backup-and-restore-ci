@@ -1,0 +1,22 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source: {repository: cloudfoundrylondon/backup-and-restore-minimal}
+
+inputs:
+- name: backup-and-restore-ci
+- name: bosh-disaster-recovery-acceptance-tests
+  path: src/github.com/cloudfoundry-incubator/bosh-disaster-recovery-acceptance-tests
+- name: bbr-binary-release
+- name: b-drats-integration-config
+- name: bosh-vars-store
+
+params:
+  JUMPBOX_VARS_STORE_PATH:
+  INTEGRATION_CONFIG_PATH: integration_config.json # JSON file in b-drats-integration-config resource
+
+run:
+  path: backup-and-restore-ci/tasks/run-b-drats/task.sh
+
