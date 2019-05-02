@@ -305,7 +305,7 @@ jobs:
       bosh-vars-store: bosh-backup-and-restore-meta
       stemcell: gcs-stemcell
     params:
-      BOSH_VARS_STORE_PATH: bosh-vars-store/b-drats-black-panther/creds.yml
+      BOSH_VARS_STORE_PATH: b-drats-prs/director/creds.yml
       CREDHUB_SERVER: https://10.0.0.6:8844
     on_failure:
       put: bosh-disaster-recovery-acceptance-tests-prs

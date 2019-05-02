@@ -2,6 +2,7 @@
 
 set -eu
 
+jumpbox_ip="$( terraform output -state terraform-state/terraform.tfstate jumpbox-ip )"
 jumpbox_private_key="$( mktemp )"
 bosh interpolate --path /jumpbox_ssh/private_key "bosh-vars-store/${JUMPBOX_VARS_STORE_PATH}" > "$jumpbox_private_key"
 

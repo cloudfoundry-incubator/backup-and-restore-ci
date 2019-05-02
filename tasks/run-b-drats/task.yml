@@ -12,6 +12,7 @@ inputs:
 - name: bbr-binary-release
 - name: b-drats-integration-config
 - name: bosh-vars-store
+- name: terraform-state
 
 params:
   JUMPBOX_VARS_STORE_PATH:
