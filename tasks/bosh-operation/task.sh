@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
 gcp_version_account_key="$(mktemp)"
@@ -69,5 +68,5 @@ export BOSH_ALL_PROXY="ssh+socks5://jumpbox@${jumpbox_ip}:22?private-key=${jumpb
 )
 
 if [[ ${BOSH_OPERATION} == "delete-env" ]]; then
-    rm "bosh-state/${ENVIRONMENT_NAME}/creds.yml"
+  rm "bosh-state/${ENVIRONMENT_NAME}/creds.yml"
 fi
