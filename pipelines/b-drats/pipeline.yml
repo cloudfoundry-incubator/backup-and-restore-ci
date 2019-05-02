@@ -223,22 +223,23 @@ jobs:
         path: bosh-disaster-recovery-acceptance-tests-prs
         status: failure
         context: b-drats
-#   - task: update-b-drats-resurrection
-#     file: backup-and-restore-ci/tasks/update-b-drats-resurrection/task.yml
-#     input_mapping:
-#       terraform-state: terraform
-#       bosh-vars-store: bosh-backup-and-restore-meta
-#     params:
-#       RESURRECTION: "off"
-#       BOSH_VARS_STORE_PATH: b-drats-black-panther/creds.yml
-#       BOSH_CLIENT: admin
-#     on_failure:
-#       put: bosh-disaster-recovery-acceptance-tests-prs
-#       params:
-#         path: bosh-disaster-recovery-acceptance-tests-prs
-#         status: failure
-#         context: b-drats
-#
+  - task: update-b-drats-resurrection
+    file: backup-and-restore-ci/tasks/update-b-drats-resurrection/task.yml
+    input_mapping:
+      terraform-state: terraform
+      bosh-vars-store: bosh-state-updated
+    params:
+      RESURRECTION: "off"
+      BOSH_VARS_STORE_PATH: b-drats-prs/director/creds.yml
+      JUMPBOX_VARS_STORE_PATH: b-drats-prs/jumpbox/creds.yml
+      BOSH_CLIENT: admin
+    on_failure:
+      put: bosh-disaster-recovery-acceptance-tests-prs
+      params:
+        path: bosh-disaster-recovery-acceptance-tests-prs
+        status: failure
+        context: b-drats
+
 - name: run-b-drats-master
   serial: true
   serial_groups: [bengal-tiger]
