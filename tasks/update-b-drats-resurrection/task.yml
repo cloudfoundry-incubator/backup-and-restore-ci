@@ -12,6 +12,7 @@ inputs:
 
 params:
   BOSH_VARS_STORE_PATH:  # Path to bosh director vars-store YAML file
+  JUMPBOX_VARS_STORE_PATH:
   BOSH_CLIENT:
   RESURRECTION:
 
