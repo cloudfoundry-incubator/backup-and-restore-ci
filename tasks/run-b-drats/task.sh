@@ -8,6 +8,7 @@ bosh interpolate --path /jumpbox_ssh/private_key "bosh-vars-store/${JUMPBOX_VARS
 
 tar xvf bbr-binary-release/*.tar
 export BBR_BINARY_PATH="$( pwd )/$( ls bbr-binary-release/bbr-*-linux-amd64 )"
+chmod +x "$BBR_BINARY_PATH"
 
 export GOPATH="$( pwd )"
 export PATH="${PATH}:${GOPATH}/bin"
