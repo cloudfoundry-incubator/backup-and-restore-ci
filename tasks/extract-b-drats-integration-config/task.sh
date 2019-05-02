@@ -3,7 +3,7 @@
 
 set -euo pipefail
 
-bosh_host="$(terraform output -state terraform-state/terraform.tfstate director-ip)"
+bosh_host="$(terraform output -state terraform-state/terraform.tfstate director-internal-ip)"
 bosh_ssh_username="$BOSH_SSH_USERNAME"
 bosh_ssh_private_key="$( bosh int --path=/jumpbox_ssh/private_key "bosh-vars-store/${BOSH_VARS_STORE_PATH}" )"
 timeout_in_minutes="$TIMEOUT_IN_MINUTES"
