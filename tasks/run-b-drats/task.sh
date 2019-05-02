@@ -13,8 +13,10 @@ export GOPATH="$( pwd )"
 export PATH="${PATH}:${GOPATH}/bin"
 export INTEGRATION_CONFIG_PATH="$( pwd )/b-drats-integration-config/${INTEGRATION_CONFIG_PATH}"
 
-export BOSH_ALL_PROXY="ssh+socks5://jumpbox@${jumpbox_ip}:22?private-key=${jumpbox_private_key}"
-export CREDHUB_PROXY="ssh+socks5://jumpbox@${jumpbox_ip}:22?private-key=${jumpbox_private_key}"
+chmod 600 "$jumpbox_private_key"
+ssh-add "$jumpbox_private_key"
+
+sshuttle -r "jumpbox@${jumpbox_ip}" "10.0.0.0/16" -D --pidfile=sshuttle.pid -e "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ServerAliveInterval=${SSH_ALIVE_INTERVAL}"
 
 ./src/github.com/cloudfoundry-incubator/bosh-disaster-recovery-acceptance-tests/scripts/_run_acceptance_tests.sh
 

@@ -17,6 +17,7 @@ inputs:
 params:
   JUMPBOX_VARS_STORE_PATH:
   INTEGRATION_CONFIG_PATH: integration_config.json # JSON file in b-drats-integration-config resource
+  SSH_ALIVE_INTERVAL: 30
 
 run:
   path: backup-and-restore-ci/tasks/run-b-drats/task.sh

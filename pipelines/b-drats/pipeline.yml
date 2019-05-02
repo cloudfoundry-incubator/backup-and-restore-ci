@@ -314,11 +314,13 @@ jobs:
         status: failure
         context: b-drats
   - task: run-b-drats
-    file: bosh-disaster-recovery-acceptance-tests-prs/ci/run-b-drats/task.yml
+    file: backup-and-restore-ci/tasks/run-b-drats/task.yml
     params:
-      INTEGRATION_CONFIG_PATH: b-drats-integration-config/integration_config.json
+      JUMPBOX_VARS_STORE_PATH: b-drats-prs/jumpbox/creds.yml
     input_mapping:
       bosh-disaster-recovery-acceptance-tests: bosh-disaster-recovery-acceptance-tests-prs
+      bosh-vars-store: bosh-backup-and-restore-meta
+      terraform-state: terraform
     on_failure:
       put: bosh-disaster-recovery-acceptance-tests-prs
       params:
