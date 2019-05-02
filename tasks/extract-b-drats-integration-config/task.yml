@@ -15,7 +15,6 @@ outputs:
 - name: b-drats-integration-config
 
 params:
-  OUTPUT_DIR: b-drats-integration-config
   BOSH_VARS_STORE_PATH:  # Path to bosh director vars-store YAML file
   BOSH_SSH_USERNAME: jumpbox
   TIMEOUT_IN_MINUTES: 30
