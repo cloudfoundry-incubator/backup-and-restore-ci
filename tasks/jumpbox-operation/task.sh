@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
-set -u
+set -euo pipefail
 
 gcp_version_account_key="$(mktemp)"
 echo "${GCP_SERVICE_ACCOUNT_KEY}" > "${gcp_version_account_key}"
