@@ -17,6 +17,17 @@ export INTEGRATION_CONFIG_PATH="$( pwd )/b-drats-integration-config/${INTEGRATIO
 eval "$( ssh-agent )"
 ssh-add "$jumpbox_private_key"
 sshuttle -r "jumpbox@${jumpbox_ip}" "10.0.0.0/16" -D --pidfile=sshuttle.pid -e "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ServerAliveInterval=${SSH_ALIVE_INTERVAL}"
+sshuttle_pid="$( cat sshuttle.pid )"
+
+sleep 5
+
+if ! stat sshuttle.pid > /dev/null 2>&1; then
+  echo "Failed to start sshuttle daemon"
+  exit 1
+fi
+
+trap "kill ${sshuttle_pid}" EXIT
+
 
 ./src/github.com/cloudfoundry-incubator/bosh-disaster-recovery-acceptance-tests/scripts/_run_acceptance_tests.sh
 
