@@ -6,7 +6,6 @@ jumpbox_ip="$( terraform output -state terraform-state/terraform.tfstate jumpbox
 jumpbox_private_key="$( mktemp )"
 bosh interpolate --path /jumpbox_ssh/private_key "bosh-vars-store/${JUMPBOX_VARS_STORE_PATH}" > "$jumpbox_private_key"
 
-tar xvf bbr-binary-release/*.tar
 export BBR_BINARY_PATH="$( pwd )/$( ls bbr-binary-release/bbr-*-linux-amd64 )"
 chmod +x "$BBR_BINARY_PATH"
 
