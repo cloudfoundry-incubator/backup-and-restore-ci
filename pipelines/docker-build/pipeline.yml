@@ -29,12 +29,12 @@ resources:
     repository: ubuntu
     tag: xenial
 
-- name: trusty-lite-stemcell
+- name: bosh-lite-stemcell
   type: s3
   source:
-    bucket: bosh-warden-stemcells
+    bucket: bosh-core-stemcells
     region: us-east-1
-    regexp: bosh-stemcell-(3147)-warden-boshlite-ubuntu-trusty-go_agent.tgz
+    regexp: (315\.\d+)/bosh-stemcell-(315\.\d+)-warden-boshlite-ubuntu-xenial-go_agent.tgz
 
 - name: cfops-repo
   type: git
@@ -215,14 +215,14 @@ jobs:
 - name: build-bosh-lite-stemcell
   serial: true
   plan:
-  - get: trusty-lite-stemcell
+  - get: bosh-lite-stemcell
     trigger: true
     params:
       unpack: true
   - put: bosh-lite-stemcell-docker-image
     params:
-      import_file: trusty-lite-stemcell/image
-      tag_file: trusty-lite-stemcell/version
+      import_file: bosh-lite-stemcell/image
+      tag_file: bosh-lite-stemcell/version
       tag_as_latest: true
 
 - name: build-backup-and-restore-node-with-ssh
