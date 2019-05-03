@@ -314,6 +314,7 @@ jobs:
         status: failure
         context: b-drats
   - task: run-b-drats
+    privileged: true
     file: backup-and-restore-ci/tasks/run-b-drats/task.yml
     params:
       JUMPBOX_VARS_STORE_PATH: b-drats-prs/jumpbox/creds.yml
@@ -380,7 +381,7 @@ jobs:
     get_params:
       action: destroy
 
-- name: destroy-bosh-black-panther
+- name: destroy-b-drats-prs
   serial: true
   serial_groups: [prs]
   plan:
@@ -404,11 +405,32 @@ jobs:
     file: backup-and-restore-ci/tasks/bosh-operation/task.yml
     input_mapping:
       bosh-state: bosh-backup-and-restore-meta
+      opsfiles: bosh-backup-and-restore-meta
       terraform-state: terraform
     params:
-      ENVIRONMENT_NAME: "b-drats-black-panther"
-      OPS_FILES: "gcp/cpi.yml uaa.yml credhub.yml external-ip-not-recommended.yml external-ip-not-recommended-uaa.yml jumpbox-user.yml bbr.yml"
-      DIRECTOR_NAME: "black-panther"
+      ENVIRONMENT_NAME: "b-drats-prs/director"
+      JUMPBOX_ENVIRONMENT_NAME: "b-drats-prs/jumpbox"
+      DIRECTOR_NAME: "b-drats-prs"
+      BOSH_OPERATION: "delete-env"
+      GCP_SERVICE_ACCOUNT_KEY: ((director_service_account_key))
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: bosh-state-updated
+        rebase: true
+    on_failure:
+      put: bosh-disaster-recovery-acceptance-tests-prs
+      params:
+        path: bosh-disaster-recovery-acceptance-tests-prs
+        status: failure
+        context: b-drats
+  - task: jumpbox-delete-env
+    file: backup-and-restore-ci/tasks/jumpbox-operation/task.yml
+    input_mapping:
+      bosh-state: bosh-state-updated
+      terraform-state: terraform
+    params:
+      ENVIRONMENT_NAME: "b-drats-prs/jumpbox"
       BOSH_OPERATION: "delete-env"
       GCP_SERVICE_ACCOUNT_KEY: ((director_service_account_key))
     ensure:
@@ -425,9 +447,10 @@ jobs:
   - put: terraform
     params:
       terraform_source: bosh-backup-and-restore-meta/b-drats-black-panther/
-      env_name: b-drats-black-panther
+      env_name: b-drats-prs
       action: destroy
       vars:
+        environment_name: b-drats-prs
         gcp_service_account_key: ((terraform_service_account_key))
     get_params:
       action: destroy
