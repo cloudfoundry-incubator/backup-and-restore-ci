@@ -363,7 +363,7 @@ jobs:
         status: success
         context: b-drats
 
-- name: destroy-bosh-bengal-tiger
+- name: destroy-b-drats-master
   serial: true
   serial_groups: [master]
   plan:
@@ -371,6 +371,8 @@ jobs:
     - get: bosh-deployment
       passed: [run-b-drats-master]
       trigger: true
+    - get: jumpbox-deployment
+      passed: [run-b-drats-master]
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: terraform
@@ -387,11 +389,26 @@ jobs:
     file: backup-and-restore-ci/tasks/bosh-operation/task.yml
     input_mapping:
       bosh-state: bosh-backup-and-restore-meta
+      opsfiles: bosh-backup-and-restore-meta
       terraform-state: terraform
     params:
-      ENVIRONMENT_NAME: "b-drats-bengal-tiger"
-      OPS_FILES: "gcp/cpi.yml uaa.yml credhub.yml external-ip-not-recommended.yml external-ip-not-recommended-uaa.yml jumpbox-user.yml bbr.yml"
-      DIRECTOR_NAME: "bengal-tiger"
+      ENVIRONMENT_NAME: "b-drats-master/director"
+      JUMPBOX_ENVIRONMENT_NAME: "b-drats-master/jumpbox"
+      DIRECTOR_NAME: "b-drats-master"
+      BOSH_OPERATION: "delete-env"
+      GCP_SERVICE_ACCOUNT_KEY: ((director_service_account_key))
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: bosh-state-updated
+        rebase: true
+  - task: jumpbox-delete-env
+    file: backup-and-restore-ci/tasks/jumpbox-operation/task.yml
+    input_mapping:
+      bosh-state: bosh-state-updated
+      terraform-state: terraform
+    params:
+      ENVIRONMENT_NAME: "b-drats-master/jumpbox"
       BOSH_OPERATION: "delete-env"
       GCP_SERVICE_ACCOUNT_KEY: ((director_service_account_key))
     ensure:
@@ -401,10 +418,11 @@ jobs:
         rebase: true
   - put: terraform
     params:
-      terraform_source: bosh-backup-and-restore-meta/b-drats-bengal-tiger/
-      env_name: b-drats-bengal-tiger
+      terraform_source: bosh-backup-and-restore-meta/b-drats-black-panther/
+      env_name: b-drats-master
       action: destroy
       vars:
+        environment_name: b-drats-master
         gcp_service_account_key: ((terraform_service_account_key))
     get_params:
       action: destroy
