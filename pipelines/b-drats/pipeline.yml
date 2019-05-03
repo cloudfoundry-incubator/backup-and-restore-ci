@@ -284,6 +284,8 @@ jobs:
     - get: bosh-deployment
       passed: [deploy-b-drats-prs]
       trigger: true
+    - get: jumpbox-deployment
+      passed: [deploy-b-drats-prs]
     - get: bbr-binary-release
       trigger: true
     - get: bosh-backup-and-restore-meta
@@ -389,6 +391,8 @@ jobs:
     - get: bosh-deployment
       passed: [run-b-drats-prs]
       trigger: true
+    - get: jumpbox-deployment
+      passed: [run-b-drats-prs]
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: terraform
