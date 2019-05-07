@@ -263,8 +263,6 @@ jobs:
     - task: databases-unit-tests
       file: backup-and-restore-ci/tasks/database-unit-tests/task.yml
       privileged: true
-      params:
-        DOCKER_HOST: "tcp://10.0.3.12:4243"
     - task: s3-blobstore-unit-tests
       file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
       params:
