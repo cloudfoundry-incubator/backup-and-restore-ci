@@ -418,7 +418,7 @@ jobs:
         rebase: true
   - put: terraform
     params:
-      terraform_source: bosh-backup-and-restore-meta/b-drats-black-panther/
+      terraform_source: bosh-backup-and-restore-meta/terraform/b-drats/gcp/
       env_name: b-drats-master
       action: destroy
       vars:
@@ -494,7 +494,7 @@ jobs:
         context: b-drats
   - put: terraform
     params:
-      terraform_source: bosh-backup-and-restore-meta/b-drats-black-panther/
+      terraform_source: bosh-backup-and-restore-meta/terraform/b-drats/gcp/
       env_name: b-drats-prs
       action: destroy
       vars:
