@@ -7,8 +7,7 @@ key=$2
 
 groupadd -f vcap
 useradd --shell /bin/bash --create-home "$username"
-usermod -aG sudo "$username"
-usermod -aG vcap "$username"
+usermod -aG sudo,vcap,bosh_sshers "$username"
 
 mkdir -p "/home/$1/.ssh"
 echo "$key" > "/home/$1/.ssh/authorized_keys"
