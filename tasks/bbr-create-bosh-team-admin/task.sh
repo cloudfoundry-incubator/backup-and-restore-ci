@@ -1,13 +1,9 @@
 #!/usr/bin/env bash
-
-set -eu
+set -euo pipefail
 
 if [ ! -z "$JUMPBOX_PRIVATE_KEY" ]; then
-  eval "$(ssh-agent)"
-  private_key_path="$(mktemp)"
-  echo -e "$JUMPBOX_PRIVATE_KEY" > "$private_key_path"
-  chmod 0600 "$private_key_path"
-  ssh-add "$private_key_path"
+  eval "$( ssh-agent )"
+  ssh-add - <<< "$JUMPBOX_PRIVATE_KEY"
 
   sshuttle -r "${JUMPBOX_USER}@${JUMPBOX_HOST}" "$DESTINATION_CIDR" \
     --daemon \
@@ -21,11 +17,11 @@ if [ ! -z "$JUMPBOX_PRIVATE_KEY" ]; then
   fi
 fi
 
-uaac target "$BOSH_ENVIRONMENT:8443" --skip-ssl-validation
+uaac target "${BOSH_ENVIRONMENT}:8443" --skip-ssl-validation
 uaac token client get "$UAA_CLIENT" --secret "$UAA_CLIENT_SECRET"
 
 if uaac clients | grep -q "$BOSH_TEAM_CLIENT"; then
-  echo "uaa client: $BOSH_TEAM_CLIENT already exists"
+  echo "uaa client: ${BOSH_TEAM_CLIENT} already exists"
   exit 0
 fi
 
