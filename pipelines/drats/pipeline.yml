@@ -19,7 +19,7 @@ resources:
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
     branch: master
-    tag_filter: v7.*
+    tag_filter: v9.*
 
 - name: bosh-backup-and-restore-meta
   type: git
