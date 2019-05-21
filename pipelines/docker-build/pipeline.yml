@@ -193,6 +193,7 @@ jobs:
     file: backup-and-restore-minimal-repo/tasks/bump-dependencies/task.yml
   - put: backup-and-restore-minimal-repo
     params:
+      rebase: true
       repository: bumped-backup-and-restore-minimal
   - put: backup-and-restore-minimal-docker-image
     params:
