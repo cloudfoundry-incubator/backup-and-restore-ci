@@ -1,4 +1,4 @@
-FROM cloudfoundrylondon/backup-and-restore-minimal
+FROM pcfplatformrecovery/backup-and-restore-minimal
 
 RUN apt-get update
 RUN apt-get install apt-transport-https

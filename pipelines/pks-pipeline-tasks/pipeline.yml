@@ -129,7 +129,7 @@ jobs:
       image_resource:
         type: docker-image
         source:
-          repository: cloudfoundrylondon/backup-and-restore
+          repository: pcfplatformrecovery/backup-and-restore
       inputs:
       - name: backup-and-restore-ci
       - name: bbr-pipeline-tasks-repo
