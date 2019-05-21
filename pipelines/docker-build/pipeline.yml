@@ -7,7 +7,7 @@ resources:
     branch: master
     paths: [docker/Dockerfile]
 
-- name: bbr-pipeline-final
+- name: bbr-pcf-pipeline-tasks-final
   type: docker-image
   source:
     tag: final
@@ -15,7 +15,7 @@ resources:
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
-- name: bbr-pipeline-rc
+- name: bbr-pcf-pipeline-tasks-rc
   type: docker-image
   source:
     tag: release-candidate
