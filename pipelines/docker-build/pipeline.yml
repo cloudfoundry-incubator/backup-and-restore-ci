@@ -11,7 +11,7 @@ resources:
   type: docker-image
   source:
     tag: final
-    repository: cloudfoundrylondon/bbr-pipeline
+    repository: pcfplatformrecovery/bbr-pcf-pipeline-tasks
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
@@ -19,7 +19,7 @@ resources:
   type: docker-image
   source:
     tag: release-candidate
-    repository: cloudfoundrylondon/bbr-pipeline
+    repository: pcfplatformrecovery/bbr-pcf-pipeline-tasks
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
@@ -89,42 +89,42 @@ resources:
 - name: cfops-docker-image
   type: docker-image
   source:
-    repository: cloudfoundrylondon/cfops
+    repository: pcfplatformrecovery/cfops
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
 - name: cfops-docs-docker-image
   type: docker-image
   source:
-    repository: cloudfoundrylondon/cfops-docs
+    repository: pcfplatformrecovery/cfops-docs
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
 - name: backup-and-restore-minimal-docker-image
   type: docker-image
   source:
-    repository: cloudfoundrylondon/backup-and-restore-minimal
+    repository: pcfplatformrecovery/backup-and-restore-minimal
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
 - name: backup-and-restore-docker-image
   type: docker-image
   source:
-    repository: cloudfoundrylondon/backup-and-restore
+    repository: pcfplatformrecovery/backup-and-restore
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
 - name: bosh-lite-stemcell-docker-image
   type: docker-image
   source:
-    repository: cloudfoundrylondon/backup-and-restore-bosh-stemcell
+    repository: pcfplatformrecovery/backup-and-restore-bosh-stemcell
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
 - name: backup-and-restore-node-with-ssh-docker-image
   type: docker-image
   source:
-    repository: cloudfoundrylondon/backup-and-restore-node-with-ssh
+    repository: pcfplatformrecovery/backup-and-restore-node-with-ssh
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
@@ -138,7 +138,7 @@ resources:
 - name: k-drats-docker-image
   type: docker-image
   source:
-    repository: cloudfoundrylondon/k-drats
+    repository: pcfplatformrecovery/k-drats
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
@@ -239,23 +239,23 @@ jobs:
     params:
       build: backup-and-restore-node-with-ssh-repo/ci-docker-images/backup-and-restore-node-with-ssh/
 
-- name: build-bbr-pipeline-rc
+- name: build-bbr-pcf-pipeline-tasks-rc
   serial: true
   plan:
   - get: ubuntu-xenial
     trigger: true
   - get: bbr-pcf-pipeline-tasks
     trigger: true
-  - put: bbr-pipeline-rc
+  - put: bbr-pcf-pipeline-tasks-rc
     params:
       build: bbr-pcf-pipeline-tasks/docker
 
-- name: test-bbr-pipeline-rc
+- name: test-bbr-pcf-pipeline-tasks-rc
   serial: true
   plan:
-  - get: bbr-pipeline-rc
+  - get: bbr-pcf-pipeline-tasks-rc
     trigger: true
-    passed: [build-bbr-pipeline-rc]
+    passed: [build-bbr-pcf-pipeline-tasks-rc]
     params:
       skip_download: true
   - task: test-for-required-binaries
@@ -264,7 +264,7 @@ jobs:
       image_resource:
         type: docker-image
         source:
-          repository: cloudfoundrylondon/bbr-pipeline
+          repository: pcfplatformrecovery/bbr-pcf-pipeline-tasks
           tag: release-candidate
       run:
         path: bash
@@ -279,12 +279,12 @@ jobs:
           which fly
           which nc
 
-- name: promote-bbr-pipeline-rc
+- name: promote-bbr-pcf-pipeline-tasks-rc
   serial: true
   plan:
-  - get: bbr-pipeline-rc
+  - get: bbr-pcf-pipeline-tasks-rc
     trigger: true
-    passed: [test-bbr-pipeline-rc]
+    passed: [test-bbr-pcf-pipeline-tasks-rc]
     params:
       save: true
   - task: write-tag-file
@@ -293,7 +293,7 @@ jobs:
       image_resource:
         type: docker-image
         source:
-          repository: cloudfoundrylondon/bbr-pipeline
+          repository: pcfplatformrecovery/bbr-pcf-pipeline-tasks
           tag: release-candidate
       outputs:
       - name: tag_file
@@ -305,8 +305,8 @@ jobs:
           set -e
           mkdir -p tag_file/
           echo "final" > tag_file/tag
-  - put: bbr-pipeline-final
+  - put: bbr-pcf-pipeline-tasks-final
     params:
-      load: bbr-pipeline-rc
+      load: bbr-pcf-pipeline-tasks-rc
       tag_file: tag_file/tag
 
