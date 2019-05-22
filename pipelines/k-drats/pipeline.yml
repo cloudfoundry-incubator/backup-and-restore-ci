@@ -430,6 +430,11 @@ jobs:
     - get: terraform
       passed: [deploy-k-drats-prs]
     - get: bosh-backup-and-restore-meta
+  - put: kubo-disaster-recovery-acceptance-tests-prs
+    params:
+      context: k-drats
+      path: kubo-disaster-recovery-acceptance-tests-prs
+      status: pending
   - task: set-kubeconfig
     file: kubo-disaster-recovery-acceptance-tests-prs/ci/set-kubeconfig/task.yml
     input_mapping:
@@ -451,6 +456,18 @@ jobs:
       BBL_STATE_DIR: maru
       BOSH_DEPLOYMENT: *deployment-name-prs
       CONFIG_PATH: maru/k-drats-config.json
+    on_failure:
+      put: kubo-disaster-recovery-acceptance-tests-prs
+      params:
+        context: k-drats
+        path: kubo-disaster-recovery-acceptance-tests-prs
+        status: failure
+    on_success:
+      put: kubo-disaster-recovery-acceptance-tests-prs
+      params:
+        context: k-drats
+        path: kubo-disaster-recovery-acceptance-tests-prs
+        status: success
 
 - name: delete-k-drats-prs
   serial: true
