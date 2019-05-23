@@ -2,7 +2,7 @@
 platform: linux
 
 image_resource:
-  type: docker-image
+  type: registry-image
   source: {repository: pcfplatformrecovery/backup-and-restore}
 
 inputs:
@@ -21,4 +21,3 @@ params:
 
 run:
   path: backup-and-restore-ci/tasks/run-b-drats/task.sh
-
