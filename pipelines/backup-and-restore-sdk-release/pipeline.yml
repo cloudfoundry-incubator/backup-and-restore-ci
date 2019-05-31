@@ -298,7 +298,6 @@ jobs:
         S3_ACCESS_KEY_ID: ((aws-access-key-id))
         S3_SECRET_ACCESS_KEY: ((aws-secret-access-key))
         S3_BIG_FILE_BUCKET: "large-blob-test-bucket-unversioned"
-        S3_EMPTY_BUCKET: "bbr-integration-test-bucket-empty"
     - task: gcs-blobstore-contract-tests
       file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
       params:
