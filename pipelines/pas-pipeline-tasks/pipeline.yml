@@ -23,6 +23,7 @@ groups:
 - name: pull-requests
   jobs:
   - trigger-pr
+  - check-opsman-status-pr
   - validate-sample-pipeline-prs
   - export-om-installation-prs
   - bbr-backup-director-prs
@@ -378,6 +379,74 @@ jobs:
         context: bbr-cleanup-director
         path: bbr-pipeline-tasks-prs
         status: success
+
+- name: check-opsman-status-pr
+  serial: true
+  plan:
+  - get: bbr-pipeline-tasks-repo
+    trigger: true
+    resource: bbr-pipeline-tasks-prs
+    passed:
+    - validate-sample-pipeline-prs
+    - export-om-installation-prs
+    - bbr-backup-director-prs
+    - bbr-backup-pas-prs
+  - put: bbr-pipeline-tasks-prs
+    params:
+      context: check-opsman-status
+      path: bbr-pipeline-tasks-repo
+      status: pending
+  - task: check-opsman-status
+    file: bbr-pipeline-tasks-prs/tasks/check-opsman-status/task.yml
+    params:
+      <<: *opsman_credentials
+    on_failure:
+      put: bbr-pipeline-tasks-prs
+      params:
+        context: check-opsman-status
+        path: bbr-pipeline-tasks-repo
+        status: failure
+    on_success:
+      put: bbr-pipeline-tasks-prs
+      params:
+        context: check-opsman-status
+        path: bbr-pipeline-tasks-repo
+        status: success
+  - task: check-opsman-status-during-apply-changes
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: pcfplatformrecovery/bbr-pcf-pipeline-tasks
+          tag: final
+      inputs:
+      - name: bbr-pipeline-tasks-repo
+      params:
+        <<: *opsman_credentials
+      run:
+        path: /bin/bash
+        args:
+        - -c
+        - |
+          set -eu
+
+          source "bbr-pipeline-tasks-repo/scripts/om-cmd"
+          om_cmd apply-changes &
+          pid=$!
+          sleep 20
+
+          set +e
+          output="$(./bbr-pipeline-tasks-repo/tasks/check-opsman-status/task.sh)"
+          code=$?
+          set -e
+
+          test $code -ne 0
+          echo "$output"
+          grep "\"Apply Changes\" is in flight." <<< "$output"
+
+          echo "Wait for \"Apply Changes\" to finish."
+          wait $pid
 
 resource_types:
 - name: pivnet
