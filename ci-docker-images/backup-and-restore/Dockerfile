@@ -35,7 +35,7 @@ ENV DOCKER_API_VERSION 1.23
 
 RUN (wget https://releases.hashicorp.com/terraform/0.11.11/terraform_0.11.11_linux_386.zip && unzip terraform_0.11.11_linux_386.zip -d /bin/)
 
-ENV CLOUD_SDK_VERSION 178.0.0
+ENV CLOUD_SDK_VERSION 250.0.0
 
 RUN export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
     echo "deb https://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" > /etc/apt/sources.list.d/google-cloud-sdk.list && \
