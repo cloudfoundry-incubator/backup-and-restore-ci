@@ -153,7 +153,6 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
-      passed: [clean-up-aws-s3]
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -218,7 +217,6 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
-      passed: [clean-up-aws-s3-unversioned]
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -283,7 +281,6 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
-      passed: [clean-up-azure]
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -792,7 +789,6 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
-      passed: [clean-up-gcs]
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
