@@ -406,12 +406,6 @@ jobs:
         context: check-opsman-status
         path: bbr-pipeline-tasks-repo
         status: failure
-    on_success:
-      put: bbr-pipeline-tasks-prs
-      params:
-        context: check-opsman-status
-        path: bbr-pipeline-tasks-repo
-        status: success
   - task: check-opsman-status-during-apply-changes
     config:
       platform: linux
@@ -447,6 +441,18 @@ jobs:
 
           echo "Wait for \"Apply Changes\" to finish."
           wait $pid
+    on_failure:
+      put: bbr-pipeline-tasks-prs
+      params:
+        context: check-opsman-status
+        path: bbr-pipeline-tasks-repo
+        status: failure
+    on_success:
+      put: bbr-pipeline-tasks-prs
+      params:
+        context: check-opsman-status
+        path: bbr-pipeline-tasks-repo
+        status: success
 
 resource_types:
 - name: pivnet
