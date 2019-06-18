@@ -102,6 +102,12 @@ jobs:
       trigger: true
     - get: bbr-release
       trigger: true
+  - task: check-opsman-status
+    tags:
+    - ((concourse-worker-tag))
+    file: bbr-pipeline-tasks-repo/tasks/check-opsman-status/task.yml
+    params:
+      <<: *opsman_credentials
   - task: extract-binary
     file: bbr-pipeline-tasks-repo/tasks/extract-bbr-binary/task.yml
     tags:
@@ -133,6 +139,12 @@ jobs:
       trigger: true
     - get: bbr-release
       trigger: true
+  - task: check-opsman-status
+    tags:
+    - ((concourse-worker-tag))
+    file: bbr-pipeline-tasks-repo/tasks/check-opsman-status/task.yml
+    params:
+      <<: *opsman_credentials
   - task: extract-binary
     file: bbr-pipeline-tasks-repo/tasks/extract-bbr-binary/task.yml
     tags:
