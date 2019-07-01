@@ -18,6 +18,9 @@ save_server_certs() {
 git config --global user.name "PCF Backup & Restore CI"
 git config --global user.email "cf-lazarus@pivotal.io"
 
+keyfile="$(mktemp)"
+echo "$GCP_SERVICE_ACCOUNT_KEY" > $keyfile
+
 pushd bosh-backup-and-restore-meta/terraform/bbr-sdk-system-tests/gcp
   terraform init
   terraform apply \
@@ -26,6 +29,7 @@ pushd bosh-backup-and-restore-meta/terraform/bbr-sdk-system-tests/gcp
   -var "postgres-9-6-password=${POSTGRES_9_6_PASSWORD}" \
   -var "director-external-ip=${DIRECTOR_EXTERNAL_IP}" \
   -var "director-jumpbox-ip=${DIRECTOR_JUMPBOX_IP}" \
+  -var "gcp-key=${keyfile}" \
   -auto-approve
 popd
 
@@ -37,8 +41,6 @@ pushd bosh-backup-and-restore-meta/
     echo "No deploy occurred; bailing out"
   fi
 
-  keyfile="$(mktemp)"
-  echo "$GCP_SERVICE_ACCOUNT_KEY" > $keyfile
   gcloud auth activate-service-account --key-file=$keyfile
   gcloud config set project cf-backup-and-restore
 
