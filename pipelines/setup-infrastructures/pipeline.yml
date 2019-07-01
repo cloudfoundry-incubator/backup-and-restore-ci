@@ -338,7 +338,6 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
-      passed: [setup-infrastructure-aws-ec2]
     - get: bosh-backup-and-restore-meta
     - get: everyday
       trigger: true
@@ -356,7 +355,6 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
-      passed: [clean-up-aws-ec2]
     - get: bosh-backup-and-restore-meta
   - put: terraform
     params:
