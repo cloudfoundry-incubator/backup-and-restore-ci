@@ -13,6 +13,7 @@ outputs:
 - name: bosh-backup-and-restore-meta-output
 
 params:
+  GCP_SERVICE_ACCOUNT_KEY:
   MYSQL_5_6_PASSWORD:
   MYSQL_5_7_PASSWORD:
   POSTGRES_9_6_PASSWORD:

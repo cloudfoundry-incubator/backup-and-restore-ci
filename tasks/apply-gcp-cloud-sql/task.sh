@@ -37,7 +37,8 @@ pushd bosh-backup-and-restore-meta/
     echo "No deploy occurred; bailing out"
   fi
 
-  gcloud auth activate-service-account --key-file=genesis-bosh/gcp-service-key.json
+  echo "$GCP_SERVICE_ACCOUNT_KEY" > key-file.json
+  gcloud auth activate-service-account --key-file=key-file.json
   gcloud config set project cf-backup-and-restore
 
   save_server_certs "mysql-5-6"
