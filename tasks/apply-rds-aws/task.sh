@@ -14,6 +14,7 @@ pushd bosh-backup-and-restore-meta/terraform/bbr-sdk-system-tests/aws
   -var "mysql_5_5_password=${MYSQL_5_5_PASSWORD}" \
   -var "mysql_5_6_password=${MYSQL_5_6_PASSWORD}" \
   -var "mysql_5_7_password=${MYSQL_5_7_PASSWORD}" \
+  -var "sdk_acceptance_mysql_5_7_password=${SDK_ACCEPTANCE_MYSQL_5_7_PASSWORD}" \
   -var "postgres_9_4_password=${POSTGRES_9_4_PASSWORD}" \
   -var "postgres_9_6_password=${POSTGRES_9_6_PASSWORD}" \
   -var "postgres_10_password=${POSTGRES_10_PASSWORD}" \
