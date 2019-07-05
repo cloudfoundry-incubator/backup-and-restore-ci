@@ -24,6 +24,6 @@ ssh-add bosh-backup-and-restore-meta/keys/github
 
 export GOPATH="$PWD/backup-and-restore-sdk-release:$GOPATH"
 
-pushd backup-and-restore-sdk-release/src/github.com/cloudfoundry-incubator/database-backup-restore
+pushd backup-and-restore-sdk-release/src/database-backup-restore
   ginkgo -r -v -skipPackage system_tests
 popd

@@ -32,5 +32,5 @@ export BOSH_ALL_PROXY="ssh+socks5://${BOSH_GW_USER}@${BOSH_GW_HOST}:22?private-k
 export GOPATH="$PWD/backup-and-restore-sdk-release"
 export PATH="$PATH:$GOPATH/bin"
 
-cd backup-and-restore-sdk-release/src/github.com/cloudfoundry-incubator/database-backup-restore
+cd backup-and-restore-sdk-release/src/database-backup-restore
 ginkgo -v -r "system_tests/${TEST_SUITE_NAME}" -trace
