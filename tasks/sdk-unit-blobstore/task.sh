@@ -18,9 +18,7 @@
 
 set -eu
 
-export GOPATH="$PWD/backup-and-restore-sdk-release:$GOPATH"
-
-pushd "backup-and-restore-sdk-release/src/github.com/cloudfoundry-incubator/$PACKAGE_NAME"
+pushd "backup-and-restore-sdk-release/src/$PACKAGE_NAME"
   ginkgo_cmd="ginkgo -r -keepGoing"
 
   if [[ -n "$GINKGO_EXTRA_FLAGS" ]]; then
