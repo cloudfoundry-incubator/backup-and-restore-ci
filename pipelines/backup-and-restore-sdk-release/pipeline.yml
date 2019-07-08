@@ -151,7 +151,7 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
-    tag_filter: v7.*
+    tag_filter: v9.*
 
 - name: cf-deployment-master
   type: git
@@ -1098,13 +1098,6 @@ jobs:
       vars-store: bosh-backup-and-restore-meta
     params:
       VARS_STORE_FILE: external-blobstore-directors/aws-s3/cf-deployment-variables.yml
-  - task: upload-stemcell
-    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      cf-deployment: cf-deployment-master
-    params:
-      BBL_STATE_DIR: external-blobstore-directors/aws-s3/
   - task: deploy-cf-with-external-s3
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     input_mapping:
@@ -1144,13 +1137,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-  - task: upload-stemcell
-    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      cf-deployment: cf-deployment-master
-    params:
-      BBL_STATE_DIR: external-blobstore-directors/azure/
   - task: deploy-cf-with-external-azure
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     input_mapping:
@@ -1190,13 +1176,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-  - task: upload-stemcell
-    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      cf-deployment: cf-deployment-master
-    params:
-      BBL_STATE_DIR: external-blobstore-directors/gcs/
   - task: deploy-cf-with-external-gcs
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     input_mapping:
@@ -1437,13 +1416,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-  - task: upload-stemcell
-    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      cf-deployment: cf-deployment-master
-    params:
-      BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
   - task: deploy-cf-with-external-s3
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     input_mapping:
