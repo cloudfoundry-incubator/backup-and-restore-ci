@@ -55,7 +55,7 @@ resources:
   source:
     uri: git@github.com:cloudfoundry/cf-deployment-concourse-tasks.git
     private_key: ((git-private-key))
-    tag_filter: v7.*
+    tag_filter: v9.*
 
 - name: bbr-binary-release
   type: github-release
