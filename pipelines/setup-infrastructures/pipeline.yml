@@ -111,12 +111,59 @@ resources:
     - Friday
     location: Europe/London
 
+groups:
+- name: create
+  jobs:
+  - setup-infrastructure-aws-s3
+  - setup-infrastructure-aws-s3-unversioned
+  - setup-infrastructure-azure
+  - setup-infrastructure-aws-ec2
+  - setup-infrastructure-drats-pr-ragdoll
+  - setup-infrastructure-drats-papillon
+  - setup-infrastructure-drats-with-config-manx
+  - setup-infrastructure-maru
+  - setup-infrastructure-maru-lite
+  - setup-infrastructure-gcs
+  - setup-gcp-iam-role-bosh-director
+  - setup-gcp-iam-role-bbl
+  - deploy-tracker-bot
+  - renew-environments
+
+- name: clean-up
+  jobs:
+  - clean-up-aws-s3
+  - clean-up-aws-s3-unversioned
+  - clean-up-azure
+  - clean-up-aws-ec2
+  - clean-up-drats-pr-ragdoll
+  - clean-up-drats-papillon
+  - clean-up-drats-with-config-manx
+  - clean-up-maru
+  - clean-up-maru-lite
+  - clean-up-gcs
+  - delete-unattached-disks
+
+- name: destroy
+  jobs:
+  - destroy-infrastructure-aws-s3
+  - destroy-infrastructure-aws-s3-unversioned
+  - destroy-infrastructure-azure
+  - destroy-infrastructure-aws-ec2
+  - destroy-infrastructure-drats-pr-ragdoll
+  - destroy-infrastructure-drats-papillon
+  - destroy-infrastructure-drats-with-config-manx
+  - destroy-infrastructure-maru
+  - destroy-infrastructure-maru-lite
+  - destroy-infrastructure-gcs
+  - destroy-gcp-iam-role-bosh-director
+  - destroy-gcp-iam-role-bbl
+
 jobs:
 - name: setup-infrastructure-aws-s3
   serial: true
   serial_groups: [aws-s3]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: setup-infrastructure
@@ -141,9 +188,8 @@ jobs:
   serial: true
   serial_groups: [aws-s3]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
-      passed: [setup-infrastructure-aws-s3]
     - get: bosh-backup-and-restore-meta
     - get: everyday
       trigger: true
@@ -159,7 +205,7 @@ jobs:
   serial: true
   serial_groups: [aws-s3]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
@@ -180,7 +226,7 @@ jobs:
   serial: true
   serial_groups: [aws-s3-unversioned]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: setup-infrastructure
@@ -205,9 +251,8 @@ jobs:
   serial: true
   serial_groups: [aws-s3-unversioned]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
-      passed: [setup-infrastructure-aws-s3-unversioned]
     - get: bosh-backup-and-restore-meta
     - get: everyday
       trigger: true
@@ -223,7 +268,7 @@ jobs:
   serial: true
   serial_groups: [aws-s3-unversioned]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
@@ -244,7 +289,7 @@ jobs:
   serial: true
   serial_groups: [azure]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: setup-infrastructure
@@ -269,9 +314,8 @@ jobs:
   serial: true
   serial_groups: [azure]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
-      passed: [setup-infrastructure-azure]
     - get: bosh-backup-and-restore-meta
     - get: everyday
       trigger: true
@@ -287,7 +331,7 @@ jobs:
   serial: true
   serial_groups: [azure]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
@@ -308,7 +352,7 @@ jobs:
   serial: true
   serial_groups: [aws-ec2]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks-latest
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
@@ -345,7 +389,7 @@ jobs:
   serial: true
   serial_groups: [aws-ec2]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: everyday
@@ -362,7 +406,7 @@ jobs:
   serial: true
   serial_groups: [aws-ec2]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks-latest
     - get: bosh-backup-and-restore-meta
   - put: terraform
@@ -395,7 +439,7 @@ jobs:
   serial: true
   serial_groups: [drats-pr-ragdoll]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: setup-infrastructure
@@ -420,9 +464,8 @@ jobs:
   serial: true
   serial_groups: [drats-pr-ragdoll]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
-      passed: [setup-infrastructure-drats-pr-ragdoll]
     - get: bosh-backup-and-restore-meta
     - get: everyday
       trigger: true
@@ -438,9 +481,8 @@ jobs:
   serial: true
   serial_groups: [drats-pr-ragdoll]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
-      passed: [clean-up-drats-pr-ragdoll]
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -460,7 +502,7 @@ jobs:
   serial: true
   serial_groups: [drats-papillon]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: setup-infrastructure
@@ -485,9 +527,8 @@ jobs:
   serial: true
   serial_groups: [drats-papillon]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
-      passed: [setup-infrastructure-drats-papillon]
     - get: bosh-backup-and-restore-meta
     - get: everyday
       trigger: true
@@ -503,9 +544,8 @@ jobs:
   serial: true
   serial_groups: [drats-papillon]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
-      passed: [clean-up-drats-papillon]
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -525,7 +565,7 @@ jobs:
   serial: true
   serial_groups: [drats-with-config-manx]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: setup-infrastructure
@@ -550,9 +590,8 @@ jobs:
   serial: true
   serial_groups: [drats-with-config-manx]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
-      passed: [setup-infrastructure-drats-with-config-manx]
     - get: bosh-backup-and-restore-meta
     - get: everyday
       trigger: true
@@ -568,9 +607,8 @@ jobs:
   serial: true
   serial_groups: [drats-with-config-manx]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
-      passed: [clean-up-drats-with-config-manx]
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -590,7 +628,7 @@ jobs:
   serial: true
   serial_groups: [maru]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
@@ -614,9 +652,8 @@ jobs:
   serial: true
   serial_groups: [maru]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
-      passed: [setup-infrastructure-maru]
     - get: bosh-backup-and-restore-meta
     - get: everyday
       trigger: true
@@ -632,9 +669,8 @@ jobs:
   serial: true
   serial_groups: [maru]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
-      passed: [clean-up-maru]
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -654,7 +690,7 @@ jobs:
   serial: true
   serial_groups: [maru-lite]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: bosh-bootloader
@@ -712,9 +748,8 @@ jobs:
   serial: true
   serial_groups: [maru-lite]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
-      passed: [setup-infrastructure-maru-lite]
     - get: bosh-backup-and-restore-meta
     - get: everyday
       trigger: true
@@ -730,9 +765,8 @@ jobs:
   serial: true
   serial_groups: [maru-lite]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
-      passed: [clean-up-maru-lite]
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -752,7 +786,7 @@ jobs:
   serial: true
   serial_groups: [gcs]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: setup-infrastructure
@@ -777,9 +811,8 @@ jobs:
   serial: true
   serial_groups: [gcs]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
-      passed: [setup-infrastructure-gcs]
     - get: bosh-backup-and-restore-meta
     - get: everyday
       trigger: true
@@ -795,7 +828,7 @@ jobs:
   serial: true
   serial_groups: [gcs]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
   - task: bbl-destroy
@@ -815,7 +848,7 @@ jobs:
 - name: deploy-tracker-bot
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: relint-trackerbot
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
@@ -830,7 +863,7 @@ jobs:
 
 - name: renew-environments
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-ci
     - get: every-tuesday
       trigger: true
