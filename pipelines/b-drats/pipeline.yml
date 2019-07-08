@@ -80,7 +80,7 @@ jobs:
   serial: true
   serial_groups: [master]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-deployment
     - get: jumpbox-deployment
     - get: bosh-disaster-recovery-acceptance-tests
@@ -155,7 +155,7 @@ jobs:
   serial: true
   serial_groups: [prs]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-deployment
     - get: jumpbox-deployment
     - get: bosh-disaster-recovery-acceptance-tests-prs
@@ -264,7 +264,7 @@ jobs:
   serial: true
   serial_groups: [master]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-disaster-recovery-acceptance-tests
       passed: [deploy-b-drats-master]
       trigger: true
@@ -304,7 +304,7 @@ jobs:
   serial: true
   serial_groups: [prs]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-disaster-recovery-acceptance-tests-prs
       passed: [deploy-b-drats-prs]
       trigger: true
@@ -368,7 +368,7 @@ jobs:
   serial: true
   serial_groups: [master]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-deployment
       passed: [run-b-drats-master]
       trigger: true
@@ -432,7 +432,7 @@ jobs:
   serial: true
   serial_groups: [prs]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-deployment
       passed: [run-b-drats-prs]
       trigger: true

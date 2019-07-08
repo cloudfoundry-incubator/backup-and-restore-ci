@@ -64,7 +64,7 @@ jobs:
   serial: true
   serial_groups: [drats-prs]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: disaster-recovery-acceptance-tests-prs
       version: every
     - get: cf-deployment
@@ -121,7 +121,7 @@ jobs:
   serial: true
   serial_groups: [drats-with-destroy]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: disaster-recovery-acceptance-tests
       trigger: true
     - get: cf-deployment
@@ -182,7 +182,7 @@ jobs:
   serial: true
   serial_groups: [drats]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: disaster-recovery-acceptance-tests
       trigger: true
     - get: cf-deployment-concourse-tasks
@@ -246,7 +246,7 @@ jobs:
   serial: true
   serial_groups: [drats-prs]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment
       passed: [deploy-cf-prs]
     - get: disaster-recovery-acceptance-tests-prs
@@ -307,7 +307,7 @@ jobs:
   serial: true
   serial_groups: [drats]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-backup-and-restore-meta
     - get: cf-deployment
       passed: [deploy-cf]
@@ -343,7 +343,7 @@ jobs:
   serial: true
   serial_groups: [drats-with-destroy]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment
       passed: [deploy-cf-with-destroy]
       trigger: true
@@ -380,7 +380,7 @@ jobs:
   serial: true
   serial_groups: [drats-prs]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment
       passed: [run-drats-prs]
     - get: disaster-recovery-acceptance-tests-prs
@@ -399,7 +399,7 @@ jobs:
   serial: true
   serial_groups: [drats-with-destroy]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment
       passed: [run-drats-with-destroy]
       trigger: true
@@ -422,7 +422,7 @@ jobs:
   serial: true
   serial_groups: [drats]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment
       passed: [run-drats]
       trigger: true

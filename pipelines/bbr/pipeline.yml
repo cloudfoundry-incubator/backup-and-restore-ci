@@ -263,7 +263,7 @@ jobs:
   serial: true
   serial_groups: [system-director]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-backup-and-restore
       passed: [unit]
       trigger: true
@@ -299,12 +299,12 @@ jobs:
 - name: upload-deployment-test-releases
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bbr-deployment-test-releases
       trigger: true
     - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
-  - aggregate:
+  - in_parallel:
     - task: upload-redis-test-release-maru-lite
       file: backup-and-restore-ci/tasks/bbr-upload-system-test-releases/task.yml
       params:
@@ -339,7 +339,7 @@ jobs:
 - name: unit
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-backup-and-restore
       trigger: true
       params:
@@ -357,7 +357,7 @@ jobs:
   serial: true
   serial_groups: [system-bosh-all-proxy]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: xenial-stemcell
     - get: bosh-backup-and-restore
       passed: [unit]
@@ -375,7 +375,7 @@ jobs:
   serial: true
   serial_groups: [system-all-deployments]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-backup-and-restore
       passed: [unit]
       trigger: true
@@ -395,7 +395,7 @@ jobs:
       JUMPBOX_HOST: ((maru-lite-jumpbox-address))
       JUMPBOX_USER: jumpbox
       JUMPBOX_PRIVATE_KEY: ((maru-lite-jumpbox-ssh-key))
-  - aggregate:
+  - in_parallel:
     - task: deploy-bosh-team-redis-1
       file: backup-and-restore-ci/tasks/bbr-deploy-bosh-team/task.yml
       params:
@@ -416,7 +416,7 @@ jobs:
   serial: true
   serial_groups: [system-windows]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: windows-stemcell
     - get: xenial-stemcell
     - get: bosh-backup-and-restore
@@ -425,7 +425,7 @@ jobs:
     - get: bbr-deployment-test-releases
       passed: [upload-deployment-test-releases]
       trigger: true
-  - aggregate:
+  - in_parallel:
     - put: windows-vm-deployment
       params:
         manifest: bosh-backup-and-restore/fixtures/redis-windows-ci.yml
@@ -441,7 +441,7 @@ jobs:
 - name: system-deployment
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-backup-and-restore
       passed: [unit]
       trigger: true
@@ -459,7 +459,7 @@ jobs:
   serial: true
   serial_groups: [system-bosh-all-proxy]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-backup-and-restore
       passed: [deploy-system-deployment-bosh-all-proxy]
       trigger: true
@@ -479,7 +479,7 @@ jobs:
   serial: true
   serial_groups: [system-director]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-backup-and-restore
       passed: [deploy-system-director]
       trigger: true
@@ -510,7 +510,7 @@ jobs:
   serial: true
   serial_groups: [system-windows]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-backup-and-restore
       passed: [deploy-system-windows]
       trigger: true
@@ -528,7 +528,7 @@ jobs:
   serial: true
   serial_groups: [system-all-deployments]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-backup-and-restore
       passed: [deploy-system-all-deployments]
       trigger: true
@@ -543,7 +543,7 @@ jobs:
   serial: true
   serial_groups: [system-director]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-backup-and-restore
       passed: [system-director]
       trigger: true
@@ -565,7 +565,7 @@ jobs:
   - get: bosh-backup-and-restore
     passed: [system-all-deployments]
     trigger: true
-  - aggregate:
+  - in_parallel:
     - put: all-deployments-redis-1-deployment
       params:
         delete:
@@ -598,7 +598,7 @@ jobs:
   - get: bosh-backup-and-restore
     passed: [system-windows]
     trigger: true
-  - aggregate:
+  - in_parallel:
     - put: windows-vm-deployment
       params:
         delete:
@@ -611,7 +611,7 @@ jobs:
 - name: build-rc
   serial_groups: [version]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-backup-and-restore
       passed: [system-all-deployments, system-deployment, system-bosh-all-proxy, system-director, system-windows]
       trigger: true
@@ -659,7 +659,7 @@ jobs:
   serial: true
   serial_groups: [p-drats]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: pivotal-disaster-recovery-acceptance-tests
     - get: bosh-backup-and-restore
       passed: [build-rc]
@@ -682,7 +682,7 @@ jobs:
 - name: build-and-publish-final
   serial_groups: [version]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-backup-and-restore-meta
       resource: release-trigger
       trigger: true
@@ -714,7 +714,7 @@ jobs:
     file: backup-and-restore-ci/tasks/bbr-build/task.yml
     input_mapping:
       version: bbr-version
-  - aggregate:
+  - in_parallel:
     - task: generate-bbr-release-metadata
       file: backup-and-restore-ci/tasks/generate-bbr-release-metadata/task.yml
       input_mapping:
@@ -749,7 +749,7 @@ jobs:
 - name: update-homebrew-formula
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-ci
     - get: homebrew-tap
     - get: bbr-final-release

@@ -252,12 +252,12 @@ jobs:
 - name: unit-tests
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-sdk-release
       trigger: true
     - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
-  - aggregate:
+  - in_parallel:
     - task: sdk-template-unit-tests
       file: backup-and-restore-ci/tasks/sdk-template-unit-tests/task.yml
     - task: databases-unit-tests
@@ -282,12 +282,12 @@ jobs:
 - name: contract-tests
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-sdk-release
       passed: [unit-tests]
       trigger: true
     - get: backup-and-restore-ci
-  - aggregate:
+  - in_parallel:
     - task: aws-s3-blobstore-contract-tests
       file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
       params:
@@ -319,7 +319,7 @@ jobs:
   serial: true
   serial_groups: [version]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
@@ -341,7 +341,7 @@ jobs:
 - name: deploy-database-sdk
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed: [create-release]
@@ -365,7 +365,7 @@ jobs:
 - name: deploy-postgres
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-sdk-release
       passed: [create-release]
       trigger: true
@@ -375,7 +375,7 @@ jobs:
     - get: xenial-stemcell
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-  - aggregate:
+  - in_parallel:
     - put: postgres-9.4-dev-deployment
       params:
         manifest: backup-and-restore-sdk-release/ci/manifests/postgres-9.4.yml
@@ -434,7 +434,7 @@ jobs:
 - name: deploy-mysql
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed: [create-release]
@@ -460,7 +460,7 @@ jobs:
 - name: deploy-external-rds-dbs
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-sdk-release
       passed: [create-release]
       trigger: true
@@ -491,7 +491,7 @@ jobs:
 - name: deploy-external-gcp-dbs
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-sdk-release
       passed: [create-release]
       trigger: true
@@ -518,7 +518,7 @@ jobs:
 - name: deploy-s3-blobstore-sdk
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-sdk-release
       passed: [create-release]
       trigger: true
@@ -564,7 +564,7 @@ jobs:
 - name: deploy-s3-blobstore-sdk-with-iam-instance-profile
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-sdk-release
       passed: [create-release]
       trigger: true
@@ -588,7 +588,7 @@ jobs:
 - name: deploy-azure-blobstore-sdk
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-sdk-release
       passed: [create-release]
       trigger: true
@@ -616,13 +616,13 @@ jobs:
 - name: postgres-system-tests
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
       - deploy-database-sdk
       trigger: true
-  - aggregate:
+  - in_parallel:
     - task: postgres-system-tests-9.4
       file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
       params:
@@ -687,7 +687,7 @@ jobs:
 - name: postgres-system-tests-gcp
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
@@ -732,13 +732,13 @@ jobs:
 - name: postgres-system-tests-rds
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
       - deploy-database-sdk
       trigger: true
-  - aggregate:
+  - in_parallel:
     - task: postgres-system-tests-9.4
       file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
       params:
@@ -775,7 +775,7 @@ jobs:
         POSTGRES_HOSTNAME: ((rds-postgres-11-hostname))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
-  - aggregate:
+  - in_parallel:
     - task: postgres-tls-system-tests-9.4
       file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
       params:
@@ -824,7 +824,7 @@ jobs:
 - name: mysql-system-tests
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
@@ -849,14 +849,14 @@ jobs:
 - name: mysql-system-tests-rds
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
       - deploy-database-sdk
       trigger: true
     - get: bosh-backup-and-restore-meta
-  - aggregate:
+  - in_parallel:
     - task: mysql-system-tests-5.5
       file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
       params:
@@ -894,14 +894,14 @@ jobs:
 - name: mysql-system-tests-gcp
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
       - deploy-database-sdk
       trigger: true
     - get: bosh-backup-and-restore-meta
-  - aggregate:
+  - in_parallel:
     - task: mysql-system-tests-5.6
       file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
       params:
@@ -932,7 +932,7 @@ jobs:
 - name: s3-blobstore-backuper-system-tests
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
@@ -971,7 +971,7 @@ jobs:
 - name: s3-blobstore-system-tests-with-iam-instance-profile
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
@@ -1025,7 +1025,7 @@ jobs:
 - name: deploy-gcs-blobstore-sdk
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-sdk-release
       passed:
       - create-release
@@ -1073,7 +1073,7 @@ jobs:
   serial: true
   serial_groups: [drats-s3-versioned]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: disaster-recovery-acceptance-tests
       trigger: true
     - get: bbr-binary-release
@@ -1131,7 +1131,7 @@ jobs:
   serial: true
   serial_groups: [drats-azure]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: disaster-recovery-acceptance-tests
       trigger: true
     - get: bbr-binary-release
@@ -1177,7 +1177,7 @@ jobs:
   serial: true
   serial_groups: [drats-gcs]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: disaster-recovery-acceptance-tests
       trigger: true
     - get: bbr-binary-release
@@ -1223,7 +1223,7 @@ jobs:
   serial: true
   serial_groups: [drats-gcs]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-backup-and-restore-meta
       passed: [deploy-cf-with-external-gcs-blobstore]
     - get: cf-deployment-master
@@ -1263,7 +1263,7 @@ jobs:
   serial: true
   serial_groups: [drats-gcs]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: disaster-recovery-acceptance-tests
       passed: [run-drats-external-gcs-blobstore]
       trigger: true
@@ -1327,7 +1327,7 @@ jobs:
   serial: true
   serial_groups: [drats-azure]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: disaster-recovery-acceptance-tests
       passed: [run-drats-external-azure-blobstore]
       trigger: true
@@ -1391,7 +1391,7 @@ jobs:
   serial: true
   serial_groups: [drats-s3-versioned]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: disaster-recovery-acceptance-tests
       passed: [run-drats-external-s3-blobstore]
       trigger: true
@@ -1422,7 +1422,7 @@ jobs:
   serial: true
   serial_groups: [drats-s3-unversioned]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: disaster-recovery-acceptance-tests
       trigger: true
     - get: bbr-binary-release
@@ -1514,7 +1514,7 @@ jobs:
   serial: true
   serial_groups: [drats-s3-unversioned]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: disaster-recovery-acceptance-tests
       passed: [run-drats-external-s3-unversioned-blobstore]
       trigger: true
@@ -1538,7 +1538,7 @@ jobs:
   serial: true
   serial_groups: [version]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
@@ -1587,7 +1587,7 @@ jobs:
   serial: true
   serial_groups: [version]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
@@ -1636,7 +1636,7 @@ jobs:
   serial: true
   serial_groups: [version]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
@@ -1684,7 +1684,7 @@ jobs:
 - name: create-backup-and-restore-sdk-addon-release
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release-master
     - get: github-release
@@ -1726,7 +1726,7 @@ jobs:
 - name: merge-master-into-develop
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-sdk-release
     - get: backup-and-restore-sdk-release-master
       trigger: true
@@ -1737,7 +1737,7 @@ jobs:
 
 - name: bump-golang
   plan:
-  - aggregate:
+  - in_parallel:
     - get: backup-and-restore-ci
     - get: golang-release
       trigger: true

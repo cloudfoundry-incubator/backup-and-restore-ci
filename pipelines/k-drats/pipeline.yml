@@ -102,7 +102,7 @@ jobs:
   serial: true
   serial_groups: [k-drats]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: kubo-disaster-recovery-acceptance-tests
       trigger: true
     - get: bbr-binary-release
@@ -200,7 +200,7 @@ jobs:
   serial: true
   serial_groups: [k-drats]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: kubo-disaster-recovery-acceptance-tests
       trigger: true
       passed: [deploy-k-drats]
@@ -237,7 +237,7 @@ jobs:
   serial: true
   serial_groups: [k-drats]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: kubo-disaster-recovery-acceptance-tests
       trigger: true
       passed: [run-k-drats]
@@ -323,7 +323,7 @@ jobs:
   serial: true
   serial_groups: [k-drats-prs]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: kubo-disaster-recovery-acceptance-tests-prs
     - get: bbr-binary-release
     - get: bosh-backup-and-restore-meta
@@ -418,7 +418,7 @@ jobs:
   serial: true
   serial_groups: [k-drats-prs]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: kubo-disaster-recovery-acceptance-tests-prs
       trigger: true
       passed: [deploy-k-drats-prs]
@@ -474,7 +474,7 @@ jobs:
   serial: true
   serial_groups: [k-drats-prs]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: kubo-disaster-recovery-acceptance-tests-prs
       trigger: true
       passed: [run-k-drats-prs]

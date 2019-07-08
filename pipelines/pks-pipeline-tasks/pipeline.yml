@@ -112,7 +112,7 @@ groups:
 jobs:
 - name: validate-sample-pipeline
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bbr-pipeline-tasks-repo
       trigger: true
     - get: backup-and-restore-ci
@@ -156,7 +156,7 @@ jobs:
 - name: export-om-installation
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bbr-release
       trigger: true
     - get: bbr-pipeline-tasks-repo
@@ -176,7 +176,7 @@ jobs:
   serial: true
   serial_groups: [bbr-backup-pks-foundation]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bbr-release
       trigger: true
     - get: bbr-pipeline-tasks-repo
@@ -191,7 +191,7 @@ jobs:
       <<: *opsman_credentials
   - task: extract-binary
     file: bbr-pipeline-tasks-repo/tasks/extract-bbr-binary/task.yml
-  - aggregate:
+  - in_parallel:
     - task: bbr-backup-director
       file: bbr-pipeline-tasks-repo/tasks/bbr-backup-director/task.yml
       params:
@@ -219,7 +219,7 @@ jobs:
         file: bbr-pipeline-tasks-repo/tasks/bbr-cleanup-pks-clusters/task.yml
         params:
           <<: *opsman_credentials
-  - aggregate:
+  - in_parallel:
     - put: director-backup-bucket
       params:
         file: director-backup-artifact/director-backup.tar
@@ -242,7 +242,7 @@ jobs:
 
 - name: validate-sample-pipeline-prs
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bbr-pipeline-tasks-repo
       resource: bbr-pipeline-tasks-prs
       passed: [trigger-pr]
@@ -277,13 +277,13 @@ jobs:
   serial: true
   serial_groups: [bbr-backup-pks-foundation]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bbr-release
     - get: bbr-pipeline-tasks-repo
       resource: bbr-pipeline-tasks-prs
       passed: [trigger-pr]
       trigger: true
-  - aggregate:
+  - in_parallel:
     - put: bbr-pipeline-tasks-prs
       params:
         context: lock-pks
@@ -332,7 +332,7 @@ jobs:
         status: failure
   - task: extract-binary
     file: bbr-pipeline-tasks-repo/tasks/extract-bbr-binary/task.yml
-  - aggregate:
+  - in_parallel:
     - task: bbr-backup-pks
       file: bbr-pipeline-tasks-repo/tasks/bbr-backup-pks/task.yml
       params:
@@ -387,7 +387,7 @@ jobs:
             context: bbr-cleanup-pks-clusters
             path: bbr-pipeline-tasks-repo
             status: failure
-  - aggregate:
+  - in_parallel:
     - put: pks-backup-bucket
       params:
         file: pks-backup-artifact/pks-backup.tar

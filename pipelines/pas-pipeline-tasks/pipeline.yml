@@ -34,7 +34,7 @@ groups:
 jobs:
 - name: validate-sample-pipeline
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bbr-pipeline-tasks-repo
       trigger: true
     - get: backup-and-restore-ci
@@ -78,7 +78,7 @@ jobs:
 - name: export-om-installation
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bbr-pipeline-tasks-repo
       trigger: true
   - task: export-om-installation
@@ -97,7 +97,7 @@ jobs:
   serial_groups:
   - backup-pas
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bbr-pipeline-tasks-repo
       trigger: true
     - get: bbr-release
@@ -134,7 +134,7 @@ jobs:
   serial_groups:
   - backup-director
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bbr-pipeline-tasks-repo
       trigger: true
     - get: bbr-release
@@ -173,7 +173,7 @@ jobs:
 
 - name: validate-sample-pipeline-prs
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bbr-pipeline-tasks-repo
       trigger: true
       resource: bbr-pipeline-tasks-prs
@@ -241,7 +241,7 @@ jobs:
   serial_groups:
   - backup-pas
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bbr-pipeline-tasks-repo
       trigger: true
       resource: bbr-pipeline-tasks-prs
@@ -284,7 +284,7 @@ jobs:
   serial_groups:
   - backup-director
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bbr-pipeline-tasks-repo
       trigger: true
       resource: bbr-pipeline-tasks-prs
@@ -326,7 +326,7 @@ jobs:
   serial_groups:
   - backup-pas
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bbr-pipeline-tasks-prs
       trigger: true
       passed: [trigger-pr]
@@ -362,7 +362,7 @@ jobs:
   serial_groups:
   - backup-director
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bbr-pipeline-tasks-prs
       trigger: true
       passed: [trigger-pr]
