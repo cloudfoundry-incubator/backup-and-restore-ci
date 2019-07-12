@@ -1748,3 +1748,45 @@ jobs:
   - put: backup-and-restore-sdk-release
     params:
       repository: release-with-updated-vendored-package
+
+- name: deploy-acceptance-infrastructure
+  plan:
+  - in_parallel:
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed: [create-release]
+      trigger: true
+  - put: terraform
+    params:
+      terraform_source: bosh-backup-and-restore-meta/terraform/backup-and-restore-sdk-acceptance-tests/aws
+      env_name: sdk-external-directors
+      delete_on_failure: true
+      vars:
+        aws_access_key: ((aws-access-key-id))
+        aws_secret_key: ((aws-secret-access-key))
+        aws_region: *aws-region
+        aws_backup_region: *aws-backup-region
+        external_db_username: ((sdk-acceptance-rds-username))
+        external_db_password: ((sdk-acceptance-rds-password))
+    get_params:
+      output_statefile: true
+  - task: create-sdk-cf-deployment-vars
+    file: backup-and-restore-ci/tasks/create-sdk-cf-deployment-vars/task.yml
+    input_mapping:
+      terraform-state: terraform
+    params:
+      S3_VERSIONED_CF_DEPLOYMENT_VARS_FILE: external-blobstore-directors/aws-s3/cf-deployment-variables.yml
+      S3_UNVERSIONED_CF_DEPLOYMENT_VARS_FILE: external-blobstore-directors/aws-s3-unversioned/cf-deployment-variables.yml
+      AWS_ACCESS_KEY: ((aws-access-key-id))
+      AWS_SECRET_KEY: ((aws-secret-access-key))
+      AWS_REGION: *aws-region
+      AWS_BACKUP_REGION: *aws-backup-region
+      DATABASE_USERNAME: ((sdk-acceptance-rds-username))
+      DATABASE_PASSWORD: ((sdk-acceptance-rds-password))
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: bosh-backup-and-restore-meta
+        rebase: true
+
