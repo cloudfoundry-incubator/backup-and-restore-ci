@@ -822,7 +822,7 @@ jobs:
   - get: bosh-backup-and-restore-meta
   - put: docker-host-deployment
     params:
-      manifest: bosh-backup-and-restore-meta/ci/setup-infrastructure/docker-host.yml
+      manifest: bosh-backup-and-restore-meta/ci/setup-infrastructures/docker-host.yml
 
 - name: clean-up-gcs
   serial: true
