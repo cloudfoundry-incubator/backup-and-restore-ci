@@ -1,0 +1,29 @@
+---
+platform: linux
+
+image_resource:
+  type: registry-image
+  source: {repository: pcfplatformrecovery/backup-and-restore}
+
+inputs:
+- name: backup-and-restore-ci
+- name: bosh-backup-and-restore-meta
+- name: terraform-state
+
+outputs:
+- name: bosh-backup-and-restore-meta
+
+params:
+  S3_VERSIONED_CF_DEPLOYMENT_VARS_FILE:
+  S3_UNVERSIONED_CF_DEPLOYMENT_VARS_FILE:
+  AWS_ACCESS_KEY:
+  AWS_SECRET_KEY:
+  AWS_REGION:
+  AWS_BACKUP_REGION:
+  DATABASE_USERNAME:
+  DATABASE_PASSWORD:
+  DATABASE_TYPE: mysql
+  DATABASE_PORT: 3306
+
+run:
+  path: backup-and-restore-ci/tasks/create-sdk-cf-deployment-vars/task.sh
