@@ -8,7 +8,8 @@ image_resource:
 inputs:
 - name: backup-and-restore-ci
 - name: bosh-backup-and-restore-meta
-- name: terraform-state
+- name: terraform-state-aws
+- name: terraform-state-gcp
 
 outputs:
 - name: bosh-backup-and-restore-meta
@@ -24,6 +25,8 @@ params:
   DATABASE_PASSWORD:
   DATABASE_TYPE: mysql
   DATABASE_PORT: 3306
+  GCS_CF_DEPLOYMENT_VARS_FILE:
+  GCP_SERVICE_ACCOUNT_KEY:
 
 run:
   path: backup-and-restore-ci/tasks/create-sdk-cf-deployment-vars/task.sh

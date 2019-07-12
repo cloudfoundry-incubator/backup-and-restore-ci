@@ -3,11 +3,11 @@
 set -euo pipefail
 
 terraform_output() {
-  terraform output -state=terraform-state/terraform.tfstate "$1"
+  terraform output -state="terraform-state-${1}/terraform.tfstate" "$2"
 }
 
-live_bucket="$(terraform_output "backup-and-restore-s3-unversioned-acceptance-live-bucket")"
-backup_bucket="$(terraform_output "backup-and-restore-s3-unversioned-acceptance-backup-bucket")"
+live_bucket="$(terraform_output aws "backup-and-restore-s3-unversioned-acceptance-live-bucket")"
+backup_bucket="$(terraform_output aws "backup-and-restore-s3-unversioned-acceptance-backup-bucket")"
 
 echo """
 aws_region: ${AWS_REGION}
@@ -24,8 +24,8 @@ resource_directory_key: ${live_bucket}
 """ > "bosh-backup-and-restore-meta/${S3_UNVERSIONED_CF_DEPLOYMENT_VARS_FILE}"
 
 
-live_bucket="$(terraform_output "backup-and-restore-s3-versioned-acceptance-live-bucket")"
-database_address="$(terraform_output "backup-and-restore-acceptance-external-db-address")"
+live_bucket="$(terraform_output aws "backup-and-restore-s3-versioned-acceptance-live-bucket")"
+database_address="$(terraform_output aws "backup-and-restore-acceptance-external-db-address")"
 
 echo """
 aws_region: ${AWS_REGION}
@@ -71,11 +71,29 @@ external_credhub_database_name: credhub-db
 external_credhub_database_address: ${database_address}
 """ > "bosh-backup-and-restore-meta/${S3_VERSIONED_CF_DEPLOYMENT_VARS_FILE}"
 
+live_bucket="$(terraform_output gcp "backup-and-restore-sdk-gcp-acceptance-live-bucket")"
+backup_bucket="$(terraform_output gcp "backup-and-restore-sdk-gcp-acceptance-backup-bucket")"
+project_id="$(jq -r .project_id <<< "$GCP_SERVICE_ACCOUNT_KEY")"
+email="$(jq -r .client_email <<< "$GCP_SERVICE_ACCOUNT_KEY")"
+
+echo """
+gcs_project: ${project_id}
+gcs_service_account_email: ${email}
+gcs_service_account_json_key: ${GCP_SERVICE_ACCOUNT_KEY}
+buildpack_backup_directory_key: ${backup_bucket}
+app_package_directory_key: ${live_bucket}
+app_package_backup_directory_key: ${backup_bucket}
+droplet_directory_key: ${live_bucket}
+droplet_backup_directory_key: ${backup_bucket}
+resource_directory_key: ${live_bucket}
+""" > "bosh-backup-and-restore-meta/${GCS_CF_DEPLOYMENT_VARS_FILE}"
+
 (
   cd bosh-backup-and-restore-meta
 
   git add "$S3_VERSIONED_CF_DEPLOYMENT_VARS_FILE"
   git add "$S3_UNVERSIONED_CF_DEPLOYMENT_VARS_FILE"
+  git add "$GCS_CF_DEPLOYMENT_VARS_FILE"
   if git commit -m "Update cf-deployment vars for external directors"; then
     echo "Updated cf-deployment vars for external directors"
   else
