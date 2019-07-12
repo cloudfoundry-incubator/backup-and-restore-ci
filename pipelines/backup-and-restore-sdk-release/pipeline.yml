@@ -532,8 +532,10 @@ jobs:
         gcp-key: ((gcp_service_account_key))
     get_params:
       output_statefile: true
-  - task: apply-gcp-cloud-sql
-    file: backup-and-restore-ci/tasks/apply-gcp-cloud-sql/task.yml
+  - task: create-gcp-db-certs
+    file: backup-and-restore-ci/tasks/create-gcp-db-certs/task.yml
+    input_mapping:
+      terraform-state: terraform
     params:
       GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
     ensure:
