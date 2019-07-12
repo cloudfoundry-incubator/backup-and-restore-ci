@@ -516,24 +516,30 @@ jobs:
     - get: backup-and-restore-sdk-release
       passed: [create-release]
       trigger: true
-    - get: release-tarball
-      resource: release
-      passed: [create-release]
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
+  - put: terraform
+    params:
+      terraform_source: bosh-backup-and-restore-meta/terraform/bbr-sdk-system-tests/gcp/
+      env_name: bbr-sdk-external-gcp-dbs
+      delete_on_failure: true
+      vars:
+        mysql-5-6-password: ((gcp-mysql-5-6-password))
+        mysql-5-7-password: ((gcp-mysql-5-7-password))
+        postgres-9-6-password: ((gcp-postgres-9-6-password))
+        director-external-ip: ((maru-lite-jumpbox-address))
+        director-jumpbox-ip: ((maru-lite-bosh-director-external-ip))
+        gcp-key: ((gcp_service_account_key))
+    get_params:
+      output_statefile: true
   - task: apply-gcp-cloud-sql
     file: backup-and-restore-ci/tasks/apply-gcp-cloud-sql/task.yml
     params:
       GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
-      MYSQL_5_6_PASSWORD: ((gcp-mysql-5-6-password))
-      MYSQL_5_7_PASSWORD: ((gcp-mysql-5-7-password))
-      POSTGRES_9_6_PASSWORD: ((gcp-postgres-9-6-password))
-      DIRECTOR_EXTERNAL_IP: ((maru-lite-bosh-director-external-ip))
-      DIRECTOR_JUMPBOX_IP: "((maru-lite-jumpbox-address))"
     ensure:
       put: bosh-backup-and-restore-meta
       params:
-        repository: bosh-backup-and-restore-meta-output/bosh-backup-and-restore-meta
+        repository: bosh-backup-and-restore-meta
         rebase: true
 
 - name: deploy-s3-blobstore-sdk
