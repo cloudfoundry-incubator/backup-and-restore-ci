@@ -24,6 +24,9 @@ maru-lite-bosh-creds: &MARU_LITE_BOSH_CREDS
   BOSH_GW_HOST: "((maru-lite-jumpbox-address))"
   BOSH_GW_PRIVATE_KEY: "((maru-lite-jumpbox-ssh-key))"
 
+aws-region: &aws-region eu-west-1
+aws-backup-region: &aws-backup-region eu-central-1
+
 mysql-deployment-name: &mysql-deployment-name mysql-dev
 mysql-host: &mysql-host 10.244.1.9
 mysql-port: &mysql-port 3306
@@ -115,7 +118,7 @@ resources:
   type: semver
   source:
     bucket: backup-and-restore-sdk-releases
-    region_name: eu-west-1
+    region_name: *aws-region
     key: current-dev-version
     access_key_id: ((aws-access-key-id))
     secret_access_key: ((aws-secret-access-key))
@@ -125,7 +128,7 @@ resources:
   source:
     bucket: backup-and-restore-sdk-releases
     regexp: backup-and-restore-sdk-(.*).tgz
-    region_name: eu-west-1
+    region_name: *aws-region
     access_key_id: ((aws-access-key-id))
     secret_access_key: ((aws-secret-access-key))
 
@@ -134,7 +137,7 @@ resources:
   source:
     bucket: backup-and-restore-sdk-addon-releases
     regexp: backup-and-restore-sdk-addon-(.*).tgz
-    region_name: eu-west-1
+    region_name: *aws-region
     access_key_id: ((aws-access-key-id))
     secret_access_key: ((aws-secret-access-key))
 
@@ -292,8 +295,8 @@ jobs:
       file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
       params:
         PACKAGE_NAME: s3-blobstore-backup-restore/s3bucket
-        S3_LIVE_REGION: "eu-west-1"
-        S3_BACKUP_REGION: "eu-central-1"
+        S3_LIVE_REGION: *aws-region
+        S3_BACKUP_REGION: *aws-backup-region
         S3_ENDPOINT: ""
         S3_ACCESS_KEY_ID: ((aws-access-key-id))
         S3_SECRET_ACCESS_KEY: ((aws-secret-access-key))
@@ -474,7 +477,7 @@ jobs:
     params:
       AWS_ACCESS_KEY: ((aws-access-key-id))
       AWS_SECRET_KEY: ((aws-secret-access-key))
-      AWS_REGION: eu-west-1
+      AWS_REGION: *aws-region
       MYSQL_5_5_PASSWORD: ((rds-5-5-password))
       MYSQL_5_6_PASSWORD: ((rds-5-6-password))
       MYSQL_5_7_PASSWORD: ((rds-5-7-password))
@@ -540,24 +543,24 @@ jobs:
         aws-secret-access-key: ((aws-secret-access-key))
         s3-bucket-name: bbr-system-test-bucket
         s3-cloned-bucket-name: bbr-system-test-bucket-clone
-        s3-region: eu-west-1
-        s3-cloned-bucket-region: eu-central-1
+        s3-region: *aws-region
+        s3-cloned-bucket-region: *aws-backup-region
         s3-unversioned-bucket-name-for-versioned-backuper: bbr-system-test-bucket-unversioned
-        s3-unversioned-bucket-region-for-versioned-backuper: eu-west-1
+        s3-unversioned-bucket-region-for-versioned-backuper: *aws-region
         s3-unversioned-bucket-name: bbr-system-test-s3-unversioned-bucket
-        s3-unversioned-bucket-region: eu-west-1
+        s3-unversioned-bucket-region: *aws-region
         s3-unversioned-backup-bucket-name: bbr-system-test-s3-unversioned-backup-bucket
         s3-unversioned-backup-bucket-region: us-east-1
         minio-access-key: "((minio-access-key))"
         minio-secret-key: "((minio-secret-key))"
         s3-unversioned-bpm-bucket-name: sdk-system-test-unversioned-bpm
-        s3-unversioned-bpm-bucket-region: eu-west-1
+        s3-unversioned-bpm-bucket-region: *aws-region
         s3-unversioned-bpm-backup-bucket-name: sdk-system-test-unversioned-bpm-backup
-        s3-unversioned-bpm-backup-bucket-region: eu-west-1
+        s3-unversioned-bpm-backup-bucket-region: *aws-region
         s3-unversioned-large-number-of-files-bucket-name: sdk-large-number-of-files
-        s3-unversioned-large-number-of-files-bucket-region: eu-west-1
+        s3-unversioned-large-number-of-files-bucket-region: *aws-region
         s3-unversioned-large-number-of-files-backup-bucket-name: sdk-large-number-of-files-backup
-        s3-unversioned-large-number-of-files-backup-bucket-region: eu-west-1
+        s3-unversioned-large-number-of-files-backup-bucket-region: *aws-region
         s3-unversioned-clone-bucket-name: sdk-unversioned-clone
         s3-unversioned-clone-bucket-region: us-east-1
 
@@ -583,7 +586,7 @@ jobs:
       vars:
         deployment-name: s3-backuper
         s3-bucket-name: iam-instance-role-test
-        s3-region: eu-west-1
+        s3-region: *aws-region
 
 - name: deploy-azure-blobstore-sdk
   serial: true
@@ -948,23 +951,23 @@ jobs:
       AWS_ACCESS_KEY_ID: ((aws-access-key-id))
       AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
       AWS_TEST_BUCKET_NAME: bbr-system-test-bucket
-      AWS_TEST_BUCKET_REGION: eu-west-1
+      AWS_TEST_BUCKET_REGION: *aws-region
       AWS_TEST_CLONE_BUCKET_NAME: bbr-system-test-bucket-clone
-      AWS_TEST_CLONE_BUCKET_REGION: eu-central-1
+      AWS_TEST_CLONE_BUCKET_REGION: *aws-backup-region
       AWS_TEST_UNVERSIONED_BUCKET_NAME: bbr-system-test-bucket-unversioned
-      AWS_TEST_UNVERSIONED_BUCKET_REGION: eu-west-1
+      AWS_TEST_UNVERSIONED_BUCKET_REGION: *aws-region
       S3_UNVERSIONED_BUCKET_NAME: bbr-system-test-s3-unversioned-bucket
-      S3_UNVERSIONED_BUCKET_REGION: eu-west-1
+      S3_UNVERSIONED_BUCKET_REGION: *aws-region
       S3_UNVERSIONED_BACKUP_BUCKET_NAME: bbr-system-test-s3-unversioned-backup-bucket
       S3_UNVERSIONED_BACKUP_BUCKET_REGION: us-east-1
       S3_UNVERSIONED_BPM_BUCKET_NAME: sdk-system-test-unversioned-bpm
-      S3_UNVERSIONED_BPM_BUCKET_REGION: eu-west-1
+      S3_UNVERSIONED_BPM_BUCKET_REGION: *aws-region
       S3_UNVERSIONED_BPM_BACKUP_BUCKET_NAME: sdk-system-test-unversioned-bpm-backup
-      S3_UNVERSIONED_BPM_BACKUP_BUCKET_REGION: eu-west-1
+      S3_UNVERSIONED_BPM_BACKUP_BUCKET_REGION: *aws-region
       S3_UNVERSIONED_LARGE_NUMBER_OF_FILES_BUCKET_NAME: sdk-large-number-of-files
-      S3_UNVERSIONED_LARGE_NUMBER_OF_FILES_BUCKET_REGION: eu-west-1
+      S3_UNVERSIONED_LARGE_NUMBER_OF_FILES_BUCKET_REGION: *aws-region
       S3_UNVERSIONED_LARGE_NUMBER_OF_FILES_BACKUP_BUCKET_NAME: sdk-large-number-of-files-backup
-      S3_UNVERSIONED_LARGE_NUMBER_OF_FILES_BACKUP_BUCKET_REGION: eu-west-1
+      S3_UNVERSIONED_LARGE_NUMBER_OF_FILES_BACKUP_BUCKET_REGION: *aws-region
       S3_UNVERSIONED_CLONE_BUCKET_NAME: sdk-unversioned-clone
       S3_UNVERSIONED_CLONE_BUCKET_REGION: us-east-1
 
@@ -994,11 +997,11 @@ jobs:
       AWS_ACCESS_KEY_ID: ((aws-access-key-id))
       AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
       AWS_TEST_BUCKET_NAME: iam-instance-role-test
-      AWS_TEST_BUCKET_REGION: eu-west-1
+      AWS_TEST_BUCKET_REGION: *aws-region
       AWS_TEST_CLONE_BUCKET_NAME: iam-instance-role-test-clone
-      AWS_TEST_CLONE_BUCKET_REGION: eu-west-1
+      AWS_TEST_CLONE_BUCKET_REGION: *aws-region
       AWS_TEST_UNVERSIONED_BUCKET_NAME: bbr-system-test-bucket-unversioned
-      AWS_TEST_UNVERSIONED_BUCKET_REGION: eu-west-1
+      AWS_TEST_UNVERSIONED_BUCKET_REGION: *aws-region
 
 - name: azure-blobstore-backuper-system-tests
   serial: true
