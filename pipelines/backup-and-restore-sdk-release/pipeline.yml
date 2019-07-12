@@ -1765,24 +1765,37 @@ jobs:
     - get: backup-and-restore-sdk-release
       passed: [create-release]
       trigger: true
-  - put: terraform
-    params:
-      terraform_source: bosh-backup-and-restore-meta/terraform/backup-and-restore-sdk-acceptance-tests/aws
-      env_name: sdk-external-directors
-      delete_on_failure: true
-      vars:
-        aws_access_key: ((aws-access-key-id))
-        aws_secret_key: ((aws-secret-access-key))
-        aws_region: *aws-region
-        aws_backup_region: *aws-backup-region
-        external_db_username: ((sdk-acceptance-rds-username))
-        external_db_password: ((sdk-acceptance-rds-password))
-    get_params:
-      output_statefile: true
+  - in_parallel:
+    - put: terraform-aws
+      resource: terraform
+      params:
+        terraform_source: bosh-backup-and-restore-meta/terraform/backup-and-restore-sdk-acceptance-tests/aws
+        env_name: sdk-external-directors
+        delete_on_failure: true
+        vars:
+          aws_access_key: ((aws-access-key-id))
+          aws_secret_key: ((aws-secret-access-key))
+          aws_region: *aws-region
+          aws_backup_region: *aws-backup-region
+          external_db_username: ((sdk-acceptance-rds-username))
+          external_db_password: ((sdk-acceptance-rds-password))
+      get_params:
+        output_statefile: true
+    - put: terraform-gcp
+      resource: terraform
+      params:
+        terraform_source: bosh-backup-and-restore-meta/terraform/backup-and-restore-sdk-acceptance-tests/gcp
+        env_name: sdk-external-directors-gcp
+        delete_on_failure: true
+        vars:
+          gcp_key: ((gcp_service_account_key))
+      get_params:
+        output_statefile: true
   - task: create-sdk-cf-deployment-vars
     file: backup-and-restore-ci/tasks/create-sdk-cf-deployment-vars/task.yml
     input_mapping:
-      terraform-state: terraform
+      terraform-state-aws: terraform-aws
+      terraform-state-gcp: terraform-gcp
     params:
       S3_VERSIONED_CF_DEPLOYMENT_VARS_FILE: external-blobstore-directors/aws-s3/cf-deployment-variables.yml
       S3_UNVERSIONED_CF_DEPLOYMENT_VARS_FILE: external-blobstore-directors/aws-s3-unversioned/cf-deployment-variables.yml
@@ -1792,6 +1805,8 @@ jobs:
       AWS_BACKUP_REGION: *aws-backup-region
       DATABASE_USERNAME: ((sdk-acceptance-rds-username))
       DATABASE_PASSWORD: ((sdk-acceptance-rds-password))
+      GCS_CF_DEPLOYMENT_VARS_FILE: external-blobstore-directors/gcs/cf-deployment-variables.yml
+      GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
     ensure:
       put: bosh-backup-and-restore-meta
       params:
