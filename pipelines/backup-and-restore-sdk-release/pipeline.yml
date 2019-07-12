@@ -67,16 +67,34 @@ resource_types:
   source:
     repository: pivotalcf/pivnet-resource
     tag: latest-final
+
 - name: bosh-deployment
   type: docker-image
   source:
     repository: cloudfoundry/bosh-deployment-resource
+
 - name: bosh-io-stemcell
   type: docker-image
   source:
     repository: concourse/bosh-io-stemcell-resource
 
+- name: terraform
+  type: docker-image
+  source:
+    repository: ljfranklin/terraform-resource
+
 resources:
+- name: terraform
+  type: terraform
+  source:
+    backend_type: s3
+    backend_config:
+      bucket: bbr-terraform-states
+      key: terraform-state.tfstate
+      access_key: ((aws-access-key-id))
+      secret_key: ((aws-secret-access-key))
+      region: *aws-region
+
 - name: backup-and-restore-sdk-addon-pivnet
   type: pivnet
   source:
@@ -472,24 +490,24 @@ jobs:
       passed: [create-release]
     - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
-  - task: apply-rds-aws
-    file: backup-and-restore-ci/tasks/apply-rds-aws/task.yml
+  - put: terraform
     params:
-      AWS_ACCESS_KEY: ((aws-access-key-id))
-      AWS_SECRET_KEY: ((aws-secret-access-key))
-      AWS_REGION: *aws-region
-      MYSQL_5_5_PASSWORD: ((rds-5-5-password))
-      MYSQL_5_6_PASSWORD: ((rds-5-6-password))
-      MYSQL_5_7_PASSWORD: ((rds-5-7-password))
-      SDK_ACCEPTANCE_MYSQL_5_7_PASSWORD: ((sdk-acceptance-rds-5-7-password))
-      POSTGRES_9_4_PASSWORD: ((rds-postgres-9-4-password))
-      POSTGRES_9_6_PASSWORD: ((rds-postgres-9-6-password))
-      POSTGRES_10_PASSWORD: ((rds-postgres-10-password))
-      POSTGRES_11_PASSWORD: ((rds-postgres-11-password))
-  - put: bosh-backup-and-restore-meta
-    params:
-      repository: bosh-backup-and-restore-meta-output/bosh-backup-and-restore-meta
-      rebase: true
+      terraform_source: bosh-backup-and-restore-meta/terraform/bbr-sdk-system-tests/aws/
+      env_name: bbr-sdk-external-rds-dbs
+      delete_on_failure: true
+      vars:
+        aws_access_key: ((aws-access-key-id))
+        aws_secret_key: ((aws-secret-access-key))
+        aws_region: *aws-region
+        mysql_5_5_password: ((rds-5-5-password))
+        mysql_5_6_password: ((rds-5-6-password))
+        mysql_5_7_password: ((rds-5-7-password))
+        postgres_9_4_password: ((rds-postgres-9-4-password))
+        postgres_9_6_password: ((rds-postgres-9-6-password))
+        postgres_10_password: ((rds-postgres-10-password))
+        postgres_11_password: ((rds-postgres-11-password))
+    get_params:
+      output_statefile: true
 
 - name: deploy-external-gcp-dbs
   serial: true
