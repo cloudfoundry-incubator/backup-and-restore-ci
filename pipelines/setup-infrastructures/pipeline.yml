@@ -829,6 +829,7 @@ jobs:
   - put: docker-host-deployment
     params:
       manifest: bosh-backup-and-restore-meta/ci/setup-infrastructures/docker-host.yml
+      releases: ["docker-bosh-release/release.tgz"]
 
 - name: clean-up-gcs
   serial: true
