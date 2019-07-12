@@ -4,7 +4,7 @@ set -eu
 
 save_server_certs() {
   local certs_dir; certs_dir="ci/backup-and-restore-sdk-release/certs/gcp-${1}"
-  local instance_name; instance_name="$(terraform output -state=terraform-state/terraform.tfstate "${1}-name")"
+  local instance_name; instance_name="$(terraform output -state=../terraform-state/terraform.tfstate "${1}-name")"
 
   mkdir -p "$certs_dir"
   gcloud sql instances describe "$instance_name" --format='value(serverCaCert.cert)' > "${certs_dir}/test-server-cert.pem"
