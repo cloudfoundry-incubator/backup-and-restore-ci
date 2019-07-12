@@ -8,17 +8,13 @@ image_resource:
 inputs:
 - name: bosh-backup-and-restore-meta
 - name: backup-and-restore-ci
+- name: terraform-state
 
 outputs:
-- name: bosh-backup-and-restore-meta-output
+- name: bosh-backup-and-restore-meta
 
 params:
   GCP_SERVICE_ACCOUNT_KEY:
-  MYSQL_5_6_PASSWORD:
-  MYSQL_5_7_PASSWORD:
-  POSTGRES_9_6_PASSWORD:
-  DIRECTOR_EXTERNAL_IP:
-  DIRECTOR_JUMPBOX_IP:
 
 run:
-  path: backup-and-restore-ci/tasks/apply-gcp-cloud-sql/task.sh
+  path: backup-and-restore-ci/tasks/create-gcp-db-certs/task.sh
