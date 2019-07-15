@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -eux
+set -eu
 
 storage_account_name="$(terraform output -state=terraform-state/terraform.tfstate "azure-storage-account-name")"
 
