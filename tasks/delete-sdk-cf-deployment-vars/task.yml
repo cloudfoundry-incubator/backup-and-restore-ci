@@ -1,0 +1,22 @@
+---
+platform: linux
+
+image_resource:
+  type: registry-image
+  source: {repository: pcfplatformrecovery/backup-and-restore}
+
+inputs:
+- name: backup-and-restore-ci
+- name: bosh-backup-and-restore-meta
+
+outputs:
+- name: bosh-backup-and-restore-meta
+
+params:
+  S3_VERSIONED_CF_DEPLOYMENT_VARS_FILE:
+  S3_UNVERSIONED_CF_DEPLOYMENT_VARS_FILE:
+  GCS_CF_DEPLOYMENT_VARS_FILE:
+  AZURE_CF_DEPLOYMENT_VARS_FILE:
+
+run:
+  path: backup-and-restore-ci/tasks/delete-sdk-cf-deployment-vars/task.sh
