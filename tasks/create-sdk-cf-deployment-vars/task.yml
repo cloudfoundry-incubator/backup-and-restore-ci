@@ -10,6 +10,7 @@ inputs:
 - name: bosh-backup-and-restore-meta
 - name: terraform-state-aws
 - name: terraform-state-gcp
+- name: terraform-state-azure
 
 outputs:
 - name: bosh-backup-and-restore-meta
@@ -27,6 +28,8 @@ params:
   DATABASE_PORT: 3306
   GCS_CF_DEPLOYMENT_VARS_FILE:
   GCP_SERVICE_ACCOUNT_KEY:
+  BLOBSTORE_STORAGE_ACCESS_KEY:
+  AZURE_CF_DEPLOYMENT_VARS_FILE:
 
 run:
   path: backup-and-restore-ci/tasks/create-sdk-cf-deployment-vars/task.sh

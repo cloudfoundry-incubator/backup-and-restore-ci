@@ -88,12 +88,27 @@ droplet_backup_directory_key: ${backup_bucket}
 resource_directory_key: ${live_bucket}
 """ > "bosh-backup-and-restore-meta/${GCS_CF_DEPLOYMENT_VARS_FILE}"
 
+live_bucket="$(terraform_output azure "blobstore-container")"
+storage_account_name="$(terraform_output azure "azure-storage-account-name")"
+
+echo """
+app_package_directory_key: ${live_bucket}
+droplet_directory_key: ${live_bucket}
+environment: AzureCloud
+blobstore_storage_access_key: ${BLOBSTORE_STORAGE_ACCESS_KEY}
+blobstore_storage_account_name: ${storage_account_name}
+buildpack_directory_key: ${live_bucket}
+resource_directory_key: ${live_bucket}
+""" > "bosh-backup-and-restore-meta/${AZURE_CF_DEPLOYMENT_VARS_FILE}"
+
 (
   cd bosh-backup-and-restore-meta
 
   git add "$S3_VERSIONED_CF_DEPLOYMENT_VARS_FILE"
   git add "$S3_UNVERSIONED_CF_DEPLOYMENT_VARS_FILE"
   git add "$GCS_CF_DEPLOYMENT_VARS_FILE"
+  git add "$AZURE_CF_DEPLOYMENT_VARS_FILE"
+
   if git commit -m "Update cf-deployment vars for external directors"; then
     echo "Updated cf-deployment vars for external directors"
   else
