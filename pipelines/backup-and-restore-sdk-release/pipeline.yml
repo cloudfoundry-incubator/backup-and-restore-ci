@@ -1770,7 +1770,7 @@ jobs:
       resource: terraform
       params:
         terraform_source: bosh-backup-and-restore-meta/terraform/backup-and-restore-sdk-acceptance-tests/aws
-        env_name: sdk-external-directors
+        env_name: sdk-external-directors-aws
         delete_on_failure: true
         vars:
           aws_access_key: ((aws-access-key-id))
