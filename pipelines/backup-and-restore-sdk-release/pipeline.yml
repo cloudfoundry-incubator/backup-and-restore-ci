@@ -1791,6 +1791,19 @@ jobs:
           gcp_key: ((gcp_service_account_key))
       get_params:
         output_statefile: true
+    - put: terraform-azure
+      resource: terraform
+      params:
+        terraform_source: bosh-backup-and-restore-meta/terraform/backup-and-restore-sdk-acceptance-tests/azure
+        env_name: sdk-external-directors-azure
+        delete_on_failure: true
+        vars:
+          appId: ((azure-appId))
+          password: ((azure-password))
+          tenant: ((azure-tenant))
+          subscription_id: ((azure-subscription-id))
+      get_params:
+        output_statefile: true
   - task: create-sdk-cf-deployment-vars
     file: backup-and-restore-ci/tasks/create-sdk-cf-deployment-vars/task.yml
     input_mapping:
