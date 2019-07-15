@@ -1838,3 +1838,59 @@ jobs:
         PASSWORD: ((azure-password))
         TENANT_ID: ((azure-tenant))
 
+- name: destroy-acceptance-infrastructure
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-ci
+    - get: bosh-backup-and-restore-meta
+  - in_parallel:
+    - task: delete-sdk-cf-deployment-vars
+      file: backup-and-restore-ci/tasks/delete-sdk-cf-deployment-vars/task.yml
+      params:
+        S3_VERSIONED_CF_DEPLOYMENT_VARS_FILE: external-blobstore-directors/aws-s3/cf-deployment-variables.yml
+        S3_UNVERSIONED_CF_DEPLOYMENT_VARS_FILE: external-blobstore-directors/aws-s3-unversioned/cf-deployment-variables.yml
+        GCS_CF_DEPLOYMENT_VARS_FILE: external-blobstore-directors/gcs/cf-deployment-variables.yml
+        AZURE_CF_DEPLOYMENT_VARS_FILE: external-blobstore-directors/azure/cf-deployment-variables.yml
+      ensure:
+        put: bosh-backup-and-restore-meta
+        params:
+          repository: bosh-backup-and-restore-meta
+          rebase: true
+    - put: destroy-terraform-aws
+      resource: terraform
+      params:
+        terraform_source: bosh-backup-and-restore-meta/terraform/backup-and-restore-sdk-acceptance-tests/aws
+        env_name: sdk-external-directors
+        action: destroy
+        vars:
+          aws_access_key: ((aws-access-key-id))
+          aws_secret_key: ((aws-secret-access-key))
+          aws_region: *aws-region
+          aws_backup_region: *aws-backup-region
+          external_db_username: ((sdk-acceptance-rds-username))
+          external_db_password: ((sdk-acceptance-rds-password))
+      get_params:
+        action: destroy
+    - put: destroy-terraform-gcp
+      resource: terraform
+      params:
+        terraform_source: bosh-backup-and-restore-meta/terraform/backup-and-restore-sdk-acceptance-tests/gcp
+        env_name: sdk-external-directors-gcp
+        action: destroy
+        vars:
+          gcp_key: ((gcp_service_account_key))
+      get_params:
+        action: destroy
+    - put: destroy-terraform-azure
+      resource: terraform
+      params:
+        terraform_source: bosh-backup-and-restore-meta/terraform/backup-and-restore-sdk-acceptance-tests/azure
+        env_name: sdk-external-directors-azure
+        action: destroy
+        vars:
+          appId: ((azure-appId))
+          password: ((azure-password))
+          tenant: ((azure-tenant))
+          subscription_id: ((azure-subscription-id))
+      get_params:
+        action: destroy
