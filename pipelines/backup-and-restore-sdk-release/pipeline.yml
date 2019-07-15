@@ -1804,25 +1804,37 @@ jobs:
           subscription_id: ((azure-subscription-id))
       get_params:
         output_statefile: true
-  - task: create-sdk-cf-deployment-vars
-    file: backup-and-restore-ci/tasks/create-sdk-cf-deployment-vars/task.yml
-    input_mapping:
-      terraform-state-aws: terraform-aws
-      terraform-state-gcp: terraform-gcp
-    params:
-      S3_VERSIONED_CF_DEPLOYMENT_VARS_FILE: external-blobstore-directors/aws-s3/cf-deployment-variables.yml
-      S3_UNVERSIONED_CF_DEPLOYMENT_VARS_FILE: external-blobstore-directors/aws-s3-unversioned/cf-deployment-variables.yml
-      AWS_ACCESS_KEY: ((aws-access-key-id))
-      AWS_SECRET_KEY: ((aws-secret-access-key))
-      AWS_REGION: *aws-region
-      AWS_BACKUP_REGION: *aws-backup-region
-      DATABASE_USERNAME: ((sdk-acceptance-rds-username))
-      DATABASE_PASSWORD: ((sdk-acceptance-rds-password))
-      GCS_CF_DEPLOYMENT_VARS_FILE: external-blobstore-directors/gcs/cf-deployment-variables.yml
-      GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
-    ensure:
-      put: bosh-backup-and-restore-meta
+  - in_parallel:
+    - task: create-sdk-cf-deployment-vars
+      file: backup-and-restore-ci/tasks/create-sdk-cf-deployment-vars/task.yml
+      input_mapping:
+        terraform-state-aws: terraform-aws
+        terraform-state-gcp: terraform-gcp
+        terraform-state-azure: terraform-azure
       params:
-        repository: bosh-backup-and-restore-meta
-        rebase: true
+        S3_VERSIONED_CF_DEPLOYMENT_VARS_FILE: external-blobstore-directors/aws-s3/cf-deployment-variables.yml
+        S3_UNVERSIONED_CF_DEPLOYMENT_VARS_FILE: external-blobstore-directors/aws-s3-unversioned/cf-deployment-variables.yml
+        AWS_ACCESS_KEY: ((aws-access-key-id))
+        AWS_SECRET_KEY: ((aws-secret-access-key))
+        AWS_REGION: *aws-region
+        AWS_BACKUP_REGION: *aws-backup-region
+        DATABASE_USERNAME: ((sdk-acceptance-rds-username))
+        DATABASE_PASSWORD: ((sdk-acceptance-rds-password))
+        GCS_CF_DEPLOYMENT_VARS_FILE: external-blobstore-directors/gcs/cf-deployment-variables.yml
+        GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
+        AZURE_CF_DEPLOYMENT_VARS_FILE: external-blobstore-directors/azure/cf-deployment-variables.yml
+        BLOBSTORE_STORAGE_ACCESS_KEY: ((azure-storage-key))
+      ensure:
+        put: bosh-backup-and-restore-meta
+        params:
+          repository: bosh-backup-and-restore-meta
+          rebase: true
+    - task: enable-soft-delete-azure
+      file: backup-and-restore-ci/tasks/enable-soft-delete-azure/task.yml
+      input_mapping:
+        terraform-state: terraform-azure
+      params:
+        APP_ID: ((azure-appId))
+        PASSWORD: ((azure-password))
+        TENANT_ID: ((azure-tenant))
 
