@@ -779,91 +779,118 @@ jobs:
   - in_parallel:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
-      passed:
-      - deploy-database-sdk
-      trigger: true
+    - get: bosh-backup-and-restore-meta
+    - get: terraform-aws
+      resource: terraform
+      params:
+        env_name: bbr-sdk-external-rds-dbs
+        output_statefile: true
   - in_parallel:
     - task: postgres-system-tests-9.4
-      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-aws
       params:
         TEST_SUITE_NAME: postgresql
         <<: *MARU_LITE_BOSH_CREDS
         POSTGRES_PASSWORD: ((rds-postgres-9-4-password))
-        POSTGRES_HOSTNAME: ((rds-postgres-9-4-hostname))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
+        DB_TYPE: postgres
+        DB_PREFIX: postgres_9_4
     - task: postgres-system-tests-9.6
-      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-aws
       params:
         TEST_SUITE_NAME: postgresql
         <<: *MARU_LITE_BOSH_CREDS
         POSTGRES_PASSWORD: ((rds-postgres-9-6-password))
-        POSTGRES_HOSTNAME: ((rds-postgres-9-6-hostname))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
+        DB_TYPE: postgres
+        DB_PREFIX: postgres_9_6
     - task: postgres-system-tests-10
-      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-aws
       params:
         TEST_SUITE_NAME: postgresql
         <<: *MARU_LITE_BOSH_CREDS
         POSTGRES_PASSWORD: ((rds-postgres-10-password))
-        POSTGRES_HOSTNAME: ((rds-postgres-10-hostname))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
+        DB_TYPE: postgres
+        DB_PREFIX: postgres_10
     - task: postgres-system-tests-11
-      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-aws
       params:
         TEST_SUITE_NAME: postgresql
         <<: *MARU_LITE_BOSH_CREDS
         POSTGRES_PASSWORD: ((rds-postgres-11-password))
-        POSTGRES_HOSTNAME: ((rds-postgres-11-hostname))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
+        DB_TYPE: postgres
+        DB_PREFIX: postgres_11
   - in_parallel:
     - task: postgres-tls-system-tests-9.4
-      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-aws
       params:
         TEST_SUITE_NAME: postgresql_tls
         <<: *MARU_LITE_BOSH_CREDS
         POSTGRES_PASSWORD: ((rds-postgres-9-4-password))
-        POSTGRES_HOSTNAME: ((rds-postgres-9-4-hostname))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
-        POSTGRES_CA_CERT: ((rds-ca-cert))
+        POSTGRES_CA_CERT_PATH: ((rds-ca-cert-path))
         TEST_SSL_USER_REQUIRES_SSL: false
+        DB_TYPE: postgres
+        DB_PREFIX: postgres_9_4
     - task: postgres-tls-system-tests-9.6
-      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-aws
       params:
         TEST_SUITE_NAME: postgresql_tls
         <<: *MARU_LITE_BOSH_CREDS
         POSTGRES_PASSWORD: ((rds-postgres-9-6-password))
-        POSTGRES_HOSTNAME: ((rds-postgres-9-6-hostname))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
-        POSTGRES_CA_CERT: ((rds-ca-cert))
+        POSTGRES_CA_CERT_PATH: ((rds-ca-cert-path))
         TEST_SSL_USER_REQUIRES_SSL: false
+        DB_TYPE: postgres
+        DB_PREFIX: postgres_9_6
     - task: postgres-tls-system-tests-10
-      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-aws
       params:
         TEST_SUITE_NAME: postgresql_tls
         <<: *MARU_LITE_BOSH_CREDS
         POSTGRES_PASSWORD: ((rds-postgres-10-password))
-        POSTGRES_HOSTNAME: ((rds-postgres-10-hostname))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
-        POSTGRES_CA_CERT: ((rds-ca-cert))
+        POSTGRES_CA_CERT_PATH: ((rds-ca-cert-path))
         TEST_SSL_USER_REQUIRES_SSL: false
+        DB_TYPE: postgres
+        DB_PREFIX: postgres_10
     - task: postgres-tls-system-tests-11
-      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-aws
       params:
         TEST_SUITE_NAME: postgresql_tls
         <<: *MARU_LITE_BOSH_CREDS
         POSTGRES_PASSWORD: ((rds-postgres-11-password))
-        POSTGRES_HOSTNAME: ((rds-postgres-11-hostname))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
-        POSTGRES_CA_CERT: ((rds-ca-cert))
+        POSTGRES_CA_CERT_PATH: ((rds-ca-cert-path))
         TEST_SSL_USER_REQUIRES_SSL: false
+        DB_TYPE: postgres
+        DB_PREFIX: postgres_11
 
 - name: mysql-system-tests
   serial: true
