@@ -725,6 +725,8 @@ jobs:
       trigger: true
     - get: terraform-gcp
       resource: terraform
+      passed:
+      - deploy-external-gcp-dbs
       params:
         env_name: bbr-sdk-external-gcp-dbs
         output_statefile: true
@@ -782,6 +784,8 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: terraform-aws
       resource: terraform
+      passed:
+      - deploy-external-rds-dbs
       params:
         env_name: bbr-sdk-external-rds-dbs
         output_statefile: true
@@ -929,6 +933,8 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: terraform-aws
       resource: terraform
+      passed:
+      - deploy-external-rds-dbs
       params:
         env_name: bbr-sdk-external-rds-dbs
         output_statefile: true
@@ -988,6 +994,8 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: terraform-gcp
       resource: terraform
+      passed:
+      - deploy-external-gcp-dbs
       params:
         env_name: bbr-sdk-external-gcp-dbs
         output_statefile: true
