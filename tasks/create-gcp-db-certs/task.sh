@@ -4,7 +4,7 @@ set -eu
 
 save_server_certs() {
   local certs_dir; certs_dir="ci/backup-and-restore-sdk-release/certs/gcp-${1}"
-  local instance_name; instance_name="$(terraform output -state=../terraform-state/terraform.tfstate "${1}-name")"
+  local instance_name; instance_name="$(terraform output -state=../terraform-state/terraform.tfstate "${1}_name")"
 
   mkdir -p "$certs_dir"
   gcloud sql instances describe "$instance_name" --format='value(serverCaCert.cert)' > "${certs_dir}/test-server-cert.pem"
@@ -24,10 +24,10 @@ git config --global user.email "cf-lazarus@pivotal.io"
   gcloud auth activate-service-account --key-file=<(echo "$GCP_SERVICE_ACCOUNT_KEY")
   gcloud config set project cf-backup-and-restore
 
-  save_server_certs "mysql-5-6"
-  save_server_certs "mysql-5-7"
-  save_server_certs "postgres-9-6"
-  save_server_certs "postgres-9-6-mutual-tls"
+  save_server_certs "mysql_5_6"
+  save_server_certs "mysql_5_7"
+  save_server_certs "postgres_9_6"
+  save_server_certs "postgres_9_6_mutual_tls"
 
   git add ci/backup-and-restore-sdk-release
   if git commit -m "Update GCP certs" ; then
