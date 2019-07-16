@@ -490,24 +490,32 @@ jobs:
       passed: [create-release]
     - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
-  - put: terraform
-    params:
-      terraform_source: bosh-backup-and-restore-meta/terraform/bbr-sdk-system-tests/aws/
-      env_name: bbr-sdk-external-rds-dbs
-      delete_on_failure: true
-      vars:
-        aws_access_key: ((aws-access-key-id))
-        aws_secret_key: ((aws-secret-access-key))
-        aws_region: *aws-region
-        mysql_5_5_password: ((rds-5-5-password))
-        mysql_5_6_password: ((rds-5-6-password))
-        mysql_5_7_password: ((rds-5-7-password))
-        postgres_9_4_password: ((rds-postgres-9-4-password))
-        postgres_9_6_password: ((rds-postgres-9-6-password))
-        postgres_10_password: ((rds-postgres-10-password))
-        postgres_11_password: ((rds-postgres-11-password))
-    get_params:
-      output_statefile: true
+  - in_parallel:
+    - put: terraform
+      params:
+        terraform_source: bosh-backup-and-restore-meta/terraform/bbr-sdk-system-tests/aws/
+        env_name: bbr-sdk-external-rds-dbs
+        delete_on_failure: true
+        vars:
+          aws_access_key: ((aws-access-key-id))
+          aws_secret_key: ((aws-secret-access-key))
+          aws_region: *aws-region
+          mysql_5_5_password: ((rds-5-5-password))
+          mysql_5_6_password: ((rds-5-6-password))
+          mysql_5_7_password: ((rds-5-7-password))
+          postgres_9_4_password: ((rds-postgres-9-4-password))
+          postgres_9_6_password: ((rds-postgres-9-6-password))
+          postgres_10_password: ((rds-postgres-10-password))
+          postgres_11_password: ((rds-postgres-11-password))
+      get_params:
+        output_statefile: true
+    - task: get-latest-rds-ca-bundle
+      file: backup-and-restore-ci/tasks/get-latest-rds-ca-bundle/task.yml
+      ensure:
+        put: bosh-backup-and-restore-meta
+        params:
+          repository: bosh-backup-and-restore-meta
+          rebase: true
 
 - name: deploy-external-gcp-dbs
   serial: true
