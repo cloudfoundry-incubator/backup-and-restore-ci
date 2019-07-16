@@ -1,0 +1,22 @@
+---
+platform: linux
+
+image_resource:
+  type: registry-image
+  source:
+    repository: pcfplatformrecovery/backup-and-restore
+
+inputs:
+- name: bosh-backup-and-restore-meta
+- name: backup-and-restore-ci
+
+outputs:
+- name: bosh-backup-and-restore-meta
+
+params:
+  TERRAFORM_STATE:
+  BBL_TERRAFORM_STATE:
+  GCP_KEY:
+
+run:
+  path: backup-and-restore-ci/tasks/add-subdomain-record-set/task.sh
