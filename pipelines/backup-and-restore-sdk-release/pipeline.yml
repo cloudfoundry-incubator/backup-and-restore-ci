@@ -718,45 +718,60 @@ jobs:
   plan:
   - in_parallel:
     - get: backup-and-restore-ci
+    - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-sdk-release
       passed:
       - deploy-database-sdk
       trigger: true
+    - get: terraform-gcp
+      resource: terraform
+      params:
+        env_name: bbr-sdk-external-gcp-dbs
+        output_statefile: true
   - task: postgres-system-tests-9.6
-    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+    input_mapping:
+      terraform-state: terraform-gcp
     params:
       TEST_SUITE_NAME: postgresql
       <<: *MARU_LITE_BOSH_CREDS
       POSTGRES_PASSWORD: ((gcp-postgres-9-6-password))
-      POSTGRES_HOSTNAME: ((gcp-postgres-9-6-hostname))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
+      DB_TYPE: postgres
+      DB_PREFIX: postgres_9_6
   - task: postgres-tls-system-tests-9.6
-    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+    input_mapping:
+      terraform-state: terraform-gcp
     params:
       TEST_SUITE_NAME: postgresql_tls
       <<: *MARU_LITE_BOSH_CREDS
       POSTGRES_PASSWORD: ((gcp-postgres-9-6-password))
-      POSTGRES_HOSTNAME: ((gcp-postgres-9-6-hostname))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
-      POSTGRES_CA_CERT: ((gcp-postgres-9-6-ca-cert))
+      POSTGRES_CA_CERT_PATH: ((gcp-postgres-9-6-ca-cert-path))
       TEST_TLS_VERIFY_IDENTITY: false
       TEST_SSL_USER_REQUIRES_SSL: false
+      DB_TYPE: postgres
+      DB_PREFIX: postgres_9_6
   - task: postgres-mutual-tls-system-tests-9.6
-    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+    file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+    input_mapping:
+      terraform-state: terraform-gcp
     params:
       TEST_SUITE_NAME: postgresql_mutual_tls
       <<: *MARU_LITE_BOSH_CREDS
       POSTGRES_PASSWORD: ((gcp-postgres-9-6-password))
-      POSTGRES_HOSTNAME: ((gcp-postgres-9-6-mutual-tls-hostname))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
-      POSTGRES_CA_CERT: ((gcp-postgres-9-6-mutual-tls-ca-cert))
-      POSTGRES_CLIENT_CERT: ((gcp-postgres-9-6-mutual-tls-client-cert))
-      POSTGRES_CLIENT_KEY: ((gcp-postgres-9-6-mutual-tls-client-key))
+      POSTGRES_CA_CERT_PATH: ((gcp-postgres-9-6-mutual-tls-ca-cert-path))
+      POSTGRES_CLIENT_CERT_PATH: ((gcp-postgres-9-6-mutual-tls-client-cert-path))
+      POSTGRES_CLIENT_KEY_PATH: ((gcp-postgres-9-6-mutual-tls-client-key-path))
       TEST_TLS_VERIFY_IDENTITY: false
       TEST_SSL_USER_REQUIRES_SSL: false
+      DB_TYPE: postgres
+      DB_PREFIX: postgres_9_6_mutual_tls
 
 - name: postgres-system-tests-rds
   serial: true
