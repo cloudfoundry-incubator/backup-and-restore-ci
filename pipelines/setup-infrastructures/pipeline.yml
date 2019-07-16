@@ -125,6 +125,7 @@ resources:
   type: bosh-io-release
   source:
     repository: cloudfoundry-incubator/docker-boshrelease
+    regexp: 29.*
 
 groups:
 - name: create
