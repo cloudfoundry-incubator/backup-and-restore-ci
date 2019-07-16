@@ -1823,7 +1823,6 @@ jobs:
         GCS_CF_DEPLOYMENT_VARS_FILE: external-blobstore-directors/gcs/cf-deployment-variables.yml
         GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
         AZURE_CF_DEPLOYMENT_VARS_FILE: external-blobstore-directors/azure/cf-deployment-variables.yml
-        BLOBSTORE_STORAGE_ACCESS_KEY: ((azure-storage-key))
       ensure:
         put: bosh-backup-and-restore-meta
         params:
