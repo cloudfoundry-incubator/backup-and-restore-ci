@@ -930,32 +930,43 @@ jobs:
       - deploy-database-sdk
       trigger: true
     - get: bosh-backup-and-restore-meta
+    - get: terraform-gcp
+      resource: terraform
+      params:
+        env_name: bbr-sdk-external-gcp-dbs
+        output_statefile: true
   - in_parallel:
     - task: mysql-system-tests-5.6
-      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-gcp
       params:
         <<: *MARU_LITE_BOSH_CREDS
         TEST_SUITE_NAME: mysql
         MYSQL_PASSWORD: ((gcp-mysql-5-6-password))
-        MYSQL_HOSTNAME: ((gcp-mysql-5-6-hostname))
         MYSQL_PORT: 3306
         MYSQL_USERNAME: root
-        MYSQL_CA_CERT: ((gcp-mysql-5-6-ca-cert))
-        MYSQL_CLIENT_CERT: ((gcp-mysql-5-6-client-cert))
-        MYSQL_CLIENT_KEY: ((gcp-mysql-5-6-client-key))
+        DB_TYPE: mysql
+        DB_PREFIX: mysql_5_6
+        MYSQL_CA_CERT_PATH: ((gcp-mysql-5-6-ca-cert-path))
+        MYSQL_CLIENT_CERT_PATH: ((gcp-mysql-5-6-client-cert-path))
+        MYSQL_CLIENT_KEY_PATH: ((gcp-mysql-5-6-client-key-path))
         TEST_TLS_VERIFY_IDENTITY: false
     - task: mysql-system-tests-5.7
-      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-gcp
       params:
         <<: *MARU_LITE_BOSH_CREDS
         TEST_SUITE_NAME: mysql
         MYSQL_PASSWORD: ((gcp-mysql-5-7-password))
-        MYSQL_HOSTNAME: ((gcp-mysql-5-7-hostname))
         MYSQL_PORT: 3306
         MYSQL_USERNAME: root
-        MYSQL_CA_CERT: ((gcp-mysql-5-7-ca-cert))
-        MYSQL_CLIENT_CERT: ((gcp-mysql-5-7-client-cert))
-        MYSQL_CLIENT_KEY: ((gcp-mysql-5-7-client-key))
+        DB_TYPE: mysql
+        DB_PREFIX: mysql_5_7
+        MYSQL_CA_CERT_PATH: ((gcp-mysql-5-7-ca-cert-path))
+        MYSQL_CLIENT_CERT_PATH: ((gcp-mysql-5-7-client-cert-path))
+        MYSQL_CLIENT_KEY_PATH: ((gcp-mysql-5-7-client-key-path))
         TEST_TLS_VERIFY_IDENTITY: false
 
 - name: s3-blobstore-backuper-system-tests
