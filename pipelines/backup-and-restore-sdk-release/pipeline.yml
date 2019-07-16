@@ -1177,7 +1177,7 @@ jobs:
       release: backup-and-restore-sdk-release
     params:
       BBL_STATE_DIR: external-blobstore-directors/azure/
-      SYSTEM_DOMAIN: bbr-azure.cf-app.com
+      SYSTEM_DOMAIN: bbr-azure.platform-recovery.cf-app.com
       OPS_FILES: "operations/scale-to-one-az.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-external-blobstore.yml operations/use-azure-storage-blobstore.yml operations/backup-and-restore/enable-backup-restore-azure.yml"
       VARS_FILES: external-blobstore-directors/azure/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
@@ -1185,8 +1185,8 @@ jobs:
   - task: wait-for-cf-api
     file: backup-and-restore-ci/tasks/wait-for-cf-api/task.yml
     params:
-      CF_API_URL: https://api.bbr-azure.cf-app.com
-      CF_UAA_URL: https://uaa.bbr-azure.cf-app.com
+      CF_API_URL: https://api.bbr-azure.platform-recovery.cf-app.com
+      CF_UAA_URL: https://uaa.bbr-azure.platform-recovery.cf-app.com
 
 - name: deploy-cf-with-external-gcs-blobstore
   serial: true
@@ -1321,7 +1321,7 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
     params:
       BBL_STATE_DIR: external-blobstore-directors/azure
-      SYSTEM_DOMAIN: bbr-azure.cf-app.com
+      SYSTEM_DOMAIN: bbr-azure.platform-recovery.cf-app.com
       INTEGRATION_CONFIG_FILE_PATH: external-blobstore-directors/azure/integration_config.json
   - task: acceptance-tests
     file: disaster-recovery-acceptance-tests/ci/drats-with-integration-config/task.yml

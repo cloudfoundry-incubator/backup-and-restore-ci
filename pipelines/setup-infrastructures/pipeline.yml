@@ -315,7 +315,7 @@ jobs:
       BBL_STATE_DIR: external-blobstore-directors/azure/
       BBL_LB_CERT: ((azure-lb-cert))
       BBL_LB_KEY: ((azure-lb-key))
-      LB_DOMAIN: bbr-azure.cf-app.com
+      LB_DOMAIN: bbr-azure.platform-recovery.cf-app.com
       BBL_ENV_NAME: bbr-azure
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
