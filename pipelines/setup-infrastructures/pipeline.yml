@@ -902,33 +902,14 @@ jobs:
 
 - name: delete-unattached-disks
   plan:
-  - get: every-friday
-    trigger: true
+  - in_parallel:
+    - get: backup-and-restore-ci
+    - get: every-friday
+      trigger: true
   - task: delete-unattached-disks
+    file: backup-and-restore-ci/tasks/delete-unattached-disks/task.yml
     params:
       GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          repository: google/cloud-sdk
-      params:
-        GCP_SERVICE_ACCOUNT_KEY:
-      run:
-        path: bash
-        args:
-        - -c
-        - |
-          set -eu
-          set -o pipefail
-
-          gcloud auth activate-service-account --key-file <(echo "$GCP_SERVICE_ACCOUNT_KEY")
-          if gcloud compute disks list --filter="-users:*" --uri | grep "Listed 0 items."; then
-              gcloud compute disks list --filter="-users:*" --uri  | xargs gcloud compute disks delete --quiet
-          else
-              echo "No unattached disks to delete"
-          fi
 
 - name: setup-gcp-iam-role-bosh-director
   plan:
