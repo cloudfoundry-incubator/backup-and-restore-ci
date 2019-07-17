@@ -309,6 +309,7 @@ jobs:
   - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
   - task: setup-infrastructure
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
@@ -325,6 +326,19 @@ jobs:
       put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
+        rebase: true
+  - task: add-subdomain-record-set
+    file: backup-and-restore-ci/tasks/add-subdomain-record-set/task.yml
+    params:
+      TERRAFORM_STATE: external-blobstore-directors/azure/vars/subdomain-record-set.tfstate
+      BBL_TERRAFORM_STATE: bosh-backup-and-restore-meta/external-blobstore-directors/azure/vars/terraform.tfstate
+      GCP_KEY: ((gcp_service_account_key))
+      GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
+      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: bosh-backup-and-restore-meta
         rebase: true
 
 - name: clean-up-azure

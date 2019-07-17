@@ -17,6 +17,9 @@ params:
   TERRAFORM_STATE:
   BBL_TERRAFORM_STATE:
   GCP_KEY:
+  GIT_COMMIT_EMAIL:
+  GIT_COMMIT_USERNAME:
+
 
 run:
   path: backup-and-restore-ci/tasks/add-subdomain-record-set/task.sh

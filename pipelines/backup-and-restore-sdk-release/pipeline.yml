@@ -1268,17 +1268,6 @@ jobs:
       VARS_FILES: external-blobstore-directors/azure/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
-  - task: add-subdomain-record-set
-    file: backup-and-restore-ci/tasks/add-subdomain-record-set/task.yml
-    params:
-      TERRAFORM_STATE: bosh-backup-and-restore-meta/external-blobstore-directors/azure/vars/subdomain-record-set.tfstate
-      BBL_TERRAFORM_STATE: bosh-backup-and-restore-meta/external-blobstore-directors/azure/vars/terraform.tfstate
-      GCP_KEY: ((gcp_service_account_key))
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: bosh-backup-and-restore-meta
-        rebase: true
   - task: wait-for-cf-api
     file: backup-and-restore-ci/tasks/wait-for-cf-api/task.yml
     params:

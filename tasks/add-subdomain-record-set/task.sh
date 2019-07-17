@@ -18,5 +18,19 @@ terraform apply \
   --var region=europe-west1 \
   --var "credentials=${GCP_KEY}" \
   --var zone=platform-recovery \
-  "--state=${TERRAFORM_STATE}" \
+  "--state=bosh-backup-and-restore-meta/${TERRAFORM_STATE}" \
   bosh-backup-and-restore-meta/terraform/backup-and-restore-sdk-acceptance-tests/add-subdomain-record-set/
+
+(
+  cd bosh-backup-and-restore-meta
+
+  git config user.name "${GIT_COMMIT_USERNAME}"
+  git config user.email "${GIT_COMMIT_EMAIL}"
+  git add "$TERRAFORM_STATE"
+
+  if git commit -m "Update add-subdomain-record-set terraform state for ${env_name#"bosh-"}"; then
+    echo "Update add-subdomain-record-set terraform state for ${env_name#"bosh-"}"
+  else
+    echo "No change to add-subdomain-record-set terraform state for ${env_name#"bosh-"}"
+  fi
+)
