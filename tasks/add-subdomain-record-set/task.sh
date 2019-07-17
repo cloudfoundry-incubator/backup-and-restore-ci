@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-set -x
+
 : "${BBL_TERRAFORM_STATE?BBL_TERRAFORM_STATE must be set}"
 : "${TERRAFORM_STATE?TERRAFORM_STATE must be set}"
 : "${GCP_KEY?GCP_KEY must be set}"
