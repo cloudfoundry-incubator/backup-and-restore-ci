@@ -26,7 +26,7 @@ terraform apply \
 
   git config user.name "${GIT_COMMIT_USERNAME}"
   git config user.email "${GIT_COMMIT_EMAIL}"
-  git add "$TERRAFORM_STATE"
+  git add "$TERRAFORM_STATE*"
 
   if git commit -m "Update add-subdomain-record-set terraform state for ${env_name#"bosh-"}"; then
     echo "Update add-subdomain-record-set terraform state for ${env_name#"bosh-"}"
