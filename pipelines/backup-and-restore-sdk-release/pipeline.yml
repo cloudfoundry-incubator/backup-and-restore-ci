@@ -511,6 +511,9 @@ jobs:
         output_statefile: true
     - task: get-latest-rds-ca-bundle
       file: backup-and-restore-ci/tasks/get-latest-rds-ca-bundle/task.yml
+      params:
+        GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
+        GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
       ensure:
         put: bosh-backup-and-restore-meta
         params:
@@ -1917,6 +1920,8 @@ jobs:
         GCS_CF_DEPLOYMENT_VARS_FILE: external-blobstore-directors/gcs/cf-deployment-variables.yml
         GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
         AZURE_CF_DEPLOYMENT_VARS_FILE: external-blobstore-directors/azure/cf-deployment-variables.yml
+        GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
+        GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
       ensure:
         put: bosh-backup-and-restore-meta
         params:

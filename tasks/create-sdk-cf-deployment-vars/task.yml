@@ -29,6 +29,9 @@ params:
   GCS_CF_DEPLOYMENT_VARS_FILE:
   GCP_SERVICE_ACCOUNT_KEY:
   AZURE_CF_DEPLOYMENT_VARS_FILE:
+  GIT_COMMIT_EMAIL:
+  GIT_COMMIT_USERNAME:
+
 
 run:
   path: backup-and-restore-ci/tasks/create-sdk-cf-deployment-vars/task.sh

@@ -111,6 +111,8 @@ resource_directory_key: ${live_bucket}
 (
   cd bosh-backup-and-restore-meta
 
+  git config user.name "${GIT_COMMIT_USERNAME}"
+  git config user.email "${GIT_COMMIT_EMAIL}"
   git add "$S3_VERSIONED_CF_DEPLOYMENT_VARS_FILE"
   git add "$S3_UNVERSIONED_CF_DEPLOYMENT_VARS_FILE"
   git add "$GCS_CF_DEPLOYMENT_VARS_FILE"

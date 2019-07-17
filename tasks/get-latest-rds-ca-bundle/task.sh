@@ -7,6 +7,9 @@ wget "$RDS_CA_BUNDLE_URL" -O "bosh-backup-and-restore-meta/$RDS_CA_BUNDLE_PATH"
 (
   cd bosh-backup-and-restore-meta
 
+  git config user.name "${GIT_COMMIT_USERNAME}"
+  git config user.email "${GIT_COMMIT_EMAIL}"
+
   git add "$RDS_CA_BUNDLE_PATH"
 
   if git commit -m "Update rds ca bundle"; then

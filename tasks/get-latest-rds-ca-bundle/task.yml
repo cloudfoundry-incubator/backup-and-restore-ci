@@ -15,6 +15,9 @@ outputs:
 params:
   RDS_CA_BUNDLE_URL: https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
   RDS_CA_BUNDLE_PATH: ci/backup-and-restore-sdk-release/certs/rds-combined-ca-bundle.pem
+  GIT_COMMIT_EMAIL:
+  GIT_COMMIT_USERNAME:
+
 
 run:
   path: backup-and-restore-ci/tasks/get-latest-rds-ca-bundle/task.sh
