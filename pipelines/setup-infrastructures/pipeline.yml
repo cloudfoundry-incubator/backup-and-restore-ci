@@ -87,13 +87,13 @@ resources:
     - Tuesday
     location: Europe/London
 
-- name: every-friday
+- name: every-sunday
   type: time
   source:
     start: 8:00 AM
     stop: 9:00 AM
     days:
-    - Friday
+    - Sunday
     location: Europe/London
 
 - name: everyday
@@ -892,7 +892,7 @@ jobs:
     - get: backup-and-restore-ci
     - get: every-tuesday
       trigger: true
-    - get: every-friday
+    - get: every-sunday
       trigger: true
   - task: renew-environments
     tags: [platform-recovery-vsphere]
@@ -904,7 +904,7 @@ jobs:
   plan:
   - in_parallel:
     - get: backup-and-restore-ci
-    - get: every-friday
+    - get: every-sunday
       trigger: true
   - task: delete-unattached-disks
     file: backup-and-restore-ci/tasks/delete-unattached-disks/task.yml
