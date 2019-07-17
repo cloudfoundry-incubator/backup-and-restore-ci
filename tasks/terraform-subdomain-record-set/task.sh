@@ -10,7 +10,7 @@ env_name="$( terraform output "--state=${BBL_TERRAFORM_STATE}" director_name)"
 
 terraform init bosh-backup-and-restore-meta/terraform/backup-and-restore-sdk-acceptance-tests/add-subdomain-record-set/
 
-terraform apply \
+terraform ${TERRAFORM_ACTION} \
   --auto-approve \
   --var "nameservers=${nameservers}" \
   --var "record_set_name=${env_name#"bosh-"}.platform-recovery.cf-app.com." \
