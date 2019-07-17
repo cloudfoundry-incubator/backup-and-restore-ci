@@ -23,4 +23,4 @@ params:
 
 
 run:
-  path: backup-and-restore-ci/tasks/add-subdomain-record-set/task.sh
+  path: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.sh
