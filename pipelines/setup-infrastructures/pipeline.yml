@@ -190,7 +190,7 @@ jobs:
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
       BBL_LB_CERT: ((aws-s3-lb-cert))
       BBL_LB_KEY: ((aws-s3-lb-key))
-      LB_DOMAIN: bbr-s3.cf-app.com
+      LB_DOMAIN: bbr-s3.platform-recovery.cf-app.com
       BBL_ENV_NAME: bbr-s3
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
@@ -199,6 +199,20 @@ jobs:
       put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
+        rebase: true
+  - task: terraform-subdomain-record-set
+    file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
+    params:
+      TERRAFORM_STATE: external-blobstore-directors/aws-s3/subdomain-terraform/subdomain-record-set.tfstate
+      BBL_TERRAFORM_STATE: bosh-backup-and-restore-meta/external-blobstore-directors/aws-s3/vars/terraform.tfstate
+      TERRAFORM_ACTION: apply
+      GCP_KEY: ((gcp_service_account_key))
+      GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
+      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: bosh-backup-and-restore-meta
         rebase: true
 
 - name: clean-up-aws-s3
@@ -238,6 +252,20 @@ jobs:
       params:
         repository: updated-bbl-state
         rebase: true
+  - task: terraform-subdomain-record-set
+    file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
+    params:
+      TERRAFORM_STATE: external-blobstore-directors/aws-s3/subdomain-terraform/subdomain-record-set.tfstate
+      BBL_TERRAFORM_STATE: bosh-backup-and-restore-meta/external-blobstore-directors/aws-s3/vars/terraform.tfstate
+      TERRAFORM_ACTION: destroy
+      GCP_KEY: ((gcp_service_account_key))
+      GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
+      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: bosh-backup-and-restore-meta
+        rebase: true
 
 - name: setup-infrastructure-aws-s3-unversioned
   serial: true
@@ -253,7 +281,7 @@ jobs:
       BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
       BBL_LB_CERT: ((aws-s3-unversioned-lb-cert))
       BBL_LB_KEY: ((aws-s3-unversioned-lb-key))
-      LB_DOMAIN: bbr-s3-unversioned.cf-app.com
+      LB_DOMAIN: bbr-s3-unversioned.platform-recovery.cf-app.com
       BBL_ENV_NAME: bbr-s3-unversioned
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
@@ -262,6 +290,20 @@ jobs:
       put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
+        rebase: true
+  - task: terraform-subdomain-record-set
+    file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
+    params:
+      TERRAFORM_STATE: external-blobstore-directors/aws-s3-unversioned/subdomain-terraform/subdomain-record-set.tfstate
+      BBL_TERRAFORM_STATE: bosh-backup-and-restore-meta/external-blobstore-directors/aws-s3-unversioned/vars/terraform.tfstate
+      TERRAFORM_ACTION: apply
+      GCP_KEY: ((gcp_service_account_key))
+      GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
+      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: bosh-backup-and-restore-meta
         rebase: true
 
 - name: clean-up-aws-s3-unversioned
@@ -300,6 +342,20 @@ jobs:
       put: bosh-backup-and-restore-meta
       params:
         repository: updated-bbl-state
+        rebase: true
+  - task: terraform-subdomain-record-set
+    file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
+    params:
+      TERRAFORM_STATE: external-blobstore-directors/aws-s3-unversioned/subdomain-terraform/subdomain-record-set.tfstate
+      BBL_TERRAFORM_STATE: bosh-backup-and-restore-meta/external-blobstore-directors/aws-s3-unversioned/vars/terraform.tfstate
+      TERRAFORM_ACTION: destroy
+      GCP_KEY: ((gcp_service_account_key))
+      GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
+      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: bosh-backup-and-restore-meta
         rebase: true
 
 - name: setup-infrastructure-azure
@@ -841,7 +897,7 @@ jobs:
       BBL_STATE_DIR: external-blobstore-directors/gcs/
       BBL_LB_CERT: ((gcs-lb-cert))
       BBL_LB_KEY: ((gcs-lb-key))
-      LB_DOMAIN: bbr-gcs.cf-app.com
+      LB_DOMAIN: bbr-gcs.platform-recovery.cf-app.com
       BBL_ENV_NAME: bbr-gcs
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
@@ -851,16 +907,20 @@ jobs:
       params:
         repository: updated-bbl-state
         rebase: true
-
-- name: deploy-docker-host
-  serial_groups: [docker-host]
-  plan:
-  - get: docker-bosh-release
-  - get: bosh-backup-and-restore-meta
-  - put: docker-host-deployment
+  - task: terraform-subdomain-record-set
+    file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
     params:
-      manifest: bosh-backup-and-restore-meta/ci/setup-infrastructures/docker-host.yml
-      releases: ["docker-bosh-release/release.tgz"]
+      TERRAFORM_STATE: external-blobstore-directors/gcs/subdomain-terraform/subdomain-record-set.tfstate
+      BBL_TERRAFORM_STATE: bosh-backup-and-restore-meta/external-blobstore-directors/gcs/vars/terraform.tfstate
+      TERRAFORM_ACTION: apply
+      GCP_KEY: ((gcp_service_account_key))
+      GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
+      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: bosh-backup-and-restore-meta
+        rebase: true
 
 - name: clean-up-gcs
   serial: true
@@ -899,6 +959,30 @@ jobs:
       params:
         repository: updated-bbl-state
         rebase: true
+  - task: terraform-subdomain-record-set
+    file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
+    params:
+      TERRAFORM_STATE: external-blobstore-directors/gcs/subdomain-terraform/subdomain-record-set.tfstate
+      BBL_TERRAFORM_STATE: bosh-backup-and-restore-meta/external-blobstore-directors/gcs/vars/terraform.tfstate
+      TERRAFORM_ACTION: destroy
+      GCP_KEY: ((gcp_service_account_key))
+      GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
+      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: bosh-backup-and-restore-meta
+        rebase: true
+
+- name: deploy-docker-host
+  serial_groups: [docker-host]
+  plan:
+  - get: docker-bosh-release
+  - get: bosh-backup-and-restore-meta
+  - put: docker-host-deployment
+    params:
+      manifest: bosh-backup-and-restore-meta/ci/setup-infrastructures/docker-host.yml
+      releases: ["docker-bosh-release/release.tgz"]
 
 - name: deploy-tracker-bot
   serial: true
