@@ -53,5 +53,5 @@ RUN \
   chmod +x /usr/local/bin/credhub
 
 #for dig
-RUN apt install dnsutils
+RUN apt install --yes dnsutils
 
