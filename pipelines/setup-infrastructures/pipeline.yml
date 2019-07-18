@@ -142,6 +142,7 @@ groups:
   - setup-infrastructure-gcs
   - setup-gcp-iam-role-bosh-director
   - setup-gcp-iam-role-bbl
+  - setup-platform-recovery-zone
   - deploy-tracker-bot
   - deploy-docker-host
   - renew-environments
@@ -174,6 +175,7 @@ groups:
   - destroy-infrastructure-gcs
   - destroy-gcp-iam-role-bosh-director
   - destroy-gcp-iam-role-bbl
+  - destroy-platform-recovery-zone
 
 jobs:
 - name: setup-infrastructure-aws-s3
@@ -1122,6 +1124,33 @@ jobs:
     file: backup-and-restore-ci/tasks/delete-unattached-disks/task.yml
     params:
       GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
+
+- name: setup-platform-recovery-zone
+  plan:
+  - get: bosh-backup-and-restore-meta
+  - put: terraform
+    params:
+      terraform_source: bosh-backup-and-restore-meta/terraform/backup-and-restore-sdk-acceptance-tests/gcp-zone/
+      env_name: platform-recovery-zone
+      vars:
+        name: platform-recovery
+        dns: platform-recovery.cf-app.com
+        gcp_service_account_key: ((gcp_service_account_key))
+
+- name: destroy-platform-recovery-zone
+  plan:
+  - get: bosh-backup-and-restore-meta
+  - put: terraform
+    params:
+      terraform_source: bosh-backup-and-restore-meta/terraform/backup-and-restore-sdk-acceptance-tests/gcp-zone/
+      env_name: platform-recovery-zone
+      action: destroy
+      vars:
+        name: platform-recovery
+        dns: platform-recovery.cf-app.com
+        gcp_service_account_key: ((gcp_service_account_key))
+    get_params:
+      action: destroy
 
 - name: setup-gcp-iam-role-bosh-director
   plan:
