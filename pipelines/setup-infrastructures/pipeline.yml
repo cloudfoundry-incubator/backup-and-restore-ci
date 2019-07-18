@@ -241,19 +241,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-  - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    params:
-      << : *COMMON_BBL_PARAMS
-      BBL_STATE_DIR: external-blobstore-directors/aws-s3/
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      bbl-config: bosh-backup-and-restore-meta
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
   - task: terraform-subdomain-record-set
     file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
     params:
@@ -267,6 +254,19 @@ jobs:
       put: bosh-backup-and-restore-meta
       params:
         repository: bosh-backup-and-restore-meta
+        rebase: true
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: external-blobstore-directors/aws-s3/
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
         rebase: true
 
 - name: setup-infrastructure-aws-s3-unversioned
@@ -334,19 +334,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-  - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    params:
-      << : *COMMON_BBL_PARAMS
-      BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      bbl-config: bosh-backup-and-restore-meta
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
   - task: terraform-subdomain-record-set
     file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
     params:
@@ -360,6 +347,19 @@ jobs:
       put: bosh-backup-and-restore-meta
       params:
         repository: bosh-backup-and-restore-meta
+        rebase: true
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
         rebase: true
 
 - name: setup-infrastructure-azure
@@ -427,19 +427,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-  - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    params:
-      << : *COMMON_BBL_PARAMS
-      BBL_STATE_DIR: external-blobstore-directors/azure/
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      bbl-config: bosh-backup-and-restore-meta
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
   - task: terraform-subdomain-record-set
     file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
     params:
@@ -453,6 +440,19 @@ jobs:
       put: bosh-backup-and-restore-meta
       params:
         repository: bosh-backup-and-restore-meta
+        rebase: true
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: external-blobstore-directors/azure/
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
         rebase: true
 
 - name: setup-infrastructure-aws-ec2
@@ -606,19 +606,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-  - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    params:
-      << : *COMMON_BBL_PARAMS
-      BBL_STATE_DIR: drats-pr-ragdoll/
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      bbl-config: bosh-backup-and-restore-meta
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
   - task: terraform-subdomain-record-set
     file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
     params:
@@ -632,6 +619,19 @@ jobs:
       put: bosh-backup-and-restore-meta
       params:
         repository: bosh-backup-and-restore-meta
+        rebase: true`
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: drats-pr-ragdoll/
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
         rebase: true
 
 - name: setup-infrastructure-drats-papillon
@@ -699,19 +699,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-  - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    params:
-      << : *COMMON_BBL_PARAMS
-      BBL_STATE_DIR: drats-papillon/
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      bbl-config: bosh-backup-and-restore-meta
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
   - task: terraform-subdomain-record-set
     file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
     params:
@@ -725,6 +712,19 @@ jobs:
       put: bosh-backup-and-restore-meta
       params:
         repository: bosh-backup-and-restore-meta
+        rebase: true
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: drats-papillon/
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
         rebase: true
 
 - name: setup-infrastructure-drats-with-config-manx
@@ -792,19 +792,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-  - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    params:
-      << : *COMMON_BBL_PARAMS
-      BBL_STATE_DIR: drats-with-config-manx/
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      bbl-config: bosh-backup-and-restore-meta
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
   - task: terraform-subdomain-record-set
     file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
     params:
@@ -818,6 +805,19 @@ jobs:
       put: bosh-backup-and-restore-meta
       params:
         repository: bosh-backup-and-restore-meta
+        rebase: true
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: drats-with-config-manx/
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
         rebase: true
 
 
@@ -1044,19 +1044,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-  - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    params:
-      << : *COMMON_BBL_PARAMS
-      BBL_STATE_DIR: external-blobstore-directors/gcs/
-    input_mapping:
-      bbl-state: bosh-backup-and-restore-meta
-      bbl-config: bosh-backup-and-restore-meta
-    ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
   - task: terraform-subdomain-record-set
     file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
     params:
@@ -1070,6 +1057,19 @@ jobs:
       put: bosh-backup-and-restore-meta
       params:
         repository: bosh-backup-and-restore-meta
+        rebase: true
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: external-blobstore-directors/gcs/
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
         rebase: true
 
 - name: deploy-docker-host
