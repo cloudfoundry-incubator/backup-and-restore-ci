@@ -51,3 +51,7 @@ RUN \
   wget https://github.com/cloudfoundry-incubator/credhub-cli/releases/download/2.2.0/credhub-linux-2.2.0.tgz -P /tmp && \
   tar xzvf /tmp/credhub-linux-2.2.0.tgz -C /usr/local/bin && \
   chmod +x /usr/local/bin/credhub
+
+#for dig
+RUN apt install dnsutils
+
