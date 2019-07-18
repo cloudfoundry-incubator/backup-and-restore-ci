@@ -569,7 +569,7 @@ jobs:
     file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
     params:
       TERRAFORM_STATE: drats-pr-ragdoll/subdomain-terraform/subdomain-record-set.tfstate
-      BBL_TERRAFORM_STATE: drats-pr-ragdoll/vars/terraform.tfstate
+      BBL_TERRAFORM_STATE: bosh-backup-and-restore-meta/drats-pr-ragdoll/vars/terraform.tfstate
       TERRAFORM_ACTION: apply
       GCP_KEY: ((gcp_service_account_key))
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
@@ -610,7 +610,7 @@ jobs:
     file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
     params:
       TERRAFORM_STATE: drats-pr-ragdoll/subdomain-terraform/subdomain-record-set.tfstate
-      BBL_TERRAFORM_STATE: drats-pr-ragdoll/vars/terraform.tfstate
+      BBL_TERRAFORM_STATE: bosh-backup-and-restore-meta/drats-pr-ragdoll/vars/terraform.tfstate
       TERRAFORM_ACTION: destroy
       GCP_KEY: ((gcp_service_account_key))
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
@@ -663,7 +663,7 @@ jobs:
     file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
     params:
       TERRAFORM_STATE: drats-papillon/subdomain-terraform/subdomain-record-set.tfstate
-      BBL_TERRAFORM_STATE: drats-papillon/vars/terraform.tfstate
+      BBL_TERRAFORM_STATE: bosh-backup-and-restore-meta/drats-papillon/vars/terraform.tfstate
       TERRAFORM_ACTION: apply
       GCP_KEY: ((gcp_service_account_key))
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
@@ -703,7 +703,7 @@ jobs:
     file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
     params:
       TERRAFORM_STATE: drats-papillon/subdomain-terraform/subdomain-record-set.tfstate
-      BBL_TERRAFORM_STATE: drats-papillon/vars/terraform.tfstate
+      BBL_TERRAFORM_STATE: bosh-backup-and-restore-meta/drats-papillon/vars/terraform.tfstate
       TERRAFORM_ACTION: destroy
       GCP_KEY: ((gcp_service_account_key))
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
@@ -756,7 +756,7 @@ jobs:
     file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
     params:
       TERRAFORM_STATE: drats-with-config-manx/subdomain-terraform/subdomain-record-set.tfstate
-      BBL_TERRAFORM_STATE: drats-with-config-manx/vars/terraform.tfstate
+      BBL_TERRAFORM_STATE: bosh-backup-and-restore-meta/drats-with-config-manx/vars/terraform.tfstate
       TERRAFORM_ACTION: apply
       GCP_KEY: ((gcp_service_account_key))
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
@@ -796,7 +796,7 @@ jobs:
     file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
     params:
       TERRAFORM_STATE: drats-with-config-manx/subdomain-terraform/subdomain-record-set.tfstate
-      BBL_TERRAFORM_STATE: drats-with-config-manx/vars/terraform.tfstate
+      BBL_TERRAFORM_STATE: bosh-backup-and-restore-meta/drats-with-config-manx/vars/terraform.tfstate
       TERRAFORM_ACTION: destroy
       GCP_KEY: ((gcp_service_account_key))
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
