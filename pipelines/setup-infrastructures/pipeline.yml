@@ -1103,14 +1103,14 @@ jobs:
 - name: renew-environments
   plan:
   - in_parallel:
-    - get: backup-and-restore-ci
+    - get: bosh-backup-and-restore-meta
     - get: every-tuesday
       trigger: true
     - get: every-sunday
       trigger: true
   - task: renew-environments
     tags: [platform-recovery-vsphere]
-    file: backup-and-restore-ci/tasks/renew-env/task.yml
+    file: bosh-backup-and-restore-meta/ci/setup-infrastructures/renew-env/task.yml
     params:
       ENVIRONMENTS: ((environments-to-renew))
 
