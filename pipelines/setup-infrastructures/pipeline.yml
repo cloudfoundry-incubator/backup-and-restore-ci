@@ -1127,8 +1127,9 @@ jobs:
 
 - name: setup-platform-recovery-zone
   plan:
-  - get: bosh-backup-and-restore-meta
-  - get: backup-and-restore-ci
+  - in_parallel:
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
   - put: terraform
     params:
       terraform_source: bosh-backup-and-restore-meta/terraform/backup-and-restore-sdk-acceptance-tests/gcp-zone/
