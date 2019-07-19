@@ -1128,14 +1128,21 @@ jobs:
 - name: setup-platform-recovery-zone
   plan:
   - get: bosh-backup-and-restore-meta
+  - get: backup-and-restore-ci
   - put: terraform
     params:
       terraform_source: bosh-backup-and-restore-meta/terraform/backup-and-restore-sdk-acceptance-tests/gcp-zone/
       env_name: platform-recovery-zone
       vars:
-        name: platform-recovery
-        dns: platform-recovery.cf-app.com
+        name: jake-test
+        dns: jake-test.cf-app.com
         gcp_service_account_key: ((gcp_service_account_key))
+    get_params:
+      output_statefile: true
+  - task: check-aws-dns-entry-points-to-gcp-zone
+    file: backup-and-restore-ci/tasks/check-dns-resolves/task.yml
+    params:
+      ADDRESS: jake-test.cf-app.com
 
 - name: destroy-platform-recovery-zone
   plan:
@@ -1146,8 +1153,8 @@ jobs:
       env_name: platform-recovery-zone
       action: destroy
       vars:
-        name: platform-recovery
-        dns: platform-recovery.cf-app.com
+        name: jake-test
+        dns: jake-test.cf-app.com
         gcp_service_account_key: ((gcp_service_account_key))
     get_params:
       action: destroy
