@@ -1112,7 +1112,10 @@ jobs:
     tags: [platform-recovery-vsphere]
     file: bosh-backup-and-restore-meta/ci/setup-infrastructures/renew-env/task.yml
     params:
-      ENVIRONMENTS: ((environments-to-renew))
+      PAS_ENVIRONMENTS: ((pas-environments-to-renew))
+      PKS_ENVIRONMENTS: ((pks-environments-to-renew))
+      TOOLSMITHS_TOKEN: ((toolsmiths-api-token))
+
 
 - name: delete-unattached-disks
   plan:
