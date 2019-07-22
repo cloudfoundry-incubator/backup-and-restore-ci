@@ -4,7 +4,7 @@ set -euo pipefail
 if [ -z "${BBL_STATE:=}" ]; then 2>&1 echo "BBL_STATE must be provided"; fi
 
 function get_ip_port() {
-  grep -o "\d\{1,\}\.\d\{1,\}\.\d\{1,\}\.\d\{1,\}:\d\{1,\}" <<< "$1"
+  grep -o '[0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}:[0-9]\{1,\}' <<< "$1"
 }
 
 eval "$( bbl --state-dir "bosh-backup-and-restore-meta/$BBL_STATE" print-env )"
