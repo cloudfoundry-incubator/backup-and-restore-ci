@@ -939,6 +939,38 @@ jobs:
       TEST_TLS_VERIFY_IDENTITY: false
       TEST_TLS_MUTUAL_TLS: false
 
+- name: mariadb-system-tests-rds
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-database-sdk
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+    - get: terraform-aws
+      resource: terraform
+      passed:
+      - deploy-external-rds-dbs
+      params:
+        env_name: bbr-sdk-external-rds-dbs
+        output_statefile: true
+  - task: maria-system-tests-10
+    file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+    input_mapping:
+      terraform-state: terraform-aws
+    params:
+      <<: *MARU_LITE_BOSH_CREDS
+      TEST_SUITE_NAME: mysql
+      MYSQL_PASSWORD: ((rds-mariadb-10-password))
+      MYSQL_PORT: 3306
+      MYSQL_USERNAME: root
+      MYSQL_CA_CERT_PATH: ((rds-ca-cert-path))
+      TEST_TLS_MUTUAL_TLS: false
+      DB_TYPE: mysql
+      DB_PREFIX: mariadb_10
+
 - name: mysql-system-tests-rds
   serial: true
   plan:
