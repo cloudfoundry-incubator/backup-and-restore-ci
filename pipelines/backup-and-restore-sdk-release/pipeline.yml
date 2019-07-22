@@ -507,6 +507,7 @@ jobs:
           postgres_9_6_password: ((rds-postgres-9-6-password))
           postgres_10_password: ((rds-postgres-10-password))
           postgres_11_password: ((rds-postgres-11-password))
+          mariadb_10_password: ((rds-mariadb-10-password))
       get_params:
         output_statefile: true
     - task: get-latest-rds-ca-bundle
