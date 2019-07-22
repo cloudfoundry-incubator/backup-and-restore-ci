@@ -196,7 +196,6 @@ resources:
 - name: s3-backuper-with-iam-instance-profile-deployment
   type: bosh-deployment
   source:
-    <<: *EC2_DIRECTOR
     deployment: s3-backuper
 
 - name: mysql-dev-deployment
@@ -613,7 +612,12 @@ jobs:
       resource: release
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
     - get: xenial-stemcell-aws
+  - task: get-bosh-deployment-resource-source-file
+    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    params:
+      BBL_STATE: external-blobstore-directors/aws-ec2
   - put: s3-backuper-with-iam-instance-profile-deployment
     params:
       manifest: backup-and-restore-sdk-release/ci/manifests/s3-backuper-with-iam-instance-profile.yml
@@ -625,6 +629,8 @@ jobs:
         deployment-name: s3-backuper
         s3-bucket-name: iam-instance-role-test
         s3-region: *aws-region
+      source_file: source-file/source-file.json
+
 
 - name: deploy-azure-blobstore-sdk
   serial: true
