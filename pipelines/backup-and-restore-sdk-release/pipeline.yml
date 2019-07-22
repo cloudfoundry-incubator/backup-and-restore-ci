@@ -914,7 +914,7 @@ jobs:
         DB_TYPE: postgres
         DB_PREFIX: postgres_11
 
-- name: mysql-system-tests
+- name: mariadb-system-tests
   serial: true
   plan:
   - in_parallel:
@@ -924,7 +924,7 @@ jobs:
       - deploy-database-sdk
       trigger: true
     - get: bosh-backup-and-restore-meta
-  - task: mysql-system-tests
+  - task: mariadb-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       <<: *MARU_LITE_BOSH_CREDS
@@ -1207,7 +1207,7 @@ jobs:
       - postgres-system-tests
       - postgres-system-tests-rds
       - postgres-system-tests-gcp
-      - mysql-system-tests
+      - mariadb-system-tests
       - mysql-system-tests-rds
       - mysql-system-tests-gcp
       - s3-blobstore-backuper-system-tests
