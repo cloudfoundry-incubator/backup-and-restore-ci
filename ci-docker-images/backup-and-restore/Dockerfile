@@ -52,6 +52,11 @@ RUN \
   tar xzvf /tmp/credhub-linux-2.2.0.tgz -C /usr/local/bin && \
   chmod +x /usr/local/bin/credhub
 
+RUN \
+  wget https://github.com/mikefarah/yq/releases/download/2.4.0/yq_linux_amd64 -P /tmp && \
+  mv /tmp/yq_linux_amd64 /usr/local/bin/yq && \
+  chmod +x /usr/local/bin/yq
+
 #for dig
 RUN apt install --yes dnsutils
 
