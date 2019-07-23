@@ -17,7 +17,7 @@ target: ${BOSH_ENVIRONMENT}
 client: ${BOSH_CLIENT}
 client_secret: ${BOSH_CLIENT_SECRET}
 EOF
-) -- "cert" "$BOSH_CA_CERT" > source-file/source-file.yml
+) -- "ca_cert" "$BOSH_CA_CERT" > source-file/source-file.yml
 
 yq write --inplace -- source-file/source-file.yml jumpbox_ssh_key "$( cat "$JUMPBOX_PRIVATE_KEY" )"
 
