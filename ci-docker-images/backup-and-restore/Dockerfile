@@ -57,6 +57,11 @@ RUN \
   mv /tmp/yq_linux_amd64 /usr/local/bin/yq && \
   chmod +x /usr/local/bin/yq
 
+RUN \
+  wget https://github.com/cloudfoundry/bosh-bootloader/releases/download/v8.1.1/bbl-v8.1.1_linux_x86-64 -P /tmp && \
+  mv /tmp/bbl-v8.1.1_linux_x86-64 /usr/local/bin/bbl && \
+  chmod +x /usr/local/bin/bbl
+
 #for dig
 RUN apt install --yes dnsutils
 
