@@ -629,7 +629,7 @@ jobs:
         deployment-name: s3-backuper
         s3-bucket-name: iam-instance-role-test
         s3-region: *aws-region
-      source_file: source-file/source-file.json
+      source_file: source-file/source-file.yml
 
 
 - name: deploy-azure-blobstore-sdk
