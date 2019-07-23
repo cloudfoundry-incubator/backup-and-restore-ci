@@ -793,6 +793,8 @@ jobs:
   - in_parallel:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
+      trigger: true
+      passed: [deploy-database-sdk]
     - get: bosh-backup-and-restore-meta
     - get: terraform-aws
       resource: terraform
