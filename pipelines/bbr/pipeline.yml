@@ -8,14 +8,6 @@ maru-bosh-env: &maru-bosh-env
   BOSH_GW_USER: jumpbox
   BOSH_GW_PRIVATE_KEY: "((maru-jumpbox-ssh-key))"
 
-maru-lite-bosh-deployment-creds: &maru-lite-bosh-deployment-creds
-  target: "((maru-lite-bosh-director-url))"
-  client: "((maru-lite-bosh-director-username))"
-  client_secret: "((maru-lite-bosh-director-password))"
-  ca_cert: "((maru-lite-bosh-director-ca-cert))"
-  jumpbox_url: "((maru-lite-jumpbox-address)):22"
-  jumpbox_ssh_key: "((maru-lite-jumpbox-ssh-key))"
-
 maru-lite-bosh-env: &maru-lite-bosh-env
   BOSH_ENVIRONMENT: "((maru-lite-bosh-director-url))"
   BOSH_CLIENT: "((maru-lite-bosh-director-username))"
@@ -206,19 +198,16 @@ resources:
   type: bosh-deployment-resource
   source:
     deployment: redis-1
-    <<: *maru-lite-bosh-deployment-creds
 
 - name: all-deployments-redis-2-deployment
   type: bosh-deployment-resource
   source:
     deployment: redis-2
-    <<: *maru-lite-bosh-deployment-creds
 
 - name: all-deployments-redis-3-deployment
   type: bosh-deployment-resource
   source:
     deployment: redis-3
-    <<: *maru-lite-bosh-deployment-creds
 
 - name: windows-stemcell
   type: bosh-io-stemcell
@@ -579,22 +568,32 @@ jobs:
   serial: true
   serial_groups: [system-all-deployments]
   plan:
-  - get: bosh-backup-and-restore
-    passed: [system-all-deployments]
-    trigger: true
+  - in_parallel:
+    - get: bosh-backup-and-restore
+      passed: [system-all-deployments]
+      trigger: true
+    - get: backup-and-restore-ci
+    - get: bosh-backup-and-restore-meta
+  - task: generate-bosh-deployment-source-file
+    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    params:
+      BBL_STATE: maru-lite
   - in_parallel:
     - put: all-deployments-redis-1-deployment
       params:
         delete:
           enabled: true
+        source_file: source-file/source-file.yml
     - put: all-deployments-redis-2-deployment
       params:
         delete:
           enabled: true
+        source_file: source-file/source-file.yml
     - put: all-deployments-redis-3-deployment
       params:
         delete:
           enabled: true
+        source_file: source-file/source-file.yml
 
 - name: delete-system-deployment-bosh-all-proxy
   serial: true
