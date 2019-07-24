@@ -1,12 +1,4 @@
 ---
-maru-lite-director: &MARU_LITE_DIRECTOR
-  target: "((maru-lite-bosh-director-url))"
-  client: "((maru-lite-bosh-director-username))"
-  client_secret: "((maru-lite-bosh-director-password))"
-  ca_cert: "((maru-lite-bosh-director-ca-cert))"
-  jumpbox_url: "((maru-lite-jumpbox-address)):22"
-  jumpbox_ssh_key: "((maru-lite-jumpbox-ssh-key))"
-
 ec2-director: &EC2_DIRECTOR
   target: "((ec2-bosh-director-url))"
   client: "((ec2-bosh-director-username))"
@@ -202,55 +194,46 @@ resources:
 - name: mysql-dev-deployment
   type: bosh-deployment
   source:
-    << : *MARU_LITE_DIRECTOR
     deployment: *mysql-deployment-name
 
 - name: postgres-9.4-dev-deployment
   type: bosh-deployment
   source:
-    << : *MARU_LITE_DIRECTOR
     deployment: *postgres-9-4-deployment-name
 
 - name: postgres-9.6-dev-deployment
   type: bosh-deployment
   source:
-    << : *MARU_LITE_DIRECTOR
     deployment: *postgres-9-6-deployment-name
 
 - name: postgres-10-dev-deployment
   type: bosh-deployment
   source:
-    << : *MARU_LITE_DIRECTOR
     deployment: *postgres-10-deployment-name
 
 - name: postgres-11-dev-deployment
   type: bosh-deployment
   source:
-    << : *MARU_LITE_DIRECTOR
     deployment: *postgres-11-deployment-name
 
 - name: database-backup-restorer-deployment
   type: bosh-deployment
   source:
-    << : *MARU_LITE_DIRECTOR
     deployment: database-backup-restorer
 
 - name: aws-blobstore-sdk-deployment
   type: bosh-deployment
   source:
-    << : *MARU_LITE_DIRECTOR
     deployment: s3-backuper
 
 - name: gcs-blobstore-sdk-deployment
   type: bosh-deployment
   source:
-    << : *MARU_LITE_DIRECTOR
     deployment: gcs-backuper
 
 - name: azure-blobstore-sdk-deployment
   type: bosh-deployment
   source:
-    << : *MARU_LITE_DIRECTOR
     deployment: azure-backuper
 
 - name: xenial-stemcell-aws
@@ -372,6 +355,10 @@ jobs:
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
     - get: xenial-stemcell
+  - task: generate-bosh-deployment-source-file
+    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    params:
+      BBL_STATE: maru-lite
   - put: database-backup-restorer-deployment
     params:
       manifest: backup-and-restore-sdk-release/ci/manifests/database-backup-restorer.yml
@@ -382,6 +369,7 @@ jobs:
       vars:
         deployment-name: database-backup-restorer
         availability_zone: z1
+      source_file: source-file/source-file.yml
 
 - name: deploy-postgres
   serial: true
@@ -396,6 +384,10 @@ jobs:
     - get: xenial-stemcell
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
+  - task: generate-bosh-deployment-source-file
+    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    params:
+      BBL_STATE: maru-lite
   - in_parallel:
     - put: postgres-9.4-dev-deployment
       params:
@@ -408,6 +400,7 @@ jobs:
           db_password: *postgres-9-4-password
           db_host: *postgres-9-4-host
           availability_zone: z1
+        source_file: source-file/source-file.yml
     - put: postgres-9.6-dev-deployment
       params:
         manifest: backup-and-restore-sdk-release/ci/manifests/postgres-9.6.yml
@@ -424,6 +417,7 @@ jobs:
           availability_zone: z1
         vars_files:
         - bosh-backup-and-restore-meta/ci/backup-and-restore-sdk-release/vars/postgres-96-vars.yml
+        source_file: source-file/source-file.yml
     - put: postgres-10-dev-deployment
       params:
         manifest: backup-and-restore-sdk-release/ci/manifests/postgres-10.yml
@@ -435,6 +429,7 @@ jobs:
           db_password: *postgres-10-password
           db_host: *postgres-10-host
           availability_zone: z1
+        source_file: source-file/source-file.yml
     - put: postgres-11-dev-deployment
       params:
         manifest: backup-and-restore-sdk-release/ci/manifests/postgres-11.yml
@@ -446,6 +441,7 @@ jobs:
           db_password: *postgres-11-password
           db_host: *postgres-11-host
           availability_zone: z1
+        source_file: source-file/source-file.yml
   - task: create-ssl-user
     file: backup-and-restore-ci/tasks/create-ssl-user/task.yml
     params:
@@ -465,6 +461,10 @@ jobs:
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
     - get: xenial-stemcell
+  - task: generate-bosh-deployment-source-file
+    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    params:
+      BBL_STATE: maru-lite
   - put: mysql-dev-deployment
     params:
       manifest: backup-and-restore-sdk-release/ci/manifests/mysql.yml
@@ -477,6 +477,7 @@ jobs:
         availability_zone: z1
       vars_files:
       - bosh-backup-and-restore-meta/ci/backup-and-restore-sdk-release/vars/mysql-vars.yml
+      source_file: source-file/source-file.yml
 
 - name: deploy-external-rds-dbs
   serial: true
@@ -567,6 +568,12 @@ jobs:
       resource: release
       passed: [create-release]
     - get: xenial-stemcell
+    - get: backup-and-restore-ci
+    - get: bosh-backup-and-restore-meta
+  - task: generate-bosh-deployment-source-file
+    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    params:
+      BBL_STATE: maru-lite
   - put: aws-blobstore-sdk-deployment
     params:
       manifest: backup-and-restore-sdk-release/ci/manifests/s3-backuper.yml
@@ -601,6 +608,7 @@ jobs:
         s3-unversioned-large-number-of-files-backup-bucket-region: *aws-region
         s3-unversioned-clone-bucket-name: sdk-unversioned-clone
         s3-unversioned-clone-bucket-region: us-east-1
+      source_file: source-file/source-file.yml
 
 - name: deploy-s3-blobstore-sdk-with-iam-instance-profile
   serial: true
@@ -638,6 +646,11 @@ jobs:
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
     - get: xenial-stemcell
+    - get: backup-and-restore-ci
+  - task: generate-bosh-deployment-source-file
+    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    params:
+      BBL_STATE: maru-lite
   - put: azure-blobstore-sdk-deployment
     params:
       manifest: backup-and-restore-sdk-release/ci/manifests/azure-backuper.yml
@@ -653,6 +666,7 @@ jobs:
         azure-different-storage-account: ((azure-different-storage-account))
         azure-different-storage-key: ((azure-different-storage-key))
         azure-different-container-name: bbr-system-test-azure-different-container
+      source_file: source-file/source-file.yml
 
 - name: postgres-system-tests
   serial: true
@@ -1186,6 +1200,12 @@ jobs:
       passed:
       - create-release
     - get: xenial-stemcell
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
+  - task: generate-bosh-deployment-source-file
+    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    params:
+      BBL_STATE: maru-lite
   - put: gcs-blobstore-sdk-deployment
     params:
       manifest: backup-and-restore-sdk-release/ci/manifests/gcs-backuper.yml
@@ -1198,6 +1218,7 @@ jobs:
         gcp-service-account-key: ((gcp_service_account_key))
         gcs-bucket-name: bbr-system-test-gcs-bucket
         gcs-backup-bucket-name: bbr-system-test-gcs-backup-bucket
+      source_file: source-file/source-file.yml
 
 - name: gcs-blobstore-backuper-system-tests
   serial: true
