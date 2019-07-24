@@ -1,12 +1,4 @@
 ---
-ec2-director: &EC2_DIRECTOR
-  target: "((ec2-bosh-director-url))"
-  client: "((ec2-bosh-director-username))"
-  client_secret: "((ec2-bosh-director-password))"
-  ca_cert: "((ec2-bosh-director-ca-cert))"
-  jumpbox_url: "((ec2-jumpbox-url)):22"
-  jumpbox_ssh_key: "((ec2-jumpbox-ssh-key))"
-
 maru-lite-bosh-creds: &MARU_LITE_BOSH_CREDS
   BOSH_ENVIRONMENT: "((maru-lite-bosh-director-url))"
   BOSH_CLIENT: "((maru-lite-bosh-director-username))"
@@ -188,7 +180,6 @@ resources:
 - name: s3-backuper-with-iam-instance-profile-deployment
   type: bosh-deployment
   source:
-    <<: *EC2_DIRECTOR
     deployment: s3-backuper
 
 - name: mysql-dev-deployment
@@ -622,6 +613,11 @@ jobs:
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
     - get: xenial-stemcell-aws
+    - get: backup-and-restore-ci
+  - task: generate-bosh-deployment-source-file
+    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    params:
+      BBL_STATE: external-blobstore-directors/aws-ec2
   - put: s3-backuper-with-iam-instance-profile-deployment
     params:
       manifest: backup-and-restore-sdk-release/ci/manifests/s3-backuper-with-iam-instance-profile.yml
@@ -633,6 +629,7 @@ jobs:
         deployment-name: s3-backuper
         s3-bucket-name: iam-instance-role-test
         s3-region: *aws-region
+      source_file: source-file/source-file.yml
 
 - name: deploy-azure-blobstore-sdk
   serial: true
