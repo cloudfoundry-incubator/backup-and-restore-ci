@@ -181,51 +181,61 @@ resources:
   type: bosh-deployment
   source:
     deployment: s3-backuper
+    skip_check: true
 
 - name: mysql-dev-deployment
   type: bosh-deployment
   source:
     deployment: *mysql-deployment-name
+    skip_check: true
 
 - name: postgres-9.4-dev-deployment
   type: bosh-deployment
   source:
     deployment: *postgres-9-4-deployment-name
+    skip_check: true
 
 - name: postgres-9.6-dev-deployment
   type: bosh-deployment
   source:
     deployment: *postgres-9-6-deployment-name
+    skip_check: true
 
 - name: postgres-10-dev-deployment
   type: bosh-deployment
   source:
     deployment: *postgres-10-deployment-name
+    skip_check: true
 
 - name: postgres-11-dev-deployment
   type: bosh-deployment
   source:
     deployment: *postgres-11-deployment-name
+    skip_check: true
 
 - name: database-backup-restorer-deployment
   type: bosh-deployment
   source:
     deployment: database-backup-restorer
+    skip_check: true
 
 - name: aws-blobstore-sdk-deployment
   type: bosh-deployment
   source:
     deployment: s3-backuper
+    skip_check: true
 
 - name: gcs-blobstore-sdk-deployment
   type: bosh-deployment
   source:
     deployment: gcs-backuper
+    skip_check: true
 
 - name: azure-blobstore-sdk-deployment
   type: bosh-deployment
   source:
     deployment: azure-backuper
+    skip_check: true
 
 - name: xenial-stemcell-aws
   type: bosh-io-stemcell
