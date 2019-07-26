@@ -183,31 +183,37 @@ resources:
   type: bosh-deployment-resource
   source:
     deployment: redis-windows-ci
+    skip_check: true
 
 - name: many-bbr-scripts-deployment
   type: bosh-deployment-resource
   source:
     deployment: many-bbr-scripts
+    skip_check: true
 
 - name: jumpbox-windows-deployment
   type: bosh-deployment-resource
   source:
     deployment: jumpbox-windows-ci
+    skip_check: true
 
 - name: all-deployments-redis-1-deployment
   type: bosh-deployment-resource
   source:
     deployment: redis-1
+    skip_check: true
 
 - name: all-deployments-redis-2-deployment
   type: bosh-deployment-resource
   source:
     deployment: redis-2
+    skip_check: true
 
 - name: all-deployments-redis-3-deployment
   type: bosh-deployment-resource
   source:
     deployment: redis-3
+    skip_check: true
 
 - name: windows-stemcell
   type: bosh-io-stemcell
@@ -234,6 +240,7 @@ resources:
   type: bosh-deployment-resource
   source:
     deployment: *test-bosh-director-deployment
+    skip_check: true
 
 jobs:
 - name: deploy-system-director
