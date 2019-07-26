@@ -85,6 +85,7 @@ resources:
     ca_cert: "((maru-bosh-director-ca-cert))"
     jumpbox_url: "((maru-jumpbox-url)):22"
     jumpbox_ssh_key: "((maru-jumpbox-ssh-key))"
+    skip_check: true
 
 - name: k-drats-prs
   type: bosh-deployment
@@ -96,6 +97,7 @@ resources:
     ca_cert: "((maru-bosh-director-ca-cert))"
     jumpbox_url: "((maru-jumpbox-url)):22"
     jumpbox_ssh_key: "((maru-jumpbox-ssh-key))"
+    skip_check: true
 
 jobs:
 - name: deploy-k-drats
