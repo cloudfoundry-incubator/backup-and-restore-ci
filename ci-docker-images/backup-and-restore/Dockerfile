@@ -65,3 +65,4 @@ RUN \
 #for dig
 RUN apt install --yes dnsutils
 
+RUN useradd --create-home --shell /bin/bash test
