@@ -33,7 +33,7 @@ RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-18.09.0.t
 # fixes error "Error response from daemon: client is newer than server"
 ENV DOCKER_API_VERSION 1.23
 
-ENV TERRAFORM_VERSION 0.12.5
+ENV TERRAFORM_VERSION 0.12.6
 
 RUN (wget "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_386.zip" && \
      unzip "terraform_${TERRAFORM_VERSION}_linux_386.zip" -d /bin/)
