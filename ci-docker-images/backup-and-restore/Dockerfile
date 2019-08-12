@@ -1,5 +1,14 @@
 FROM pcfplatformrecovery/backup-and-restore-minimal
 
+ENV CREDHUB_CLI_VERSION 2.5.2
+ENV YQ_VERSION 2.4.0
+ENV BBL_VERSION v8.2.12
+ENV CLOUD_SDK_VERSION 250.0.0
+ENV TERRAFORM_VERSION 0.12.6
+
+# fixes error "Error response from daemon: client is newer than server"
+ENV DOCKER_API_VERSION 1.23
+
 RUN apt-get update
 RUN apt-get install apt-transport-https
 RUN echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ stretch main" | \
@@ -30,11 +39,6 @@ RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-18.09.0.t
   chmod +x docker/* && \
   sudo cp docker/* /bin
 
-# fixes error "Error response from daemon: client is newer than server"
-ENV DOCKER_API_VERSION 1.23
-
-ENV TERRAFORM_VERSION 0.12.6
-
 RUN (wget "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_386.zip" && \
      unzip "terraform_${TERRAFORM_VERSION}_linux_386.zip" -d /bin/)
 
@@ -48,18 +52,18 @@ RUN export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
 RUN gem install cf-uaac
 
 RUN \
-  wget https://github.com/cloudfoundry-incubator/credhub-cli/releases/download/2.2.0/credhub-linux-2.2.0.tgz -P /tmp && \
-  tar xzvf /tmp/credhub-linux-2.2.0.tgz -C /usr/local/bin && \
+  wget https://github.com/cloudfoundry-incubator/credhub-cli/releases/download/${CREDHUB_CLI_VERSION}/credhub-linux-${CREDHUB_CLI_VERSION}.tgz -P /tmp && \
+  tar xzvf /tmp/credhub-linux-${CREDHUB_CLI_VERSION}.tgz -C /usr/local/bin && \
   chmod +x /usr/local/bin/credhub
 
 RUN \
-  wget https://github.com/mikefarah/yq/releases/download/2.4.0/yq_linux_amd64 -P /tmp && \
+  wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64 -P /tmp && \
   mv /tmp/yq_linux_amd64 /usr/local/bin/yq && \
   chmod +x /usr/local/bin/yq
 
 RUN \
-  wget https://github.com/cloudfoundry/bosh-bootloader/releases/download/v8.1.1/bbl-v8.1.1_linux_x86-64 -P /tmp && \
-  mv /tmp/bbl-v8.1.1_linux_x86-64 /usr/local/bin/bbl && \
+  wget https://github.com/cloudfoundry/bosh-bootloader/releases/download/${BBL_VERSION}/bbl-${BBL_VERSION}_linux_x86-64 -P /tmp && \
+  mv /tmp/bbl-${BBL_VERSION}_linux_x86-64 /usr/local/bin/bbl && \
   chmod +x /usr/local/bin/bbl
 
 #for dig
