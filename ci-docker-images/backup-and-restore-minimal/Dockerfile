@@ -1,10 +1,9 @@
 FROM ubuntu:bionic
 
 ENV go_version 1.12.7
-ENV cf_cli_version 6.42.0
-ENV bosh_cli_version 5.4.0
-ENV om_cli_version 0.42.0
-
+ENV cf_cli_version 6.46.0
+ENV bosh_cli_version 6.0.0
+ENV om_cli_version 3.1.0
 
 RUN apt-get update && apt-get install -y \
   apt-utils \
