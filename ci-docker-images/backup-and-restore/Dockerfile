@@ -20,14 +20,19 @@ RUN ["/bin/bash", "-c", "set -o pipefail && \
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN \
-  apt-get update && \
-  apt-get install -y ruby ruby-dev ruby-bundler file libssl-dev wbritish awscli lsb-release openjdk-8-jdk default-mysql-client azure-cli && \
-  rm -rf /var/lib/apt/lists/*
-
-RUN \
-  apt-get update && \
-  apt-get install netcat-openbsd
+RUN apt-get update && apt-get install -y \
+  awscli \
+  azure-cli \
+  default-mysql-client \
+  file \
+  libssl-dev \
+  lsb-release \
+  openjdk-8-jdk \
+  ruby \
+  ruby-dev \
+  ruby-bundler \
+  wbritish \
+  && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/AGWA/git-crypt.git && \
  cd git-crypt/ && \
