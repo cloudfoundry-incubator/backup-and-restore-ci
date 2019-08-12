@@ -5,10 +5,24 @@ ENV cf_cli_version 6.42.0
 ENV bosh_cli_version 5.4.0
 ENV om_cli_version 0.42.0
 
-RUN \
-  apt-get update && \
-  apt-get install -y sudo apt-utils gnupg unzip jq sshuttle parallel vim wget curl git sed g++ gcc make && \
-  rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && apt-get install -y \
+  apt-utils \
+  curl \
+  gcc \
+  git \
+  gnupg \
+  g++ \
+  jq \
+  make \
+  parallel \
+  sed \
+  sshuttle \
+  sudo \
+  unzip \
+  vim \
+  wget \
+  && rm -rf /var/lib/apt/lists/*
 
 RUN \
   git config --global user.name "root" && \
@@ -43,8 +57,8 @@ RUN \
   chmod +x /usr/bin/bosh-cli
 
 # cf-cli
+WORKDIR /tmp
 RUN \
-  cd /tmp && \
   wget -q -O cf.deb "https://cli.run.pivotal.io/stable?release=debian64&version=${cf_cli_version}&source=github-rel" && \
   dpkg -i cf.deb && \
   rm cf.deb
