@@ -39,9 +39,5 @@ if ! stat sshuttle.pid > /dev/null 2>&1; then
   exit 1
 fi
 
-# Set up GOPATH
-export GOPATH=$PWD
-export PATH=$PATH:$GOPATH/bin
-
-cd src/github.com/cloudfoundry-incubator/bosh-backup-and-restore
+cd bosh-backup-and-restore
 make sys-test-director-ci

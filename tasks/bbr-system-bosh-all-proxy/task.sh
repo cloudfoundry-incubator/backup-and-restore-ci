@@ -16,7 +16,5 @@ echo -e "${DIRECTOR_SSH_KEY}" > "$director_private_key_path"
 chmod 0600 "$director_private_key_path"
 export DIRECTOR_SSH_KEY_PATH="$director_private_key_path"
 
-export GOPATH=$PWD
-export PATH=$PATH:$GOPATH/bin
-cd src/github.com/cloudfoundry-incubator/bosh-backup-and-restore
+cd bosh-backup-and-restore
 make sys-test-bosh-all-proxy-ci
