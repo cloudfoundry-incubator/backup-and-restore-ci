@@ -45,7 +45,7 @@ RUN \
 
 # OM-cli
 RUN \
-  wget https://github.com/pivotal-cf/om/releases/download/${om_cli_version}/om-linux --output-document="/usr/bin/om" && \
+  wget https://github.com/pivotal-cf/om/releases/download/${om_cli_version}/om-linux-${om_cli_version} --output-document="/usr/bin/om" && \
   chmod +x /usr/bin/om
 
 # bosh-cli
