@@ -8,7 +8,6 @@ image_resource:
 inputs:
 - name: version
 - name: bosh-backup-and-restore
-  path: src/github.com/cloudfoundry-incubator/bosh-backup-and-restore
 - name: bosh-backup-and-restore-meta
 - name: backup-and-restore-ci
 

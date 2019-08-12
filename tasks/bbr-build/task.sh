@@ -6,12 +6,10 @@ eval "$(ssh-agent)"
 chmod 400 bosh-backup-and-restore-meta/keys/github
 ssh-add bosh-backup-and-restore-meta/keys/github
 
-export GOPATH=$PWD
-export PATH=$PATH:$GOPATH/bin
 VERSION=$(cat version/number)
 export VERSION
 
-BBR_REPO="src/github.com/cloudfoundry-incubator/bosh-backup-and-restore"
+BBR_REPO="bosh-backup-and-restore"
 pushd "$BBR_REPO"
   make release
   tar -cvf bbr-"$VERSION".tar releases/*
