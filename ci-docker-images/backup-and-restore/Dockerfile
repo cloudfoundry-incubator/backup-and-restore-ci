@@ -21,6 +21,7 @@ RUN ["/bin/bash", "-c", "set -o pipefail && \
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
+  netcat-openbsd \
   awscli \
   azure-cli \
   default-mysql-client \
