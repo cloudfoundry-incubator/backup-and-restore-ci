@@ -267,24 +267,13 @@ jobs:
       BBL_STATE: maru
   - put: test-bosh-director-deployment
     params:
-      manifest: bosh-deployment/bosh.yml
+      manifest: bosh-backup-and-restore/fixtures/fake-director.yml
       stemcells:
       - xenial-stemcell/*.tgz
-      ops_files:
-      - bosh-deployment/gcp/cpi.yml
-      - bosh-deployment/jumpbox-user.yml
-      - bosh-deployment/bbr.yml
-      - bosh-deployment/misc/bosh-dev.yml
-      - bosh-backup-and-restore-meta/test-bosh-director/deployment-name-ops.yml
-      - bosh-backup-and-restore-meta/test-bosh-director/add-test-releases-ops.yml
-      - bosh-backup-and-restore-meta/test-bosh-director/use-latest-stemcell-version-ops.yml
-      - bosh-backup-and-restore-meta/test-bosh-director/bbr-sdk-release-ops.yml
       source_file: source-file/source-file.yml
       vars:
-        director_name: test-bosh-director
-        internal_ip: *test-bosh-director-ip
-        project_id: cf-backup-and-restore
-        gcp_credentials_json: ((gcp_service_account_key))
+        deployment-name: test-bosh-director
+        jumpbox-public-key: ((test-bosh-director-public-key))
         test_release_path: /tmp/build/put/bbr-director-test-releases/test-bosh-backup-and-restore-release
 
 - name: upload-deployment-test-releases
@@ -509,6 +498,7 @@ jobs:
       CREDHUB_SECRET: "((maru-credhub-secret))"
       CREDHUB_CA_CERT: "((maru-credhub-ca_cert))"
       DIRECTOR_HOST: *test-bosh-director-ip
+      DIRECTOR_SSH_KEY: ((test-bosh-director-private-key))
       DIRECTOR_SSH_USERNAME: jumpbox
       BOSH_DEPLOYMENT: *test-bosh-director-deployment
 

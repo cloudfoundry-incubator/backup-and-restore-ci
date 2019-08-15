@@ -15,14 +15,11 @@ params:
   JUMPBOX_USER:
   JUMPBOX_SSH_KEY:
 
-  CREDHUB_SERVER:
-  CREDHUB_CLIENT:
-  CREDHUB_SECRET:
-  CREDHUB_CA_CERT:
   BOSH_DEPLOYMENT:
 
   DIRECTOR_HOST:
   DIRECTOR_SSH_USERNAME:
+  DIRECTOR_SSH_KEY:
 
 run:
   path: backup-and-restore-ci/tasks/bbr-system-director/task.sh
