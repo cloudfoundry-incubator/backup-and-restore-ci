@@ -37,12 +37,12 @@ groups:
   - deploy-system-deployment-bosh-all-proxy
   - deploy-system-all-deployments
   - deploy-system-windows
-  - deploy-system-director
-  - system-deployment
-  - system-bosh-all-proxy
-  - system-director
-  - system-windows
-  - system-all-deployments
+  - deploy-fake-director
+  - system-test-deployment
+  - system-test-bosh-all-proxy
+  - system-test-director
+  - system-test-windows
+  - system-test-all-deployments
   - delete-system-director
   - delete-system-deployment-bosh-all-proxy
   - delete-system-windows
@@ -231,11 +231,6 @@ resources:
     branch: master
     uri: https://github.com/cloudfoundry/bosh-deployment.git
 
-- name: bosh-director-release
-  type: bosh-io-release
-  source:
-    repository: cloudfoundry/bosh
-
 - name: test-bosh-director-deployment
   type: bosh-deployment-resource
   source:
@@ -243,18 +238,14 @@ resources:
     skip_check: true
 
 jobs:
-- name: deploy-system-director
+- name: deploy-fake-director
   serial: true
-  serial_groups: [system-director]
+  serial_groups: [system-test-director]
   plan:
   - in_parallel:
     - get: bosh-backup-and-restore
       passed: [unit]
       trigger: true
-    - get: bosh-director-release
-      trigger: true
-      params:
-        tarball: false
     - get: bosh-deployment
     - get: bosh-backup-and-restore-meta
     - get: bbr-director-test-releases
@@ -335,7 +326,7 @@ jobs:
 
 - name: deploy-system-deployment-bosh-all-proxy
   serial: true
-  serial_groups: [system-bosh-all-proxy]
+  serial_groups: [system-test-bosh-all-proxy]
   plan:
   - in_parallel:
     - get: xenial-stemcell
@@ -360,7 +351,7 @@ jobs:
 
 - name: deploy-system-all-deployments
   serial: true
-  serial_groups: [system-all-deployments]
+  serial_groups: [system-test-all-deployments]
   plan:
   - in_parallel:
     - get: bosh-backup-and-restore
@@ -401,7 +392,7 @@ jobs:
 
 - name: deploy-system-windows
   serial: true
-  serial_groups: [system-windows]
+  serial_groups: [system-test-windows]
   plan:
   - in_parallel:
     - get: windows-stemcell
@@ -433,7 +424,7 @@ jobs:
         - xenial-stemcell/*.tgz
         source_file: source-file/source-file.yml
 
-- name: system-deployment
+- name: system-test-deployment
   serial: true
   plan:
   - in_parallel:
@@ -450,9 +441,9 @@ jobs:
     params:
       <<: *maru-lite-bosh-env
 
-- name: system-bosh-all-proxy
+- name: system-test-bosh-all-proxy
   serial: true
-  serial_groups: [system-bosh-all-proxy]
+  serial_groups: [system-test-bosh-all-proxy]
   plan:
   - in_parallel:
     - get: bosh-backup-and-restore
@@ -463,30 +454,27 @@ jobs:
     - get: bbr-deployment-test-releases
       passed: [deploy-system-deployment-bosh-all-proxy]
       trigger: true
-  - task: system-bosh-all-proxy
+  - task: system-test-bosh-all-proxy
     file: backup-and-restore-ci/tasks/bbr-system-bosh-all-proxy/task.yml
     params:
       <<: *maru-bosh-env
       DIRECTOR_SSH_KEY: ((maru-director-ssh-key))
       DIRECTOR_ADDRESS: 10.0.0.6
 
-- name: system-director
+- name: system-test-director
   serial: true
-  serial_groups: [system-director]
+  serial_groups: [system-test-director]
   plan:
   - in_parallel:
     - get: bosh-backup-and-restore
-      passed: [deploy-system-director]
+      passed: [deploy-fake-director]
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-    - get: bosh-director-release
-      passed: [deploy-system-director]
-      trigger: true
     - get: bbr-director-test-releases
-      passed: [deploy-system-director]
+      passed: [deploy-fake-director]
       trigger: true
-  - task: system-director
+  - task: system-test-director
     file: backup-and-restore-ci/tasks/bbr-system-director/task.yml
     privileged: true
     params:
@@ -502,9 +490,9 @@ jobs:
       DIRECTOR_SSH_USERNAME: jumpbox
       BOSH_DEPLOYMENT: *test-bosh-director-deployment
 
-- name: system-windows
+- name: system-test-windows
   serial: true
-  serial_groups: [system-windows]
+  serial_groups: [system-test-windows]
   plan:
   - in_parallel:
     - get: bosh-backup-and-restore
@@ -515,14 +503,14 @@ jobs:
     - get: bbr-deployment-test-releases
       passed: [deploy-system-windows]
       trigger: true
-  - task: system-windows
+  - task: system-test-windows
     file: backup-and-restore-ci/tasks/bbr-system-windows/task.yml
     params:
       <<: *maru-bosh-env
 
-- name: system-all-deployments
+- name: system-test-all-deployments
   serial: true
-  serial_groups: [system-all-deployments]
+  serial_groups: [system-test-all-deployments]
   plan:
   - in_parallel:
     - get: bosh-backup-and-restore
@@ -530,24 +518,21 @@ jobs:
       trigger: true
     - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
-  - task: system-all-deployments
+  - task: system-test-all-deployments
     file: backup-and-restore-ci/tasks/bbr-system-all-deployments/task.yml
     params:
       <<: *maru-lite-bosh-team-creds
 
 - name: delete-system-director
   serial: true
-  serial_groups: [system-director]
+  serial_groups: [system-test-director]
   plan:
   - in_parallel:
     - get: bosh-backup-and-restore
-      passed: [system-director]
-      trigger: true
-    - get: bosh-director-release
-      passed: [system-director]
+      passed: [system-test-director]
       trigger: true
     - get: bbr-director-test-releases
-      passed: [system-director]
+      passed: [system-test-director]
       trigger: true
     - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
@@ -563,11 +548,11 @@ jobs:
 
 - name: delete-system-all-deployments
   serial: true
-  serial_groups: [system-all-deployments]
+  serial_groups: [system-test-all-deployments]
   plan:
   - in_parallel:
     - get: bosh-backup-and-restore
-      passed: [system-all-deployments]
+      passed: [system-test-all-deployments]
       trigger: true
     - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
@@ -594,11 +579,11 @@ jobs:
 
 - name: delete-system-deployment-bosh-all-proxy
   serial: true
-  serial_groups: [system-bosh-all-proxy]
+  serial_groups: [system-test-bosh-all-proxy]
   plan:
   - in_parallel:
     - get: bosh-backup-and-restore
-      passed: [system-bosh-all-proxy]
+      passed: [system-test-bosh-all-proxy]
       trigger: true
     - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
@@ -614,10 +599,10 @@ jobs:
 
 - name: delete-system-windows
   serial: true
-  serial_groups: [system-windows]
+  serial_groups: [system-test-windows]
   plan:
   - get: bosh-backup-and-restore
-    passed: [system-windows]
+    passed: [system-test-windows]
     trigger: true
   - get: backup-and-restore-ci
   - get: bosh-backup-and-restore-meta
@@ -642,7 +627,7 @@ jobs:
   plan:
   - in_parallel:
     - get: bosh-backup-and-restore
-      passed: [system-all-deployments, system-deployment, system-bosh-all-proxy, system-director, system-windows]
+      passed: [system-test-all-deployments, system-test-deployment, system-test-bosh-all-proxy, system-test-director, system-test-windows]
       trigger: true
       params:
         submodules: none
