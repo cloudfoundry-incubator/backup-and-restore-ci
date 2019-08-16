@@ -231,7 +231,7 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
-      CLEAN_ALL: false
+      CLEAN_ALL: true
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
 
@@ -324,7 +324,7 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
       BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
-      CLEAN_ALL: false
+      CLEAN_ALL: true
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
 
@@ -417,7 +417,7 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
       BBL_STATE_DIR: external-blobstore-directors/azure/
-      CLEAN_ALL: false
+      CLEAN_ALL: true
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
 
@@ -506,7 +506,7 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
       BBL_STATE_DIR: external-blobstore-directors/aws-ec2/
-      CLEAN_ALL: false
+      CLEAN_ALL: true
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
 
@@ -596,7 +596,7 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
       BBL_STATE_DIR: drats-pr-ragdoll/
-      CLEAN_ALL: false
+      CLEAN_ALL: true
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
 
@@ -689,7 +689,7 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
       BBL_STATE_DIR: drats-papillon/
-      CLEAN_ALL: false
+      CLEAN_ALL: true
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
 
@@ -782,7 +782,7 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
       BBL_STATE_DIR: drats-with-config-manx/
-      CLEAN_ALL: false
+      CLEAN_ALL: true
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
 
@@ -860,7 +860,7 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
       BBL_STATE_DIR: maru/
-      CLEAN_ALL: false
+      CLEAN_ALL: true
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
 
@@ -956,7 +956,7 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
       BBL_STATE_DIR: maru-lite/
-      CLEAN_ALL: false
+      CLEAN_ALL: true
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
 
@@ -1034,7 +1034,7 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
       BBL_STATE_DIR: external-blobstore-directors/gcs/
-      CLEAN_ALL: false
+      CLEAN_ALL: true
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
 
