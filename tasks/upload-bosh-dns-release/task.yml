@@ -1,0 +1,16 @@
+---
+platform: linux
+
+image_resource:
+  type: registry-image
+  source: {repository: pcfplatformrecovery/backup-and-restore}
+
+inputs:
+- name: backup-and-restore-ci
+- name: bbl-state
+
+params:
+  BBL_STATE_DIR:
+
+run:
+  path: backup-and-restore-ci/tasks/upload-bosh-dns-release/task.sh
