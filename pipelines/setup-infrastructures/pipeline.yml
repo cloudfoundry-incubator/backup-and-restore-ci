@@ -225,6 +225,7 @@ jobs:
   - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
     - get: everyday
       trigger: true
   - task: bosh-clean-up
@@ -234,6 +235,12 @@ jobs:
       CLEAN_ALL: true
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+  - task: upload-bosh-dns-release
+    file: backup-and-restore-ci/tasks/upload-bosh-dns-release/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: external-blobstore-directors/aws-s3/
 
 - name: destroy-infrastructure-aws-s3
   serial: true
@@ -318,6 +325,7 @@ jobs:
   - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
     - get: everyday
       trigger: true
   - task: bosh-clean-up
@@ -327,6 +335,12 @@ jobs:
       CLEAN_ALL: true
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+  - task: upload-bosh-dns-release
+    file: backup-and-restore-ci/tasks/upload-bosh-dns-release/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
 
 - name: destroy-infrastructure-aws-s3-unversioned
   serial: true
@@ -411,6 +425,7 @@ jobs:
   - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
     - get: everyday
       trigger: true
   - task: bosh-clean-up
@@ -420,6 +435,12 @@ jobs:
       CLEAN_ALL: true
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+  - task: upload-bosh-dns-release
+    file: backup-and-restore-ci/tasks/upload-bosh-dns-release/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: external-blobstore-directors/azure/
 
 - name: destroy-infrastructure-azure
   serial: true
@@ -500,6 +521,7 @@ jobs:
   - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
     - get: everyday
       trigger: true
   - task: bosh-clean-up
@@ -509,6 +531,12 @@ jobs:
       CLEAN_ALL: true
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+  - task: upload-bosh-dns-release
+    file: backup-and-restore-ci/tasks/upload-bosh-dns-release/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: external-blobstore-directors/aws-ec2/
 
 - name: destroy-infrastructure-aws-ec2
   serial: true
@@ -590,6 +618,7 @@ jobs:
   - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
     - get: everyday
       trigger: true
   - task: bosh-clean-up
@@ -599,6 +628,12 @@ jobs:
       CLEAN_ALL: true
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+  - task: upload-bosh-dns-release
+    file: backup-and-restore-ci/tasks/upload-bosh-dns-release/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: drats-pr-ragdoll/
 
 - name: destroy-infrastructure-drats-pr-ragdoll
   serial: true
@@ -683,6 +718,7 @@ jobs:
   - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
     - get: everyday
       trigger: true
   - task: bosh-clean-up
@@ -692,6 +728,12 @@ jobs:
       CLEAN_ALL: true
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+  - task: upload-bosh-dns-release
+    file: backup-and-restore-ci/tasks/upload-bosh-dns-release/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: drats-papillon/
 
 - name: destroy-infrastructure-drats-papillon
   serial: true
@@ -776,6 +818,7 @@ jobs:
   - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
     - get: everyday
       trigger: true
   - task: bosh-clean-up
@@ -785,6 +828,12 @@ jobs:
       CLEAN_ALL: true
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+  - task: upload-bosh-dns-release
+    file: backup-and-restore-ci/tasks/upload-bosh-dns-release/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: drats-with-config-manx/
 
 - name: destroy-infrastructure-drats-with-config-manx
   serial: true
@@ -854,6 +903,7 @@ jobs:
   - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
     - get: everyday
       trigger: true
   - task: bosh-clean-up
@@ -863,6 +913,12 @@ jobs:
       CLEAN_ALL: true
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+  - task: upload-bosh-dns-release
+    file: backup-and-restore-ci/tasks/upload-bosh-dns-release/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: maru/
 
 - name: destroy-infrastructure-maru
   serial: true
@@ -950,6 +1006,7 @@ jobs:
   - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
     - get: everyday
       trigger: true
   - task: bosh-clean-up
@@ -959,6 +1016,12 @@ jobs:
       CLEAN_ALL: true
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+  - task: upload-bosh-dns-release
+    file: backup-and-restore-ci/tasks/upload-bosh-dns-release/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: maru-lite
 
 - name: destroy-infrastructure-maru-lite
   serial: true
@@ -1028,6 +1091,7 @@ jobs:
   - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
     - get: everyday
       trigger: true
   - task: bosh-clean-up
@@ -1037,6 +1101,12 @@ jobs:
       CLEAN_ALL: true
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
+  - task: upload-bosh-dns-release
+    file: backup-and-restore-ci/tasks/upload-bosh-dns-release/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: external-blobstore-directors/gcs/
 
 - name: destroy-infrastructure-gcs
   serial: true
