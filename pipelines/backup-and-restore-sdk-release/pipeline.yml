@@ -682,6 +682,7 @@ jobs:
     - get: backup-and-restore-sdk-release
       passed:
       - deploy-database-sdk
+      - deploy-postgres
       trigger: true
   - in_parallel:
     - task: postgres-system-tests-9.4
@@ -754,6 +755,7 @@ jobs:
     - get: backup-and-restore-sdk-release
       passed:
       - deploy-database-sdk
+      - deploy-external-gcp-dbs
       trigger: true
     - get: terraform-gcp
       resource: terraform
@@ -814,7 +816,9 @@ jobs:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       trigger: true
-      passed: [deploy-database-sdk]
+      passed:
+      - deploy-database-sdk
+      - deploy-external-rds-dbs
     - get: bosh-backup-and-restore-meta
     - get: terraform-aws
       resource: terraform
@@ -938,6 +942,7 @@ jobs:
     - get: backup-and-restore-sdk-release
       passed:
       - deploy-database-sdk
+      - deploy-mariadb
       trigger: true
     - get: bosh-backup-and-restore-meta
   - task: mariadb-system-tests
@@ -961,7 +966,9 @@ jobs:
   - in_parallel:
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
-      passed: [deploy-database-sdk]
+      passed:
+      - deploy-database-sdk
+      - deploy-external-rds-dbs
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: terraform-aws
@@ -1010,6 +1017,7 @@ jobs:
     - get: backup-and-restore-sdk-release
       passed:
       - deploy-database-sdk
+      - deploy-external-rds-dbs
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: terraform-aws
@@ -1057,6 +1065,7 @@ jobs:
     - get: backup-and-restore-sdk-release
       passed:
       - deploy-database-sdk
+      - deploy-external-gcp-dbs
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: terraform-gcp
