@@ -449,7 +449,7 @@ jobs:
       <<: *MARU_LITE_BOSH_CREDS
       BOSH_DEPLOYMENT: *postgres-9-6-deployment-name
 
-- name: deploy-mysql
+- name: deploy-mariadb
   serial: true
   plan:
   - in_parallel:
