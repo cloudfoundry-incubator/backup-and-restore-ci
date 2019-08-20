@@ -244,7 +244,9 @@ jobs:
   plan:
   - in_parallel:
     - get: bosh-backup-and-restore
-      passed: [unit]
+      passed:
+      - unit
+      - upload-deployment-test-releases
       trigger: true
     - get: bosh-deployment
     - get: bosh-backup-and-restore-meta
@@ -272,6 +274,8 @@ jobs:
   plan:
   - in_parallel:
     - get: bbr-deployment-test-releases
+      trigger: true
+    - get: bosh-backup-and-restore
       trigger: true
     - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
@@ -331,7 +335,9 @@ jobs:
   - in_parallel:
     - get: xenial-stemcell
     - get: bosh-backup-and-restore
-      passed: [unit]
+      passed:
+      - unit
+      - upload-deployment-test-releases
       trigger: true
     - get: bbr-deployment-test-releases
       passed: [upload-deployment-test-releases]
@@ -355,7 +361,9 @@ jobs:
   plan:
   - in_parallel:
     - get: bosh-backup-and-restore
-      passed: [unit]
+      passed:
+      - unit
+      - upload-deployment-test-releases
       trigger: true
     - get: bbr-deployment-test-releases
       passed: [upload-deployment-test-releases]
@@ -398,7 +406,9 @@ jobs:
     - get: windows-stemcell
     - get: xenial-stemcell
     - get: bosh-backup-and-restore
-      passed: [unit]
+      passed:
+      - unit
+      - upload-deployment-test-releases
       trigger: true
     - get: bbr-deployment-test-releases
       passed: [upload-deployment-test-releases]
@@ -429,7 +439,9 @@ jobs:
   plan:
   - in_parallel:
     - get: bosh-backup-and-restore
-      passed: [unit]
+      passed:
+      - unit
+      - upload-deployment-test-releases
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
