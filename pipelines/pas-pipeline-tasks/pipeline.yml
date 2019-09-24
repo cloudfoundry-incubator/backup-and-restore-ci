@@ -90,7 +90,7 @@ jobs:
       SKIP_SSL_VALIDATION: ((skip-ssl-validation))
   - put: om-backup-artifact
     params:
-      file: om-installation/installation.zip
+      file: om-installation/installation_*.zip
 
 - name: bbr-backup-pas
   serial: true
@@ -127,7 +127,7 @@ jobs:
         OPSMAN_PRIVATE_KEY: ((opsman-private-key))
   - put: pas-backup-bucket
     params:
-      file: pas-backup-artifact/pas-backup.tar
+      file: pas-backup-artifact/pas-backup_*.tar
 
 - name: bbr-backup-director
   serial: true
@@ -164,7 +164,7 @@ jobs:
       - ((concourse-worker-tag))
   - put: director-backup-bucket
     params:
-      file: director-backup-artifact/director-backup.tar
+      file: director-backup-artifact/director-backup_*.tar
 
 - name: trigger-pr
   serial: true
@@ -234,7 +234,7 @@ jobs:
         status: success
   - put: om-backup-artifact
     params:
-      file: om-installation/installation.zip
+      file: om-installation/installation_*.zip
 
 - name: bbr-backup-pas-prs
   serial: true
@@ -277,7 +277,7 @@ jobs:
         status: success
   - put: pas-backup-bucket
     params:
-      file: pas-backup-artifact/pas-backup.tar
+      file: pas-backup-artifact/pas-backup_*.tar
 
 - name: bbr-backup-director-prs
   serial: true
@@ -319,7 +319,7 @@ jobs:
         status: success
   - put: director-backup-bucket
     params:
-      file: director-backup-artifact/director-backup.tar
+      file: director-backup-artifact/director-backup_*.tar
 
 - name: bbr-cleanup-pas-prs
   serial: true
@@ -524,19 +524,19 @@ resources:
   type: s3
   source:
     <<: *s3_credentials
-    versioned_file: installation.zip
+    regexp: installation_(.*).zip
 
 - name: pas-backup-bucket
   type: s3
   source:
     <<: *s3_credentials
-    versioned_file: pas-backup.tar
+    regexp: pas-backup_(.*).tar
 
 - name: director-backup-bucket
   type: s3
   source:
     <<: *s3_credentials
-    versioned_file: director-backup.tar
+    regexp: director-backup_(.*).tar
 
 - name: bbr-release
   type: pivnet

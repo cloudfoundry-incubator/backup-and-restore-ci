@@ -76,25 +76,25 @@ resources:
   type: s3
   source:
     <<: *s3_credentials
-    versioned_file: installation.zip
+    regexp: installation_(.*).zip
 
 - name: director-backup-bucket
   type: s3
   source:
     <<: *s3_credentials
-    versioned_file: director-backup.tar
+    regexp: director-backup_(.*).tar
 
 - name: pks-backup-bucket
   type: s3
   source:
     <<: *s3_credentials
-    versioned_file: pks-backup.tar
+    regexp: pks-backup_(.*).tar
 
 - name: pks-clusters-backup-bucket
   type: s3
   source:
     <<: *s3_credentials
-    versioned_file: pks-clusters-backup.tar
+    regexp: pks-clusters-backup_(.*).tar
 
 groups:
 - name: master
@@ -170,7 +170,7 @@ jobs:
       OPSMAN_PASSWORD: ((opsman-password))
   - put: om-backup-bucket
     params:
-      file: om-installation/installation.zip
+      file: om-installation/installation_*.zip
 
 - name: bbr-backup-pks-foundation
   serial: true
@@ -222,13 +222,13 @@ jobs:
   - in_parallel:
     - put: director-backup-bucket
       params:
-        file: director-backup-artifact/director-backup.tar
+        file: director-backup-artifact/director-backup_*.tar
     - put: pks-backup-bucket
       params:
-        file: pks-backup-artifact/pks-backup.tar
+        file: pks-backup-artifact/pks-backup_*.tar
     - put: pks-clusters-backup-bucket
       params:
-        file: pks-clusters-backup-artifact/pks-clusters-backup.tar
+        file: pks-clusters-backup-artifact/pks-clusters-backup_*.tar
   ensure:
     task: unlock-pks
     file: bbr-pipeline-tasks-repo/tasks/unlock-pks/task.yml
@@ -390,7 +390,7 @@ jobs:
   - in_parallel:
     - put: pks-backup-bucket
       params:
-        file: pks-backup-artifact/pks-backup.tar
+        file: pks-backup-artifact/pks-backup_*.tar
       on_success:
         put: bbr-pipeline-tasks-prs
         params:
@@ -405,7 +405,7 @@ jobs:
           status: failure
     - put: pks-clusters-backup-bucket
       params:
-        file: pks-clusters-backup-artifact/pks-clusters-backup.tar
+        file: pks-clusters-backup-artifact/pks-clusters-backup_*.tar
       on_success:
         put: bbr-pipeline-tasks-prs
         params:
