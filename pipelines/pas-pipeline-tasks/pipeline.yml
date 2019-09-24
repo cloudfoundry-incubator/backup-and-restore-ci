@@ -234,7 +234,7 @@ jobs:
         status: success
   - put: om-backup-artifact
     params:
-      file: om-installation/installation_*.zip
+      file: om-installation/installation.zip
 
 - name: bbr-backup-pas-prs
   serial: true
@@ -277,7 +277,7 @@ jobs:
         status: success
   - put: pas-backup-bucket
     params:
-      file: pas-backup-artifact/pas-backup_*.tar
+      file: pas-backup-artifact/pas-backup.tar
 
 - name: bbr-backup-director-prs
   serial: true
@@ -319,7 +319,7 @@ jobs:
         status: success
   - put: director-backup-bucket
     params:
-      file: director-backup-artifact/director-backup_*.tar
+      file: director-backup-artifact/director-backup.tar
 
 - name: bbr-cleanup-pas-prs
   serial: true
@@ -524,19 +524,19 @@ resources:
   type: s3
   source:
     <<: *s3_credentials
-    regexp: installation_(.*).zip
+    versioned_file: installation.zip
 
 - name: pas-backup-bucket
   type: s3
   source:
     <<: *s3_credentials
-    regexp: pas-backup_(.*).tar
+    versioned_file: pas-backup.tar
 
 - name: director-backup-bucket
   type: s3
   source:
     <<: *s3_credentials
-    regexp: director-backup_(.*).tar
+    versioned_file: director-backup.tar
 
 - name: bbr-release
   type: pivnet
