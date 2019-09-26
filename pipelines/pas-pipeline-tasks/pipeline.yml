@@ -73,7 +73,7 @@ jobs:
           exit "$(yamldiff \
             --file1 bbr-pipeline-tasks-repo/examples/pas-pipeline.yml \
             --file2 backup-and-restore-ci/pipelines/pas-pipeline-tasks/pipeline.yml \
-            | grep '^\-' | grep -v 'OPSMAN_PRIVATE_KEY' | wc -l)"
+            | grep '^\-' | grep -v 'OPSMAN_PRIVATE_KEY' | grep -v 'tag_filter' | wc -l)"
 
 - name: export-om-installation
   serial: true

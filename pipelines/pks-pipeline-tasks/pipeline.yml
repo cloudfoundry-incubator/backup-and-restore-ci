@@ -151,7 +151,7 @@ jobs:
           exit "$(yamldiff \
             --file1 bbr-pipeline-tasks-repo/examples/pks-pipeline.yml \
             --file2 backup-and-restore-ci/pipelines/pks-pipeline-tasks/pipeline.yml \
-            | grep '^\-' | wc -l)"
+            | grep '^\-' | grep -v 'tag_filter' | wc -l)"
 
 - name: export-om-installation
   serial: true
