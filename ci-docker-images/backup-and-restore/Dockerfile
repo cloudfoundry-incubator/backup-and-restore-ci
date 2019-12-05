@@ -10,6 +10,8 @@ ENV DOCKER_API_VERSION 1.23
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+ARG TERRAFORM_VERSION
+
 # update mirrors
 RUN ["/bin/bash", "-c", "set -o pipefail && \
   echo \"deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ stretch main\" | \
