@@ -45,7 +45,7 @@ main() {
 		exit 1
 	fi
 
-	echo "{ \"TERRAFORM_VERSION\": ${upstream_version} }" > dockerbuild-env/env-file.json
+	echo "{ \"TERRAFORM_VERSION\": \"${upstream_version}\" }" > dockerbuild-env/env-file.json
 }
 
 main "${@}"
