@@ -1,5 +1,11 @@
 ---
 resources:
+- name: terraform-github-release
+  type: github-release
+  source:
+    user: hashicorp
+    repository: terraform
+    access_token: ((github-access-token))
 - name: bbr-pcf-pipeline-tasks
   type: git
   source:
@@ -53,6 +59,13 @@ resources:
     private_key: ((git-private-key))
     branch: master
     paths: ["ci-docker-images/backup-and-restore/*"]
+
+- name: backup-and-restore-ci
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
+    private_key: ((git-private-key))
+    branch: master
 
 - name: backup-and-restore-node-with-ssh-repo
   type: git
@@ -154,15 +167,21 @@ jobs:
 - name: build-backup-and-restore
   serial: true
   plan:
+  - get: terraform-github-release
+    trigger: true
   - get: backup-and-restore-repo
     trigger: true
+  - get: backup-and-restore-ci
   - get: backup-and-restore-minimal-docker-image
     trigger: true
     passed: [build-backup-and-restore-minimal]
     params:
       skip_download: true
+  - task: get-terraform-version
+    file: backup-and-restore-ci/tasks/check-terraform-version/task.yml
   - put: backup-and-restore-docker-image
     params:
+      build_args_file: dockerbuild-env/env-file.json
       build: backup-and-restore-repo/ci-docker-images/backup-and-restore/
 
 - name: build-bosh-lite-stemcell
