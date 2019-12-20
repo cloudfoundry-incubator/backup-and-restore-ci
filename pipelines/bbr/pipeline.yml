@@ -228,6 +228,13 @@ resources:
     deployment: *test-bosh-director-deployment
     skip_check: true
 
+- name: pivotal-tracker-bbr
+  type: tracker
+  source:
+    token: ((tracker-api-token))
+    project_id: "1662777"
+    tracker_url: https://www.pivotaltracker.com
+
 jobs:
 - name: deploy-fake-director
   serial: true
@@ -694,6 +701,10 @@ jobs:
       OPS_MAN_PASS: ((ops-man-pass))
       OPS_MAN_SSH_KEY: ((ops-man-ssh-key))
       SKIP_SUITE_NAME: cf-smbbroker
+  - put: pivotal-tracker-bbr
+    params:
+      repos:
+      - bosh-backup-and-restore
 
 - name: build-and-publish-final
   serial_groups: [version]
