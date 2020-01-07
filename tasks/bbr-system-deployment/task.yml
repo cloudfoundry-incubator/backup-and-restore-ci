@@ -11,8 +11,6 @@ inputs:
 - name: backup-and-restore-ci
 
 params:
-  BOSH_GW_USER:
-  BOSH_GW_PRIVATE_KEY:
   BOSH_ENVIRONMENT:
   BOSH_CLIENT:
   BOSH_CLIENT_SECRET:
