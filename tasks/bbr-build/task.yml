@@ -6,7 +6,6 @@ image_resource:
   source: {repository: pcfplatformrecovery/backup-and-restore}
 
 inputs:
-- name: release-trigger
 - name: bosh-backup-and-restore
 - name: bosh-backup-and-restore-meta
 - name: backup-and-restore-ci
