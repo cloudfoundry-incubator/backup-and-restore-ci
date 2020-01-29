@@ -253,11 +253,21 @@ resources:
     uri: https://github.com/bosh-packages/golang-release.git
     tag_filter: v*
 
+- name: 6h
+  type: time
+  source:
+    interval: 6h
+    start: 9:00 AM
+    stop: 5:00 PM
+    days: [Monday, Tuesday, Wednesday, Thursday, Friday]
+
 jobs:
 - name: unit-tests
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
     - get: backup-and-restore-sdk-release
       trigger: true
     - get: backup-and-restore-ci
@@ -288,6 +298,9 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [unit-tests]
     - get: backup-and-restore-sdk-release
       passed: [unit-tests]
       trigger: true
@@ -325,6 +338,9 @@ jobs:
   serial_groups: [version]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [contract-tests]
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
@@ -347,6 +363,9 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [create-release]
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed: [create-release]
@@ -376,6 +395,9 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [create-release]
     - get: backup-and-restore-sdk-release
       passed: [create-release]
       trigger: true
@@ -453,6 +475,9 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [create-release]
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed: [create-release]
@@ -484,6 +509,9 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [create-release]
     - get: backup-and-restore-sdk-release
       passed: [create-release]
       trigger: true
@@ -526,6 +554,9 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [create-release]
     - get: backup-and-restore-sdk-release
       passed: [create-release]
       trigger: true
@@ -561,6 +592,9 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [create-release]
     - get: backup-and-restore-sdk-release
       passed: [create-release]
       trigger: true
@@ -614,6 +648,9 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [create-release]
     - get: backup-and-restore-sdk-release
       passed: [create-release]
       trigger: true
@@ -644,6 +681,9 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [create-release]
     - get: backup-and-restore-sdk-release
       passed: [create-release]
       trigger: true
@@ -678,6 +718,11 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed:
+      - deploy-database-sdk
+      - deploy-postgres
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
@@ -750,6 +795,11 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed:
+      - deploy-database-sdk
+      - deploy-external-gcp-dbs
     - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-sdk-release
@@ -813,6 +863,11 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed:
+      - deploy-database-sdk
+      - deploy-external-rds-dbs
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       trigger: true
@@ -938,6 +993,11 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed:
+      - deploy-database-sdk
+      - deploy-mariadb
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
@@ -964,6 +1024,11 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed:
+      - deploy-database-sdk
+      - deploy-external-rds-dbs
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
@@ -1013,6 +1078,11 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed:
+      - deploy-database-sdk
+      - deploy-external-rds-dbs
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
@@ -1061,6 +1131,11 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed:
+      - deploy-database-sdk
+      - deploy-external-gcp-dbs
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
@@ -1113,6 +1188,9 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [deploy-s3-blobstore-sdk]
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
@@ -1152,6 +1230,9 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [deploy-s3-blobstore-sdk-with-iam-instance-profile]
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed:
@@ -1183,12 +1264,16 @@ jobs:
 - name: azure-blobstore-backuper-system-tests
   serial: true
   plan:
-  - get: backup-and-restore-ci
-  - get: backup-and-restore-sdk-release
-    passed:
-    - deploy-azure-blobstore-sdk
-    trigger: true
-  - get: bosh-backup-and-restore-meta
+  - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [deploy-azure-blobstore-sdk]
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-azure-blobstore-sdk
+      trigger: true
+    - get: bosh-backup-and-restore-meta
   - task: azure-blobstore-backuper-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-blobstore/task.yml
     params:
@@ -1206,6 +1291,9 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [create-release]
     - get: backup-and-restore-sdk-release
       passed:
       - create-release
@@ -1238,12 +1326,16 @@ jobs:
 - name: gcs-blobstore-backuper-system-tests
   serial: true
   plan:
-  - get: backup-and-restore-ci
-  - get: backup-and-restore-sdk-release
-    passed:
-    - deploy-gcs-blobstore-sdk
-    trigger: true
-  - get: bosh-backup-and-restore-meta
+  - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [deploy-gcs-blobstore-sdk]
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-gcs-blobstore-sdk
+      trigger: true
+    - get: bosh-backup-and-restore-meta
   - task: gcs-blobstore-backuper-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-blobstore/task.yml
     params:
@@ -1261,6 +1353,16 @@ jobs:
   serial_groups: [drats-s3-versioned]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed:
+      - postgres-system-tests
+      - postgres-system-tests-rds
+      - postgres-system-tests-gcp
+      - mariadb-system-tests
+      - mysql-system-tests-rds
+      - mysql-system-tests-gcp
+      - s3-blobstore-backuper-system-tests
     - get: disaster-recovery-acceptance-tests
       trigger: true
     - get: bbr-binary-release
@@ -1312,6 +1414,9 @@ jobs:
   serial_groups: [drats-azure]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [azure-blobstore-backuper-system-tests]
     - get: disaster-recovery-acceptance-tests
       trigger: true
     - get: bbr-binary-release
@@ -1351,6 +1456,9 @@ jobs:
   serial_groups: [drats-gcs]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [gcs-blobstore-backuper-system-tests]
     - get: disaster-recovery-acceptance-tests
       trigger: true
     - get: bbr-binary-release
@@ -1390,6 +1498,9 @@ jobs:
   serial_groups: [drats-gcs]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [deploy-cf-with-external-gcs-blobstore]
     - get: bosh-backup-and-restore-meta
       passed: [deploy-cf-with-external-gcs-blobstore]
     - get: cf-deployment-master
@@ -1430,6 +1541,9 @@ jobs:
   serial_groups: [drats-gcs]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [run-drats-external-gcs-blobstore]
     - get: disaster-recovery-acceptance-tests
       passed: [run-drats-external-gcs-blobstore]
       trigger: true
@@ -1454,20 +1568,24 @@ jobs:
   serial: true
   serial_groups: [drats-azure]
   plan:
-  - get: bosh-backup-and-restore-meta
-    passed: [deploy-cf-with-external-azure-blobstore]
-  - get: cf-deployment-master
-    passed: [deploy-cf-with-external-azure-blobstore]
-    trigger: true
-  - get: backup-and-restore-sdk-release
-    trigger: true
-    passed: [deploy-cf-with-external-azure-blobstore]
-  - get: disaster-recovery-acceptance-tests
-    passed: [deploy-cf-with-external-azure-blobstore]
-    trigger: true
-  - get: bbr-binary-release
-    passed: [deploy-cf-with-external-azure-blobstore]
-    trigger: true
+  - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [deploy-cf-with-external-azure-blobstore]
+    - get: bosh-backup-and-restore-meta
+      passed: [deploy-cf-with-external-azure-blobstore]
+    - get: cf-deployment-master
+      passed: [deploy-cf-with-external-azure-blobstore]
+      trigger: true
+    - get: backup-and-restore-sdk-release
+      trigger: true
+      passed: [deploy-cf-with-external-azure-blobstore]
+    - get: disaster-recovery-acceptance-tests
+      passed: [deploy-cf-with-external-azure-blobstore]
+      trigger: true
+    - get: bbr-binary-release
+      passed: [deploy-cf-with-external-azure-blobstore]
+      trigger: true
   - task: unit-tests
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
     params:
@@ -1494,6 +1612,9 @@ jobs:
   serial_groups: [drats-azure]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [run-drats-external-azure-blobstore]
     - get: disaster-recovery-acceptance-tests
       passed: [run-drats-external-azure-blobstore]
       trigger: true
@@ -1518,20 +1639,24 @@ jobs:
   serial: true
   serial_groups: [drats-s3-versioned]
   plan:
-  - get: bosh-backup-and-restore-meta
-    passed: [deploy-cf-with-external-s3-blobstore]
-  - get: cf-deployment-master
-    passed: [deploy-cf-with-external-s3-blobstore]
-    trigger: true
-  - get: backup-and-restore-sdk-release
-    trigger: true
-    passed: [deploy-cf-with-external-s3-blobstore]
-  - get: disaster-recovery-acceptance-tests
-    passed: [deploy-cf-with-external-s3-blobstore]
-    trigger: true
-  - get: bbr-binary-release
-    passed: [deploy-cf-with-external-s3-blobstore]
-    trigger: true
+  - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [deploy-cf-with-external-s3-blobstore]
+    - get: bosh-backup-and-restore-meta
+      passed: [deploy-cf-with-external-s3-blobstore]
+    - get: cf-deployment-master
+      passed: [deploy-cf-with-external-s3-blobstore]
+      trigger: true
+    - get: backup-and-restore-sdk-release
+      trigger: true
+      passed: [deploy-cf-with-external-s3-blobstore]
+    - get: disaster-recovery-acceptance-tests
+      passed: [deploy-cf-with-external-s3-blobstore]
+      trigger: true
+    - get: bbr-binary-release
+      passed: [deploy-cf-with-external-s3-blobstore]
+      trigger: true
   - task: unit-tests
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
     params:
@@ -1558,6 +1683,9 @@ jobs:
   serial_groups: [drats-s3-versioned]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [run-drats-external-s3-blobstore]
     - get: disaster-recovery-acceptance-tests
       passed: [run-drats-external-s3-blobstore]
       trigger: true
@@ -1589,6 +1717,11 @@ jobs:
   serial_groups: [drats-s3-unversioned]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed:
+      - s3-blobstore-backuper-system-tests
+      - s3-blobstore-system-tests-with-iam-instance-profile
     - get: disaster-recovery-acceptance-tests
       trigger: true
     - get: bbr-binary-release
@@ -1629,25 +1762,29 @@ jobs:
   serial: true
   serial_groups: [drats-s3-unversioned]
   plan:
-  - get: cf-deployment-master
-    resource: cf-deployment-master
-    passed:
-    - deploy-cf-with-unversioned-external-s3-blobstore
-    trigger: true
-  - get: backup-and-restore-sdk-release
-    trigger: true
-    passed:
-    - deploy-cf-with-unversioned-external-s3-blobstore
-  - get: disaster-recovery-acceptance-tests
-    passed:
-    - deploy-cf-with-unversioned-external-s3-blobstore
-    trigger: true
-  - get: bbr-binary-release
-    passed:
-    - deploy-cf-with-unversioned-external-s3-blobstore
-    trigger: true
-  - get: bosh-backup-and-restore-meta
-    passed: [deploy-cf-with-unversioned-external-s3-blobstore]
+  - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [deploy-cf-with-unversioned-external-s3-blobstore]
+    - get: cf-deployment-master
+      resource: cf-deployment-master
+      passed:
+      - deploy-cf-with-unversioned-external-s3-blobstore
+      trigger: true
+    - get: backup-and-restore-sdk-release
+      trigger: true
+      passed:
+      - deploy-cf-with-unversioned-external-s3-blobstore
+    - get: disaster-recovery-acceptance-tests
+      passed:
+      - deploy-cf-with-unversioned-external-s3-blobstore
+      trigger: true
+    - get: bbr-binary-release
+      passed:
+      - deploy-cf-with-unversioned-external-s3-blobstore
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+      passed: [deploy-cf-with-unversioned-external-s3-blobstore]
   - task: unit-tests
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
     params:
@@ -1674,6 +1811,9 @@ jobs:
   serial_groups: [drats-s3-unversioned]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [run-drats-external-s3-unversioned-blobstore]
     - get: disaster-recovery-acceptance-tests
       passed: [run-drats-external-s3-unversioned-blobstore]
       trigger: true
@@ -1918,6 +2058,9 @@ jobs:
 - name: deploy-acceptance-infrastructure
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [create-release]
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
