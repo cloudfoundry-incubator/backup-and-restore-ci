@@ -56,6 +56,14 @@ resources:
     uri: https://github.com/cloudfoundry-incubator/backup-and-restore-ci.git
     branch: master
 
+- name: 6h
+  type: time
+  source:
+    interval: 6h
+    start: 9:00 AM
+    stop: 5:00 PM
+    days: [Monday, Tuesday, Wednesday, Thursday, Friday]
+
 jobs:
 
 ### DEPLOY CF
@@ -115,6 +123,8 @@ jobs:
   serial_groups: [drats-with-destroy]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
     - get: disaster-recovery-acceptance-tests
       trigger: true
     - get: cf-deployment
@@ -169,6 +179,8 @@ jobs:
   serial_groups: [drats]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
     - get: disaster-recovery-acceptance-tests
       trigger: true
     - get: cf-deployment-concourse-tasks
@@ -287,6 +299,9 @@ jobs:
   serial_groups: [drats]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [deploy-cf]
     - get: bosh-backup-and-restore-meta
     - get: cf-deployment
       passed: [deploy-cf]
@@ -323,6 +338,9 @@ jobs:
   serial_groups: [drats-with-destroy]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [deploy-cf-with-destroy]
     - get: cf-deployment
       passed: [deploy-cf-with-destroy]
       trigger: true
@@ -379,6 +397,9 @@ jobs:
   serial_groups: [drats-with-destroy]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [run-drats-with-destroy]
     - get: cf-deployment
       passed: [run-drats-with-destroy]
       trigger: true
@@ -402,6 +423,9 @@ jobs:
   serial_groups: [drats]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [run-drats]
     - get: cf-deployment
       passed: [run-drats]
       trigger: true
