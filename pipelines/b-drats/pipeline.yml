@@ -75,11 +75,22 @@ resources:
   source:
     name: bosh-google-kvm-ubuntu-xenial-go_agent
 
+
+- name: 6h
+  type: time
+  source:
+    interval: 6h
+    start: 9:00 AM
+    stop: 5:00 PM
+    days: [Monday, Tuesday, Wednesday, Thursday, Friday]
+
 jobs:
 - name: deploy-b-drats-master
   serial: true
   serial_groups: [master]
   plan:
+  - get: 6h
+    trigger: true
   - in_parallel:
     - get: bosh-deployment
     - get: jumpbox-deployment
@@ -264,6 +275,9 @@ jobs:
   serial: true
   serial_groups: [master]
   plan:
+  - get: 6h
+    trigger: true
+    passed: [deploy-b-drats-master]
   - in_parallel:
     - get: bosh-disaster-recovery-acceptance-tests
       passed: [deploy-b-drats-master]
@@ -368,6 +382,9 @@ jobs:
   serial: true
   serial_groups: [master]
   plan:
+  - get: 6h
+    trigger: true
+    passed: [run-b-drats-master]
   - in_parallel:
     - get: bosh-deployment
       passed: [run-b-drats-master]
