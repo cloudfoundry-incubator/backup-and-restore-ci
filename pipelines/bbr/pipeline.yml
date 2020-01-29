@@ -235,43 +235,21 @@ resources:
     project_id: "1662777"
     tracker_url: https://www.pivotaltracker.com
 
-jobs:
-- name: deploy-fake-director
-  serial: true
-  serial_groups: [system-test-director]
-  plan:
-  - in_parallel:
-    - get: bosh-backup-and-restore
-      passed:
-      - unit
-      - upload-deployment-test-releases
-      trigger: true
-    - get: bosh-deployment
-    - get: bosh-backup-and-restore-meta
-    - get: bbr-director-test-releases
-      trigger: true
-    - get: xenial-stemcell
-    - get: backup-and-restore-ci
-  - task: generate-bosh-deployment-source-file
-    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
-    params:
-      BBL_STATE: maru
-  - put: test-bosh-director-deployment
-    params:
-      manifest: bosh-backup-and-restore/fixtures/fake-director.yml
-      stemcells:
-      - xenial-stemcell/*.tgz
-      source_file: source-file/source-file.yml
-      vars:
-        deployment-name: test-bosh-director
-        jumpbox-public-key: ((test-bosh-director-public-key))
-        test_release_path: /tmp/build/put/bbr-director-test-releases/test-bosh-backup-and-restore-release
-        internal_ip: *test-bosh-director-ip
+- name: 6h
+  type: time
+  source:
+    interval: 6h
+    start: 9:00 AM
+    stop: 5:00 PM
+    days: [Monday, Tuesday, Wednesday, Thursday, Friday]
 
+jobs:
 - name: upload-deployment-test-releases
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
     - get: bbr-deployment-test-releases
       trigger: true
     - get: bosh-backup-and-restore
@@ -313,6 +291,8 @@ jobs:
 - name: unit
   serial: true
   plan:
+  - get: 6h
+    trigger: true
   - in_parallel:
     - get: bosh-backup-and-restore
       trigger: true
@@ -327,11 +307,53 @@ jobs:
       DOCKER_HOST: "tcp://10.0.255.1:4243"
       GITHUB_SSH_KEY: "((github-ssh-key))"
 
+- name: deploy-fake-director
+  serial: true
+  serial_groups: [system-test-director]
+  plan:
+  - in_parallel:
+    - get: 6h
+      trigger: true
+      passed:
+      - unit
+      - upload-deployment-test-releases
+    - get: bosh-backup-and-restore
+      passed:
+      - unit
+      - upload-deployment-test-releases
+      trigger: true
+    - get: bosh-deployment
+    - get: bosh-backup-and-restore-meta
+    - get: bbr-director-test-releases
+      trigger: true
+    - get: xenial-stemcell
+    - get: backup-and-restore-ci
+  - task: generate-bosh-deployment-source-file
+    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    params:
+      BBL_STATE: maru
+  - put: test-bosh-director-deployment
+    params:
+      manifest: bosh-backup-and-restore/fixtures/fake-director.yml
+      stemcells:
+      - xenial-stemcell/*.tgz
+      source_file: source-file/source-file.yml
+      vars:
+        deployment-name: test-bosh-director
+        jumpbox-public-key: ((test-bosh-director-public-key))
+        test_release_path: /tmp/build/put/bbr-director-test-releases/test-bosh-backup-and-restore-release
+        internal_ip: *test-bosh-director-ip
+
 - name: deploy-system-deployment-bosh-all-proxy
   serial: true
   serial_groups: [system-test-bosh-all-proxy]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed:
+      - unit
+      - upload-deployment-test-releases
     - get: xenial-stemcell
     - get: bosh-backup-and-restore
       passed:
@@ -359,6 +381,11 @@ jobs:
   serial_groups: [system-test-all-deployments]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed:
+      - unit
+      - upload-deployment-test-releases
     - get: bosh-backup-and-restore
       passed:
       - unit
@@ -402,6 +429,11 @@ jobs:
   serial_groups: [system-test-windows]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed:
+      - unit
+      - upload-deployment-test-releases
     - get: windows-stemcell
     - get: xenial-stemcell
     - get: bosh-backup-and-restore
@@ -437,6 +469,11 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed:
+      - unit
+      - upload-deployment-test-releases
     - get: bosh-backup-and-restore
       passed:
       - unit
@@ -457,6 +494,9 @@ jobs:
   serial_groups: [system-test-bosh-all-proxy]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [deploy-system-deployment-bosh-all-proxy]
     - get: bosh-backup-and-restore
       passed: [deploy-system-deployment-bosh-all-proxy]
       trigger: true
@@ -477,6 +517,9 @@ jobs:
   serial_groups: [system-test-director]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [deploy-fake-director]
     - get: bosh-backup-and-restore
       passed: [deploy-fake-director]
       trigger: true
@@ -506,6 +549,9 @@ jobs:
   serial_groups: [system-test-windows]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [deploy-system-windows]
     - get: bosh-backup-and-restore
       passed: [deploy-system-windows]
       trigger: true
@@ -524,6 +570,9 @@ jobs:
   serial_groups: [system-test-all-deployments]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [deploy-system-all-deployments]
     - get: bosh-backup-and-restore
       passed: [deploy-system-all-deployments]
       trigger: true
@@ -539,6 +588,9 @@ jobs:
   serial_groups: [system-test-director]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [system-test-director]
     - get: bosh-backup-and-restore
       passed: [system-test-director]
       trigger: true
@@ -562,6 +614,9 @@ jobs:
   serial_groups: [system-test-all-deployments]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [system-test-all-deployments]
     - get: bosh-backup-and-restore
       passed: [system-test-all-deployments]
       trigger: true
@@ -593,6 +648,9 @@ jobs:
   serial_groups: [system-test-bosh-all-proxy]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [system-test-bosh-all-proxy]
     - get: bosh-backup-and-restore
       passed: [system-test-bosh-all-proxy]
       trigger: true
@@ -612,11 +670,15 @@ jobs:
   serial: true
   serial_groups: [system-test-windows]
   plan:
-  - get: bosh-backup-and-restore
-    passed: [system-test-windows]
-    trigger: true
-  - get: backup-and-restore-ci
-  - get: bosh-backup-and-restore-meta
+  - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [system-test-windows]
+    - get: bosh-backup-and-restore
+      passed: [system-test-windows]
+      trigger: true
+    - get: backup-and-restore-ci
+    - get: bosh-backup-and-restore-meta
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
     params:
@@ -637,6 +699,9 @@ jobs:
   serial_groups: [version]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [system-test-all-deployments, system-test-deployment, system-test-bosh-all-proxy, system-test-director, system-test-windows]
     - get: bosh-backup-and-restore
       passed: [system-test-all-deployments, system-test-deployment, system-test-bosh-all-proxy, system-test-director, system-test-windows]
       trigger: true
@@ -683,6 +748,9 @@ jobs:
   serial_groups: [p-drats]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [build-rc]
     - get: pivotal-disaster-recovery-acceptance-tests
     - get: bosh-backup-and-restore
       passed: [build-rc]
