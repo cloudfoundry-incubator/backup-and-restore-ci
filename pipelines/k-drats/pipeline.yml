@@ -99,12 +99,22 @@ resources:
     jumpbox_ssh_key: "((maru-jumpbox-ssh-key))"
     skip_check: true
 
+- name: 6h
+  type: time
+  source:
+    interval: 6h
+    start: 9:00 AM
+    stop: 5:00 PM
+    days: [Monday, Tuesday, Wednesday, Thursday, Friday]
+
 jobs:
 - name: deploy-k-drats
   serial: true
   serial_groups: [k-drats]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
     - get: kubo-disaster-recovery-acceptance-tests
       trigger: true
     - get: bbr-binary-release
@@ -203,6 +213,9 @@ jobs:
   serial_groups: [k-drats]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [deploy-k-drats]
     - get: kubo-disaster-recovery-acceptance-tests
       trigger: true
       passed: [deploy-k-drats]
@@ -240,6 +253,9 @@ jobs:
   serial_groups: [k-drats]
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
+      passed: [run-k-drats]
     - get: kubo-disaster-recovery-acceptance-tests
       trigger: true
       passed: [run-k-drats]
