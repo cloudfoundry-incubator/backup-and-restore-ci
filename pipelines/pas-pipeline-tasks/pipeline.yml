@@ -35,6 +35,8 @@ jobs:
 - name: validate-sample-pipeline
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
     - get: bbr-pipeline-tasks-repo
       trigger: true
     - get: backup-and-restore-ci
@@ -79,6 +81,8 @@ jobs:
   serial: true
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
     - get: bbr-pipeline-tasks-repo
       trigger: true
   - task: export-om-installation
@@ -98,6 +102,8 @@ jobs:
   - backup-pas
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
     - get: bbr-pipeline-tasks-repo
       trigger: true
     - get: bbr-release
@@ -135,6 +141,8 @@ jobs:
   - backup-director
   plan:
   - in_parallel:
+    - get: 6h
+      trigger: true
     - get: bbr-pipeline-tasks-repo
       trigger: true
     - get: bbr-release
@@ -543,3 +551,11 @@ resources:
   source:
     api_token: ((pivnet-api-token))
     product_slug: p-bosh-backup-and-restore
+
+- name: 6h
+  type: time
+  source:
+    interval: 6h
+    start: 9:00 AM
+    stop: 5:00 PM
+    days: [Monday, Tuesday, Wednesday, Thursday, Friday]
