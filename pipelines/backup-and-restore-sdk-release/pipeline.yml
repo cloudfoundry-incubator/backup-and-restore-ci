@@ -492,6 +492,7 @@ jobs:
     params:
       BBL_STATE: maru-lite
   - put: mysql-dev-deployment
+    attempts: 3
     params:
       manifest: backup-and-restore-sdk-release/ci/manifests/mysql.yml
       stemcells:
