@@ -24,6 +24,8 @@ RUN apt-get update && apt-get install -y \
   apt-transport-https \
   awscli \
   azure-cli \
+  libreadline-dev \
+  zlib1g-dev \
   default-mysql-client \
   dnsutils \
   file \
@@ -31,11 +33,27 @@ RUN apt-get update && apt-get install -y \
   lsb-release \
   netcat-openbsd \
   openjdk-8-jdk \
-  ruby \
-  ruby-bundler \
   ruby-dev \
   wbritish \
   && rm -rf /var/lib/apt/lists/*
+
+
+# INSTALL RUBY
+#
+ENV RBENV_ROOT /home/vcap/.rbenv
+RUN git clone https://github.com/sstephenson/rbenv.git ${RBENV_ROOT}
+
+RUN mkdir -p ${RBENV_ROOT}/plugins
+RUN git clone https://github.com/sstephenson/ruby-build.git ${RBENV_ROOT}/plugins/ruby-build
+RUN git clone https://github.com/rbenv/rbenv-each.git ${RBENV_ROOT}/plugins/rbenv-each
+
+ENV PATH ${RBENV_ROOT}/bin:${RBENV_ROOT}/shims:$PATH
+
+RUN rbenv install 2.6.0
+RUN rbenv global 2.6.0
+
+RUN echo 'gem: --no-document' > $HOME/.gemrc
+RUN rbenv each gem install bundler
 
 # gcloud
 RUN ["/bin/bash", "-c", "set -o pipefail && \
