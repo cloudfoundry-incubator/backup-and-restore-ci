@@ -87,7 +87,7 @@ resources:
     access_key_id: ((pivnet-aws-access-key-id))
     secret_access_key: ((pivnet-aws-secret-access-key))
 
-- name: releng-kiln-concourse-task
+- name: releng-kiln-concourse-tasks
   type: git
   source:
     uri: git@github.com:pivotal/releng-kiln-concourse-tasks.git
@@ -100,7 +100,7 @@ resources:
     branch: master
     private_key: ((git-private-key))
     paths:
-      - Kilnfile
+    - Kilnfile
 
 - name: backup-and-restore-sdk-release
   type: git
@@ -2218,7 +2218,7 @@ jobs:
   plan:
   - in_parallel:
     - get: release
-      passed: create-final-patch
+      passed: [create-final-patch]
       trigger: true
     - get: releng-kiln-concourse-tasks
     - get: p-runtime
@@ -2226,7 +2226,8 @@ jobs:
   - task: upload-release
     file: releng-kiln-concourse-tasks/tasks/upload-release/task.yml
     input_mapping:
-      release-tarball-directory: my-release-tarball
+      release-tarball-directory: release
     params:
       AWS_ACCESS_KEY_ID: ((aws-access-key-id))
       AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
+
