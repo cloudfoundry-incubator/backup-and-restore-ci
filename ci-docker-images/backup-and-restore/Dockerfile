@@ -49,8 +49,8 @@ RUN git clone https://github.com/rbenv/rbenv-each.git ${RBENV_ROOT}/plugins/rben
 
 ENV PATH ${RBENV_ROOT}/bin:${RBENV_ROOT}/shims:$PATH
 
-RUN rbenv install 2.7.0
-RUN rbenv global 2.7.0
+RUN rbenv install 2.6.0
+RUN rbenv global 2.6.0
 
 RUN echo 'gem: --no-document' > $HOME/.gemrc
 RUN rbenv each gem install bundler
