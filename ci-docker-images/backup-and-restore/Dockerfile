@@ -12,18 +12,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 ARG TERRAFORM_VERSION
 
-# update mirrors
-RUN ["/bin/bash", "-c", "set -o pipefail && \
-  echo \"deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ stretch main\" | \
-  tee /etc/apt/sources.list.d/azure-cli.list"]
-RUN apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
-RUN ["/bin/bash", "-c", "set -o pipefail && \
-  curl -L https://packages.microsoft.com/keys/microsoft.asc | apt-key add -"]
+
 
 RUN apt-get update && apt-get install -y \
   apt-transport-https \
   awscli \
-  azure-cli \
   libreadline-dev \
   zlib1g-dev \
   default-mysql-client \
@@ -35,8 +28,23 @@ RUN apt-get update && apt-get install -y \
   openjdk-8-jdk \
   ruby-dev \
   wbritish \
+  ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
+# Install azure cli
+
+# install micrsoft signing key
+RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | \
+    gpg --dearmor | \
+    sudo tee /etc/apt/trusted.gpg.d/microsoft.asc.gpg > /dev/null
+
+# add azure cli repo
+RUN AZ_REPO=$(lsb_release -cs) && \
+    echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | \
+    sudo tee /etc/apt/sources.list.d/azure-cli.list
+
+RUN apt-get update && apt-get install -y \
+  azure-cli
 
 # INSTALL RUBY
 #
