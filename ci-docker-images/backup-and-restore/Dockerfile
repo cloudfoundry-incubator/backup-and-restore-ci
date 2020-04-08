@@ -110,5 +110,11 @@ RUN \
   mv /tmp/bbl-${BBL_VERSION}_linux_x86-64 /usr/local/bin/bbl && \
   chmod +x /usr/local/bin/bbl
 
+# kubectl
+ENV KUBE_VERSION="v1.17.4"
+ADD https://storage.googleapis.com/kubernetes-release/release/$KUBE_VERSION/bin/linux/amd64/kubectl /usr/bin/kubectl
+RUN chmod +x /usr/bin/kubectl
+
 RUN useradd --create-home --shell /bin/bash --home-dir /home/test test
+
 
