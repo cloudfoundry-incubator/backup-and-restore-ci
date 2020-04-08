@@ -4,6 +4,8 @@ ENV YQ_VERSION 2.4.0
 ENV CLOUD_SDK_VERSION 250.0.0
 ENV CREDHUB_CLI_VERSION 2.5.2
 ENV BBL_VERSION v8.2.12
+ENV VELERO_VERSION v1.3.2
+ENV KUBE_VERSION="v1.17.4"
 
 # fixes error "Error response from daemon: client is newer than server"
 ENV DOCKER_API_VERSION 1.23
@@ -11,8 +13,6 @@ ENV DOCKER_API_VERSION 1.23
 ENV DEBIAN_FRONTEND=noninteractive
 
 ARG TERRAFORM_VERSION
-
-
 
 RUN apt-get update && apt-get install -y \
   apt-transport-https \
@@ -110,8 +110,12 @@ RUN \
   mv /tmp/bbl-${BBL_VERSION}_linux_x86-64 /usr/local/bin/bbl && \
   chmod +x /usr/local/bin/bbl
 
+RUN \
+  wget https://github.com/vmware-tanzu/velero/releases/download/${VELERO_VERSION}/velero-${VELERO_VERSION}-linux-amd64.tar.gz -P /tmp && \
+  mv /tmp/velero-${VELERO_VERSION}-linux-amd64.tar.gz /usr/local/bin/velero && \
+  chmod +x /usr/local/bin/velero
+
 # kubectl
-ENV KUBE_VERSION="v1.17.4"
 ADD https://storage.googleapis.com/kubernetes-release/release/$KUBE_VERSION/bin/linux/amd64/kubectl /usr/bin/kubectl
 RUN chmod +x /usr/bin/kubectl
 
