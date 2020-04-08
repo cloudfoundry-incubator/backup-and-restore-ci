@@ -112,7 +112,8 @@ RUN \
 
 RUN \
   wget https://github.com/vmware-tanzu/velero/releases/download/${VELERO_VERSION}/velero-${VELERO_VERSION}-linux-amd64.tar.gz -P /tmp && \
-  mv /tmp/velero-${VELERO_VERSION}-linux-amd64.tar.gz /usr/local/bin/velero && \
+  tar xzvf /tmp/velero-${VELERO_VERSION}-linux-amd64.tar.gz -C /tmp/ && \
+  mv /tmp/velero-${VELERO_VERSION}-linux-amd64/velero /usr/local/bin/velero && \
   chmod +x /usr/local/bin/velero
 
 # kubectl
