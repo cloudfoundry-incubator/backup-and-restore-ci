@@ -60,6 +60,14 @@ resources:
     branch: master
     paths: ["ci-docker-images/backup-and-restore/*"]
 
+- name: backup-and-restore-cf-for-k8s-repo
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
+    private_key: ((git-private-key))
+    branch: master
+    paths: ["ci-docker-images/backup-and-restore-cf-for-k8s/*"]
+
 - name: backup-and-restore-ci
   type: git
   source:
@@ -87,6 +95,13 @@ resources:
   type: docker-image
   source:
     repository: pcfplatformrecovery/backup-and-restore-minimal
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
+
+- name: backup-and-restore-cf-for-k8s-docker-image
+  type: docker-image
+  source:
+    repository: pcfplatformrecovery/backup-and-restore-cf-for-k8s
     username: ((dockerhub-username))
     password: ((dockerhub-password))
 
@@ -145,6 +160,15 @@ jobs:
   - put: k-drats-docker-image
     params:
       build: k-drats/ci-docker-images/k-drats/
+
+- name: build-backup-and-restore-cf-for-k8s
+  serial: true
+  plan:
+  - get: backup-and-restore-cf-for-k8s-repo
+    trigger: true
+  - put: backup-and-restore-cf-for-k8s-docker-image
+    params:
+      build: backup-and-restore-cf-for-k8s-repo/ci-docker-images/backup-and-restore-cf-for-k8s/
 
 - name: build-backup-and-restore-minimal
   serial: true
