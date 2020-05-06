@@ -6,8 +6,8 @@ RUN apt-get -y update && apt-get -y install \
     jq \
     gnupg \
     libdigest-sha-perl \
-    make
-
+    make \
+    git
 
 # gcloud
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && apt-get update -y && apt-get install google-cloud-sdk -y
@@ -31,4 +31,16 @@ RUN \
   tar xzvf /tmp/velero-${VELERO_VERSION}-linux-amd64.tar.gz -C /tmp/ && \
   mv /tmp/velero-${VELERO_VERSION}-linux-amd64/velero /usr/local/bin/velero && \
   chmod +x /usr/local/bin/velero
+
+
+ENV GO_VERSION="1.14.2"
+ENV GOPATH /go
+ENV PATH /go/bin:/usr/local/go/bin:$PATH
+RUN \
+  wget https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz -P /tmp && \
+  tar xzvf /tmp/go${go_version}.linux-amd64.tar.gz -C /usr/local && \
+  mkdir ${GOPATH} && \
+  rm -rf /tmp/*
+
+RUN go get github.com/progrium/basht
 
