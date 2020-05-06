@@ -30,7 +30,8 @@ RUN \
   wget https://github.com/vmware-tanzu/velero/releases/download/${VELERO_VERSION}/velero-${VELERO_VERSION}-linux-amd64.tar.gz -P /tmp && \
   tar xzvf /tmp/velero-${VELERO_VERSION}-linux-amd64.tar.gz -C /tmp/ && \
   mv /tmp/velero-${VELERO_VERSION}-linux-amd64/velero /usr/local/bin/velero && \
-  chmod +x /usr/local/bin/velero
+  chmod +x /usr/local/bin/velero && \
+  rm -rf /tmp/velero*
 
 
 ENV GO_VERSION="1.14.2"
@@ -38,9 +39,9 @@ ENV GOPATH /go
 ENV PATH /go/bin:/usr/local/go/bin:$PATH
 RUN \
   wget https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz -P /tmp && \
-  tar xzvf /tmp/go${go_version}.linux-amd64.tar.gz -C /usr/local && \
+  tar xzvf /tmp/go${GO_VERSION}.linux-amd64.tar.gz -C /usr/local && \
   mkdir ${GOPATH} && \
-  rm -rf /tmp/*
+  rm -rf /tmp/go*
 
 RUN go get github.com/progrium/basht
 
