@@ -12,14 +12,14 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
-    tag_filter: v9.*
+    tag_filter: v13.*
 
 - name: cf-deployment
   type: git
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
     branch: master
-    tag_filter: v9.*
+    tag_filter: v13.*
 
 - name: bosh-backup-and-restore-meta
   type: git
@@ -89,7 +89,7 @@ jobs:
     params:
       BBL_STATE_DIR: drats-pr-ragdoll/
       SYSTEM_DOMAIN: drats-pr-ragdoll.platform-recovery.cf-app.com
-      OPS_FILES: "operations/scale-to-one-az.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/enable-nfs-volume-service.yml operations/backup-and-restore/enable-backup-restore-nfs-broker.yml   operations/experimental/disable-interpolate-service-bindings.yml operations/experimental/enable-traffic-to-internal-networks.yml operations/experimental/enable-smb-volume-service.yml operations/backup-and-restore/skip-backup-restore-droplets-and-packages.yml"
+      OPS_FILES: "operations/scale-to-one-az.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/enable-nfs-volume-service.yml operations/experimental/disable-interpolate-service-bindings.yml operations/experimental/enable-traffic-to-internal-networks.yml operations/experimental/enable-smb-volume-service.yml operations/backup-and-restore/skip-backup-restore-droplets-and-packages.yml"
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
   - task: wait-for-cf-api
@@ -145,7 +145,7 @@ jobs:
     params:
       BBL_STATE_DIR: drats-papillon/
       SYSTEM_DOMAIN: drats-papillon.platform-recovery.cf-app.com
-      OPS_FILES:  "operations/scale-to-one-az.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/enable-nfs-volume-service.yml operations/backup-and-restore/enable-backup-restore-nfs-broker.yml   operations/experimental/disable-interpolate-service-bindings.yml operations/experimental/enable-traffic-to-internal-networks.yml operations/experimental/enable-smb-volume-service.yml"
+      OPS_FILES: "operations/scale-to-one-az.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/enable-nfs-volume-service.yml operations/experimental/disable-interpolate-service-bindings.yml operations/experimental/enable-traffic-to-internal-networks.yml operations/experimental/enable-smb-volume-service.yml"
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
   - task: wait-for-cf-api
@@ -201,7 +201,7 @@ jobs:
     params:
       BBL_STATE_DIR: drats-with-config-manx/
       SYSTEM_DOMAIN: drats-with-config-manx.platform-recovery.cf-app.com
-      OPS_FILES:  "operations/scale-to-one-az.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/enable-nfs-volume-service.yml operations/backup-and-restore/enable-backup-restore-nfs-broker.yml   operations/experimental/disable-interpolate-service-bindings.yml operations/experimental/enable-traffic-to-internal-networks.yml operations/experimental/enable-smb-volume-service.yml"
+      OPS_FILES: "operations/scale-to-one-az.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/enable-nfs-volume-service.yml operations/experimental/disable-interpolate-service-bindings.yml operations/experimental/enable-traffic-to-internal-networks.yml operations/experimental/enable-smb-volume-service.yml"
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
       GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
   - task: wait-for-cf-api
