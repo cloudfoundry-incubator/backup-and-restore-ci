@@ -46,3 +46,9 @@ RUN \
 
 RUN go get github.com/progrium/basht
 
+ENV YQ_VERSION 2.4.0
+# yq
+RUN \
+  wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64 -P /tmp && \
+  mv /tmp/yq_linux_amd64 /usr/local/bin/yq && \
+  chmod +x /usr/local/bin/yq
