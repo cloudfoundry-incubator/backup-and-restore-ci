@@ -21,6 +21,13 @@ ENV BOSH_CLI_VERSION="6.0.0"
 ADD https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-${BOSH_CLI_VERSION}-linux-amd64 /usr/bin/bosh
 RUN chmod +x /usr/bin/bosh
 
+RUN \
+  wget https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz -P /tmp && \
+  tar xzvf /tmp/kubeval-linux-amd64.tar.gz -C /tmp/ && \
+  mv /tmp/kubeval /usr/local/bin/kubeval && \
+  chmod +x /usr/local/bin/kubeval && \
+  rm -rf /tmp/kubeval*
+
 # kubectl
 ENV KUBE_VERSION="v1.15.11"
 ADD https://storage.googleapis.com/kubernetes-release/release/${KUBE_VERSION}/bin/linux/amd64/kubectl /usr/bin/kubectl
@@ -33,7 +40,6 @@ RUN \
   mv /tmp/velero-${VELERO_VERSION}-linux-amd64/velero /usr/local/bin/velero && \
   chmod +x /usr/local/bin/velero && \
   rm -rf /tmp/velero*
-
 
 ENV GO_VERSION="1.14.2"
 ENV GOPATH /go
