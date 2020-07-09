@@ -75,11 +75,8 @@ RUN git clone https://github.com/AGWA/git-crypt.git && \
   cd git-crypt/ && \
   make && sudo make install
 
-# testing frameworks
+# Bash testing framework
 RUN go get github.com/progrium/basht
-RUN go get github.com/onsi/ginkgo/ginkgo
-
-RUN apt-get update && apt-get install -y gcc
 
 RUN git config --global url."git@github.com:".insteadOf "https://github.com/" && \
   mkdir -p ~/.ssh && ssh-keyscan -H github.com > ~/.ssh/known_hosts
