@@ -884,18 +884,6 @@ jobs:
         env_name: bbr-sdk-external-rds-dbs
         output_statefile: true
   - in_parallel:
-    - task: postgres-system-tests-9.4
-      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
-      input_mapping:
-        terraform-state: terraform-aws
-      params:
-        TEST_SUITE_NAME: postgresql
-        <<: *MARU_LITE_BOSH_CREDS
-        POSTGRES_PASSWORD: ((rds-postgres-9-4-password))
-        POSTGRES_USERNAME: root
-        POSTGRES_PORT: 5432
-        DB_TYPE: postgres
-        DB_PREFIX: postgres_9_4
     - task: postgres-system-tests-9.6
       file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
       input_mapping:
