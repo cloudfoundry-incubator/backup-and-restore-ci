@@ -533,7 +533,6 @@ jobs:
           aws_region: *aws-region
           mysql_5_6_password: ((rds-5-6-password))
           mysql_5_7_password: ((rds-5-7-password))
-          postgres_9_4_password: ((rds-postgres-9-4-password))
           postgres_9_6_password: ((rds-postgres-9-6-password))
           postgres_10_password: ((rds-postgres-10-password))
           postgres_11_password: ((rds-postgres-11-password))
@@ -921,20 +920,6 @@ jobs:
         DB_TYPE: postgres
         DB_PREFIX: postgres_11
   - in_parallel:
-    - task: postgres-tls-system-tests-9.4
-      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
-      input_mapping:
-        terraform-state: terraform-aws
-      params:
-        TEST_SUITE_NAME: postgresql_tls
-        <<: *MARU_LITE_BOSH_CREDS
-        POSTGRES_PASSWORD: ((rds-postgres-9-4-password))
-        POSTGRES_USERNAME: root
-        POSTGRES_PORT: 5432
-        POSTGRES_CA_CERT_PATH: ((rds-ca-cert-path))
-        TEST_SSL_USER_REQUIRES_SSL: false
-        DB_TYPE: postgres
-        DB_PREFIX: postgres_9_4
     - task: postgres-tls-system-tests-9.6
       file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
       input_mapping:
