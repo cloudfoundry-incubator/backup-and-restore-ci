@@ -11,6 +11,11 @@ RUN apt-get -y update && apt-get -y install \
     dnsutils \
     gcc
 
+# om
+RUN wget -q -O - https://raw.githubusercontent.com/starkandwayne/homebrew-cf/master/public.key | apt-key add - && \
+  echo "deb http://apt.starkandwayne.com stable main" | tee /etc/apt/sources.list.d/starkandwayne.list && \
+  apt-get update && apt-get install om -y
+
 # gcloud
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && apt-get update -y && apt-get install google-cloud-sdk -y
 
@@ -28,6 +33,7 @@ RUN \
   mv /tmp/kubeval /usr/local/bin/kubeval && \
   chmod +x /usr/local/bin/kubeval && \
   rm -rf /tmp/kubeval*
+
 
 # kubectl
 ENV KUBE_VERSION="v1.15.11"
