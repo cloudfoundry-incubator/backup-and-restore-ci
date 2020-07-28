@@ -4,6 +4,7 @@ opsman_credentials: &opsman_credentials
   OPSMAN_URL: ((opsman-url))
   OPSMAN_USERNAME: ((opsman-username))
   OPSMAN_PASSWORD: ((opsman-password))
+  OPSMAN_PRIVATE_KEY: ((opsman-private-key))
 
 s3_credentials: &s3_credentials
   bucket: ((storage-backup-bucket))
@@ -109,22 +110,16 @@ jobs:
     - get: bbr-release
       trigger: true
   - task: check-opsman-status
-    tags:
-    - ((concourse-worker-tag))
     file: bbr-pipeline-tasks-repo/tasks/check-opsman-status/task.yml
     params:
       <<: *opsman_credentials
   - task: extract-binary
     file: bbr-pipeline-tasks-repo/tasks/extract-bbr-binary/task.yml
-    tags:
-    - ((concourse-worker-tag))
   - task: bbr-backup-pas
     file: bbr-pipeline-tasks-repo/tasks/bbr-backup-pas/task.yml
     params:
       <<: *opsman_credentials
       OPSMAN_PRIVATE_KEY: ((opsman-private-key))
-    tags:
-    - ((concourse-worker-tag))
     on_failure:
       task: bbr-cleanup-pas
       file: bbr-pipeline-tasks-repo/tasks/bbr-cleanup-pas/task.yml
@@ -148,28 +143,20 @@ jobs:
     - get: bbr-release
       trigger: true
   - task: check-opsman-status
-    tags:
-    - ((concourse-worker-tag))
     file: bbr-pipeline-tasks-repo/tasks/check-opsman-status/task.yml
     params:
       <<: *opsman_credentials
   - task: extract-binary
     file: bbr-pipeline-tasks-repo/tasks/extract-bbr-binary/task.yml
-    tags:
-    - ((concourse-worker-tag))
   - task: bbr-backup-director
     file: bbr-pipeline-tasks-repo/tasks/bbr-backup-director/task.yml
     params:
       <<: *opsman_credentials
-    tags:
-    - ((concourse-worker-tag))
     on_failure:
       task: bbr-cleanup-director
       file: bbr-pipeline-tasks-repo/tasks/bbr-cleanup-director/task.yml
       params:
         <<: *opsman_credentials
-      tags:
-      - ((concourse-worker-tag))
   - put: director-backup-bucket
     params:
       file: director-backup-artifact/director-backup_*.tar
@@ -262,15 +249,11 @@ jobs:
       status: pending
   - task: extract-binary
     file: bbr-pipeline-tasks-repo/tasks/extract-bbr-binary/task.yml
-    tags:
-    - ((concourse-worker-tag))
   - task: bbr-backup-pas
     file: bbr-pipeline-tasks-repo/tasks/bbr-backup-pas/task.yml
     params:
       <<: *opsman_credentials
       OPSMAN_PRIVATE_KEY: ((opsman-private-key))
-    tags:
-    - ((concourse-worker-tag))
     on_failure:
       put: bbr-pipeline-tasks-prs
       params:
@@ -305,14 +288,10 @@ jobs:
       status: pending
   - task: extract-binary
     file: bbr-pipeline-tasks-repo/tasks/extract-bbr-binary/task.yml
-    tags:
-    - ((concourse-worker-tag))
   - task: bbr-backup-director
     file: bbr-pipeline-tasks-repo/tasks/bbr-backup-director/task.yml
     params:
       <<: *opsman_credentials
-    tags:
-    - ((concourse-worker-tag))
     on_failure:
       put: bbr-pipeline-tasks-prs
       params:
@@ -341,8 +320,6 @@ jobs:
     - get: bbr-release
   - task: extract-binary
     file: bbr-pipeline-tasks-prs/tasks/extract-bbr-binary/task.yml
-    tags:
-    - ((concourse-worker-tag))
   - task: bbr-cleanup-pas-prs
     file: bbr-pipeline-tasks-prs/tasks/bbr-cleanup-pas/task.yml
     params:
@@ -350,8 +327,6 @@ jobs:
       OPSMAN_PRIVATE_KEY: ((opsman-private-key))
     input_mapping:
       bbr-pipeline-tasks-repo: bbr-pipeline-tasks-prs
-    tags:
-    - ((concourse-worker-tag))
     on_failure:
       put: bbr-pipeline-tasks-prs
       params:
@@ -377,16 +352,12 @@ jobs:
     - get: bbr-release
   - task: extract-binary
     file: bbr-pipeline-tasks-prs/tasks/extract-bbr-binary/task.yml
-    tags:
-    - ((concourse-worker-tag))
   - task: bbr-cleanup-director-prs
     file: bbr-pipeline-tasks-prs/tasks/bbr-cleanup-director/task.yml
     params:
       <<: *opsman_credentials
     input_mapping:
       bbr-pipeline-tasks-repo: bbr-pipeline-tasks-prs
-    tags:
-    - ((concourse-worker-tag))
     on_failure:
       put: bbr-pipeline-tasks-prs
       params:
