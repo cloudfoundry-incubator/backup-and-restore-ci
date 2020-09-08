@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y \
   unzip \
   vim \
   wget \
+  netcat-openbsd \
   && rm -rf /var/lib/apt/lists/*
 
 RUN \
