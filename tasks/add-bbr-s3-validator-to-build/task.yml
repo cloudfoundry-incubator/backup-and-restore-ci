@@ -1,0 +1,17 @@
+---
+platfrom: linux
+
+image_resource:
+  type: registry-image
+  source: {repository: pcfplatformrecovery/backup-and-restore}
+
+inputs:
+- name: backup-and-restore-ci
+- name: bbr-build
+- name: bbr-s3-config-validator-artifact
+
+outputs:
+- name: bbr-build
+
+run:
+  path: backup-and-restore-ci/tasks/add-bbr-s3-validator-to-build/task.sh

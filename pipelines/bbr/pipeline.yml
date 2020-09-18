@@ -68,6 +68,11 @@ resource_types:
   source:
     repository: cloudfoundry/bosh-deployment-resource
 
+- name: gcs
+  type: docker-image
+  source:
+    respository: frodenas/gcs-resource
+
 resources:
 - name: bbr-director-test-releases
   type: git
@@ -242,6 +247,13 @@ resources:
     start: 9:00 AM
     stop: 5:00 PM
     days: [Monday, Tuesday, Wednesday, Thursday, Friday]
+
+- name: bbr-s3-config-validator-artifact
+  type: gcs
+  source:
+    bucket: bbr-s3-config-validator-tests-artifacts
+    json_key: ((gcp_service_account_key))
+    regexp: .*.tgz
 
 jobs:
 - name: upload-deployment-test-releases
@@ -789,6 +801,7 @@ jobs:
         disable_git_lfs: true
     - get: backup-and-restore-ci
     - get: homebrew-tap
+    - get: bbr-s3-config-validator-artifact
   - task: get-version
     config:
       platform: linux
@@ -810,6 +823,8 @@ jobs:
     file: backup-and-restore-ci/tasks/bbr-build/task.yml
     input_mapping:
       version: bbr-version
+  - task: add-bbr-s3-validator-to-build
+    file: backup-and-restore-ci/tasks/add-bbr-s3-validator-to-build/task.yml
   - in_parallel:
     - task: generate-bbr-release-metadata
       file: backup-and-restore-ci/tasks/generate-bbr-release-metadata/task.yml
