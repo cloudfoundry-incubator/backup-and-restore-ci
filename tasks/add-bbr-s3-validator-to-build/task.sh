@@ -6,5 +6,6 @@ bbr_build="$PWD/bbr-build"
 
 pushd "bbr-s3-config-validator-artifact"
   tar -xf *.tgz
-  mv $(ls | grep -v '\.tgz$') $bbr_build
+  cp README.md $bbr_build
+  cp bbr-s3-config-validator-* $bbr_build
 popd
