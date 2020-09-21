@@ -1,5 +1,5 @@
 ---
-platfrom: linux
+platform: linux
 
 image_resource:
   type: registry-image
