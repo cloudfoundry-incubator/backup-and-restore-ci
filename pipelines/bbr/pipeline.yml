@@ -71,7 +71,7 @@ resource_types:
 - name: gcs
   type: docker-image
   source:
-    respository: frodenas/gcs-resource
+    repository: frodenas/gcs-resource
 
 resources:
 - name: bbr-director-test-releases
@@ -251,9 +251,9 @@ resources:
 - name: bbr-s3-config-validator-artifact
   type: gcs
   source:
-    bucket: bbr-s3-config-validator-tests-artifacts
+    bucket: bbr-s3-config-validator-test-artifacts
     json_key: ((gcp_service_account_key))
-    regexp: .*.tgz
+    regexp: bbr-s3-config-validator.(.*).tgz
 
 jobs:
 - name: upload-deployment-test-releases
