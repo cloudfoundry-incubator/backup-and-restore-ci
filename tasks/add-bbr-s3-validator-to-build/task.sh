@@ -14,10 +14,10 @@ pushd "bbr-s3-config-validator-artifact"
   cp bbr-s3-config-validator "$bbr_build/bbr-s3-config-validator-$bbr_version-linux-amd64"
   cp bbr-s3-config-validator.sha256 "$bbr_build/bbr-s3-config-validator-$bbr_version-linux-amd64.sha256"
 
-  echo "$(cat bbr-s3-config-validator.sha256)  bbr-s3-config-validator" >> "$bbr_release/checksum.sha256"
-  cp bbr-s3-config-validator "$bbr_release"
-  cp README.md "$bbr_release/bbr-s3-config-validator-$bbr_version.README.md"
+  echo "$(cat bbr-s3-config-validator.sha256)  bbr-s3-config-validator" >> "$bbr_release/releases/checksum.sha256"
+  cp bbr-s3-config-validator "$bbr_release/releases"
+  cp README.md "$bbr_release/bbr-s3-config-validator.README.md"
 
-  tar -cvf "bbr-$bbr_version.tar" "$bbr_release/*"
+  tar -cvf "bbr-$bbr_version.tar" "$bbr_release/releases/*"
   mv "$bbr_release/bbr-$bbr_version.tar" "$bbr_build"
 popd
