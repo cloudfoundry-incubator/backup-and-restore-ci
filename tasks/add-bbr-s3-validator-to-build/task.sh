@@ -18,6 +18,9 @@ pushd "bbr-s3-config-validator-artifact"
   cp bbr-s3-config-validator "$bbr_release/releases"
   cp README.md "$bbr_release/releases/bbr-s3-config-validator.README.md"
 
-  tar -cvf "bbr-$bbr_version.tar" "$bbr_release/releases/"*
-  mv "bbr-$bbr_version.tar" "$bbr_build"
+  pushd "$bbr_release"
+    tar -cvf "bbr-$bbr_version.tar" releases/
+    mv "bbr-$bbr_version.tar" "$bbr_build"
+  popd
+
 popd
