@@ -4,10 +4,12 @@ set -euxo pipefail
 
 bbr_build="$PWD/bbr-build"
 
-pushd "bbr-s3-config-validator-artifact"
-  tar -xf *.tgz
+bbr_version="$(cat bbr-version/number)"
 
-  cp README.md $bbr_build/bbr-s3-config-validator.README.md
-  cp bbr-s3-config-validator $bbr_build/bbr-s3-config-validator
-  cp bbr-s3-config-validator.sha256 $bbr_build/bbr-s3-config-validator.sha256
+pushd "bbr-s3-config-validator-artifact"
+  tar -xf ./*.tgz
+
+  cp README.md "$bbr_build/bbr-s3-config-validator-$bbr_version.README.md"
+  cp bbr-s3-config-validator "$bbr_build/bbr-s3-config-validator-$bbr_version"
+  cp bbr-s3-config-validator.sha256 "$bbr_build/bbr-s3-config-validator-$bbr_version.sha256"
 popd
