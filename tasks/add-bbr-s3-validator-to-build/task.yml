@@ -10,6 +10,7 @@ inputs:
 - name: bbr-build
 - name: bbr-s3-config-validator-artifact
 - name: bbr-version
+- name: bbr-release
 
 outputs:
 - name: bbr-build

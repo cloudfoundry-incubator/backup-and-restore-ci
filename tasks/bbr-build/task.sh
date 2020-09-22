@@ -12,10 +12,9 @@ export VERSION
 BBR_REPO="bosh-backup-and-restore"
 pushd "$BBR_REPO"
   make release
-  tar -cvf bbr-"$VERSION".tar releases/*
 popd
 
-mv "$BBR_REPO"/bbr-"$VERSION".tar bbr-build/
+cp -r "$BBR_REPO/releases" bbr-release
 
 echo "Auto-delivered in
 https://s3-eu-west-1.amazonaws.com/bosh-backup-and-restore-builds/bbr-$VERSION.tar
