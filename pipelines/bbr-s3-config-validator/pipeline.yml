@@ -76,7 +76,6 @@ jobs:
       trigger: true
   - task: unit-test
     file: ci/tasks/bbr-s3-config-validator-unit-test/task.yml
-          ci/tasks/bbr-s3-config-validator-unit-test/task.sh
     params:
       AWS_ACCESS_KEY: ((s3-validator-access-key))
       AWS_SECRET_KEY: ((s3-validator-secret-key))
