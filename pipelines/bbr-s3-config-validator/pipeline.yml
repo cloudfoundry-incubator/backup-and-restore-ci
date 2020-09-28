@@ -29,7 +29,7 @@ resources:
   icon: github-box
   source:
     private_key: ((git-private-key))
-    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci
+    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
     branch: main
 
 - name: bbr-s3-config-validator-test-artifacts
