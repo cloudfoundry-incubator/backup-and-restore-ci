@@ -75,17 +75,18 @@ jobs:
     - get: bbr-s3-config-validator
       trigger: true
   - task: unit-test
-    file: backup-and-restore-ci/tasks/bbr-s3-config-validator-unit-test/task.yml
+    file: ci/tasks/bbr-s3-config-validator-unit-test/task.yml
+          ci/tasks/bbr-s3-config-validator-unit-test/task.sh
     params:
       AWS_ACCESS_KEY: ((s3-validator-access-key))
       AWS_SECRET_KEY: ((s3-validator-secret-key))
   - task: e2e-test
-    file: backup-and-restore-ci/tasks/bbr-s3-config-validator-e2e-test/task.yml
+    file: ci/tasks/bbr-s3-config-validator-e2e-test/task.yml
     params:
       AWS_ACCESS_KEY: ((s3-validator-access-key))
       AWS_SECRET_KEY: ((s3-validator-secret-key))
   - task: build
-    file: backup-and-restore-ci/tasks/bbr-s3-config-validator-build/task.yml
+    file: ci/tasks/bbr-s3-config-validator-build/task.yml
   - put: version
     params: { file: version/number }
   - put: bbr-s3-config-validator-test-artifacts
@@ -124,11 +125,11 @@ jobs:
     - get: bbr-s3-config-validator-test-artifacts
       passed: [claim-env-pas-2-10]
   - task: enable-backup-prepare-pas
-    file: backup-and-restore-ci/tasks/bbr-s3-config-validator-enable-backup-prepare-pas/task.yml
+    file: ci/tasks/bbr-s3-config-validator-enable-backup-prepare-pas/task.yml
     params:
       SKIP_APPLY_CHANGES: true
   - task: enable-aws-s3-filestore
-    file: backup-and-restore-ci/tasks/bbr-s3-config-validator-enable-aws-s3-filestore/task.yml
+    file: ci/tasks/bbr-s3-config-validator-enable-aws-s3-filestore/task.yml
     params:
       ENDPOINT: ((aws-endpoint))
       BUILDPACKS_BUCKET: ((aws-live-bucket))
@@ -157,7 +158,7 @@ jobs:
     - get: bbr-s3-config-validator-test-artifacts
       passed: [configure-aws-s3-filestore]
   - task: move-and-run-validator
-    file: backup-and-restore-ci/tasks/bbr-s3-config-validator-validate-aws-s3-config/task.yml
+    file: ci/tasks/bbr-s3-config-validator-validate-aws-s3-config/task.yml
 
 - name: unclaim-env-pas-2-10
   serial: true
