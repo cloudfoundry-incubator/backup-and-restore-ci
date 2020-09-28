@@ -30,7 +30,7 @@ resources:
   source:
     private_key: ((git-private-key))
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
-    branch: main
+    branch: master
 
 - name: bbr-s3-config-validator-test-artifacts
   type: gcs
