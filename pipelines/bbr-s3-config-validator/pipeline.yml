@@ -1,0 +1,178 @@
+---
+toolsmiths_api_worker: &toolsmiths_api_worker platform-recovery-vsphere
+
+resource_types:
+- name: gcs
+  type: docker-image
+  source:
+    repository: frodenas/gcs-resource
+
+- name: pcf-pool
+  type: registry-image
+  source:
+    repository: cftoolsmiths/toolsmiths-envs-resource
+    tag: latest
+
+resources:
+- name: bbr-s3-config-validator
+  type: git
+  icon: github-box
+  source:
+    private_key: ((git-private-key))
+    uri: git@github.com:pivotal/bbr-s3-config-validator
+    branch: main
+    ignore_paths:
+      - ci
+
+- name: ci
+  type: git
+  icon: github-box
+  source:
+    private_key: ((git-private-key))
+    uri: git@github.com:pivotal/backup-and-restore-ci
+    branch: main
+
+- name: bbr-s3-config-validator-test-artifacts
+  type: gcs
+  source:
+    bucket: bbr-s3-config-validator-test-artifacts
+    json_key: ((gcp-service-account-key))
+    regexp: .*.tgz
+
+- name: version
+  type: semver
+  source:
+    bucket: bbr-s3-config-validator-test-artifacts
+    key: version
+    json_key: ((gcp-service-account-key))
+    initial_version: 0.0.1
+    driver: gcs
+
+- name: pcf-2-10-pool
+  type: pcf-pool
+  source:
+    api_token: ((toolsmiths-api-token))
+    hostname: environments.toolsmiths.cf-app.com
+    pool_name: us_2_10
+  tags:
+    - *toolsmiths_api_worker
+
+- name: daily
+  type: time
+  source:
+    interval: 24h
+    start: 6:00 AM
+    stop: 6:00 AM
+    days: [Monday, Tuesday, Wednesday, Thursday, Friday]
+
+jobs:
+- name: build
+  plan:
+  - in_parallel:
+    - get: ci
+    - get: version
+      params: {pre: build}
+    - get: bbr-s3-config-validator
+      trigger: true
+  - task: unit-test
+    file: backup-and-restore-ci/tasks/bbr-s3-config-validator-unit-test/task.yml
+    params:
+      AWS_ACCESS_KEY: ((s3-validator-access-key))
+      AWS_SECRET_KEY: ((s3-validator-secret-key))
+  - task: e2e-test
+    file: backup-and-restore-ci/tasks/bbr-s3-config-validator-e2e-test/task.yml
+    params:
+      AWS_ACCESS_KEY: ((s3-validator-access-key))
+      AWS_SECRET_KEY: ((s3-validator-secret-key))
+  - task: build
+    file: backup-and-restore-ci/tasks/bbr-s3-config-validator-build/task.yml
+  - put: version
+    params: { file: version/number }
+  - put: bbr-s3-config-validator-test-artifacts
+    params:
+      file: bbr-s3-config-validator-test-artifacts/*
+
+- name: claim-env-pas-2-10
+  serial: true
+  serial_groups: [pas-2-10-aws-s3]
+  plan:
+  - in_parallel:
+    - get: daily
+      trigger: true
+    - get: ci
+    - put: env-pool
+      resource: pcf-2-10-pool
+      params:
+        action: claim
+      tags:
+      - *toolsmiths_api_worker
+    - get: bbr-s3-config-validator-test-artifacts
+      passed: [build]
+
+- name: configure-aws-s3-filestore
+  serial: true
+  serial_groups: [pas-2-10-aws-s3]
+  plan:
+  - in_parallel:
+    - get: env-pool
+      passed: [claim-env-pas-2-10]
+      resource: pcf-2-10-pool
+      tags:
+      - *toolsmiths_api_worker
+      trigger: true
+    - get: ci
+    - get: bbr-s3-config-validator-test-artifacts
+      passed: [claim-env-pas-2-10]
+  - task: enable-backup-prepare-pas
+    file: backup-and-restore-ci/tasks/bbr-s3-config-validator-enable-backup-prepare-pas/task.yml
+    params:
+      SKIP_APPLY_CHANGES: true
+  - task: enable-aws-s3-filestore
+    file: backup-and-restore-ci/tasks/bbr-s3-config-validator-enable-aws-s3-filestore/task.yml
+    params:
+      ENDPOINT: ((aws-endpoint))
+      BUILDPACKS_BUCKET: ((aws-live-bucket))
+      DROPLETS_BUCKET: ((aws-live-bucket))
+      PACKAGES_BUCKET: ((aws-live-bucket))
+      RESOURCES_BUCKET: ((aws-live-bucket))
+      BACKUP_BUCKET: ((aws-backup-bucket))
+      BACKUP_REGION: ((aws-backup-region))
+      ACCESS_KEY: ((aws-secret-key-id))
+      SECRET_KEY: ((aws-secret-key))
+      REGION: ((aws-region))
+      SKIP_APPLY_CHANGES: false
+
+- name: validate-aws-s3-config
+  serial: true
+  serial_groups: [pas-2-10-aws-s3]
+  plan:
+  - in_parallel:
+    - get: env-pool
+      passed: [configure-aws-s3-filestore]
+      resource: pcf-2-10-pool
+      tags:
+      - *toolsmiths_api_worker
+      trigger: true
+    - get: ci
+    - get: bbr-s3-config-validator-test-artifacts
+      passed: [configure-aws-s3-filestore]
+  - task: move-and-run-validator
+    file: backup-and-restore-ci/tasks/bbr-s3-config-validator-validate-aws-s3-config/task.yml
+
+- name: unclaim-env-pas-2-10
+  serial: true
+  serial_groups: [pas-2-10-aws-s3]
+  plan:
+  - get: env-pool
+    passed: [validate-aws-s3-config]
+    resource: pcf-2-10-pool
+    tags:
+    - *toolsmiths_api_worker
+    trigger: true
+  - put: pcf-2-10-pool
+    params:
+      action: unclaim
+      env_file: env-pool/metadata
+    tags:
+    - *toolsmiths_api_worker
+
