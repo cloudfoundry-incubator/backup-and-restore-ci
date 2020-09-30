@@ -1,0 +1,21 @@
+---
+platform: linux
+
+image_resource:
+  type: registry-image
+  source: {repository: pcfplatformrecovery/backup-and-restore}
+
+inputs:
+- name: backup-and-restore-ci
+
+params:
+  BOSH_ENVIRONMENT:
+  BOSH_CLIENT:
+  BOSH_CLIENT_SECRET:
+  BOSH_CA_CERT:
+  BOSH_GW_HOST:
+  BOSH_GW_PRIVATE_KEY:
+  BOSH_GW_USER:
+
+run:
+  path: backup-and-restore-ci/tasks/bbr-upload-stemcell-for-bosh-lite/task.sh
