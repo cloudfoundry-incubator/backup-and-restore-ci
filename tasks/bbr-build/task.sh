@@ -18,6 +18,9 @@ echo "BBR successfully built. Copying to release directory..."
 
 cp -r "$BBR_REPO/releases" bbr-release
 
+echo "The release directory now contains the following files:"
+ls -R bbr-release
+
 echo "Auto-delivered in
 https://s3-eu-west-1.amazonaws.com/bosh-backup-and-restore-builds/bbr-$VERSION.tar
 
@@ -34,5 +37,8 @@ echo "Moving mac binary to the build directory..."
 DARWIN="bbr-$VERSION-darwin-amd64"
 mv "$BBR_REPO"/releases/bbr-mac bbr-build/"$DARWIN"
 cat "$BBR_REPO"/releases/checksum.sha256 | cut -d' ' -f1  | sed -n '2p' > bbr-build/"$DARWIN".sha256
+
+echo "The build directory now contains the following files:"
+ls bbr-build
 
 echo "Done building BBR"
