@@ -21,6 +21,9 @@ cp -r "$BBR_REPO/releases" bbr-release
 echo "The release directory now contains the following files:"
 ls -R bbr-release
 
+echo "Creating release tarball..."
+tar -C bbr-release -cf "bbr-build/bbr-$VERSION.tar" .
+
 echo "Auto-delivered in
 https://s3-eu-west-1.amazonaws.com/bosh-backup-and-restore-builds/bbr-$VERSION.tar
 
