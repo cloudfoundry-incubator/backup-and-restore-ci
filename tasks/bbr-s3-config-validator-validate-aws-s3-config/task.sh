@@ -33,6 +33,12 @@ tar -xf bbr-s3-config-validator-test-artifacts/bbr-s3-config-validator.*.tgz
 
 CF_DEPLOYMENT=$(bosh deps --json | jq -r .Tables[0].Rows[0].name)
 
-bosh -d ${CF_DEPLOYMENT} scp bbr-s3-config-validator-linux-amd64 backup_restore:/tmp
+bosh -d ${CF_DEPLOYMENT} scp bbr-s3-config-validator backup_restore:/tmp
 
-bosh -d ${CF_DEPLOYMENT} ssh backup_restore -c 'mv /tmp/bbr-s3-config-validator-linux-amd64 . && chmod +x bbr-s3-config-validator-linux-amd64 && ./bbr-s3-config-validator-linux-amd64 --unversioned --validate-put-object' | sed 's/"\(aws_.*\)"\: "\(.*\)"/"\1": "<redacted>"/g'
+bosh -d ${CF_DEPLOYMENT} ssh backup_restore -c '
+  mv /tmp/bbr-s3-config-validator .
+  chmod +x bbr-s3-config-validator
+  ./bbr-s3-config-validator --unversioned --validate-put-object' \
+    | sed 's/"\(aws_.*\)"\: "\(.*\)"/"\1": "<redacted>"/g
+'
+
