@@ -4,7 +4,7 @@ set -euo pipefail
 
 ROOT_DIR=$PWD
 
-cd bbr-s3-config-validator
+cd bbr-s3-config-validator/s3-config-validator
 
 make artifact
 

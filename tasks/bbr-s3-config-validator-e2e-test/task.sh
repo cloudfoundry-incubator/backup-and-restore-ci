@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-cd bbr-s3-config-validator/src
+cd bbr-s3-config-validator
 
 ginkgo \
   -r \
