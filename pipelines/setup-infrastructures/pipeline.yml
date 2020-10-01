@@ -14,6 +14,7 @@ resource_types:
   type: docker-image
   source:
     repository: ljfranklin/terraform-resource
+    tag: 0.11.7
 
 - name: bosh-deployment
   type: docker-image
@@ -26,7 +27,7 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
-    tag_filter: v9.*
+    tag_filter: v11.*
 
 - name: bosh-backup-and-restore-meta
   type: git
@@ -60,6 +61,12 @@ resources:
       access_key: ((aws-access-key-id))
       secret_key: ((aws-secret-access-key))
       region: eu-west-1
+    storage:
+      bucket: bbr-terraform-states
+      bucket_path: /
+      access_key_id: ((aws-access-key-id))
+      secret_access_key: ((aws-secret-access-key))
+      region_name: eu-west-1
 
 - name: relint-trackerbot
   type: git
@@ -513,6 +520,8 @@ jobs:
       terraform_source: bosh-backup-and-restore-meta/external-blobstore-directors/aws-ec2/iam-roles-terraform/
       env_name: external-blobstore-aws-ec2
       delete_on_failure: true
+      vars:
+        gcp_service_account_key: ((gcp_service_account_key))
 
 - name: clean-up-aws-ec2
   serial: true
