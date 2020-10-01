@@ -321,6 +321,7 @@ jobs:
       params:
         PACKAGE_NAME: gcs-blobstore-backup-restore/contract_test
         GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
+        GCP_PROJECT_NAME: cf-backup-and-restore
     - task: azure-blobstore-contract-tests
       file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
       params:
