@@ -419,6 +419,10 @@ jobs:
       JUMPBOX_HOST: ((maru-lite-jumpbox-address))
       JUMPBOX_USER: jumpbox
       JUMPBOX_PRIVATE_KEY: ((maru-lite-jumpbox-ssh-key))
+  - task: upload-stemcell-to-maru-lite
+    file: backup-and-restore-ci/tasks/bbr-upload-stemcell-for-bosh-lite/task.yml
+    params:
+      <<: *maru-lite-bosh-team-creds
   - in_parallel:
     - task: deploy-bosh-team-redis-1
       file: backup-and-restore-ci/tasks/bbr-deploy-bosh-team/task.yml
