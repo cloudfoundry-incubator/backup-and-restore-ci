@@ -16,12 +16,12 @@ chmod 0600 $jumpbox_key
 eval `ssh-agent`
 ssh-add  $jumpbox_key
 
-ssh "3306:$db_endpoint:3306 $JUMPBOX -N -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no &"
+ssh -L "3306:$db_endpoint:3306" "$JUMPBOX" -N -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no &
 
 sleep 5
 
 for db_name in $databases; do
   echo "Creating $db_name"
-  MYSQL_PWD="$db_password" mysql -h 127.0.0.1 -u"$db_username" -e "create database if not exists \`$db_name\`;"
+  MYSQL_PWD="$db_password" mysql --host 127.0.0.1 --user "$db_username" --execute "create database if not exists \`$db_name\`;"
   sleep 0.1
 done

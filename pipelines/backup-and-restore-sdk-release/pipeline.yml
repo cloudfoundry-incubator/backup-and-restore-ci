@@ -1362,7 +1362,7 @@ jobs:
       vars-store: bosh-backup-and-restore-meta
     params:
       VARS_STORE_FILE: external-blobstore-directors/aws-s3/cf-deployment-variables.yml
-      JUMPBOX: soho@platform-recovery.cf-app.com
+      JUMPBOX: ((jumpbox))
       JUMPBOX_KEY: ((jumpbox-key))
   - task: deploy-cf-with-external-s3
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
