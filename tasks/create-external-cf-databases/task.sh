@@ -10,7 +10,7 @@ db_password="$(grep "external\\_.*\\_database\\_password" "vars-store/$VARS_STOR
 databases="$(grep "external\\_.*\\_database\\_name" "vars-store/$VARS_STORE_FILE" | awk '{print $2}')"
 
 #Create tunnel to MYSQL instance via soho
-jumpbox_key="$(mktmp)"
+jumpbox_key="$(mktemp)"
 echo -e $JUMPBOX_KEY > $jumpbox_key
 chmod 0600 $jumpbox_key
 eval `ssh-agent`
