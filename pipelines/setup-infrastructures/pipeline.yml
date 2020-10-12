@@ -55,12 +55,6 @@ resources:
   type: terraform
   source:
     backend_type: s3
-    backend_config:
-      bucket: bbr-terraform-states
-      key: terraform.tfstate
-      access_key: ((aws-access-key-id))
-      secret_key: ((aws-secret-access-key))
-      region: eu-west-1
     storage:
       bucket: bbr-terraform-states
       bucket_path: /
