@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-
-set -e
-set -u
+set -euo pipefail
 
 db_endpoint="$(grep "external\\_.*\\_database\\_address" "vars-store/$VARS_STORE_FILE" -m1 | awk '{print $2}')"
 db_username="$(grep "external\\_.*\\_database\\_username" "vars-store/$VARS_STORE_FILE" -m1 | awk '{print $2}')"

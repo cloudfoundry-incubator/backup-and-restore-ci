@@ -1686,6 +1686,8 @@ jobs:
     file: backup-and-restore-ci/tasks/drop-external-cf-databases/task.yml
     input_mapping:
       vars-store: bosh-backup-and-restore-meta
+      JUMPBOX: ((jumpbox))
+      JUMPBOX_KEY: ((jumpbox-key))
     params:
       VARS_STORE_FILE: external-blobstore-directors/aws-s3/cf-deployment-variables.yml
 
