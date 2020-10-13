@@ -1362,8 +1362,6 @@ jobs:
       vars-store: bosh-backup-and-restore-meta
     params:
       VARS_STORE_FILE: external-blobstore-directors/aws-s3/cf-deployment-variables.yml
-      JUMPBOX: ((jumpbox))
-      JUMPBOX_KEY: ((jumpbox-key))
   - task: deploy-cf-with-external-s3
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     input_mapping:
@@ -1688,8 +1686,6 @@ jobs:
       vars-store: bosh-backup-and-restore-meta
     params:
       VARS_STORE_FILE: external-blobstore-directors/aws-s3/cf-deployment-variables.yml
-      JUMPBOX: ((jumpbox))
-      JUMPBOX_KEY: ((jumpbox-key))
 
 - name: deploy-cf-with-unversioned-external-s3-blobstore
   serial: true

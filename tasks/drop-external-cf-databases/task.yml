@@ -11,8 +11,6 @@ inputs:
 
 params:
   VARS_STORE_FILE: # path to vars store file inside the vars-store resource
-  JUMPBOX:
-  JUMPBOX_KEY:
 
 run:
   path: backup-and-restore-ci/tasks/drop-external-cf-databases/task.sh
