@@ -7,7 +7,7 @@ jumpbox_private_key="$( mktemp )"
 bosh interpolate --path /jumpbox_ssh/private_key "bosh-vars-store/${JUMPBOX_VARS_STORE_PATH}" > "$jumpbox_private_key"
 chmod 600 "$jumpbox_private_key"
 
-export BBR_BINARY_PATH="$( pwd )/$( ls bbr-binary-release/bbr-*-linux-amd64 )"
+export BBR_BINARY_PATH="$( pwd )/$( ls bbr-binary-release/bbr-1*-linux-amd64 )"
 chmod +x "$BBR_BINARY_PATH"
 
 export GOPATH="$( pwd )"
