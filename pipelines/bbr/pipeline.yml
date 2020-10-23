@@ -776,7 +776,8 @@ jobs:
     input_mapping:
       bbr-binary-release: rc
     params:
-      DEFAULT_TIMEOUT_MINS: 60
+      DEFAULT_TIMEOUT_MINS: 180
+      CF_DIAL_TIMEOUT: 180 # seconds
       OPS_MAN_URL: ((ops-man-url))
       OPS_MAN_USER: ((ops-man-user))
       OPS_MAN_PASS: ((ops-man-pass))
