@@ -281,6 +281,7 @@ jobs:
       drats-integration-config: updated-integration-configs
     params:
       CONFIG_FILE_PATH: drats-pr-ragdoll/integration_config.json
+      CF_DIAL_TIMEOUT: 300
     on_failure:
       put: disaster-recovery-acceptance-tests-prs
       params:
@@ -332,6 +333,7 @@ jobs:
       drats-integration-config: updated-integration-configs
     params:
       CONFIG_FILE_PATH: drats-with-config-manx/integration_config.json
+      CF_DIAL_TIMEOUT: 300
 
 - name: run-drats-with-destroy
   serial: true
@@ -371,6 +373,7 @@ jobs:
       drats-integration-config: updated-integration-configs
     params:
       CONFIG_FILE_PATH: drats-papillon/integration_config.json
+      CF_DIAL_TIMEOUT: 300
 
 ## Delete cf deployments
 - name: delete-cf-prs

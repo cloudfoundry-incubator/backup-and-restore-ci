@@ -783,6 +783,7 @@ jobs:
       OPS_MAN_PASS: ((ops-man-pass))
       OPS_MAN_SSH_KEY: ((ops-man-ssh-key))
       SKIP_SUITE_NAME: cf-smbbroker
+      CF_DIAL_TIMEOUT: 300
   - put: pivotal-tracker-bbr
     params:
       repos:

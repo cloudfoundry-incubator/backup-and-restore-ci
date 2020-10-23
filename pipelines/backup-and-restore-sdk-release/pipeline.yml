@@ -1510,6 +1510,7 @@ jobs:
       drats-integration-config: updated-integration-configs
     params:
       CONFIG_FILE_PATH: external-blobstore-directors/gcs/integration_config.json
+      CF_DIAL_TIMEOUT: 300
 
 - name: delete-cf-deployment-external-gcs-blobstore
   serial: true
@@ -1581,6 +1582,7 @@ jobs:
       drats-integration-config: updated-integration-configs
     params:
       CONFIG_FILE_PATH: external-blobstore-directors/azure/integration_config.json
+      CF_DIAL_TIMEOUT: 300
 
 - name: delete-cf-deployment-external-azure-blobstore
   serial: true
@@ -1652,6 +1654,7 @@ jobs:
       drats-integration-config: updated-integration-configs
     params:
       CONFIG_FILE_PATH: external-blobstore-directors/aws-s3/integration_config.json
+      CF_DIAL_TIMEOUT: 300
 
 - name: delete-cf-deployment-external-s3-blobstore
   serial: true
@@ -1780,6 +1783,7 @@ jobs:
       drats-integration-config: updated-integration-configs
     params:
       CONFIG_FILE_PATH: external-blobstore-directors/aws-s3-unversioned/integration_config.json
+      CF_DIAL_TIMEOUT: 300
 
 - name: delete-cf-deployment-external-s3-unversioned-blobstore
   serial: true
