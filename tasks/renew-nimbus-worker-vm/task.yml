@@ -1,0 +1,16 @@
+---
+platform: linux
+
+image_resource:
+  type: registry-image
+  source: {repository: devtools-docker-local.artifactory.eng.vmware.com/vmware/nimbus/nimbus-worker}
+
+inputs:
+- name: backup-and-restore-ci
+
+params:
+  USER:
+  WORKER_ID:
+
+run:
+  path: backup-and-restore-ci/tasks/renew-nimbus-worker-vm/task.sh

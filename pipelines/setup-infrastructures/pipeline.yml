@@ -147,6 +147,7 @@ groups:
   - deploy-tracker-bot
   - deploy-docker-host
   - renew-environments
+  - renew-nimbus-worker-vm
 
 - name: clean-up
   jobs:
@@ -1283,3 +1284,12 @@ jobs:
         gcp_service_account_key: ((gcp_iam_role_manager_service_account_key))
     get_params:
       action: destroy
+
+- name: renew-nimbus-worker-vm
+  plan:
+  - get: backup-and-restore-ci
+  - task: renew-nimbus-worker-vm
+    file: backup-and-restore-ci/tasks/renew-nimbus-worker-vm/task.yml
+    params:
+      USER: ((nimbus-ldap-user))
+      WORKER_ID: ((nimbus-worker-vm-id))
