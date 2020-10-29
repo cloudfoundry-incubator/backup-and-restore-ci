@@ -1287,8 +1287,14 @@ jobs:
 
 - name: renew-nimbus-worker-vm
   plan:
-  - get: backup-and-restore-ci
+  - in_parallel:
+    - get: backup-and-restore-ci
+    - get: every-tuesday
+      trigger: true
+    - get: every-sunday
+      trigger: true
   - task: renew-nimbus-worker-vm
+    tags: [nimbus-worker]
     file: backup-and-restore-ci/tasks/renew-nimbus-worker-vm/task.yml
     params:
       USER: ((nimbus-ldap-user))
