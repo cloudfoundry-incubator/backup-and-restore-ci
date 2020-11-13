@@ -48,6 +48,14 @@ RUN \
   chmod +x /usr/local/bin/velero && \
   rm -rf /tmp/velero*
 
+ENV PIVNET_VERSION v2.0.2
+RUN \
+  wget https://github.com/pivotal-cf/pivnet-cli/releases/download/${PIVNET_VERSION}/pivnet-linux-amd64-${PIVNET_VERSION} -P /tmp && \
+  tar xzvf /tmp/pivnet-linux-amd64-${PIVNET_VERSION} -C /tmp/ && \
+  mv /tmp/pivnet-linux-amd64-${PIVNET_VERSION}/pivnet /usr/local/bin/pivnet && \
+  chmod +x /usr/local/bin/pivnet && \
+  rm -rf /tmp/pivnet*
+
 ENV GO_VERSION="1.14.2"
 ENV GOPATH /go
 ENV PATH /go/bin:/usr/local/go/bin:$PATH
