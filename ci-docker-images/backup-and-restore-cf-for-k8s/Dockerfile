@@ -52,6 +52,14 @@ ENV PIVNET_VERSION 2.0.2
 ADD https://github.com/pivotal-cf/pivnet-cli/releases/download/v${PIVNET_VERSION}/pivnet-linux-amd64-${PIVNET_VERSION} /usr/bin/pivnet
 RUN chmod +x /usr/bin/pivnet
 
+RUN curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+
+ENV DOCKERVERSION=18.03.1-ce
+RUN curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKERVERSION}.tgz \
+  && tar xzvf docker-${DOCKERVERSION}.tgz --strip 1 \
+                 -C /usr/local/bin docker/docker \
+  && rm docker-${DOCKERVERSION}.tgz
+
 ENV GO_VERSION="1.14.2"
 ENV GOPATH /go
 ENV PATH /go/bin:/usr/local/go/bin:$PATH
