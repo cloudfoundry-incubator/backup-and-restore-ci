@@ -36,16 +36,13 @@ groups:
   - unit
   - deploy-system-deployment-bosh-all-proxy
   - deploy-system-all-deployments
-  - deploy-system-windows
   - deploy-fake-director
   - system-test-deployment
   - system-test-bosh-all-proxy
   - system-test-director
-  - system-test-windows
   - system-test-all-deployments
   - delete-system-director
   - delete-system-deployment-bosh-all-proxy
-  - delete-system-windows
   - delete-system-all-deployments
   - build-rc
 
@@ -166,22 +163,10 @@ resources:
     repository: bosh-backup-and-restore
     access_token: ((github-access-token))
 
-- name: windows-vm-deployment
-  type: bosh-deployment-resource
-  source:
-    deployment: redis-windows-ci
-    skip_check: true
-
 - name: many-bbr-scripts-deployment
   type: bosh-deployment-resource
   source:
     deployment: many-bbr-scripts
-    skip_check: true
-
-- name: jumpbox-windows-deployment
-  type: bosh-deployment-resource
-  source:
-    deployment: jumpbox-windows-ci
     skip_check: true
 
 - name: all-deployments-redis-1-deployment
@@ -201,11 +186,6 @@ resources:
   source:
     deployment: redis-3
     skip_check: true
-
-- name: windows-stemcell
-  type: bosh-io-stemcell
-  source:
-    name: bosh-google-kvm-windows2016-go_agent
 
 - name: xenial-stemcell
   type: bosh-io-stemcell
@@ -416,46 +396,6 @@ jobs:
         <<: *maru-lite-bosh-team-creds
         DEPLOYMENT_NAME: redis-3
 
-- name: deploy-system-windows
-  serial: true
-  serial_groups: [system-test-windows]
-  plan:
-  - in_parallel:
-    - get: 6h
-      trigger: true
-      passed:
-      - upload-deployment-test-releases
-    - get: windows-stemcell
-    - get: xenial-stemcell
-    - get: bosh-backup-and-restore
-      passed:
-      - unit
-      - upload-deployment-test-releases
-      trigger: true
-    - get: bbr-deployment-test-releases
-      passed: [upload-deployment-test-releases]
-      trigger: true
-    - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-meta
-  - task: generate-bosh-deployment-source-file
-    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
-    params:
-      BBL_STATE: maru
-  - in_parallel:
-    - put: windows-vm-deployment
-      params:
-        manifest: bosh-backup-and-restore/fixtures/redis-windows-ci.yml
-        stemcells:
-        - windows-stemcell/*.tgz
-        - xenial-stemcell/*.tgz
-        source_file: source-file/source-file.yml
-    - put: jumpbox-windows-deployment
-      params:
-        manifest: bosh-backup-and-restore/fixtures/jumpbox-windows-ci.yml
-        stemcells:
-        - xenial-stemcell/*.tgz
-        source_file: source-file/source-file.yml
-
 - name: system-test-deployment
   serial: true
   plan:
@@ -533,27 +473,6 @@ jobs:
       DIRECTOR_SSH_KEY: ((test-bosh-director-private-key))
       DIRECTOR_SSH_USERNAME: jumpbox
       BOSH_DEPLOYMENT: *test-bosh-director-deployment
-
-- name: system-test-windows
-  serial: true
-  serial_groups: [system-test-windows]
-  plan:
-  - in_parallel:
-    - get: 6h
-      trigger: true
-      passed: [deploy-system-windows]
-    - get: bosh-backup-and-restore
-      passed: [deploy-system-windows]
-      trigger: true
-    - get: bosh-backup-and-restore-meta
-    - get: backup-and-restore-ci
-    - get: bbr-deployment-test-releases
-      passed: [deploy-system-windows]
-      trigger: true
-  - task: system-test-windows
-    file: backup-and-restore-ci/tasks/bbr-system-windows/task.yml
-    params:
-      <<: *maru-bosh-env
 
 - name: system-test-all-deployments
   serial: true
@@ -656,44 +575,15 @@ jobs:
         enabled: true
       source_file: source-file/source-file.yml
 
-- name: delete-system-windows
-  serial: true
-  serial_groups: [system-test-windows]
-  plan:
-  - in_parallel:
-    - get: 6h
-      trigger: true
-      passed: [system-test-windows]
-    - get: bosh-backup-and-restore
-      passed: [system-test-windows]
-      trigger: true
-    - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-meta
-  - task: generate-bosh-deployment-source-file
-    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
-    params:
-      BBL_STATE: maru
-  - in_parallel:
-    - put: windows-vm-deployment
-      params:
-        delete:
-          enabled: true
-        source_file: source-file/source-file.yml
-    - put: jumpbox-windows-deployment
-      params:
-        delete:
-          enabled: true
-        source_file: source-file/source-file.yml
-
 - name: build-rc
   serial_groups: [version]
   plan:
   - in_parallel:
     - get: 6h
       trigger: true
-      passed: [system-test-all-deployments, system-test-deployment, system-test-bosh-all-proxy, system-test-director, system-test-windows]
+      passed: [system-test-all-deployments, system-test-deployment, system-test-bosh-all-proxy, system-test-director]
     - get: bosh-backup-and-restore
-      passed: [system-test-all-deployments, system-test-deployment, system-test-bosh-all-proxy, system-test-director, system-test-windows]
+      passed: [system-test-all-deployments, system-test-deployment, system-test-bosh-all-proxy, system-test-director]
       trigger: true
       params:
         submodules: none
