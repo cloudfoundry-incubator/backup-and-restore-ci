@@ -48,8 +48,6 @@ groups:
   - delete-system-windows
   - delete-system-all-deployments
   - build-rc
-  - install-optional-components-on-pas
-  - run-p-drats-on-pas
 
 - name: SHIPIT
   jobs:
@@ -168,13 +166,6 @@ resources:
     repository: bosh-backup-and-restore
     access_token: ((github-access-token))
 
-- name: pivotal-disaster-recovery-acceptance-tests
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf/pivotal-disaster-recovery-acceptance-tests.git
-    private_key: ((git-private-key))
-    branch: master
-
 - name: windows-vm-deployment
   type: bosh-deployment-resource
   source:
@@ -233,13 +224,6 @@ resources:
     deployment: *test-bosh-director-deployment
     skip_check: true
 
-- name: pivotal-tracker-bbr
-  type: tracker
-  source:
-    token: ((tracker-api-token))
-    project_id: "1662777"
-    tracker_url: https://www.pivotaltracker.com
-
 - name: 6h
   type: time
   source:
@@ -266,6 +250,7 @@ jobs:
       trigger: true
     - get: bosh-backup-and-restore
       trigger: true
+      passed: ["unit"]
     - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
   - in_parallel:
@@ -303,8 +288,6 @@ jobs:
 - name: unit
   serial: true
   plan:
-  - get: 6h
-    trigger: true
   - in_parallel:
     - get: bosh-backup-and-restore
       trigger: true
@@ -327,7 +310,6 @@ jobs:
     - get: 6h
       trigger: true
       passed:
-      - unit
       - upload-deployment-test-releases
     - get: bosh-backup-and-restore
       passed:
@@ -364,7 +346,6 @@ jobs:
     - get: 6h
       trigger: true
       passed:
-      - unit
       - upload-deployment-test-releases
     - get: xenial-stemcell
     - get: bosh-backup-and-restore
@@ -396,7 +377,6 @@ jobs:
     - get: 6h
       trigger: true
       passed:
-      - unit
       - upload-deployment-test-releases
     - get: bosh-backup-and-restore
       passed:
@@ -444,7 +424,6 @@ jobs:
     - get: 6h
       trigger: true
       passed:
-      - unit
       - upload-deployment-test-releases
     - get: windows-stemcell
     - get: xenial-stemcell
@@ -484,7 +463,6 @@ jobs:
     - get: 6h
       trigger: true
       passed:
-      - unit
       - upload-deployment-test-releases
     - get: bosh-backup-and-restore
       passed:
@@ -729,66 +707,6 @@ jobs:
   - put: rc
     params: {file: bbr-build/bbr-*.tar}
 
-- name: install-optional-components-on-pas
-  serial: true
-  serial_groups: [p-drats]
-  plan:
-  - get: pivotal-disaster-recovery-acceptance-tests
-  - task: enable-internal-blobstore
-    file: pivotal-disaster-recovery-acceptance-tests/ci/enable-internal-blobstore-pas/task.yml
-    params:
-      OPS_MAN_URL: ((ops-man-url))
-      OPS_MAN_USER: ((ops-man-user))
-      OPS_MAN_PASS: ((ops-man-pass))
-  - task: configure-diego-cells
-    file: pivotal-disaster-recovery-acceptance-tests/ci/configure-diego-cells-pas/task.yml
-    params:
-      OPS_MAN_URL: ((ops-man-url))
-      OPS_MAN_USER: ((ops-man-user))
-      OPS_MAN_PASS: ((ops-man-pass))
-  - task: enable-optional-components
-    file: pivotal-disaster-recovery-acceptance-tests/ci/enable-optional-components-pas/task.yml
-    privileged: true
-    params:
-      OPS_MAN_URL: ((ops-man-url))
-      OPS_MAN_USER: ((ops-man-user))
-      OPS_MAN_PASS: ((ops-man-pass))
-      OPS_MAN_VERSION: "2.9"
-
-- name: run-p-drats-on-pas
-  serial: true
-  serial_groups: [p-drats]
-  plan:
-  - in_parallel:
-    - get: 6h
-      trigger: true
-      passed: [build-rc]
-    - get: pivotal-disaster-recovery-acceptance-tests
-    - get: bosh-backup-and-restore
-      passed: [build-rc]
-      trigger: true
-    - get: rc
-      passed: [build-rc]
-      trigger: true
-  - task: acceptance-tests
-    privileged: true
-    file: pivotal-disaster-recovery-acceptance-tests/ci/p-drats-ops-manager/task.yml
-    input_mapping:
-      bbr-binary-release: rc
-    params:
-      DEFAULT_TIMEOUT_MINS: 180
-      CF_DIAL_TIMEOUT: 180 # seconds
-      OPS_MAN_URL: ((ops-man-url))
-      OPS_MAN_USER: ((ops-man-user))
-      OPS_MAN_PASS: ((ops-man-pass))
-      OPS_MAN_SSH_KEY: ((ops-man-ssh-key))
-      SKIP_SUITE_NAME: cf-smbbroker
-      CF_DIAL_TIMEOUT: 300
-  - put: pivotal-tracker-bbr
-    params:
-      repos:
-      - bosh-backup-and-restore
-
 - name: build-and-publish-final
   serial_groups: [version]
   plan:
@@ -797,7 +715,7 @@ jobs:
       resource: release-trigger
       trigger: true
     - get: bosh-backup-and-restore
-      passed: [run-p-drats-on-pas]
+      passed: [build-rc]
       params:
         submodules: none
         disable_git_lfs: true
