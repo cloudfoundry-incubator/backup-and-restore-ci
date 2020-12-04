@@ -35,15 +35,12 @@ groups:
   - upload-deployment-test-releases
   - unit
   - deploy-system-deployment-bosh-all-proxy
-  - deploy-system-all-deployments
   - deploy-fake-director
   - system-test-deployment
   - system-test-bosh-all-proxy
   - system-test-director
-  - system-test-all-deployments
   - delete-system-director
   - delete-system-deployment-bosh-all-proxy
-  - delete-system-all-deployments
   - build-rc
 
 - name: SHIPIT
@@ -167,24 +164,6 @@ resources:
   type: bosh-deployment-resource
   source:
     deployment: many-bbr-scripts
-    skip_check: true
-
-- name: all-deployments-redis-1-deployment
-  type: bosh-deployment-resource
-  source:
-    deployment: redis-1
-    skip_check: true
-
-- name: all-deployments-redis-2-deployment
-  type: bosh-deployment-resource
-  source:
-    deployment: redis-2
-    skip_check: true
-
-- name: all-deployments-redis-3-deployment
-  type: bosh-deployment-resource
-  source:
-    deployment: redis-3
     skip_check: true
 
 - name: xenial-stemcell
@@ -349,53 +328,6 @@ jobs:
         - xenial-stemcell/*.tgz
       source_file: source-file/source-file.yml
 
-- name: deploy-system-all-deployments
-  serial: true
-  serial_groups: [system-test-all-deployments]
-  plan:
-  - in_parallel:
-    - get: 6h
-      trigger: true
-      passed:
-      - upload-deployment-test-releases
-    - get: bosh-backup-and-restore
-      passed:
-      - unit
-      - upload-deployment-test-releases
-      trigger: true
-    - get: bbr-deployment-test-releases
-      passed: [upload-deployment-test-releases]
-      trigger: true
-    - get: backup-and-restore-ci
-  - task: create-bosh-team-admin-maru-lite
-    file: backup-and-restore-ci/tasks/bbr-create-bosh-team-admin/task.yml
-    privileged: true
-    params:
-      BOSH_ENVIRONMENT: 10.0.0.6
-      UAA_CLIENT: ((maru-lite-uaa-admin-client))
-      UAA_CLIENT_SECRET: ((maru-lite-uaa-admin-client-secret))
-      BOSH_TEAM_CLIENT: ((bosh-team-admin))
-      BOSH_TEAM_CLIENT_SECRET: ((bosh-team-admin-secret))
-      JUMPBOX_HOST: ((maru-lite-jumpbox-address))
-      JUMPBOX_USER: jumpbox
-      JUMPBOX_PRIVATE_KEY: ((maru-lite-jumpbox-ssh-key))
-  - in_parallel:
-    - task: deploy-bosh-team-redis-1
-      file: backup-and-restore-ci/tasks/bbr-deploy-bosh-team/task.yml
-      params:
-        <<: *maru-lite-bosh-team-creds
-        DEPLOYMENT_NAME: redis-1
-    - task: deploy-bosh-team-redis-2
-      file: backup-and-restore-ci/tasks/bbr-deploy-bosh-team/task.yml
-      params:
-        <<: *maru-lite-bosh-team-creds
-        DEPLOYMENT_NAME: redis-2
-    - task: deploy-bosh-team-redis-3
-      file: backup-and-restore-ci/tasks/bbr-deploy-bosh-team/task.yml
-      params:
-        <<: *maru-lite-bosh-team-creds
-        DEPLOYMENT_NAME: redis-3
-
 - name: system-test-deployment
   serial: true
   plan:
@@ -474,24 +406,6 @@ jobs:
       DIRECTOR_SSH_USERNAME: jumpbox
       BOSH_DEPLOYMENT: *test-bosh-director-deployment
 
-- name: system-test-all-deployments
-  serial: true
-  serial_groups: [system-test-all-deployments]
-  plan:
-  - in_parallel:
-    - get: 6h
-      trigger: true
-      passed: [deploy-system-all-deployments]
-    - get: bosh-backup-and-restore
-      passed: [deploy-system-all-deployments]
-      trigger: true
-    - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-meta
-  - task: system-test-all-deployments
-    file: backup-and-restore-ci/tasks/bbr-system-all-deployments/task.yml
-    params:
-      <<: *maru-lite-bosh-team-creds
-
 - name: delete-system-director
   serial: true
   serial_groups: [system-test-director]
@@ -517,40 +431,6 @@ jobs:
       delete:
         enabled: true
       source_file: source-file/source-file.yml
-
-- name: delete-system-all-deployments
-  serial: true
-  serial_groups: [system-test-all-deployments]
-  plan:
-  - in_parallel:
-    - get: 6h
-      trigger: true
-      passed: [system-test-all-deployments]
-    - get: bosh-backup-and-restore
-      passed: [system-test-all-deployments]
-      trigger: true
-    - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-meta
-  - task: generate-bosh-deployment-source-file
-    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
-    params:
-      BBL_STATE: maru-lite
-  - in_parallel:
-    - put: all-deployments-redis-1-deployment
-      params:
-        delete:
-          enabled: true
-        source_file: source-file/source-file.yml
-    - put: all-deployments-redis-2-deployment
-      params:
-        delete:
-          enabled: true
-        source_file: source-file/source-file.yml
-    - put: all-deployments-redis-3-deployment
-      params:
-        delete:
-          enabled: true
-        source_file: source-file/source-file.yml
 
 - name: delete-system-deployment-bosh-all-proxy
   serial: true
@@ -581,9 +461,9 @@ jobs:
   - in_parallel:
     - get: 6h
       trigger: true
-      passed: [system-test-all-deployments, system-test-deployment, system-test-bosh-all-proxy, system-test-director]
+      passed: [system-test-deployment, system-test-bosh-all-proxy, system-test-director]
     - get: bosh-backup-and-restore
-      passed: [system-test-all-deployments, system-test-deployment, system-test-bosh-all-proxy, system-test-director]
+      passed: [system-test-deployment, system-test-bosh-all-proxy, system-test-director]
       trigger: true
       params:
         submodules: none
