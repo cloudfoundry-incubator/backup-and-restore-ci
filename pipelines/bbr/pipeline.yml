@@ -277,10 +277,9 @@ jobs:
     - get: backup-and-restore-ci
   - task: unit
     file: backup-and-restore-ci/tasks/bbr-unit/task.yml
-    privileged: true
     params:
-      DOCKER_HOST: "tcp://10.0.255.1:4243"
-      GITHUB_SSH_KEY: "((github-ssh-key))"
+      DOCKER_HOST: "ssh://mapbu-cryogenics@10.10.0.12:22"
+      GITHUB_SSH_KEY: "((docker-host-ssh-key))"
 
 - name: deploy-fake-director
   serial: true

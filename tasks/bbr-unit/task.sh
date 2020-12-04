@@ -8,6 +8,8 @@ get_abs_filename() {
 
 export GOPATH; GOPATH="$( get_abs_filename "../${GOPATH}" )"
 
+ssh-keyscan -H 10.10.0.12 >> ~/.ssh/known_hosts
+
 eval "$( ssh-agent )"
 ssh-add - <<< "$GITHUB_SSH_KEY"
 
