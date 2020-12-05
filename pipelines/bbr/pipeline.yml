@@ -34,13 +34,10 @@ groups:
   jobs:
   - upload-deployment-test-releases
   - unit
-  - deploy-system-deployment-bosh-all-proxy
   - deploy-fake-director
   - system-test-deployment
-  - system-test-bosh-all-proxy
   - system-test-director
   - delete-system-director
-  - delete-system-deployment-bosh-all-proxy
   - build-rc
 
 - name: SHIPIT
@@ -159,12 +156,6 @@ resources:
     user: cloudfoundry-incubator
     repository: bosh-backup-and-restore
     access_token: ((github-access-token))
-
-- name: many-bbr-scripts-deployment
-  type: bosh-deployment-resource
-  source:
-    deployment: many-bbr-scripts
-    skip_check: true
 
 - name: xenial-stemcell
   type: bosh-io-stemcell
@@ -297,37 +288,6 @@ jobs:
         test_release_path: /tmp/build/put/bbr-director-test-releases/test-bosh-backup-and-restore-release
         internal_ip: *test-bosh-director-ip
 
-- name: deploy-system-deployment-bosh-all-proxy
-  serial: true
-  serial_groups: [system-test-bosh-all-proxy]
-  plan:
-  - in_parallel:
-    - get: 6h
-      trigger: true
-      passed:
-      - upload-deployment-test-releases
-    - get: xenial-stemcell
-    - get: bosh-backup-and-restore
-      passed:
-      - unit
-      - upload-deployment-test-releases
-      trigger: true
-    - get: bbr-deployment-test-releases
-      passed: [upload-deployment-test-releases]
-      trigger: true
-    - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-meta
-  - task: generate-bosh-deployment-source-file
-    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
-    params:
-      BBL_STATE: maru
-  - put: many-bbr-scripts-deployment
-    params:
-      manifest: bosh-backup-and-restore/fixtures/many-bbr-scripts.yml
-      stemcells:
-        - xenial-stemcell/*.tgz
-      source_file: source-file/source-file.yml
-
 - name: system-test-deployment
   serial: true
   plan:
@@ -350,29 +310,6 @@ jobs:
     file: backup-and-restore-ci/tasks/bbr-system-deployment/task.yml
     params:
       <<: *maru-lite-bosh-env
-
-- name: system-test-bosh-all-proxy
-  serial: true
-  serial_groups: [system-test-bosh-all-proxy]
-  plan:
-  - in_parallel:
-    - get: 6h
-      trigger: true
-      passed: [deploy-system-deployment-bosh-all-proxy]
-    - get: bosh-backup-and-restore
-      passed: [deploy-system-deployment-bosh-all-proxy]
-      trigger: true
-    - get: bosh-backup-and-restore-meta
-    - get: backup-and-restore-ci
-    - get: bbr-deployment-test-releases
-      passed: [deploy-system-deployment-bosh-all-proxy]
-      trigger: true
-  - task: system-test-bosh-all-proxy
-    file: backup-and-restore-ci/tasks/bbr-system-bosh-all-proxy/task.yml
-    params:
-      <<: *maru-bosh-env
-      DIRECTOR_SSH_KEY: ((maru-director-ssh-key))
-      DIRECTOR_ADDRESS: 10.0.0.6
 
 - name: system-test-director
   serial: true
@@ -401,6 +338,9 @@ jobs:
       CREDHUB_CLIENT: "((maru-credhub-client))"
       CREDHUB_SECRET: "((maru-credhub-secret))"
       CREDHUB_CA_CERT: "((maru-credhub-ca_cert))"
+      BOSH_GW_USER: jumpbox
+      BOSH_GW_HOST: "((maru-jumpbox-url)):22"
+      BOSH_GW_PRIVATE_KEY: "((maru-jumpbox-ssh-key))"
       DIRECTOR_HOST: *test-bosh-director-ip
       DIRECTOR_SSH_KEY: ((test-bosh-director-private-key))
       DIRECTOR_SSH_USERNAME: jumpbox
@@ -432,38 +372,15 @@ jobs:
         enabled: true
       source_file: source-file/source-file.yml
 
-- name: delete-system-deployment-bosh-all-proxy
-  serial: true
-  serial_groups: [system-test-bosh-all-proxy]
-  plan:
-  - in_parallel:
-    - get: 6h
-      trigger: true
-      passed: [system-test-bosh-all-proxy]
-    - get: bosh-backup-and-restore
-      passed: [system-test-bosh-all-proxy]
-      trigger: true
-    - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-meta
-  - task: generate-bosh-deployment-source-file
-    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
-    params:
-      BBL_STATE: maru
-  - put: many-bbr-scripts-deployment
-    params:
-      delete:
-        enabled: true
-      source_file: source-file/source-file.yml
-
 - name: build-rc
   serial_groups: [version]
   plan:
   - in_parallel:
     - get: 6h
       trigger: true
-      passed: [system-test-deployment, system-test-bosh-all-proxy, system-test-director]
+      passed: [system-test-deployment, system-test-director]
     - get: bosh-backup-and-restore
-      passed: [system-test-deployment, system-test-bosh-all-proxy, system-test-director]
+      passed: [system-test-deployment, system-test-director]
       trigger: true
       params:
         submodules: none
