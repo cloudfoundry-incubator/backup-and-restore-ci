@@ -33,7 +33,7 @@ groups:
 - name: build
   jobs:
   - upload-deployment-test-releases
-  - unit
+  - unit-integration
   - deploy-fake-director
   - system-test-deployment
   - system-test-director
@@ -190,7 +190,7 @@ resources:
     regexp: bbr-s3-config-validator.(.*).tgz
 
 jobs:
-- name: unit
+- name: unit-integration
   serial: true
   plan:
   - in_parallel:
@@ -202,7 +202,7 @@ jobs:
         submodules: none
         disable_git_lfs: true
     - get: backup-and-restore-ci
-  - task: unit
+  - task: test
     file: backup-and-restore-ci/tasks/bbr-unit/task.yml
     params:
       DOCKER_HOST_IP: "10.10.0.12"
@@ -214,12 +214,12 @@ jobs:
   plan:
   - in_parallel:
     - get: six-hours
-      passed: ["unit"]
+      passed: [unit-integration]
     - get: bbr-deployment-test-releases
       trigger: true
     - get: bosh-backup-and-restore
       trigger: true
-      passed: ["unit"]
+      passed: [unit-integration]
     - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
   - in_parallel:
@@ -264,9 +264,7 @@ jobs:
       passed:
       - upload-deployment-test-releases
     - get: bosh-backup-and-restore
-      passed:
-      - unit
-      - upload-deployment-test-releases
+      passed: [unit-integration, upload-deployment-test-releases]
       trigger: true
     - get: bosh-deployment
     - get: bosh-backup-and-restore-meta
@@ -299,9 +297,7 @@ jobs:
       passed:
       - upload-deployment-test-releases
     - get: bosh-backup-and-restore
-      passed:
-      - unit
-      - upload-deployment-test-releases
+      passed: [unit-integration, upload-deployment-test-releases]
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
