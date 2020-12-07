@@ -14,7 +14,8 @@ run:
 
 params:
   DOCKER_HOST:
-  GITHUB_SSH_KEY:
+  DOCKER_HOST_IP:
+  DOCKER_HOST_SSH_KEY:
   GOPATH: &go_path gopath
 
 caches:

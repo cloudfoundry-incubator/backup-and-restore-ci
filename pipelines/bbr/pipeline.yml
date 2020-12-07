@@ -34,22 +34,11 @@ groups:
   jobs:
   - upload-deployment-test-releases
   - unit
-  - deploy-system-deployment-bosh-all-proxy
-  - deploy-system-all-deployments
-  - deploy-system-windows
   - deploy-fake-director
   - system-test-deployment
-  - system-test-bosh-all-proxy
   - system-test-director
-  - system-test-windows
-  - system-test-all-deployments
   - delete-system-director
-  - delete-system-deployment-bosh-all-proxy
-  - delete-system-windows
-  - delete-system-all-deployments
   - build-rc
-  - install-optional-components-on-pas
-  - run-p-drats-on-pas
 
 - name: SHIPIT
   jobs:
@@ -168,54 +157,6 @@ resources:
     repository: bosh-backup-and-restore
     access_token: ((github-access-token))
 
-- name: pivotal-disaster-recovery-acceptance-tests
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf/pivotal-disaster-recovery-acceptance-tests.git
-    private_key: ((git-private-key))
-    branch: master
-
-- name: windows-vm-deployment
-  type: bosh-deployment-resource
-  source:
-    deployment: redis-windows-ci
-    skip_check: true
-
-- name: many-bbr-scripts-deployment
-  type: bosh-deployment-resource
-  source:
-    deployment: many-bbr-scripts
-    skip_check: true
-
-- name: jumpbox-windows-deployment
-  type: bosh-deployment-resource
-  source:
-    deployment: jumpbox-windows-ci
-    skip_check: true
-
-- name: all-deployments-redis-1-deployment
-  type: bosh-deployment-resource
-  source:
-    deployment: redis-1
-    skip_check: true
-
-- name: all-deployments-redis-2-deployment
-  type: bosh-deployment-resource
-  source:
-    deployment: redis-2
-    skip_check: true
-
-- name: all-deployments-redis-3-deployment
-  type: bosh-deployment-resource
-  source:
-    deployment: redis-3
-    skip_check: true
-
-- name: windows-stemcell
-  type: bosh-io-stemcell
-  source:
-    name: bosh-google-kvm-windows2016-go_agent
-
 - name: xenial-stemcell
   type: bosh-io-stemcell
   source:
@@ -232,13 +173,6 @@ resources:
   source:
     deployment: *test-bosh-director-deployment
     skip_check: true
-
-- name: pivotal-tracker-bbr
-  type: tracker
-  source:
-    token: ((tracker-api-token))
-    project_id: "1662777"
-    tracker_url: https://www.pivotaltracker.com
 
 - name: 6h
   type: time
@@ -266,6 +200,7 @@ jobs:
       trigger: true
     - get: bosh-backup-and-restore
       trigger: true
+      passed: ["unit"]
     - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
   - in_parallel:
@@ -303,8 +238,6 @@ jobs:
 - name: unit
   serial: true
   plan:
-  - get: 6h
-    trigger: true
   - in_parallel:
     - get: bosh-backup-and-restore
       trigger: true
@@ -314,10 +247,10 @@ jobs:
     - get: backup-and-restore-ci
   - task: unit
     file: backup-and-restore-ci/tasks/bbr-unit/task.yml
-    privileged: true
     params:
-      DOCKER_HOST: "tcp://10.0.255.1:4243"
-      GITHUB_SSH_KEY: "((github-ssh-key))"
+      DOCKER_HOST_IP: "10.10.0.12"
+      DOCKER_HOST: "ssh://mapbu-cryogenics@10.10.0.12:22"
+      DOCKER_HOST_SSH_KEY: "((docker-host-ssh-key))"
 
 - name: deploy-fake-director
   serial: true
@@ -327,7 +260,6 @@ jobs:
     - get: 6h
       trigger: true
       passed:
-      - unit
       - upload-deployment-test-releases
     - get: bosh-backup-and-restore
       passed:
@@ -356,127 +288,6 @@ jobs:
         test_release_path: /tmp/build/put/bbr-director-test-releases/test-bosh-backup-and-restore-release
         internal_ip: *test-bosh-director-ip
 
-- name: deploy-system-deployment-bosh-all-proxy
-  serial: true
-  serial_groups: [system-test-bosh-all-proxy]
-  plan:
-  - in_parallel:
-    - get: 6h
-      trigger: true
-      passed:
-      - unit
-      - upload-deployment-test-releases
-    - get: xenial-stemcell
-    - get: bosh-backup-and-restore
-      passed:
-      - unit
-      - upload-deployment-test-releases
-      trigger: true
-    - get: bbr-deployment-test-releases
-      passed: [upload-deployment-test-releases]
-      trigger: true
-    - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-meta
-  - task: generate-bosh-deployment-source-file
-    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
-    params:
-      BBL_STATE: maru
-  - put: many-bbr-scripts-deployment
-    params:
-      manifest: bosh-backup-and-restore/fixtures/many-bbr-scripts.yml
-      stemcells:
-        - xenial-stemcell/*.tgz
-      source_file: source-file/source-file.yml
-
-- name: deploy-system-all-deployments
-  serial: true
-  serial_groups: [system-test-all-deployments]
-  plan:
-  - in_parallel:
-    - get: 6h
-      trigger: true
-      passed:
-      - unit
-      - upload-deployment-test-releases
-    - get: bosh-backup-and-restore
-      passed:
-      - unit
-      - upload-deployment-test-releases
-      trigger: true
-    - get: bbr-deployment-test-releases
-      passed: [upload-deployment-test-releases]
-      trigger: true
-    - get: backup-and-restore-ci
-  - task: create-bosh-team-admin-maru-lite
-    file: backup-and-restore-ci/tasks/bbr-create-bosh-team-admin/task.yml
-    privileged: true
-    params:
-      BOSH_ENVIRONMENT: 10.0.0.6
-      UAA_CLIENT: ((maru-lite-uaa-admin-client))
-      UAA_CLIENT_SECRET: ((maru-lite-uaa-admin-client-secret))
-      BOSH_TEAM_CLIENT: ((bosh-team-admin))
-      BOSH_TEAM_CLIENT_SECRET: ((bosh-team-admin-secret))
-      JUMPBOX_HOST: ((maru-lite-jumpbox-address))
-      JUMPBOX_USER: jumpbox
-      JUMPBOX_PRIVATE_KEY: ((maru-lite-jumpbox-ssh-key))
-  - in_parallel:
-    - task: deploy-bosh-team-redis-1
-      file: backup-and-restore-ci/tasks/bbr-deploy-bosh-team/task.yml
-      params:
-        <<: *maru-lite-bosh-team-creds
-        DEPLOYMENT_NAME: redis-1
-    - task: deploy-bosh-team-redis-2
-      file: backup-and-restore-ci/tasks/bbr-deploy-bosh-team/task.yml
-      params:
-        <<: *maru-lite-bosh-team-creds
-        DEPLOYMENT_NAME: redis-2
-    - task: deploy-bosh-team-redis-3
-      file: backup-and-restore-ci/tasks/bbr-deploy-bosh-team/task.yml
-      params:
-        <<: *maru-lite-bosh-team-creds
-        DEPLOYMENT_NAME: redis-3
-
-- name: deploy-system-windows
-  serial: true
-  serial_groups: [system-test-windows]
-  plan:
-  - in_parallel:
-    - get: 6h
-      trigger: true
-      passed:
-      - unit
-      - upload-deployment-test-releases
-    - get: windows-stemcell
-    - get: xenial-stemcell
-    - get: bosh-backup-and-restore
-      passed:
-      - unit
-      - upload-deployment-test-releases
-      trigger: true
-    - get: bbr-deployment-test-releases
-      passed: [upload-deployment-test-releases]
-      trigger: true
-    - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-meta
-  - task: generate-bosh-deployment-source-file
-    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
-    params:
-      BBL_STATE: maru
-  - in_parallel:
-    - put: windows-vm-deployment
-      params:
-        manifest: bosh-backup-and-restore/fixtures/redis-windows-ci.yml
-        stemcells:
-        - windows-stemcell/*.tgz
-        - xenial-stemcell/*.tgz
-        source_file: source-file/source-file.yml
-    - put: jumpbox-windows-deployment
-      params:
-        manifest: bosh-backup-and-restore/fixtures/jumpbox-windows-ci.yml
-        stemcells:
-        - xenial-stemcell/*.tgz
-        source_file: source-file/source-file.yml
-
 - name: system-test-deployment
   serial: true
   plan:
@@ -484,7 +295,6 @@ jobs:
     - get: 6h
       trigger: true
       passed:
-      - unit
       - upload-deployment-test-releases
     - get: bosh-backup-and-restore
       passed:
@@ -500,29 +310,6 @@ jobs:
     file: backup-and-restore-ci/tasks/bbr-system-deployment/task.yml
     params:
       <<: *maru-lite-bosh-env
-
-- name: system-test-bosh-all-proxy
-  serial: true
-  serial_groups: [system-test-bosh-all-proxy]
-  plan:
-  - in_parallel:
-    - get: 6h
-      trigger: true
-      passed: [deploy-system-deployment-bosh-all-proxy]
-    - get: bosh-backup-and-restore
-      passed: [deploy-system-deployment-bosh-all-proxy]
-      trigger: true
-    - get: bosh-backup-and-restore-meta
-    - get: backup-and-restore-ci
-    - get: bbr-deployment-test-releases
-      passed: [deploy-system-deployment-bosh-all-proxy]
-      trigger: true
-  - task: system-test-bosh-all-proxy
-    file: backup-and-restore-ci/tasks/bbr-system-bosh-all-proxy/task.yml
-    params:
-      <<: *maru-bosh-env
-      DIRECTOR_SSH_KEY: ((maru-director-ssh-key))
-      DIRECTOR_ADDRESS: 10.0.0.6
 
 - name: system-test-director
   serial: true
@@ -551,49 +338,13 @@ jobs:
       CREDHUB_CLIENT: "((maru-credhub-client))"
       CREDHUB_SECRET: "((maru-credhub-secret))"
       CREDHUB_CA_CERT: "((maru-credhub-ca_cert))"
+      BOSH_GW_USER: jumpbox
+      BOSH_GW_HOST: "((maru-jumpbox-url)):22"
+      BOSH_GW_PRIVATE_KEY: "((maru-jumpbox-ssh-key))"
       DIRECTOR_HOST: *test-bosh-director-ip
       DIRECTOR_SSH_KEY: ((test-bosh-director-private-key))
       DIRECTOR_SSH_USERNAME: jumpbox
       BOSH_DEPLOYMENT: *test-bosh-director-deployment
-
-- name: system-test-windows
-  serial: true
-  serial_groups: [system-test-windows]
-  plan:
-  - in_parallel:
-    - get: 6h
-      trigger: true
-      passed: [deploy-system-windows]
-    - get: bosh-backup-and-restore
-      passed: [deploy-system-windows]
-      trigger: true
-    - get: bosh-backup-and-restore-meta
-    - get: backup-and-restore-ci
-    - get: bbr-deployment-test-releases
-      passed: [deploy-system-windows]
-      trigger: true
-  - task: system-test-windows
-    file: backup-and-restore-ci/tasks/bbr-system-windows/task.yml
-    params:
-      <<: *maru-bosh-env
-
-- name: system-test-all-deployments
-  serial: true
-  serial_groups: [system-test-all-deployments]
-  plan:
-  - in_parallel:
-    - get: 6h
-      trigger: true
-      passed: [deploy-system-all-deployments]
-    - get: bosh-backup-and-restore
-      passed: [deploy-system-all-deployments]
-      trigger: true
-    - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-meta
-  - task: system-test-all-deployments
-    file: backup-and-restore-ci/tasks/bbr-system-all-deployments/task.yml
-    params:
-      <<: *maru-lite-bosh-team-creds
 
 - name: delete-system-director
   serial: true
@@ -621,101 +372,15 @@ jobs:
         enabled: true
       source_file: source-file/source-file.yml
 
-- name: delete-system-all-deployments
-  serial: true
-  serial_groups: [system-test-all-deployments]
-  plan:
-  - in_parallel:
-    - get: 6h
-      trigger: true
-      passed: [system-test-all-deployments]
-    - get: bosh-backup-and-restore
-      passed: [system-test-all-deployments]
-      trigger: true
-    - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-meta
-  - task: generate-bosh-deployment-source-file
-    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
-    params:
-      BBL_STATE: maru-lite
-  - in_parallel:
-    - put: all-deployments-redis-1-deployment
-      params:
-        delete:
-          enabled: true
-        source_file: source-file/source-file.yml
-    - put: all-deployments-redis-2-deployment
-      params:
-        delete:
-          enabled: true
-        source_file: source-file/source-file.yml
-    - put: all-deployments-redis-3-deployment
-      params:
-        delete:
-          enabled: true
-        source_file: source-file/source-file.yml
-
-- name: delete-system-deployment-bosh-all-proxy
-  serial: true
-  serial_groups: [system-test-bosh-all-proxy]
-  plan:
-  - in_parallel:
-    - get: 6h
-      trigger: true
-      passed: [system-test-bosh-all-proxy]
-    - get: bosh-backup-and-restore
-      passed: [system-test-bosh-all-proxy]
-      trigger: true
-    - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-meta
-  - task: generate-bosh-deployment-source-file
-    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
-    params:
-      BBL_STATE: maru
-  - put: many-bbr-scripts-deployment
-    params:
-      delete:
-        enabled: true
-      source_file: source-file/source-file.yml
-
-- name: delete-system-windows
-  serial: true
-  serial_groups: [system-test-windows]
-  plan:
-  - in_parallel:
-    - get: 6h
-      trigger: true
-      passed: [system-test-windows]
-    - get: bosh-backup-and-restore
-      passed: [system-test-windows]
-      trigger: true
-    - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-meta
-  - task: generate-bosh-deployment-source-file
-    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
-    params:
-      BBL_STATE: maru
-  - in_parallel:
-    - put: windows-vm-deployment
-      params:
-        delete:
-          enabled: true
-        source_file: source-file/source-file.yml
-    - put: jumpbox-windows-deployment
-      params:
-        delete:
-          enabled: true
-        source_file: source-file/source-file.yml
-
 - name: build-rc
   serial_groups: [version]
   plan:
   - in_parallel:
     - get: 6h
       trigger: true
-      passed: [system-test-all-deployments, system-test-deployment, system-test-bosh-all-proxy, system-test-director, system-test-windows]
+      passed: [system-test-deployment, system-test-director]
     - get: bosh-backup-and-restore
-      passed: [system-test-all-deployments, system-test-deployment, system-test-bosh-all-proxy, system-test-director, system-test-windows]
+      passed: [system-test-deployment, system-test-director]
       trigger: true
       params:
         submodules: none
@@ -729,66 +394,6 @@ jobs:
   - put: rc
     params: {file: bbr-build/bbr-*.tar}
 
-- name: install-optional-components-on-pas
-  serial: true
-  serial_groups: [p-drats]
-  plan:
-  - get: pivotal-disaster-recovery-acceptance-tests
-  - task: enable-internal-blobstore
-    file: pivotal-disaster-recovery-acceptance-tests/ci/enable-internal-blobstore-pas/task.yml
-    params:
-      OPS_MAN_URL: ((ops-man-url))
-      OPS_MAN_USER: ((ops-man-user))
-      OPS_MAN_PASS: ((ops-man-pass))
-  - task: configure-diego-cells
-    file: pivotal-disaster-recovery-acceptance-tests/ci/configure-diego-cells-pas/task.yml
-    params:
-      OPS_MAN_URL: ((ops-man-url))
-      OPS_MAN_USER: ((ops-man-user))
-      OPS_MAN_PASS: ((ops-man-pass))
-  - task: enable-optional-components
-    file: pivotal-disaster-recovery-acceptance-tests/ci/enable-optional-components-pas/task.yml
-    privileged: true
-    params:
-      OPS_MAN_URL: ((ops-man-url))
-      OPS_MAN_USER: ((ops-man-user))
-      OPS_MAN_PASS: ((ops-man-pass))
-      OPS_MAN_VERSION: "2.9"
-
-- name: run-p-drats-on-pas
-  serial: true
-  serial_groups: [p-drats]
-  plan:
-  - in_parallel:
-    - get: 6h
-      trigger: true
-      passed: [build-rc]
-    - get: pivotal-disaster-recovery-acceptance-tests
-    - get: bosh-backup-and-restore
-      passed: [build-rc]
-      trigger: true
-    - get: rc
-      passed: [build-rc]
-      trigger: true
-  - task: acceptance-tests
-    privileged: true
-    file: pivotal-disaster-recovery-acceptance-tests/ci/p-drats-ops-manager/task.yml
-    input_mapping:
-      bbr-binary-release: rc
-    params:
-      DEFAULT_TIMEOUT_MINS: 180
-      CF_DIAL_TIMEOUT: 180 # seconds
-      OPS_MAN_URL: ((ops-man-url))
-      OPS_MAN_USER: ((ops-man-user))
-      OPS_MAN_PASS: ((ops-man-pass))
-      OPS_MAN_SSH_KEY: ((ops-man-ssh-key))
-      SKIP_SUITE_NAME: cf-smbbroker
-      CF_DIAL_TIMEOUT: 300
-  - put: pivotal-tracker-bbr
-    params:
-      repos:
-      - bosh-backup-and-restore
-
 - name: build-and-publish-final
   serial_groups: [version]
   plan:
@@ -797,7 +402,7 @@ jobs:
       resource: release-trigger
       trigger: true
     - get: bosh-backup-and-restore
-      passed: [run-p-drats-on-pas]
+      passed: [build-rc]
       params:
         submodules: none
         disable_git_lfs: true
