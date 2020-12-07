@@ -30,7 +30,7 @@ test-bosh-director-ip: &test-bosh-director-ip 10.0.255.5
 test-bosh-director-deployment: &test-bosh-director-deployment test-bosh-director
 
 groups:
-- name: BUILD
+- name: build
   jobs:
   - upload-deployment-test-releases
   - unit
@@ -40,7 +40,7 @@ groups:
   - delete-system-director
   - build-rc
 
-- name: SHIPIT
+- name: shipit
   jobs:
   - build-and-publish-final
   - update-homebrew-formula
@@ -174,7 +174,7 @@ resources:
     deployment: *test-bosh-director-deployment
     skip_check: true
 
-- name: 6h
+- name: six-hours
   type: time
   source:
     interval: 6h
@@ -194,7 +194,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: six-hours
       trigger: true
     - get: bbr-deployment-test-releases
       trigger: true
@@ -257,7 +257,7 @@ jobs:
   serial_groups: [system-test-director]
   plan:
   - in_parallel:
-    - get: 6h
+    - get: six-hours
       trigger: true
       passed:
       - upload-deployment-test-releases
@@ -292,7 +292,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: six-hours
       trigger: true
       passed:
       - upload-deployment-test-releases
@@ -316,7 +316,7 @@ jobs:
   serial_groups: [system-test-director]
   plan:
   - in_parallel:
-    - get: 6h
+    - get: six-hours
       trigger: true
       passed: [deploy-fake-director]
     - get: bosh-backup-and-restore
@@ -351,7 +351,7 @@ jobs:
   serial_groups: [system-test-director]
   plan:
   - in_parallel:
-    - get: 6h
+    - get: six-hours
       trigger: true
       passed: [system-test-director]
     - get: bosh-backup-and-restore
@@ -376,7 +376,7 @@ jobs:
   serial_groups: [version]
   plan:
   - in_parallel:
-    - get: 6h
+    - get: six-hours
       trigger: true
       passed: [system-test-deployment, system-test-director]
     - get: bosh-backup-and-restore
