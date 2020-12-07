@@ -190,12 +190,31 @@ resources:
     regexp: bbr-s3-config-validator.(.*).tgz
 
 jobs:
-- name: upload-deployment-test-releases
+- name: unit
   serial: true
   plan:
   - in_parallel:
     - get: six-hours
       trigger: true
+    - get: bosh-backup-and-restore
+      trigger: true
+      params:
+        submodules: none
+        disable_git_lfs: true
+    - get: backup-and-restore-ci
+  - task: unit
+    file: backup-and-restore-ci/tasks/bbr-unit/task.yml
+    params:
+      DOCKER_HOST_IP: "10.10.0.12"
+      DOCKER_HOST: "ssh://mapbu-cryogenics@10.10.0.12:22"
+      DOCKER_HOST_SSH_KEY: "((docker-host-ssh-key))"
+
+- name: upload-deployment-test-releases
+  serial: true
+  plan:
+  - in_parallel:
+    - get: six-hours
+      passed: ["unit"]
     - get: bbr-deployment-test-releases
       trigger: true
     - get: bosh-backup-and-restore
@@ -234,23 +253,6 @@ jobs:
       params:
         RELEASE_NAME: lock-ordering-release
         <<: *maru-lite-bosh-env
-
-- name: unit
-  serial: true
-  plan:
-  - in_parallel:
-    - get: bosh-backup-and-restore
-      trigger: true
-      params:
-        submodules: none
-        disable_git_lfs: true
-    - get: backup-and-restore-ci
-  - task: unit
-    file: backup-and-restore-ci/tasks/bbr-unit/task.yml
-    params:
-      DOCKER_HOST_IP: "10.10.0.12"
-      DOCKER_HOST: "ssh://mapbu-cryogenics@10.10.0.12:22"
-      DOCKER_HOST_SSH_KEY: "((docker-host-ssh-key))"
 
 - name: deploy-fake-director
   serial: true
