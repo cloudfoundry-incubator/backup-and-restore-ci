@@ -1,9 +1,9 @@
 ---
 common_bbl_params: &COMMON_BBL_PARAMS
   BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
-  BBL_GCP_PROJECT_ID: cf-backup-and-restore
+  BBL_GCP_PROJECT_ID: mapbu-cryogenics
   GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
-  GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+  GIT_COMMIT_USERNAME: "Cryogenics Concourse"
 common_bbl_up_params: &COMMON_BBL_UP_PARAMS
   << : *COMMON_BBL_PARAMS
   BBL_IAAS: gcp
@@ -25,7 +25,7 @@ resources:
 - name: cf-deployment-concourse-tasks
   type: git
   source:
-    branch: master
+    branch: main
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
     tag_filter: v11.*
 
@@ -48,7 +48,7 @@ resources:
   type: git
   source:
     uri: https://github.com/cloudfoundry/bosh-bootloader.git
-    branch: master
+    branch: main
     tag_filter: v6.*
 
 - name: terraform
@@ -67,7 +67,7 @@ resources:
   source:
     uri: git@github.com:pivotal-cf-experimental/relint-trackerbot.git
     private_key: ((git-private-key))
-    branch: master
+    branch: main
 
 - name: bbr-tracker-bot
   type: cf
@@ -110,24 +110,6 @@ resources:
     - Friday
     location: Europe/London
 
-- name: docker-host-deployment
-  type: bosh-deployment
-  source:
-    deployment: docker-host
-    target: ((bosh_target))
-    client: ((bosh_client))
-    client_secret: ((bosh_client_secret))
-    ca_cert: ((bosh_ca_cert))
-    jumpbox_url: ((bosh_jumpbox_url))
-    jumpbox_username: ((bosh_jumpbox_username))
-    jumpbox_ssh_key: ((bosh_jumpbox_ssh_key))
-
-- name: docker-bosh-release
-  type: bosh-io-release
-  source:
-    repository: cloudfoundry-incubator/docker-boshrelease
-    regexp: 29.*
-
 groups:
 - name: create
   jobs:
@@ -145,7 +127,6 @@ groups:
   - setup-gcp-iam-role-bbl
   - setup-platform-recovery-zone
   - deploy-tracker-bot
-  - deploy-docker-host
   - renew-environments
   - renew-nimbus-worker-vm
 
@@ -1148,16 +1129,6 @@ jobs:
         repository: updated-bbl-state
         rebase: true
 
-- name: deploy-docker-host
-  serial_groups: [docker-host]
-  plan:
-  - get: docker-bosh-release
-  - get: bosh-backup-and-restore-meta
-  - put: docker-host-deployment
-    params:
-      manifest: bosh-backup-and-restore-meta/ci/setup-infrastructures/docker-host.yml
-      releases: ["docker-bosh-release/release.tgz"]
-
 - name: deploy-tracker-bot
   serial: true
   plan:
@@ -1189,7 +1160,6 @@ jobs:
       PAS_ENVIRONMENTS: ((pas-environments-to-renew))
       PKS_ENVIRONMENTS: ((pks-environments-to-renew))
       TOOLSMITHS_TOKEN: ((toolsmiths-api-token))
-
 
 - name: delete-unattached-disks
   plan:
@@ -1247,6 +1217,7 @@ jobs:
       delete_on_failure: true
       vars:
         gcp_service_account_key: ((gcp_iam_role_manager_service_account_key))
+        projectid: mapbu-cryogenics
 
 - name: destroy-gcp-iam-role-bosh-director
   plan:
@@ -1258,6 +1229,7 @@ jobs:
       action: destroy
       vars:
         gcp_service_account_key: ((gcp_iam_role_manager_service_account_key))
+        projectid: mapbu-cryogenics
     get_params:
       action: destroy
 
@@ -1271,6 +1243,7 @@ jobs:
       delete_on_failure: true
       vars:
         gcp_service_account_key: ((gcp_iam_role_manager_service_account_key))
+        projectid: mapbu-cryogenics
 
 - name: destroy-gcp-iam-role-bbl
   plan:
@@ -1282,6 +1255,7 @@ jobs:
       action: destroy
       vars:
         gcp_service_account_key: ((gcp_iam_role_manager_service_account_key))
+        projectid: mapbu-cryogenics
     get_params:
       action: destroy
 
