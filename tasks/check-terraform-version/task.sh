@@ -4,7 +4,8 @@ set -euo pipefail
 
 main() {
 	local upstream_version terraform_version_output downstream_version semver_regex
-	upstream_version="$( cat terraform-github-release/tag )"
+	v_upstream_version="$( cat terraform-github-release/tag )"
+	upstream_version="$( echo "${v_upstream_version}" | sed -e 's/v//')"
 	# terraform exits with 141 if it can't print its *entire* output to stdout
 	terraform_version_output="$(terraform -version)"
 	# head closes stdin once it's gotten all the lines it wants
