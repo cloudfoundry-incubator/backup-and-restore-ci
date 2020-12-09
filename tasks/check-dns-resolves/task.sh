@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-nameserver="$( jq -r '.resources[0].instances[0].attributes.name_servers[0]' terraform/terraform.tfstate )"
+nameserver="$( jq -r '.modules[0].resources."google_dns_managed_zone.zone".primary.attributes."name_servers.0"' terraform/terraform.tfstate )"
 nameserver="$( grep -Po '(ns-cloud-[a-z])' <<< "$nameserver" )"
 
 dns_resolution="$( dig "$ADDRESS" )"

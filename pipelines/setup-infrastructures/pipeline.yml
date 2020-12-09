@@ -125,7 +125,7 @@ groups:
   - setup-infrastructure-gcs
   - setup-gcp-iam-role-bosh-director
   - setup-gcp-iam-role-bbl
-  - setup-platform-recovery-zone
+  - setup-cryo-bbr-zone
   - deploy-tracker-bot
   - renew-environments
   - renew-nimbus-worker-vm
@@ -1172,7 +1172,7 @@ jobs:
     params:
       GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
 
-- name: setup-platform-recovery-zone
+- name: setup-cryo-bbr-zone
   plan:
   - in_parallel:
     - get: bosh-backup-and-restore-meta
@@ -1180,17 +1180,18 @@ jobs:
   - put: terraform
     params:
       terraform_source: bosh-backup-and-restore-meta/terraform/backup-and-restore-sdk-acceptance-tests/gcp-zone/
-      env_name: platform-recovery-zone
+      env_name: cryo-bbr-zone
       vars:
-        name: platform-recovery
-        dns: platform-recovery.cf-app.com
+        name: bbr-cryo
+        dns: bbr.cryo.cf-app.com
+        projectid: mapbu-cryogenics
         gcp_service_account_key: ((gcp_service_account_key))
     get_params:
       output_statefile: true
   - task: check-aws-dns-entry-points-to-gcp-zone
     file: backup-and-restore-ci/tasks/check-dns-resolves/task.yml
     params:
-      ADDRESS: platform-recovery.cf-app.com
+      ADDRESS: bbr.cryo.cf-app.com
 
 - name: destroy-platform-recovery-zone
   plan:
