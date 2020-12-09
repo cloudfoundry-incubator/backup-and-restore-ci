@@ -125,7 +125,6 @@ groups:
   - setup-infrastructure-gcs
   - setup-gcp-iam-role-bosh-director
   - setup-gcp-iam-role-bbl
-  - setup-cryo-bbr-zone
   - deploy-tracker-bot
   - renew-environments
   - renew-nimbus-worker-vm
@@ -158,7 +157,6 @@ groups:
   - destroy-infrastructure-gcs
   - destroy-gcp-iam-role-bosh-director
   - destroy-gcp-iam-role-bbl
-  - destroy-platform-recovery-zone
 
 jobs:
 - name: setup-infrastructure-aws-s3
