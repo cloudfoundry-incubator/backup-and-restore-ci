@@ -6,6 +6,8 @@ resources:
     user: hashicorp
     repository: terraform
     access_token: ((github-access-token))
+    tag_filter: v0.13.(.*)
+
 - name: bbr-pcf-pipeline-tasks
   type: git
   source:
