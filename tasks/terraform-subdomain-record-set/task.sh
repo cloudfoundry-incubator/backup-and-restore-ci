@@ -17,7 +17,7 @@ terraform ${TERRAFORM_ACTION} \
   --var "project_id=$( jq -r .project_id <<< "$GCP_KEY" )"\
   --var region=europe-west1 \
   --var "credentials=${GCP_KEY}" \
-  --var zone=platform-recovery \
+  --var zone=cryo \
   "--state=bosh-backup-and-restore-meta/${TERRAFORM_STATE}" \
   bosh-backup-and-restore-meta/terraform/backup-and-restore-sdk-acceptance-tests/add-subdomain-record-set/
 

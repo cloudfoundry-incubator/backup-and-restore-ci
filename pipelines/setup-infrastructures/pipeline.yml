@@ -1044,7 +1044,7 @@ jobs:
       BBL_STATE_DIR: external-blobstore-directors/gcs/
       BBL_LB_CERT: ((gcs-lb-cert))
       BBL_LB_KEY: ((gcs-lb-key))
-      LB_DOMAIN: bbr-gcs.platform-recovery.cf-app.com
+      LB_DOMAIN: bbr-gcs.cryo.cf-app.com
       BBL_ENV_NAME: bbr-gcs
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
@@ -1062,7 +1062,7 @@ jobs:
       TERRAFORM_ACTION: apply
       GCP_KEY: ((gcp_service_account_key))
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
-      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+      GIT_COMMIT_USERNAME: "Cryogenics Concourse"
     ensure:
       put: bosh-backup-and-restore-meta
       params:
