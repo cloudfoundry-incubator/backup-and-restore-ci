@@ -13,7 +13,7 @@ terraform init bosh-backup-and-restore-meta/terraform/backup-and-restore-sdk-acc
 terraform ${TERRAFORM_ACTION} \
   --auto-approve \
   --var "nameservers=${nameservers}" \
-  --var "record_set_name=${env_name#"bosh-"}.platform-recovery.cf-app.com." \
+  --var "record_set_name=${env_name#"bosh-"}.cryo.cf-app.com." \
   --var "project_id=$( jq -r .project_id <<< "$GCP_KEY" )"\
   --var region=europe-west1 \
   --var "credentials=${GCP_KEY}" \
