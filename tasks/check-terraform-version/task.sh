@@ -32,10 +32,10 @@ main() {
 		exit 1
 	fi
 
-	if [[ "${upstream_major_minor}" != "${downstream_major_minor}" ]]; then
-		echo "Refusing to perform an automatic major or minor version bump to '${upstream_version}'."
-		exit 1
-	fi
+#	if [[ "${upstream_major_minor}" != "${downstream_major_minor}" ]]; then
+#		echo "Refusing to perform an automatic major or minor version bump to '${upstream_version}'."
+#		exit 1
+#	fi
 
 	if [[ "${upstream_patch}" == "${downstream_patch}" ]]; then
 		echo "Downstream version '${downstream_version}' is up-to-date!"
@@ -47,6 +47,7 @@ main() {
 	fi
 
 	echo "{ \"TERRAFORM_VERSION\": \"${upstream_version}\" }" > dockerbuild-env/env-file.json
+	echo "${upstream_version}" > dockerbuild-env/terraform-version
 }
 
 main "${@}"

@@ -6,7 +6,7 @@ resources:
     user: hashicorp
     repository: terraform
     access_token: ((github-access-token))
-    tag_filter: v0.13.(.*)
+    tag_filter: v0.14.2
 
 - name: bbr-pcf-pipeline-tasks
   type: git
@@ -209,6 +209,8 @@ jobs:
     params:
       build_args_file: dockerbuild-env/env-file.json
       build: backup-and-restore-repo/ci-docker-images/backup-and-restore/
+      tag_as_latest: true
+      additional_tags: dockerbuild-env/terraform-version
 
 - name: build-bosh-lite-stemcell
   serial: true
