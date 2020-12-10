@@ -37,14 +37,14 @@ main() {
 #		exit 1
 #	fi
 
-	if [[ "${upstream_patch}" == "${downstream_patch}" ]]; then
-		echo "Downstream version '${downstream_version}' is up-to-date!"
-	elif [[ "${upstream_patch}" -gt "${downstream_patch}" ]]; then
-		echo "Bumping to new patch version '${upstream_version}'!"
-	else
-		echo "Refusing to perform an automatic version bump to an older version."
-		exit 1
-	fi
+	# if [[ "${upstream_patch}" == "${downstream_patch}" ]]; then
+	# 	echo "Downstream version '${downstream_version}' is up-to-date!"
+	# elif [[ "${upstream_patch}" -gt "${downstream_patch}" ]]; then
+	# 	echo "Bumping to new patch version '${upstream_version}'!"
+	# else
+	# 	echo "Refusing to perform an automatic version bump to an older version."
+	# 	exit 1
+	# fi
 
 	echo "{ \"TERRAFORM_VERSION\": \"${upstream_version}\" }" > dockerbuild-env/env-file.json
 	echo "${upstream_version}" > dockerbuild-env/terraform-version
