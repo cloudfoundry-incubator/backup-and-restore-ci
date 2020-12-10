@@ -11,10 +11,6 @@ inputs:
 - name: backup-and-restore-ci
 
 params:
-  JUMPBOX_HOST:
-  JUMPBOX_USER:
-  JUMPBOX_SSH_KEY:
-
   BOSH_DEPLOYMENT:
   BOSH_GW_HOST:
   BOSH_GW_PRIVATE_KEY:
