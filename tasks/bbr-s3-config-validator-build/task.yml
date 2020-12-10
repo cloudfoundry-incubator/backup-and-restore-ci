@@ -8,11 +8,11 @@ image_resource:
 
 inputs:
 - name: bbr-s3-config-validator
-- name: ci
-- name: version
+- name: backup-and-restore-ci
+- name: s3-config-validator-version
 
 outputs:
 - name: bbr-s3-config-validator-test-artifacts
 
 run:
-  path: ci/tasks/bbr-s3-config-validator-build/task.sh
+  path: backup-and-restore-ci/tasks/bbr-s3-config-validator-build/task.sh

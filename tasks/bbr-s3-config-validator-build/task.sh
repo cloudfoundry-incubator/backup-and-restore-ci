@@ -10,4 +10,4 @@ make artifact
 
 cp -r \
   build/artifact.tgz \
-  "${ROOT_DIR}/bbr-s3-config-validator-test-artifacts/bbr-s3-config-validator.$(cat "${ROOT_DIR}"/version/number).tgz"
+  "${ROOT_DIR}/bbr-s3-config-validator-test-artifacts/bbr-s3-config-validator.$(cat "${ROOT_DIR}"/s3-config-validator-version/number).tgz"

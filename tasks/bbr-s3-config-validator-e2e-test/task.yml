@@ -8,11 +8,11 @@ image_resource:
 
 inputs:
 - name: bbr-s3-config-validator
-- name: ci
+- name: backup-and-restore-ci
 
 params:
   AWS_SECRET_KEY:
   AWS_ACCESS_KEY:
 
 run:
-  path: ci/tasks/bbr-s3-config-validator-e2e-test/task.sh
+  path: backup-and-restore-ci/tasks/bbr-s3-config-validator-e2e-test/task.sh
