@@ -3,7 +3,7 @@
 set -e
 set -u
 
-db_endpoint="$(grep "external\\_.*\\_database\\_address" "vars-store/$VARS_STORE_FILE" -m1 | awk '{print $2}')"
+db_endpoint="$(grep "external\\_.*\\_database\\_address" "vars-store/$VARS_STORE_FILE" -m1 | awk '{print $2}' | jq -r .)"
 db_username="$(grep "external\\_.*\\_database\\_username" "vars-store/$VARS_STORE_FILE" -m1 | awk '{print $2}')"
 db_password="$(grep "external\\_.*\\_database\\_password" "vars-store/$VARS_STORE_FILE" -m1 | awk '{print $2}')"
 
