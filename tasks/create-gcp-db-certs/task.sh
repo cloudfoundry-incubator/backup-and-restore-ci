@@ -4,7 +4,9 @@ set -eu
 
 save_server_certs() {
   local certs_dir; certs_dir="ci/backup-and-restore-sdk-release/certs/gcp-${1}"
-  local instance_name; instance_name="$(terraform output -state=../terraform-state/terraform.tfstate "${1}_name")"
+  # Apparently in terraform 0.14.2 output command returns quotes around the instance name. This breaks gcloud command
+  # Stripping the quotes using jq solves the problem - https://www.terraform.io/docs/commands/output.html#use-in-automation
+  local instance_name; instance_name="$(terraform output -state=../terraform-state/terraform.tfstate "${1}_name" | jq -r .)"
 
   mkdir -p "$certs_dir"
   gcloud sql instances describe "$instance_name" --format='value(serverCaCert.cert)' > "${certs_dir}/test-server-cert.pem"
