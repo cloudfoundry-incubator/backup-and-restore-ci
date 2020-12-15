@@ -19,7 +19,7 @@
 set -eu
 
 terraform_output() {
-  terraform output -state=terraform-state/terraform.tfstate "$1"
+  terraform output -state=terraform-state/terraform.tfstate "$1" | jq -r .
 }
 
 if [ "$DB_TYPE" == "mysql" ]; then
