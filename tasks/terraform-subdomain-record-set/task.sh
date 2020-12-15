@@ -5,8 +5,8 @@ set -euo pipefail
 : "${TERRAFORM_STATE?TERRAFORM_STATE must be set}"
 : "${GCP_KEY?GCP_KEY must be set}"
 
-nameservers="$( terraform output "--state=${BBL_TERRAFORM_STATE}" system_domain_dns_servers )"
-env_name="$( terraform output "--state=${BBL_TERRAFORM_STATE}" director_name)"
+nameservers="$( terraform output "--state=${BBL_TERRAFORM_STATE}" -json | jq -r .system_domain_dns_servers.value)"
+env_name="$( terraform output "--state=${BBL_TERRAFORM_STATE}" -json | jq -r .director_name)"
 
 terraform init bosh-backup-and-restore-meta/terraform/backup-and-restore-sdk-acceptance-tests/add-subdomain-record-set/
 

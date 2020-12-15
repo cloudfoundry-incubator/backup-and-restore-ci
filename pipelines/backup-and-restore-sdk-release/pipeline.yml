@@ -1458,7 +1458,7 @@ jobs:
       release: backup-and-restore-sdk-release
     params:
       BBL_STATE_DIR: external-blobstore-directors/gcs/
-      SYSTEM_DOMAIN: bbr-gcs.platform-recovery.cf-app.com
+      SYSTEM_DOMAIN: bbr-gcs.cryo.cf-app.com
       OPS_FILES: "operations/scale-to-one-az.yml operations/use-compiled-releases.yml operations/backup-and-restore/enable-backup-restore.yml operations/use-external-blobstore.yml operations/use-gcs-blobstore-service-account.yml operations/backup-and-restore/enable-backup-restore-gcs.yml"
       VARS_FILES: external-blobstore-directors/gcs/cf-deployment-variables.yml
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
@@ -1466,8 +1466,8 @@ jobs:
   - task: wait-for-cf-api
     file: backup-and-restore-ci/tasks/wait-for-cf-api/task.yml
     params:
-      CF_API_URL: https://api.bbr-gcs.platform-recovery.cf-app.com
-      CF_UAA_URL: https://uaa.bbr-gcs.platform-recovery.cf-app.com
+      CF_API_URL: https://api.bbr-gcs.cryo.cf-app.com
+      CF_UAA_URL: https://uaa.bbr-gcs.cryo.cf-app.com
 
 - name: run-drats-external-gcs-blobstore
   serial: true
@@ -1502,7 +1502,7 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
     params:
       BBL_STATE_DIR: external-blobstore-directors/gcs
-      SYSTEM_DOMAIN: bbr-gcs.platform-recovery.cf-app.com
+      SYSTEM_DOMAIN: bbr-gcs.cryo.cf-app.com
       INTEGRATION_CONFIG_FILE_PATH: external-blobstore-directors/gcs/integration_config.json
   - task: acceptance-tests
     file: disaster-recovery-acceptance-tests/ci/drats-with-integration-config/task.yml
