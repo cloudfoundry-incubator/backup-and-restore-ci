@@ -155,15 +155,15 @@ resources:
 - name: cf-deployment-concourse-tasks
   type: git
   source:
-    branch: master
+    branch: main
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
     tag_filter: v9.*
 
-- name: cf-deployment-master
+- name: cf-deployment-main
   type: git
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
-    branch: master
+    branch: main
 
 - name: bbr-binary-release
   type: github-release
@@ -1343,7 +1343,7 @@ jobs:
       trigger: true
     - get: bbr-binary-release
       trigger: true
-    - get: cf-deployment-master
+    - get: cf-deployment-main
     - get: backup-and-restore-sdk-release
       trigger: true
       passed:
@@ -1367,8 +1367,8 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      cf-deployment: cf-deployment-master
-      ops-files: cf-deployment-master
+      cf-deployment: cf-deployment-main
+      ops-files: cf-deployment-main
       vars-store: bosh-backup-and-restore-meta
       vars-files: bosh-backup-and-restore-meta
       release: backup-and-restore-sdk-release
@@ -1397,7 +1397,7 @@ jobs:
       trigger: true
     - get: bbr-binary-release
       trigger: true
-    - get: cf-deployment-master
+    - get: cf-deployment-main
     - get: backup-and-restore-sdk-release
       trigger: true
       passed:
@@ -1409,8 +1409,8 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      cf-deployment: cf-deployment-master
-      ops-files: cf-deployment-master
+      cf-deployment: cf-deployment-main
+      ops-files: cf-deployment-main
       vars-store: bosh-backup-and-restore-meta
       vars-files: bosh-backup-and-restore-meta
       release: backup-and-restore-sdk-release
@@ -1439,7 +1439,7 @@ jobs:
       trigger: true
     - get: bbr-binary-release
       trigger: true
-    - get: cf-deployment-master
+    - get: cf-deployment-main
     - get: backup-and-restore-sdk-release
       trigger: true
       passed:
@@ -1451,8 +1451,8 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      cf-deployment: cf-deployment-master
-      ops-files: cf-deployment-master
+      cf-deployment: cf-deployment-main
+      ops-files: cf-deployment-main
       vars-store: bosh-backup-and-restore-meta
       vars-files: bosh-backup-and-restore-meta
       release: backup-and-restore-sdk-release
@@ -1479,7 +1479,7 @@ jobs:
       passed: [deploy-cf-with-external-gcs-blobstore]
     - get: bosh-backup-and-restore-meta
       passed: [deploy-cf-with-external-gcs-blobstore]
-    - get: cf-deployment-master
+    - get: cf-deployment-main
       passed: [deploy-cf-with-external-gcs-blobstore]
       trigger: true
     - get: backup-and-restore-sdk-release
@@ -1551,7 +1551,7 @@ jobs:
       passed: [deploy-cf-with-external-azure-blobstore]
     - get: bosh-backup-and-restore-meta
       passed: [deploy-cf-with-external-azure-blobstore]
-    - get: cf-deployment-master
+    - get: cf-deployment-main
       passed: [deploy-cf-with-external-azure-blobstore]
       trigger: true
     - get: backup-and-restore-sdk-release
@@ -1623,7 +1623,7 @@ jobs:
       passed: [deploy-cf-with-external-s3-blobstore]
     - get: bosh-backup-and-restore-meta
       passed: [deploy-cf-with-external-s3-blobstore]
-    - get: cf-deployment-master
+    - get: cf-deployment-main
       passed: [deploy-cf-with-external-s3-blobstore]
       trigger: true
     - get: backup-and-restore-sdk-release
@@ -1705,8 +1705,8 @@ jobs:
       trigger: true
     - get: bbr-binary-release
       trigger: true
-    - get: cf-deployment-master
-      resource: cf-deployment-master
+    - get: cf-deployment-main
+      resource: cf-deployment-main
     - get: backup-and-restore-sdk-release
       trigger: true
       passed:
@@ -1719,8 +1719,8 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
-      cf-deployment: cf-deployment-master
-      ops-files: cf-deployment-master
+      cf-deployment: cf-deployment-main
+      ops-files: cf-deployment-main
       vars-store: bosh-backup-and-restore-meta
       vars-files: bosh-backup-and-restore-meta
       release: backup-and-restore-sdk-release
@@ -1745,8 +1745,8 @@ jobs:
     - get: 6h
       trigger: true
       passed: [deploy-cf-with-unversioned-external-s3-blobstore]
-    - get: cf-deployment-master
-      resource: cf-deployment-master
+    - get: cf-deployment-main
+      resource: cf-deployment-main
       passed:
       - deploy-cf-with-unversioned-external-s3-blobstore
       trigger: true
