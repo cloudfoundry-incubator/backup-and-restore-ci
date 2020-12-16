@@ -10,7 +10,7 @@ resources:
 - name: cf-deployment-concourse-tasks
   type: git
   source:
-    branch: master
+    branch: main
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
     tag_filter: v10.*
 
@@ -18,7 +18,7 @@ resources:
   type: git
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
-    branch: master
+    branch: main
     tag_filter: v13.*
 
 - name: bosh-backup-and-restore-meta

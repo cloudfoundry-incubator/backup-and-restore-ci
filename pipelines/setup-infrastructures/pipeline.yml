@@ -687,7 +687,7 @@ jobs:
       TERRAFORM_ACTION: apply
       GCP_KEY: ((gcp_service_account_key))
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
-      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+      GIT_COMMIT_USERNAME: "Cryogenics Concourse"
     ensure:
       put: bosh-backup-and-restore-meta
       params:
