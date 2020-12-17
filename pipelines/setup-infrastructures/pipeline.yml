@@ -274,7 +274,7 @@ jobs:
       BBL_STATE_DIR: external-blobstore-directors/aws-s3-unversioned/
       BBL_LB_CERT: ((aws-s3-unversioned-lb-cert))
       BBL_LB_KEY: ((aws-s3-unversioned-lb-key))
-      LB_DOMAIN: bbr-s3-unversioned.platform-recovery.cf-app.com
+      LB_DOMAIN: bbr-s3-unversioned.cryo.cf-app.com
       BBL_ENV_NAME: bbr-s3-unversioned
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
@@ -374,7 +374,7 @@ jobs:
       BBL_STATE_DIR: external-blobstore-directors/azure/
       BBL_LB_CERT: ((azure-lb-cert))
       BBL_LB_KEY: ((azure-lb-key))
-      LB_DOMAIN: bbr-azure.platform-recovery.cf-app.com
+      LB_DOMAIN: bbr-azure.cryo.cf-app.com
       BBL_ENV_NAME: bbr-azure
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
