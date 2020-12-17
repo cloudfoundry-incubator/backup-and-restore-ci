@@ -174,7 +174,7 @@ jobs:
       BBL_STATE_DIR: external-blobstore-directors/aws-s3/
       BBL_LB_CERT: ((aws-s3-lb-cert))
       BBL_LB_KEY: ((aws-s3-lb-key))
-      LB_DOMAIN: bbr-s3.platform-recovery.cf-app.com
+      LB_DOMAIN: bbr-s3.cryo.cf-app.com
       BBL_ENV_NAME: bbr-s3
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
@@ -192,7 +192,7 @@ jobs:
       TERRAFORM_ACTION: apply
       GCP_KEY: ((gcp_service_account_key))
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
-      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+      GIT_COMMIT_USERNAME: "Cryogenics Concourse"
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -239,7 +239,7 @@ jobs:
       TERRAFORM_ACTION: destroy
       GCP_KEY: ((gcp_service_account_key))
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
-      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+      GIT_COMMIT_USERNAME: "Cryogenics Concourse"
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -292,7 +292,7 @@ jobs:
       TERRAFORM_ACTION: apply
       GCP_KEY: ((gcp_service_account_key))
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
-      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+      GIT_COMMIT_USERNAME: "Cryogenics Concourse"
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -339,7 +339,7 @@ jobs:
       TERRAFORM_ACTION: destroy
       GCP_KEY: ((gcp_service_account_key))
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
-      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+      GIT_COMMIT_USERNAME: "Cryogenics Concourse"
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -392,7 +392,7 @@ jobs:
       TERRAFORM_ACTION: apply
       GCP_KEY: ((gcp_service_account_key))
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
-      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+      GIT_COMMIT_USERNAME: "Cryogenics Concourse"
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -439,7 +439,7 @@ jobs:
       TERRAFORM_ACTION: destroy
       GCP_KEY: ((gcp_service_account_key))
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
-      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+      GIT_COMMIT_USERNAME: "Cryogenics Concourse"
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -480,7 +480,7 @@ jobs:
       LB_DOMAIN: bbr-ec2.cf-app.com
       BBL_ENV_NAME: bbr-aws-ec2
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
-      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+      GIT_COMMIT_USERNAME: "Cryogenics Concourse"
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
@@ -542,7 +542,7 @@ jobs:
       BBL_AWS_ACCESS_KEY_ID: ((aws-access-key-id))
       BBL_AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
-      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+      GIT_COMMIT_USERNAME: "Cryogenics Concourse"
       BBL_STATE_DIR: external-blobstore-directors/aws-ec2/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
@@ -586,7 +586,7 @@ jobs:
       TERRAFORM_ACTION: apply
       GCP_KEY: ((gcp_service_account_key))
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
-      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+      GIT_COMMIT_USERNAME: "Cryogenics Concourse"
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -634,7 +634,7 @@ jobs:
       TERRAFORM_ACTION: destroy
       GCP_KEY: ((gcp_service_account_key))
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
-      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+      GIT_COMMIT_USERNAME: "Cryogenics Concourse"
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -734,7 +734,7 @@ jobs:
       TERRAFORM_ACTION: destroy
       GCP_KEY: ((gcp_service_account_key))
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
-      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+      GIT_COMMIT_USERNAME: "Cryogenics Concourse"
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -787,7 +787,7 @@ jobs:
       TERRAFORM_ACTION: apply
       GCP_KEY: ((gcp_service_account_key))
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
-      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+      GIT_COMMIT_USERNAME: "Cryogenics Concourse"
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -834,7 +834,7 @@ jobs:
       TERRAFORM_ACTION: destroy
       GCP_KEY: ((gcp_service_account_key))
       GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
-      GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+      GIT_COMMIT_USERNAME: "Cryogenics Concourse"
     ensure:
       put: bosh-backup-and-restore-meta
       params:
