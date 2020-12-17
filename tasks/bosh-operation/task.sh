@@ -9,7 +9,7 @@ bosh interpolate --path /jumpbox_ssh/private_key "bosh-state/${JUMPBOX_ENVIRONME
 
 function terraform_output() {
   local var="$1"
-  terraform output -state=terraform-state/terraform.tfstate "$var"
+  terraform output -state=terraform-state/terraform.tfstate "$var" | jq -r .
 }
 
 jumpbox_ip="$(terraform_output jumpbox-ip)"
