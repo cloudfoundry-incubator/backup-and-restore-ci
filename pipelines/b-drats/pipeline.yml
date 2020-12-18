@@ -76,7 +76,7 @@ resources:
     name: bosh-google-kvm-ubuntu-xenial-go_agent
 
 
-- name: 6h
+- name: six-hours
   type: time
   source:
     interval: 6h
@@ -89,7 +89,7 @@ jobs:
   serial: true
   serial_groups: [master]
   plan:
-  - get: 6h
+  - get: six-hours
     trigger: true
   - in_parallel:
     - get: bosh-deployment
@@ -275,7 +275,7 @@ jobs:
   serial: true
   serial_groups: [master]
   plan:
-  - get: 6h
+  - get: six-hours
     trigger: true
     passed: [deploy-b-drats-master]
   - in_parallel:
@@ -382,7 +382,7 @@ jobs:
   serial: true
   serial_groups: [master]
   plan:
-  - get: 6h
+  - get: six-hours
     trigger: true
     passed: [run-b-drats-master]
   - in_parallel:
