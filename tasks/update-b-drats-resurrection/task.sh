@@ -4,8 +4,8 @@ set -euo pipefail
 jumpbox_private_key="$( mktemp )"
 bosh interpolate --path /jumpbox_ssh/private_key "bosh-vars-store/${JUMPBOX_VARS_STORE_PATH}" > "$jumpbox_private_key"
 
-jumpbox_ip="$( terraform output -state=terraform-state/terraform.tfstate jumpbox-ip )"
-bosh_host="$( terraform output -state=terraform-state/terraform.tfstate director-internal-ip )"
+jumpbox_ip="$( terraform output -state=terraform-state/terraform.tfstate jumpbox-ip | jq -r .)"
+bosh_host="$( terraform output -state=terraform-state/terraform.tfstate director-internal-ip | jq -r .)"
 
 bosh_ca_cert_path="$( mktemp )"
 bosh int --path=/director_ssl/ca "bosh-vars-store/${BOSH_VARS_STORE_PATH}" > "$bosh_ca_cert_path"
