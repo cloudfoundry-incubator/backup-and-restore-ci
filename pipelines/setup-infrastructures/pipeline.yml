@@ -1152,7 +1152,7 @@ jobs:
     - get: every-sunday
       trigger: true
   - task: renew-environments
-    tags: [platform-recovery-vsphere]
+    tags: [vsphere-mapbu-cryogenics]
     file: bosh-backup-and-restore-meta/ci/setup-infrastructures/renew-env/task.yml
     params:
       PAS_ENVIRONMENTS: ((pas-environments-to-renew))
