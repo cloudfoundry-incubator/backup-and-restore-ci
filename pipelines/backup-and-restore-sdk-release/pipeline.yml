@@ -228,7 +228,7 @@ resources:
     uri: https://github.com/bosh-packages/golang-release.git
     tag_filter: v*
 
-- name: 6h
+- name: every6h
   type: time
   source:
     interval: 6h
@@ -241,7 +241,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
     - get: backup-and-restore-sdk-release
       trigger: true
@@ -273,7 +273,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed: [unit-tests]
     - get: backup-and-restore-sdk-release
@@ -314,7 +314,7 @@ jobs:
   serial_groups: [version]
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed: [contract-tests]
     - get: bosh-backup-and-restore-meta
@@ -339,7 +339,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed: [create-release]
     - get: backup-and-restore-ci
@@ -371,7 +371,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed: [create-release]
     - get: backup-and-restore-sdk-release
@@ -451,7 +451,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed: [create-release]
     - get: backup-and-restore-ci
@@ -486,7 +486,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed: [create-release]
     - get: backup-and-restore-sdk-release
@@ -530,7 +530,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed: [create-release]
     - get: backup-and-restore-sdk-release
@@ -568,7 +568,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed: [create-release]
     - get: backup-and-restore-sdk-release
@@ -624,7 +624,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed: [create-release]
     - get: backup-and-restore-sdk-release
@@ -657,7 +657,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed: [create-release]
     - get: backup-and-restore-sdk-release
@@ -694,7 +694,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed:
       - deploy-database-sdk
@@ -771,7 +771,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed:
       - deploy-database-sdk
@@ -839,7 +839,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed:
       - deploy-database-sdk
@@ -943,7 +943,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed:
       - deploy-database-sdk
@@ -974,7 +974,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed:
       - deploy-database-sdk
@@ -1028,7 +1028,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed:
       - deploy-database-sdk
@@ -1081,7 +1081,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed:
       - deploy-database-sdk
@@ -1138,7 +1138,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed: [deploy-s3-blobstore-sdk]
     - get: backup-and-restore-ci
@@ -1180,7 +1180,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed: [deploy-s3-blobstore-sdk-with-iam-instance-profile]
     - get: backup-and-restore-ci
@@ -1215,7 +1215,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed: [deploy-azure-blobstore-sdk]
     - get: backup-and-restore-ci
@@ -1241,7 +1241,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed: [create-release]
     - get: backup-and-restore-sdk-release
@@ -1277,7 +1277,7 @@ jobs:
   serial: true
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed: [deploy-gcs-blobstore-sdk]
     - get: backup-and-restore-ci
@@ -1541,7 +1541,7 @@ jobs:
 - name: deploy-acceptance-infrastructure
   plan:
   - in_parallel:
-    - get: 6h
+    - get: every6h
       trigger: true
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
@@ -1679,4 +1679,3 @@ jobs:
           subscription_id: ((azure-subscription-id))
       get_params:
         action: destroy
-
