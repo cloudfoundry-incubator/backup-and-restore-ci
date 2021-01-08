@@ -62,23 +62,6 @@ resources:
       secret_access_key: ((aws-secret-access-key))
       region_name: eu-west-1
 
-- name: relint-trackerbot
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf-experimental/relint-trackerbot.git
-    private_key: ((git-private-key))
-    branch: main
-
-- name: bbr-tracker-bot
-  type: cf
-  source:
-    api: https://api.run.pivotal.io
-    username: ((pws-username))
-    password: ((pws-password))
-    organization: ((pws-org))
-    space: ((pws-tracker-bot-space))
-    skip_cert_check: false
-
 - name: every-tuesday
   type: time
   source:
@@ -120,7 +103,6 @@ groups:
   - setup-infrastructure-maru-lite
   - setup-gcp-iam-role-bosh-director
   - setup-gcp-iam-role-bbl
-  - deploy-tracker-bot
   - renew-environments
   - renew-nimbus-worker-vm
 
@@ -641,22 +623,6 @@ jobs:
       params:
         repository: updated-bbl-state
         rebase: true
-
-- name: deploy-tracker-bot
-  serial: true
-  plan:
-  - in_parallel:
-    - get: relint-trackerbot
-    - get: bosh-backup-and-restore-meta
-    - get: backup-and-restore-ci
-  - task: tracker-bot-config
-    file: backup-and-restore-ci/tasks/tracker-bot-config/task.yml
-  - put: bbr-tracker-bot
-    params:
-      path: relint-trackerbot-with-config
-      manifest: bosh-backup-and-restore-meta/tracker-bot/manifest.yml
-      environment_variables:
-        TRACKER_API_TOKEN: ((tracker-api-token))
 
 - name: renew-environments
   plan:
