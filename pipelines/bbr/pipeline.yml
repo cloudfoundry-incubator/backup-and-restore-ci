@@ -154,17 +154,6 @@ resources:
     private_key: ((git-private-key))
     branch: master
 
-- name: release-trigger
-  type: git
-  icon: github
-  source:
-    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: ((git-private-key))
-    git_crypt_key: ((git-crypt-key))
-    branch: master
-    paths:
-    - bbr-current-release/version
-
 - name: homebrew-tap
   type: git
   icon: github
@@ -208,6 +197,16 @@ resources:
     user: cloudfoundry-incubator
     repository: bosh-backup-and-restore
     access_token: ((github-access-token))
+
+- name: bbr-final-release-version
+  type: semver
+  icon: google
+  source:
+    bucket: release-versions
+    key: bbr-final
+    json_key: ((bucket-owner))
+    initial_version: 1.9.0
+    driver: gcs
 
 - name: xenial-stemcell
   type: bosh-io-stemcell
@@ -454,7 +453,7 @@ jobs:
       params:
         submodules: none
         disable_git_lfs: true
-    - get: release-trigger
+    - get: bbr-final-release-version
       params: {pre: rc}
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
@@ -576,8 +575,6 @@ jobs:
   plan:
   - in_parallel:
     - get: bosh-backup-and-restore-meta
-      resource: release-trigger
-      trigger: true
     - get: bosh-backup-and-restore
       passed: [build-rc]
       params:
@@ -586,27 +583,10 @@ jobs:
     - get: backup-and-restore-ci
     - get: homebrew-tap
     - get: bbr-s3-config-validator-artifact
-  - task: get-version
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source: {repository: pcfplatformrecovery/backup-and-restore}
-      inputs:
-      - name: bosh-backup-and-restore-meta
-      outputs:
-      - name: bbr-version
-      run:
-        path: /bin/bash
-        args:
-        - -c
-        - |-
-          set -eux
-          cat bosh-backup-and-restore-meta/bbr-current-release/version > bbr-version/number
+    - get: bbr-final-release-version
+      params: {bump: patch}
   - task: build
     file: backup-and-restore-ci/tasks/bbr-build/task.yml
-    input_mapping:
-      version: bbr-version
   - task: add-bbr-s3-validator-to-build
     file: backup-and-restore-ci/tasks/add-bbr-s3-validator-to-build/task.yml
   - in_parallel:

@@ -6,7 +6,7 @@ eval "$(ssh-agent)"
 chmod 400 bosh-backup-and-restore-meta/keys/github
 ssh-add bosh-backup-and-restore-meta/keys/github
 
-VERSION=$(cat bosh-backup-and-restore-meta/bbr-current-release/version)
+VERSION=$(cat bbr-final-release-version/number)
 export VERSION
 
 BBR_REPO="bosh-backup-and-restore"

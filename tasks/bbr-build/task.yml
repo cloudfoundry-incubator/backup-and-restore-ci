@@ -9,6 +9,7 @@ inputs:
 - name: bosh-backup-and-restore
 - name: bosh-backup-and-restore-meta
 - name: backup-and-restore-ci
+- name: bbr-final-release-version
 
 outputs:
 - name: bbr-build
