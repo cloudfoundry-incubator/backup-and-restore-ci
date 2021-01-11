@@ -5,7 +5,7 @@ set -euxo pipefail
 bbr_build="$PWD/bbr-build"
 bbr_release="$PWD/bbr-release"
 
-bbr_version="$(cat bbr-version/number)"
+bbr_version="$(cat bbr-final-release-version/number)"
 
 pushd "bbr-s3-config-validator-artifact"
   tar -xf ./*.tgz

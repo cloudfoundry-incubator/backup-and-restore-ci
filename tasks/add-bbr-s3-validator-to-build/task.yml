@@ -9,7 +9,7 @@ inputs:
 - name: backup-and-restore-ci
 - name: bbr-build
 - name: bbr-s3-config-validator-artifact
-- name: bbr-version
+- name: bbr-final-release-version
 - name: bbr-release
 
 outputs:
