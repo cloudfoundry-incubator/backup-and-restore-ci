@@ -14,7 +14,7 @@ inputs:
 params:
   TEMPLATE_PATH:
   VERSION_PATH:
-  RELEASE_TYPE: Patch
+  RELEASE_TYPE: Maintenance
 
 outputs:
 - name: pivnet-release-with-metadata
