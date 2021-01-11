@@ -593,12 +593,12 @@ jobs:
     - task: generate-bbr-release-metadata
       file: backup-and-restore-ci/tasks/generate-bbr-release-metadata/task.yml
       input_mapping:
-        version-folder: bosh-backup-and-restore-meta
+        version-folder: bbr-final-release-version
         template-folder: bosh-backup-and-restore-meta
         release: bbr-build
       params:
         TEMPLATE_PATH: templates/release.yml.erb
-        VERSION_PATH: bbr-current-release/version
+        VERSION_PATH: number
     - task: generate-release-notes
       file: backup-and-restore-ci/tasks/generate-release-notes/task.yml
       input_mapping:
@@ -613,13 +613,15 @@ jobs:
       file_glob: pivnet-release-with-metadata/bbr*
   - put: bbr-release
     params:
-      name: bosh-backup-and-restore-meta/bbr-current-release/version
-      tag: bosh-backup-and-restore-meta/bbr-current-release/version
+      name: bbr-final-release-version/number
+      tag: bbr-final-release-version/number
       tag_prefix: v
       body: release-notes/release-notes.md
       commitish: bosh-backup-and-restore/.git/refs/heads/master
       globs:
       - github-release-with-metadata/bbr*
+  - put: bbr-final-release-version
+    params: { file: bbr-final-release-version/number }
 
 - name: update-homebrew-formula
   serial: true
