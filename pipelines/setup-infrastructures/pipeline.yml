@@ -101,6 +101,7 @@ groups:
   - setup-infrastructure-drats-papillon
   - setup-infrastructure-drats-with-config-manx
   - setup-infrastructure-maru-lite
+  - setup-infrastructure-maru
   - setup-gcp-iam-role-bosh-director
   - setup-gcp-iam-role-bbl
   - renew-environments
@@ -113,6 +114,7 @@ groups:
   - clean-up-drats-papillon
   - clean-up-drats-with-config-manx
   - clean-up-maru-lite
+  - clean-up-maru
   - delete-unattached-disks
 
 - name: destroy
@@ -122,6 +124,7 @@ groups:
   - destroy-infrastructure-drats-papillon
   - destroy-infrastructure-drats-with-config-manx
   - destroy-infrastructure-maru-lite
+  - destroy-infrastructure-maru
   - destroy-gcp-iam-role-bosh-director
   - destroy-gcp-iam-role-bbl
 
@@ -615,6 +618,75 @@ jobs:
     params:
       << : *COMMON_BBL_PARAMS
       BBL_STATE_DIR: maru-lite/
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: setup-infrastructure-maru
+  serial: true
+  serial_groups: [maru]
+  plan:
+  - in_parallel:
+    - get: cf-deployment-concourse-tasks
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
+  - task: setup-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    params:
+      << : *COMMON_BBL_UP_PARAMS
+      BBL_STATE_DIR: maru/
+      BBL_ENV_NAME: maru
+      SKIP_LB_CREATION: true
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+      bbl-config: bosh-backup-and-restore-meta
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: clean-up-maru
+  serial: true
+  serial_groups: [maru]
+  plan:
+  - in_parallel:
+    - get: cf-deployment-concourse-tasks
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
+    - get: everyday
+      trigger: true
+  - task: bosh-clean-up
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: maru/
+      CLEAN_ALL: true
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+  - task: upload-bosh-dns-release
+    file: backup-and-restore-ci/tasks/upload-bosh-dns-release/task.yml
+    input_mapping:
+      bbl-state: bosh-backup-and-restore-meta
+    params:
+      BBL_STATE_DIR: maru/
+
+- name: destroy-infrastructure-maru
+  serial: true
+  serial_groups: [maru]
+  plan:
+  - in_parallel:
+    - get: cf-deployment-concourse-tasks
+    - get: bosh-backup-and-restore-meta
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      << : *COMMON_BBL_PARAMS
+      BBL_STATE_DIR: maru/
     input_mapping:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
