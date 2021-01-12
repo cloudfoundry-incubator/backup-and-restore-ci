@@ -15,10 +15,10 @@ export VERSION="$version"
 
 echo "Creating release tarball..."
 release_tar="bbr-${VERSION}.tar"
-tar -C release -cf "${release_tar}"
+tar  -cf "${release_tar}" release
 
-cp "release/${release_tar}" $github_folder/
-cp "release/${release_tar}" $pivnet_folder/
+cp "${release_tar}" $github_folder/
+cp "${release_tar}" $pivnet_folder/
 
 linux_binary="bbr-${VERSION}-linux-amd64"
 create_release_for "$linux_binary"
