@@ -12,8 +12,8 @@ echo "Creating release tarball..."
 release_tar="bbr-${VERSION}.tar"
 tar  -cf "${release_tar}" release
 
-cp -r "release/." $github_folder/
-cp -r "release/." $pivnet_folder/
+cp -r "release/." $GITHUB_FOLDER/
+cp -r "release/." $PIVNET_FOLDER/
 
 LINUX_BINARY="bbr-${VERSION}-linux-amd64"
 DARWIN_BINARY="bbr-${VERSION}-darwin-amd64"
