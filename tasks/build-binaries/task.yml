@@ -14,6 +14,7 @@ inputs:
 
 outputs:
 - name: bbr-release
+- name: bbr-build
 
 run:
   path: backup-and-restore-ci/tasks/build-binaries/task.sh
