@@ -17,7 +17,7 @@ function main {
   display_files "$BBR_BUILD"
   add_s3_config_files "bbr-build"
   display_files "$BBR_BUILD"
-  display_files "$BBR_RELEASE/releases"
+  display_files "$BBR_RELEASE"
 }
 
 function copy_release_files {
@@ -57,9 +57,9 @@ function add_s3_config_files {
     cp bbr-s3-config-validator "$BBR_BUILD/bbr-s3-config-validator-$VERSION-linux-amd64"
     cp bbr-s3-config-validator.sha256 "$BBR_BUILD/bbr-s3-config-validator-$VERSION-linux-amd64.sha256"
 
-    echo "$(cat bbr-s3-config-validator.sha256)  bbr-s3-config-validator" >> "$BBR_RELEASE/releases/checksum.sha256"
-    cp bbr-s3-config-validator "$BBR_RELEASE/releases"
-    cp README.md "$BBR_RELEASE/releases/bbr-s3-config-validator.README.md"
+    echo "$(cat bbr-s3-config-validator.sha256)  bbr-s3-config-validator" >> "$BBR_RELEASE/checksum.sha256"
+    cp bbr-s3-config-validator "$BBR_RELEASE"
+    cp README.md "$BBR_RELEASE/bbr-s3-config-validator.README.md"
   popd
 }
 

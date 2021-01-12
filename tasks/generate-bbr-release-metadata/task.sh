@@ -15,7 +15,7 @@ export VERSION="$version"
 
 echo "Creating release tarball..."
 release_tar="bbr-${VERSION}.tar"
-tar  -cf "${release_tar}" release
+tar -cf "${release_tar}" release
 
 cp "${release_tar}" $github_folder/
 cp "${release_tar}" $pivnet_folder/
