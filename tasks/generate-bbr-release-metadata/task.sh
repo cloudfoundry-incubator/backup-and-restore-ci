@@ -24,4 +24,4 @@ export RELEASE_TAR="${PIVNET_FOLDER}/${release_tar}"
 export BBR_S3_VALIDATOR_BINARY="${PIVNET_FOLDER}/bbr-s3-config-validator-${VERSION}-linux-amd64"
 export BBR_S3_VALIDATOR_README="${PIVNET_FOLDER}/bbr-s3-config-validator-${VERSION}.README.md"
 
-erb -T- "template-folder/${TEMPLATE_PATH}" > $pivnet_folder/release.yml
+erb -T- "template-folder/${TEMPLATE_PATH}" > $PIVNET_FOLDER/release.yml
