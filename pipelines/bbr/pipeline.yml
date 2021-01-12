@@ -168,8 +168,7 @@ resources:
   source:
     api_token: ((pivnet-api-token))
     product_slug: p-bosh-backup-and-restore
-    access_key_id: ((pivnet-aws-access-key-id))
-    secret_access_key: ((pivnet-aws-secret-access-key))
+    copy_metadata: true
 
 - name: rc
   type: s3
