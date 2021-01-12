@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-set -eu
-set -o pipefail
+set -euo pipefail
 
 pivnet_folder="pivnet-release-with-metadata"
 github_folder="github-release-with-metadata"
@@ -14,7 +13,10 @@ function create_release_for {
 version=$(cat "version-folder/${VERSION_PATH}")
 export VERSION="$version"
 
+echo "Creating release tarball..."
 release_tar="bbr-${VERSION}.tar"
+tar -C release -cf "${release_tar}"
+
 cp "release/${release_tar}" $github_folder/
 cp "release/${release_tar}" $pivnet_folder/
 
