@@ -12,7 +12,7 @@ function main {
     make release
   popd
 
-  copy_release_files "$BBR_REPO/releases" "bbr-release"
+  copy_release_files "$BBR_REPO/releases/*" "bbr-release"
   generate_build_dir
   display_files "$BBR_BUILD"
   add_s3_config_files "bbr-build"
