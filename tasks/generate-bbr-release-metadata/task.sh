@@ -2,8 +2,10 @@
 
 set -euo pipefail
 
-PIVNET_FOLDER="pivnet-release-with-metadata"
-GITHUB_FOLDER="github-release-with-metadata"
+ROOT_DIR="$PWD"
+PIVNET_FOLDER="${ROOT_DIR}/pivnet-release-with-metadata"
+GITHUB_FOLDER="${ROOT_DIR}/github-release-with-metadata"
+RELEASE_FOLDER="${ROOT_DIR}/release"
 VERSION=$(cat "version-folder/${VERSION_PATH}")
 
 function main {
@@ -21,7 +23,7 @@ function main {
 function create_tarball {
   echo "Creating release tarball..."
   export TAR_NAME="bbr-${VERSION}.tar"
-  tar -cf "${TAR_NAME}" release
+  tar -cf "${TAR_NAME}" "${RELEASE_FOLDER}"
 }
 
 function copy_tarball_to_folder {
@@ -31,11 +33,11 @@ function copy_tarball_to_folder {
 function delete_sha256_files {
   # Why? The previous concourse job has generated shasums for each product,
   # we have bundled this as part of the tar and do no need these extra files.
-  rm "release/*.sha256"
+  rm -f "${RELEASE_FOLDER}/*.sha256"
 }
 
 function copy_release_files_to_folder {
-  cp -r "release/." "$1"
+  cp -r "${RELEASE_FOLDER}/." "$1"
 }
 
 function export_release_metadata_variables {
