@@ -8,6 +8,7 @@ REL_PIVNET_FOLDER="pivnet-release-with-metadata"
 GITHUB_FOLDER="${ROOT_DIR}/github-release-with-metadata"
 REL_GITHUB_FOLDER="github-release-with-metadata"
 RELEASE_FOLDER="${ROOT_DIR}/release"
+RELEASE_TAR_FOLDER="${ROOT_DIR}/release-tar"
 VERSION=$(cat "version-folder/${VERSION_PATH}")
 
 function main {
@@ -28,7 +29,7 @@ function main {
 function create_tarball {
   echo "Creating release tarball..."
   export TAR_NAME="bbr-${VERSION}.tar"
-  tar -cf "${TAR_NAME}" -C "${RELEASE_FOLDER}" .
+  tar -cf "${TAR_NAME}" -C "${RELEASE_TAR_FOLDER}" .
 }
 
 function copy_tarball_to_folder {
