@@ -14,8 +14,8 @@ function main {
   create_tarball
   copy_tarball_to_folder "${GITHUB_FOLDER}"
   copy_tarball_to_folder "${PIVNET_FOLDER}"
-  delete_sha256_files
   copy_release_files_to_folder "${GITHUB_FOLDER}"
+  delete_sha256_files
   copy_release_files_to_folder "${PIVNET_FOLDER}"
   export_release_metadata_variables
 
