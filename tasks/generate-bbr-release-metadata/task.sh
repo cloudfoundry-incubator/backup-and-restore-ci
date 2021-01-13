@@ -4,26 +4,47 @@ set -euo pipefail
 
 PIVNET_FOLDER="pivnet-release-with-metadata"
 GITHUB_FOLDER="github-release-with-metadata"
+VERSION=$(cat "version-folder/${VERSION_PATH}")
 
-version=$(cat "version-folder/${VERSION_PATH}")
-export VERSION="$version"
+function main {
+  create_tarball
+  copy_tarball_to_folder "${GITHUB_FOLDER}"
+  copy_tarball_to_folder "${PIVNET_FOLDER}"
+  delete_sha256_files
+  copy_release_files_to_folder "${GITHUB_FOLDER}"
+  copy_release_files_to_folder "${PIVNET_FOLDER}"
+  export_release_metadata_variables
 
-echo "Creating release tarball..."
-release_tar="bbr-${VERSION}.tar"
-tar -cf "${release_tar}" release
+  erb -T- "template-folder/${TEMPLATE_PATH}" > "${PIVNET_FOLDER}/release.yml"
+}
 
-cp "${release_tar}" $GITHUB_FOLDER
-cp "${release_tar}" $PIVNET_FOLDER
-cp -r "release/." $GITHUB_FOLDER/
-cp -r "release/." $PIVNET_FOLDER/
+function create_tarball {
+  echo "Creating release tarball..."
+  export TAR_NAME="bbr-${VERSION}.tar"
+  tar -cf "${TAR_NAME}" release
+}
 
-LINUX_BINARY="bbr-${VERSION}-linux-amd64"
-DARWIN_BINARY="bbr-${VERSION}-darwin-amd64"
+function copy_tarball_to_folder {
+  cp "${TAR_NAME}" "$1"
+}
 
-export BBR_LINUX_BINARY="${PIVNET_FOLDER}/${LINUX_BINARY}"
-export BBR_DARWIN_BINARY="${PIVNET_FOLDER}/${DARWIN_BINARY}"
-export RELEASE_TAR="${PIVNET_FOLDER}/${release_tar}"
-export BBR_S3_VALIDATOR_BINARY="${PIVNET_FOLDER}/bbr-s3-config-validator-${VERSION}-linux-amd64"
-export BBR_S3_VALIDATOR_README="${PIVNET_FOLDER}/bbr-s3-config-validator-${VERSION}.README.md"
+function delete_sha256_files {
+  # Why? The previous concourse job has generated shasums for each product,
+  # we have bundled this as part of the tar and do no need these extra files.
+  rm "release/*.sha256"
+}
 
-erb -T- "template-folder/${TEMPLATE_PATH}" > $PIVNET_FOLDER/release.yml
+function copy_release_files_to_folder {
+  cp -r "release/." "$1"
+}
+
+function export_release_metadata_variables {
+  export BBR_LINUX_BINARY="${PIVNET_FOLDER}/bbr-${VERSION}-linux-amd64"
+  export BBR_DARWIN_BINARY="${PIVNET_FOLDER}/bbr-${VERSION}-darwin-amd64"
+  export RELEASE_TAR="${PIVNET_FOLDER}/${TAR_NAME}"
+  export BBR_S3_VALIDATOR_BINARY="${PIVNET_FOLDER}/bbr-s3-config-validator-${VERSION}-linux-amd64"
+  export BBR_S3_VALIDATOR_README="${PIVNET_FOLDER}/bbr-s3-config-validator-${VERSION}.README.md"
+  export VERSION="${VERSION}"
+}
+
+main
