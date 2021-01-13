@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -euxo pipefail
 
 ROOT_DIR="$PWD"
 PIVNET_FOLDER="${ROOT_DIR}/pivnet-release-with-metadata"
