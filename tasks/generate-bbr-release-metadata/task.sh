@@ -4,7 +4,9 @@ set -euo pipefail
 
 ROOT_DIR="$PWD"
 PIVNET_FOLDER="${ROOT_DIR}/pivnet-release-with-metadata"
+REL_PIVNET_FOLDER="pivnet-release-with-metadata"
 GITHUB_FOLDER="${ROOT_DIR}/github-release-with-metadata"
+REL_GITHUB_FOLDER="github-release-with-metadata"
 RELEASE_FOLDER="${ROOT_DIR}/release"
 VERSION=$(cat "version-folder/${VERSION_PATH}")
 
@@ -41,11 +43,11 @@ function copy_release_files_to_folder {
 }
 
 function export_release_metadata_variables {
-  export BBR_LINUX_BINARY="${PIVNET_FOLDER}/bbr-${VERSION}-linux-amd64"
-  export BBR_DARWIN_BINARY="${PIVNET_FOLDER}/bbr-${VERSION}-darwin-amd64"
-  export RELEASE_TAR="${PIVNET_FOLDER}/${TAR_NAME}"
-  export BBR_S3_VALIDATOR_BINARY="${PIVNET_FOLDER}/bbr-s3-config-validator-${VERSION}-linux-amd64"
-  export BBR_S3_VALIDATOR_README="${PIVNET_FOLDER}/bbr-s3-config-validator-${VERSION}.README.md"
+  export BBR_LINUX_BINARY="${REL_PIVNET_FOLDER}/bbr-${VERSION}-linux-amd64"
+  export BBR_DARWIN_BINARY="${REL_PIVNET_FOLDER}/bbr-${VERSION}-darwin-amd64"
+  export RELEASE_TAR="${REL_PIVNET_FOLDER}/${TAR_NAME}"
+  export BBR_S3_VALIDATOR_BINARY="${REL_PIVNET_FOLDER}/bbr-s3-config-validator-${VERSION}-linux-amd64"
+  export BBR_S3_VALIDATOR_README="${REL_PIVNET_FOLDER}/bbr-s3-config-validator-${VERSION}.README.md"
   export VERSION="${VERSION}"
 }
 
