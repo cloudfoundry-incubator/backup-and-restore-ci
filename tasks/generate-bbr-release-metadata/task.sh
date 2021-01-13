@@ -10,8 +10,10 @@ export VERSION="$version"
 
 echo "Creating release tarball..."
 release_tar="bbr-${VERSION}.tar"
-tar -cf "${release_tar}" release-tar
+tar -cf "${release_tar}" release
 
+cp "${release_tar}" $GITHUB_FOLDER
+cp "${release_tar}" $PIVNET_FOLDER
 cp -r "release/." $GITHUB_FOLDER/
 cp -r "release/." $PIVNET_FOLDER/
 
