@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euxo pipefail
+set -euo pipefail
 
 ROOT_DIR="$PWD"
 PIVNET_FOLDER="${ROOT_DIR}/pivnet-release-with-metadata"
@@ -35,7 +35,7 @@ function copy_tarball_to_folder {
 function delete_sha256_files {
   # Why? The previous concourse job has generated shasums for each product,
   # we have bundled this as part of the tar and do no need these extra files.
-  rm -f "${RELEASE_FOLDER}/*.sha256"
+  rm $RELEASE_FOLDER/*.sha256
 }
 
 function copy_release_files_to_folder {
