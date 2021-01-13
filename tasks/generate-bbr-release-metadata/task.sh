@@ -20,6 +20,9 @@ function main {
   export_release_metadata_variables
 
   erb -T- "template-folder/${TEMPLATE_PATH}" > "${PIVNET_FOLDER}/release.yml"
+
+  echo -e "\n > Generated Tanzunet release file"
+  cat "${PIVNET_FOLDER}/release.yml"
 }
 
 function create_tarball {
@@ -29,10 +32,12 @@ function create_tarball {
 }
 
 function copy_tarball_to_folder {
+  echo "Adding tarball to: $1"
   cp "${TAR_NAME}" "$1"
 }
 
 function delete_sha256_files {
+  echo "Removing sha256 files from tanzunet release"
   # Why? The previous concourse job has generated shasums for each product,
   # we have bundled this as part of the tar and do no need these extra files.
   rm $RELEASE_FOLDER/*.sha256

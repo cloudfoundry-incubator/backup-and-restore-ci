@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -eux -o pipefail
+set -euo pipefail
 
 pushd repo
   latest_tag=$(git describe --abbrev=0 --tags)
@@ -8,3 +8,5 @@ pushd repo
 popd
 
 erb -T- template-folder/${TEMPLATE_PATH} > release-notes/release-notes.md
+echo -e "\n > Generated Release Notes:"
+cat release-notes/release-notes.md
