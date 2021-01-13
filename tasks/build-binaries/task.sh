@@ -5,14 +5,14 @@ set -eu
 VERSION=$(cat bbr-final-release-version/number)
 BBR_REPO="$PWD/bosh-backup-and-restore"
 BBR_BUILD="$PWD/bbr-build"
-BBR_RELEASE="$PWD/bbr-release"
+BBR_RELEASE="$PWD/bbr-release/releases"
 
 function main {
   pushd "$BBR_REPO"
     make release
   popd
 
-  copy_release_files "$BBR_REPO/releases/." "bbr-release"
+  copy_release_files "$BBR_REPO/releases/." "${BBR_RELEASE}"
   generate_build_dir
   display_files "$BBR_BUILD"
   add_s3_config_files "bbr-build"

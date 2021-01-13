@@ -28,7 +28,7 @@ function main {
 function create_tarball {
   echo "Creating release tarball..."
   export TAR_NAME="bbr-${VERSION}.tar"
-  tar -cf "${TAR_NAME}" "${RELEASE_FOLDER}"
+  tar -cf "${TAR_NAME}" -C "${RELEASE_FOLDER}" .
 }
 
 function copy_tarball_to_folder {
