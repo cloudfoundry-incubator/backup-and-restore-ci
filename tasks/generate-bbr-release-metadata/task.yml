@@ -8,6 +8,7 @@ image_resource:
 inputs:
 - name: backup-and-restore-ci
 - name: release
+- name: release-tar
 - name: version-folder
 - name: template-folder
 
