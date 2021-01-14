@@ -10,7 +10,7 @@ pushd repo
   echo "Changes are:"
   echo "$has_changes"
 
-  if [[ ! -z "$has_changes" ]]; then
+  if [[ -z "$has_changes" ]]; then
     echo "There are no changes to publish in a new release!"
     exit 1
   fi
