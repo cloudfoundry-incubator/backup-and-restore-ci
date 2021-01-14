@@ -584,17 +584,20 @@ jobs:
     - get: bbr-s3-config-validator-artifact
     - get: bbr-final-release-version
       params: {bump: patch}
-  - task: build
-    file: backup-and-restore-ci/tasks/bbr-build/task.yml
-  - task: add-bbr-s3-validator-to-build
-    file: backup-and-restore-ci/tasks/add-bbr-s3-validator-to-build/task.yml
+  - task: check-for-changes
+    file: backup-and-restore-ci/tasks/check-for-changes/task.yml
+    input_mapping:
+      repo: bosh-backup-and-restore
+  - task: build-binaries
+    file: backup-and-restore-ci/tasks/build-binaries/task.yml
   - in_parallel:
-    - task: generate-bbr-release-metadata
+    - task: generate-artifact-and-metadata
       file: backup-and-restore-ci/tasks/generate-bbr-release-metadata/task.yml
       input_mapping:
         version-folder: bbr-final-release-version
         template-folder: bosh-backup-and-restore-meta
         release: bbr-build
+        release-tar: bbr-release
       params:
         TEMPLATE_PATH: templates/release.yml.erb
         VERSION_PATH: number
