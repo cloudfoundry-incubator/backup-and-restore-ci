@@ -68,6 +68,11 @@ resource_types:
     repository: ljfranklin/terraform-resource
     tag: 0.14.2
 
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+
 resources:
 - name: terraform
   type: custom-terraform
@@ -235,6 +240,11 @@ resources:
     start: 9:00 AM
     stop: 5:00 PM
     days: [Monday, Tuesday, Wednesday, Thursday, Friday]
+
+- name: slack-cryo-notification
+  type: slack-notification
+  source:
+    url: ((slack-webhook))
 
 jobs:
 - name: unit-tests
@@ -1298,116 +1308,6 @@ jobs:
       BOSH_DEPLOYMENT: gcs-backuper
       <<: *MARU_LITE_BOSH_CREDS
 
-- name: create-final-major
-  serial: true
-  serial_groups: [version]
-  plan:
-  - in_parallel:
-    - get: bosh-backup-and-restore-meta
-    - get: backup-and-restore-ci
-    - get: backup-and-restore-sdk-release
-      passed:
-      - azure-blobstore-backuper-system-tests
-      - gcs-blobstore-backuper-system-tests
-      - postgres-system-tests
-      - postgres-system-tests-rds
-      - postgres-system-tests-gcp
-      - mariadb-system-tests
-      - mysql-system-tests-rds
-      - mysql-system-tests-gcp
-      - s3-blobstore-backuper-system-tests
-      - s3-blobstore-system-tests-with-iam-instance-profile
-    - get: backup-and-restore-sdk-release-master
-    - get: version
-      params: {bump: major}
-  - task: create-final-release
-    file: backup-and-restore-ci/tasks/create-final-release/task.yml
-    params:
-      AWS_ACCESS_KEY_ID: ((aws-access-key-id))
-      AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
-  - task: generate-release-notes
-    file: backup-and-restore-ci/tasks/generate-release-notes/task.yml
-    input_mapping:
-      repo: backup-and-restore-sdk-release
-      template-folder: bosh-backup-and-restore-meta
-    params:
-      TEMPLATE_PATH: templates/release-notes.md.erb
-  - put: backup-and-restore-sdk-release-master
-    params:
-      repository: backup-and-restore-sdk-final-release
-      merge: true
-      tag: version/number
-      tag_prefix: v
-  - put: release
-    params:
-      file: backup-and-restore-sdk-final-release-tarball/backup-and-restore-sdk-*.tgz
-  - put: github-release
-    params:
-      name: version/number
-      tag: version/number
-      body: release-notes/release-notes.md
-      tag_prefix: v
-      commitish: backup-and-restore-sdk-release/.git/refs/heads/develop
-      globs:
-      - backup-and-restore-sdk-final-release-tarball/backup-and-restore-sdk-*.tgz
-  - put: version
-    params: {file: version/number}
-
-- name: create-final-minor
-  serial: true
-  serial_groups: [version]
-  plan:
-  - in_parallel:
-    - get: bosh-backup-and-restore-meta
-    - get: backup-and-restore-ci
-    - get: backup-and-restore-sdk-release
-      passed:
-      - azure-blobstore-backuper-system-tests
-      - gcs-blobstore-backuper-system-tests
-      - postgres-system-tests
-      - postgres-system-tests-rds
-      - postgres-system-tests-gcp
-      - mariadb-system-tests
-      - mysql-system-tests-rds
-      - mysql-system-tests-gcp
-      - s3-blobstore-backuper-system-tests
-      - s3-blobstore-system-tests-with-iam-instance-profile
-    - get: backup-and-restore-sdk-release-master
-    - get: version
-      params: {bump: minor}
-  - task: create-final-release
-    file: backup-and-restore-ci/tasks/create-final-release/task.yml
-    params:
-      AWS_ACCESS_KEY_ID: ((aws-access-key-id))
-      AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
-  - task: generate-release-notes
-    file: backup-and-restore-ci/tasks/generate-release-notes/task.yml
-    input_mapping:
-      repo: backup-and-restore-sdk-release
-      template-folder: bosh-backup-and-restore-meta
-    params:
-      TEMPLATE_PATH: templates/release-notes.md.erb
-  - put: backup-and-restore-sdk-release-master
-    params:
-      repository: backup-and-restore-sdk-final-release
-      merge: true
-      tag: version/number
-      tag_prefix: v
-  - put: release
-    params:
-      file: backup-and-restore-sdk-final-release-tarball/backup-and-restore-sdk-*.tgz
-  - put: github-release
-    params:
-      name: version/number
-      tag: version/number
-      body: release-notes/release-notes.md
-      tag_prefix: v
-      commitish: backup-and-restore-sdk-release/.git/refs/heads/develop
-      globs:
-      - backup-and-restore-sdk-final-release-tarball/backup-and-restore-sdk-*.tgz
-  - put: version
-    params: {file: version/number}
-
 - name: create-final-patch
   serial: true
   serial_groups: [version]
@@ -1462,6 +1362,16 @@ jobs:
       - backup-and-restore-sdk-final-release-tarball/backup-and-restore-sdk-*.tgz
   - put: version
     params: {file: version/number}
+  - load_var: version-tag
+    file: version/number
+  - load_var: github-release-url
+    file: github-release/url
+  - put: slack-cryo-notification
+    params:
+      text: |
+        A new release for $BUILD_PIPELINE_NAME has been published!
+        Release `((.:version-tag))` is now available <((.:github-release-url))|here>
+        View the pipeline <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|here>
 
 - name: create-backup-and-restore-sdk-addon-release
   serial: true
