@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -euxo pipefail
 
 ROOT_DIR="$PWD"
-VERSION=$(cat "version-folder/${VERSION_PATH}")
+export VERSION=$(cat "version-folder/${VERSION_PATH}")
 
 pushd repo
   latest_tag=$(git describe --abbrev=0 --tags)
   export COMMITS=$(git log ${latest_tag}..HEAD --oneline | grep -v "Merge" | cut -d ' ' -f2-| uniq -u)
 popd
 
-erb -T- template-folder/${TEMPLATE_PATH} > "${ROOT_DIR}/generated-release-notes.txt"
+erb -r date -T- template-folder/${TEMPLATE_PATH} > "${ROOT_DIR}/generated-release-notes.txt"
 
 pushd docs-repo
   git checkout -b "release-${VERSION}"
 
-  sed "/Releases r ${ROOT_DIR}/release-notes.txt" bbr-rn.html.md.erb > bbr-rn.html.md.erb
+  sed "/Releases/ r ${ROOT_DIR}/generated-release-notes.txt" bbr-rn.html.md.erb > bbr-rn.html.md.erb
   echo -e "\n > Generated Release Notes:"
   cat bbr-rn.html.md.erb
 
