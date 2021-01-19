@@ -15,7 +15,7 @@ erb -r date -T- template-folder/${TEMPLATE_PATH} > "${ROOT_DIR}/generated-releas
 pushd docs-repo
   git checkout -b "release-${VERSION}"
 
-  sed "/Releases/ r ${ROOT_DIR}/generated-release-notes.txt" bbr-rn.html.md.erb > bbr-rn.html.md.erb
+  sed -i "/Releases/ r ${ROOT_DIR}/generated-release-notes.txt" bbr-rn.html.md.erb
   echo -e "\n > Generated Release Notes:"
   cat bbr-rn.html.md.erb
 
