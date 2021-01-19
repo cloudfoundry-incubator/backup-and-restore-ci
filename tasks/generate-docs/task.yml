@@ -10,6 +10,7 @@ inputs:
 - name: repo
 - name: docs-repo
 - name: template-folder
+- name: version-folder
 
 outputs:
 - name: updated-docs-repo
