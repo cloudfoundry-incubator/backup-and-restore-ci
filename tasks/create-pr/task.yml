@@ -10,7 +10,7 @@ inputs:
 - name: repo
 
 params:
-  GITHUB_TOKEN: 382b2d828ab1ab2a713ddaa711999c92840e10a9
+  GITHUB_TOKEN:
   BASE: master
 
 run:
