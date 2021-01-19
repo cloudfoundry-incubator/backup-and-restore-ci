@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euxo pipefail
+set -euo pipefail
 
 ROOT_DIR="$PWD"
 export VERSION=$(cat "version-folder/${VERSION_PATH}")
@@ -13,8 +13,6 @@ popd
 erb -r date -T- template-folder/${TEMPLATE_PATH} > "${ROOT_DIR}/generated-release-notes.txt"
 
 pushd docs-repo
-  git checkout -b "release-${VERSION}"
-
   sed -i "/Releases/ r ${ROOT_DIR}/generated-release-notes.txt" bbr-rn.html.md.erb
   echo -e "\n > Generated Release Notes:"
   cat bbr-rn.html.md.erb

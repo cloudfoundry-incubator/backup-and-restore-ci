@@ -1,0 +1,17 @@
+---
+platform: linux
+
+image_resource:
+  type: registry-image
+  source: {repository: pcfplatformrecovery/backup-and-restore}
+
+inputs:
+- name: backup-and-restore-ci
+- name: repo
+
+params:
+  GITHUB_TOKEN: 382b2d828ab1ab2a713ddaa711999c92840e10a9
+  BASE: master
+
+run:
+  path: backup-and-restore-ci/tasks/create-pr/task.sh
