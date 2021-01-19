@@ -4,7 +4,7 @@ set -euo pipefail
 
 apt update
 apt-get install -y software-properties-common
-apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+apt-key adv --keyserver keyserver.ubuntu.com:80 --recv-key C99B11DEB97541F0
 apt-add-repository https://cli.github.com/packages
 apt update
 apt install -y gh
