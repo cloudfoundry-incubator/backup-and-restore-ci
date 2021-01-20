@@ -705,7 +705,7 @@ jobs:
     - get: every-sunday
       trigger: true
   - task: renew-environments
-    tags: [vsphere-mapbu-cryogenics]
+    tags: [nimbus-worker]
     file: bosh-backup-and-restore-meta/ci/setup-infrastructures/renew-env/task.yml
     params:
       PAS_ENVIRONMENTS: ((pas-environments-to-renew))
