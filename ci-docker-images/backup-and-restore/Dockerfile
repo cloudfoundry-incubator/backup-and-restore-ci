@@ -6,6 +6,7 @@ ENV CREDHUB_CLI_VERSION 2.5.2
 ENV BBL_VERSION v8.2.12
 ENV VELERO_VERSION v1.3.2
 ENV KUBE_VERSION="v1.17.4"
+ENV GH_VERSION 1.4.0
 
 # fixes error "Error response from daemon: client is newer than server"
 ENV DOCKER_API_VERSION 1.23
@@ -110,6 +111,14 @@ RUN \
   mv /tmp/bbl-${BBL_VERSION}_linux_x86-64 /usr/local/bin/bbl && \
   chmod +x /usr/local/bin/bbl
 
+# github cli
+RUN \
+  wget https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz -P /tmp && \
+  tar xzvf /tmp/gh_${GH_VERSION}_linux_amd64.tar.gz -C /tmp/ && \
+  mv /tmp/gh_${GH_VERSION}_linux_amd64/bin/gh /usr/local/bin/gh && \
+  chmod +x /usr/local/bin/gh
+
+# velero
 RUN \
   wget https://github.com/vmware-tanzu/velero/releases/download/${VELERO_VERSION}/velero-${VELERO_VERSION}-linux-amd64.tar.gz -P /tmp && \
   tar xzvf /tmp/velero-${VELERO_VERSION}-linux-amd64.tar.gz -C /tmp/ && \
