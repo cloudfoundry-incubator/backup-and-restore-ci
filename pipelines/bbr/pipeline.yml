@@ -207,6 +207,21 @@ resources:
     initial_version: 1.9.0
     driver: gcs
 
+- name: docs-bbr-main
+  type: git
+  icon: github
+  source:
+    uri: git@github.com:cloudfoundry/docs-bbr.git
+    private_key: ((git-private-key))
+
+- name: docs-bbr-automation
+  type: git
+  icon: github
+  source:
+    uri: git@github.com:cloudfoundry/docs-bbr.git
+    private_key: ((git-private-key))
+    branch: automated-release-notes
+
 - name: xenial-stemcell
   type: bosh-io-stemcell
   source:
@@ -573,6 +588,7 @@ jobs:
   serial_groups: [version]
   plan:
   - in_parallel:
+    - get: docs-bbr-main
     - get: bosh-backup-and-restore-meta
     - get: bosh-backup-and-restore
       passed: [build-rc]
@@ -584,10 +600,10 @@ jobs:
     - get: bbr-s3-config-validator-artifact
     - get: bbr-final-release-version
       params: {bump: patch}
-  - task: check-for-changes
-    file: backup-and-restore-ci/tasks/check-for-changes/task.yml
-    input_mapping:
-      repo: bosh-backup-and-restore
+  # - task: check-for-changes
+  #   file: backup-and-restore-ci/tasks/check-for-changes/task.yml
+  #   input_mapping:
+  #     repo: bosh-backup-and-restore
   - task: build-binaries
     file: backup-and-restore-ci/tasks/build-binaries/task.yml
   - in_parallel:
@@ -608,6 +624,28 @@ jobs:
         template-folder: bosh-backup-and-restore-meta
       params:
         TEMPLATE_PATH: templates/release-notes.md.erb
+    - task: generate-docs
+      file: backup-and-restore-ci/tasks/generate-docs/task.yml
+      input_mapping:
+        version-folder: bbr-final-release-version
+        repo: bosh-backup-and-restore
+        docs-repo: docs-bbr-main
+        template-folder: bosh-backup-and-restore-meta
+      params:
+        TEMPLATE_PATH: templates/bbr-docs.md.erb
+        VERSION_PATH: number
+  - put: docs-bbr-automation
+    params:
+      repository: updated-docs-repo
+      rebase: true
+  - task: create-docs-pull-request
+    file: backup-and-restore-ci/tasks/create-pr/task.yml
+    params:
+      GITHUB_TOKEN: ((docs-github-access-token))
+      BASE: master
+      BRANCH: automated-release-notes
+    input_mapping:
+      repo: docs-bbr-automation
   - put: bbr-pivnet
     params:
       metadata_file: pivnet-release-with-metadata/release.yml
