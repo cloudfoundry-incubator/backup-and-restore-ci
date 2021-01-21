@@ -600,10 +600,10 @@ jobs:
     - get: bbr-s3-config-validator-artifact
     - get: bbr-final-release-version
       params: {bump: patch}
-  # - task: check-for-changes
-  #   file: backup-and-restore-ci/tasks/check-for-changes/task.yml
-  #   input_mapping:
-  #     repo: bosh-backup-and-restore
+  - task: check-for-changes
+    file: backup-and-restore-ci/tasks/check-for-changes/task.yml
+    input_mapping:
+      repo: bosh-backup-and-restore
   - task: build-binaries
     file: backup-and-restore-ci/tasks/build-binaries/task.yml
   - in_parallel:
