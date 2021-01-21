@@ -2,4 +2,7 @@
 
 set -euo pipefail
 
-USER=${USER} nimbus-ctl --lease 7 extend-lease ${WORKER_ID}
+for env in $WORKER_IDS
+do
+  USER=${USER} nimbus-ctl --lease 7 extend-lease $env
+done

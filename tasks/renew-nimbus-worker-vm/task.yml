@@ -10,7 +10,7 @@ inputs:
 
 params:
   USER:
-  WORKER_ID:
+  WORKER_IDS:
 
 run:
   path: backup-and-restore-ci/tasks/renew-nimbus-worker-vm/task.sh
