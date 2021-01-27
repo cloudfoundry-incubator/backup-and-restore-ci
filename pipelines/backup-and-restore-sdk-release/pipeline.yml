@@ -93,6 +93,13 @@ resources:
     private_key: ((git-private-key))
     branch: master
 
+- name: backup-and-restore-sdk-release-vendoring
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-sdk-release.git
+    private_key: ((git-private-key))
+    branch: golang-vendor-updates
+
 - name: bosh-backup-and-restore-meta
   type: git
   source:
@@ -1376,9 +1383,22 @@ jobs:
       vendored-package-release: golang-release
     params:
       VENDORED_PACKAGE_NAME: golang-1-linux
+      VENDOR_UPDATES_BRANCH: golang-vendor-updates
       AWS_ACCESS_KEY_ID: ((aws-access-key-id))
       AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
 
-  - put: backup-and-restore-sdk-release
+  - put: backup-and-restore-sdk-release-vendoring
     params:
       repository: release-with-updated-vendored-package
+      branch: golang-vendor-updates
+
+- name: notify-bump-golang
+  plan:
+  - get: backup-and-restore-sdk-release-vendoring
+    trigger: true
+  - put: slack-cryo-notification
+    params:
+      username: BBR-SDK Vendors Bot
+      text: |
+        A new <https://github.com/bosh-packages/golang-release.git|golang vendor> update is ready to be merged into <https://github.com/cloudfoundry-incubator/backup-and-restore-sdk-release|BBR-SDK>.
+        Please, manually create a new PR <https://github.com/cloudfoundry-incubator/backup-and-restore-sdk-release/compare/golang-vendor-updates...develop|here>.
