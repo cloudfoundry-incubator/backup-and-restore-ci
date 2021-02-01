@@ -788,4 +788,4 @@ jobs:
     file: backup-and-restore-ci/tasks/renew-nimbus-worker-vm/task.yml
     params:
       USER: ((nimbus-ldap-user))
-      WORKER_ID: ((nimbus-worker-vm-id))
+      WORKER_IDS: ((nimbus-worker-vm-id))
