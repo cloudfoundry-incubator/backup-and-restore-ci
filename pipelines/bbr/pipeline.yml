@@ -42,6 +42,7 @@ groups:
   - system-test-director
   - delete-system-director
   - build-rc
+  - update-tracker
   - build-and-publish-final
   - update-homebrew-formula
   - test-build-s3-config-validator
@@ -59,6 +60,7 @@ groups:
   - system-test-director
   - delete-system-director
   - build-rc
+  - update-tracker
 
 - name: s3-validator
   jobs:
@@ -592,6 +594,29 @@ jobs:
     tags:
     - *toolsmiths_api_worker
 
+- name: update-tracker
+  serial_groups: [version]
+  plan:
+  - get: cryogenics-meta
+  - get: bosh-backup-and-restore
+    passed: [build-rc]
+    trigger: true
+    params:
+      submodules: none
+      disable_git_lfs: true
+  - task: deliver-stories
+    file: cryogenics-meta/tasks/tracker-automation/deliver-stories/task.yml
+    params:
+      TRACKER_API_TOKEN: ((tracker.api_token))
+      TRACKER_PROJECT_ID: ((tracker.project_id))
+      GIT_REPOSITORY: cloudfoundry-incubator/bosh-backup-and-restore
+  - task: accept-stories
+    file: cryogenics-meta/tasks/tracker-automation/accept-stories/task.yml
+    params:
+      TRACKER_API_TOKEN: ((tracker.api_token))
+      TRACKER_PROJECT_ID: ((tracker.project_id))
+      GIT_REPOSITORY: cloudfoundry-incubator/bosh-backup-and-restore
+
 - name: build-and-publish-final
   serial_groups: [version]
   plan:
@@ -679,20 +704,6 @@ jobs:
       - github-release-with-metadata/bbr*
   - put: bbr-final-release-version
     params: { file: bbr-final-release-version/number }
-  on_success:
-    do:
-    - task: deliver-stories
-      file: cryogenics-meta/tasks/tracker-automation/deliver-stories/task.yml
-      params:
-        TRACKER_API_TOKEN: ((tracker.api_token))
-        TRACKER_PROJECT_ID: ((tracker.project_id))
-        GIT_REPOSITORY: cloudfoundry-incubator/bosh-backup-and-restore
-    - task: accept-stories
-      file: cryogenics-meta/tasks/tracker-automation/accept-stories/task.yml
-      params:
-        TRACKER_API_TOKEN: ((tracker.api_token))
-        TRACKER_PROJECT_ID: ((tracker.project_id))
-        GIT_REPOSITORY: cloudfoundry-incubator/bosh-backup-and-restore
 
 - name: update-homebrew-formula
   serial: true
