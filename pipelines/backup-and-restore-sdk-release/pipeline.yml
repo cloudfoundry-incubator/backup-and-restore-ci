@@ -987,7 +987,7 @@ jobs:
         env_name: bbr-sdk-external-rds-dbs
         output_statefile: true
   - in_parallel:
-    - task: maria-system-tests-10-1
+    - task: maria-system-tests-10-3
       file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
       input_mapping:
         terraform-state: terraform-aws
@@ -1001,7 +1001,7 @@ jobs:
         TEST_TLS_MUTUAL_TLS: false
         TEST_TLS_VERIFY_IDENTITY: false
         DB_TYPE: mysql
-        DB_PREFIX: mariadb_10_1
+        DB_PREFIX: mariadb_10_3
     - task: maria-system-tests-10-2
       file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
       input_mapping:
