@@ -286,7 +286,7 @@ resources:
   type: git
   source:
     uri: git@github.com:pivotal-cf/cryogenics-meta.git
-    private_key: ((github-cryo-ssh-key))
+    private_key: ((github.ssh_key))
     branch: main
 
 jobs:
