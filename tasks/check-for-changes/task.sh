@@ -3,9 +3,10 @@
 set -euo pipefail
 
 pushd repo
-  has_changes=$(git log HEAD..origin/HEAD)
+  latest_tag=$(git describe --abbrev=0 --tags)
+  has_changes=$(git log "${latest_tag}"..HEAD)
 
-  echo "Running: git log HEAD..origin/HEAD"
+  echo "Running: git log ${latest_tag}..HEAD"
   echo "Changes are:"
   echo "$has_changes"
 
