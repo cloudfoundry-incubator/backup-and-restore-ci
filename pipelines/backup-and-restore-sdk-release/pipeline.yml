@@ -83,28 +83,28 @@ resources:
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-sdk-release.git
-    private_key: ((git-private-key))
+    private_key: ((github.ssh_key))
     branch: develop
 
 - name: backup-and-restore-sdk-release-master
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-sdk-release.git
-    private_key: ((git-private-key))
+    private_key: ((github.ssh_key))
     branch: master
 
 - name: backup-and-restore-sdk-release-vendoring
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-sdk-release.git
-    private_key: ((git-private-key))
+    private_key: ((github.ssh_key))
     branch: golang-vendor-updates
 
 - name: bosh-backup-and-restore-meta
   type: git
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: ((git-private-key))
+    private_key: ((github.ssh_key))
     git_crypt_key: ((git-crypt-key))
     branch: master
 
@@ -112,7 +112,7 @@ resources:
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
-    private_key: ((git-private-key))
+    private_key: ((github.ssh_key))
     branch: master
 
 - name: version

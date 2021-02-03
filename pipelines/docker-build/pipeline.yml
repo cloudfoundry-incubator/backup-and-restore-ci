@@ -47,7 +47,7 @@ resources:
 - name: backup-and-restore-minimal-repo
   type: git
   source:
-    private_key: ((git-private-key))
+    private_key: ((github.ssh_key))
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
     branch: master
     paths:
@@ -58,7 +58,7 @@ resources:
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
-    private_key: ((git-private-key))
+    private_key: ((github.ssh_key))
     branch: master
     paths: ["ci-docker-images/backup-and-restore/*"]
 
@@ -66,7 +66,7 @@ resources:
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
-    private_key: ((git-private-key))
+    private_key: ((github.ssh_key))
     branch: master
     paths: ["ci-docker-images/backup-and-restore-cf-for-k8s/*"]
 
@@ -74,14 +74,14 @@ resources:
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
-    private_key: ((git-private-key))
+    private_key: ((github.ssh_key))
     branch: master
 
 - name: backup-and-restore-node-with-ssh-repo
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
-    private_key: ((git-private-key))
+    private_key: ((github.ssh_key))
     branch: master
     paths: ["ci-docker-images/backup-and-restore-node-with-ssh/*"]
 
@@ -89,7 +89,7 @@ resources:
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
-    private_key: ((git-private-key))
+    private_key: ((github.ssh_key))
     branch: master
     paths: ["ci-docker-images/k-drats/*"]
 
