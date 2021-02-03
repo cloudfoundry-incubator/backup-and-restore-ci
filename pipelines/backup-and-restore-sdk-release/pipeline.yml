@@ -230,6 +230,13 @@ resources:
   source:
     url: ((slack-webhook))
 
+- name: cryogenics-meta
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/cryogenics-meta.git
+    private_key: ((github-cryo-ssh-key))
+    branch: main
+
 jobs:
 - name: unit-tests
   serial: true
@@ -1356,6 +1363,21 @@ jobs:
         A new release for $BUILD_PIPELINE_NAME has been published!
         Release `((.:version-tag))` is now available <((.:github-release-url))|here>
         View the pipeline <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|here>
+  on_success:
+    do:
+    - get: cryogenics-meta
+    - task: deliver-stories
+      file: cryogenics-meta/tasks/tracker-automation/deliver-stories/task.yml
+      params:
+        TRACKER_API_TOKEN: ((tracker-api-token))
+        TRACKER_PROJECT_ID: ((tracker-project-id))
+        GIT_REPOSITORY: cloudfoundry-incubator/backup-and-restore-sdk-release
+    - task: accept-stories
+      file: cryogenics-meta/tasks/tracker-automation/accept-stories/task.yml
+      params:
+        TRACKER_API_TOKEN: ((tracker-api-token))
+        TRACKER_PROJECT_ID: ((tracker-project-id))
+        GIT_REPOSITORY: cloudfoundry-incubator/backup-and-restore-sdk-release
 
 - name: merge-master-into-develop
   serial: true
