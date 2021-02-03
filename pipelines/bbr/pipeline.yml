@@ -650,7 +650,7 @@ jobs:
     params:
       PRODUCT_NAME: *tanzunet_product_name
       VERSION: ((.:version-number))
-      OSM_API_KEY: ((osm-api-key))
+      OSM_API_KEY: ((osm.api_key))
   - put: docs-bbr-automation
     params:
       repository: updated-docs-repo
