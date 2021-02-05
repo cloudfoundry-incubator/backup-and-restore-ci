@@ -169,7 +169,7 @@ resources:
   type: pivnet
   icon: alpha-p-box
   source:
-    api_token: ((pivnet-api-token))
+    api_token: ((pivnet.api_token))
     product_slug: *tanzunet_product_name
     copy_metadata: true
 
