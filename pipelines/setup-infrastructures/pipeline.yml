@@ -21,6 +21,12 @@ resource_types:
   source:
     repository: cloudfoundry/bosh-deployment-resource
 
+- name: vault
+  type: docker-image
+  source:
+    repository: wfernandes/vault-resource
+    tag: latest
+
 resources:
 - name: cf-deployment-concourse-tasks
   type: git
@@ -92,6 +98,15 @@ resources:
     - Thursday
     - Friday
     location: Europe/London
+
+- name: vault-maru-lite
+  type: vault
+  source:
+    url: ((vault/server.url))
+    role_id: ((vault/resource_credentials.role_id))
+    secret_id: ((vault/resource_credentials.secret_id))
+    path: concourse/common/infrastructure/bosh/maru-lite
+    tarball: true
 
 groups:
 - name: create
@@ -577,10 +592,15 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bbl-updated-config
     ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
+      do:
+      - put: bosh-backup-and-restore-meta
+        params:
+          repository: updated-bbl-state
+          rebase: true
+
+      - put: vault-maru-lite
+        params:
+          data: updated-bbl-state/maru-lite/
 
 - name: clean-up-maru-lite
   serial: true
