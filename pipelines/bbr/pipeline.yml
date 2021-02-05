@@ -189,7 +189,7 @@ resources:
   source:
     user: cloudfoundry-incubator
     repository: bosh-backup-and-restore
-    access_token: ((github-access-token))
+    access_token: ((github.access_token))
     drafts: true
 
 - name: bbr-final-release
@@ -198,7 +198,7 @@ resources:
   source:
     user: cloudfoundry-incubator
     repository: bosh-backup-and-restore
-    access_token: ((github-access-token))
+    access_token: ((github.access_token))
 
 - name: bbr-final-release-version
   type: semver
@@ -683,7 +683,7 @@ jobs:
   - task: create-docs-pull-request
     file: backup-and-restore-ci/tasks/create-pr/task.yml
     params:
-      GITHUB_TOKEN: ((docs-github-access-token))
+      GITHUB_TOKEN: ((github.access_token))
       BASE: master
       BRANCH: automated-release-notes
     input_mapping:
