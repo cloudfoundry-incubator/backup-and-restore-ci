@@ -279,7 +279,7 @@ resources:
 - name: pcf-2-10-pool
   type: pcf-pool
   source:
-    api_token: ((toolsmiths-api-token))
+    api_token: ((toolsmiths.api_token))
     pool_name: us_2_10
   tags:
     - *toolsmiths_api_worker
