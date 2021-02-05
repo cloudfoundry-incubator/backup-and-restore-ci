@@ -206,7 +206,7 @@ resources:
   source:
     bucket: release-versions
     key: bbr-final
-    json_key: ((bucket-owner))
+    json_key: ((gcp/service_accounts/bucket_owner.json_key))
     initial_version: 1.9.0
     driver: gcs
 
@@ -258,7 +258,7 @@ resources:
   source:
     bucket: cryo-bbr-s3-config-validator-test-artifacts
     key: version
-    json_key: ((gcp-bbr-bucket-owner))
+    json_key: ((gcp/service_accounts/bbr_bucket_owner.json_key))
     initial_version: 0.0.1
     driver: gcs
 
@@ -266,14 +266,14 @@ resources:
   type: gcs
   source:
     bucket: cryo-bbr-s3-config-validator-test-artifacts
-    json_key: ((gcp-bbr-bucket-owner))
+    json_key: ((gcp/service_accounts/bbr_bucket_owner.json_key))
     regexp: .*.tgz
 
 - name: bbr-s3-config-validator-artifact
   type: gcs
   source:
     bucket: cryo-bbr-s3-config-validator-test-artifacts
-    json_key: ((gcp-bbr-bucket-owner))
+    json_key: ((gcp/service_accounts/bbr_bucket_owner.json_key))
     regexp: bbr-s3-config-validator.(.*).tgz
 
 - name: pcf-2-10-pool
