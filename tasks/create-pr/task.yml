@@ -13,6 +13,8 @@ params:
   GITHUB_TOKEN:
   BASE: master
   BRANCH:
+  MESSAGE:
+  TITLE:
 
 run:
   path: backup-and-restore-ci/tasks/create-pr/task.sh
