@@ -508,8 +508,8 @@ jobs:
           aws_access_key: ((aws-access-key-id))
           aws_secret_key: ((aws-secret-access-key))
           aws_region: *aws-region
-          mysql_5_6_password: ((rds-5-6-password))
           mysql_5_7_password: ((rds-5-7-password))
+          mysql_8_0_password: ((rds-8-0-password))
           postgres_9_6_password: ((rds-postgres-9-6-password))
           postgres_10_password: ((rds-postgres-10-password))
           postgres_11_password: ((rds-postgres-11-password))
@@ -545,7 +545,7 @@ jobs:
       env_name: bbr-sdk-external-gcp-dbs
       delete_on_failure: true
       vars:
-        mysql-5-6-password: ((gcp-mysql-5-6-password))
+        mysql-8-0-password: ((gcp-mysql-8-0-password))
         mysql-5-7-password: ((gcp-mysql-5-7-password))
         postgres-9-6-password: ((gcp-postgres-9-6-password))
         director-external-ip: ((maru-lite-jumpbox-address))
@@ -1033,21 +1033,7 @@ jobs:
       params:
         env_name: bbr-sdk-external-rds-dbs
         output_statefile: true
-  - in_parallel:
-    - task: mysql-system-tests-5.6
-      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
-      input_mapping:
-        terraform-state: terraform-aws
-      params:
-        <<: *MARU_LITE_BOSH_CREDS
-        TEST_SUITE_NAME: mysql
-        MYSQL_PASSWORD: ((rds-5-6-password))
-        MYSQL_PORT: 3306
-        MYSQL_USERNAME: root
-        MYSQL_CA_CERT_PATH: ((rds-ca-cert-path))
-        TEST_TLS_MUTUAL_TLS: false
-        DB_TYPE: mysql
-        DB_PREFIX: mysql_5_6
+  - in_parallel:    
     - task: mysql-system-tests-5.7
       file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
       input_mapping:
@@ -1062,6 +1048,20 @@ jobs:
         TEST_TLS_MUTUAL_TLS: false
         DB_TYPE: mysql
         DB_PREFIX: mysql_5_7
+    - task: mysql-system-tests-8.0
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-aws
+      params:
+        <<: *MARU_LITE_BOSH_CREDS
+        TEST_SUITE_NAME: mysql
+        MYSQL_PASSWORD: ((rds-8-0-password))
+        MYSQL_PORT: 3306
+        MYSQL_USERNAME: root
+        MYSQL_CA_CERT_PATH: ((rds-ca-cert-path))
+        TEST_TLS_MUTUAL_TLS: false
+        DB_TYPE: mysql
+        DB_PREFIX: mysql_8_0
 
 - name: mysql-system-tests-gcp
   serial: true
@@ -1086,23 +1086,7 @@ jobs:
       params:
         env_name: bbr-sdk-external-gcp-dbs
         output_statefile: true
-  - in_parallel:
-    - task: mysql-system-tests-5.6
-      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
-      input_mapping:
-        terraform-state: terraform-gcp
-      params:
-        <<: *MARU_LITE_BOSH_CREDS
-        TEST_SUITE_NAME: mysql
-        MYSQL_PASSWORD: ((gcp-mysql-5-6-password))
-        MYSQL_PORT: 3306
-        MYSQL_USERNAME: root
-        DB_TYPE: mysql
-        DB_PREFIX: mysql_5_6
-        MYSQL_CA_CERT_PATH: ((gcp-mysql-5-6-ca-cert-path))
-        MYSQL_CLIENT_CERT_PATH: ((gcp-mysql-5-6-client-cert-path))
-        MYSQL_CLIENT_KEY_PATH: ((gcp-mysql-5-6-client-key-path))
-        TEST_TLS_VERIFY_IDENTITY: false
+  - in_parallel:    
     - task: mysql-system-tests-5.7
       file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
       input_mapping:
@@ -1118,6 +1102,22 @@ jobs:
         MYSQL_CA_CERT_PATH: ((gcp-mysql-5-7-ca-cert-path))
         MYSQL_CLIENT_CERT_PATH: ((gcp-mysql-5-7-client-cert-path))
         MYSQL_CLIENT_KEY_PATH: ((gcp-mysql-5-7-client-key-path))
+        TEST_TLS_VERIFY_IDENTITY: false
+    - task: mysql-system-tests-8.0
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-gcp
+      params:
+        <<: *MARU_LITE_BOSH_CREDS
+        TEST_SUITE_NAME: mysql
+        MYSQL_PASSWORD: ((gcp-mysql-8-0-password))
+        MYSQL_PORT: 3306
+        MYSQL_USERNAME: root
+        DB_TYPE: mysql
+        DB_PREFIX: mysql_8_0
+        MYSQL_CA_CERT_PATH: ((gcp-mysql-8-0-ca-cert-path))
+        MYSQL_CLIENT_CERT_PATH: ((gcp-mysql-8-0-client-cert-path))
+        MYSQL_CLIENT_KEY_PATH: ((gcp-mysql-8-0-client-key-path))
         TEST_TLS_VERIFY_IDENTITY: false
 
 - name: s3-blobstore-backuper-system-tests
