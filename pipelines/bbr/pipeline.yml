@@ -497,13 +497,13 @@ jobs:
   - task: unit-test
     file: backup-and-restore-ci/tasks/bbr-s3-config-validator-unit-test/task.yml
     params:
-      AWS_ACCESS_KEY: ((s3-validator-access-key))
-      AWS_SECRET_KEY: ((s3-validator-secret-key))
+      AWS_ACCESS_KEY: ((s3_validator_test_bucket.access_key))
+      AWS_SECRET_KEY: ((s3_validator_test_bucket.secret_key))
   - task: e2e-test
     file: backup-and-restore-ci/tasks/bbr-s3-config-validator-e2e-test/task.yml
     params:
-      AWS_ACCESS_KEY: ((s3-validator-access-key))
-      AWS_SECRET_KEY: ((s3-validator-secret-key))
+      AWS_ACCESS_KEY: ((s3_validator_test_bucket.access_key))
+      AWS_SECRET_KEY: ((s3_validator_test_bucket.secret_key))
   - task: build
     file: backup-and-restore-ci/tasks/bbr-s3-config-validator-build/task.yml
   - put: s3-config-validator-version
