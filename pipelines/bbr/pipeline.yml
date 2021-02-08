@@ -154,7 +154,7 @@ resources:
   source:
     uri: git@github.com:cloudfoundry/homebrew-tap.git
     branch: master
-    private_key: ((homebrew-git-private-key))
+    private_key: ((homebrew_ci_bot.private_key))
 
 - name: bbr-pivnet
   type: pivnet
