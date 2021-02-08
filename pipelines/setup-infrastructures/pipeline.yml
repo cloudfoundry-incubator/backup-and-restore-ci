@@ -108,6 +108,51 @@ resources:
     path: concourse/common/infrastructure/bosh/maru-lite
     tarball: true
 
+- name: vault-aws-ec2
+  type: vault
+  source:
+    url: ((vault/server.url))
+    role_id: ((vault/resource_credentials.role_id))
+    secret_id: ((vault/resource_credentials.secret_id))
+    path: concourse/common/infrastructure/bosh/aws-ec2
+    tarball: true
+
+- name: vault-drats-ragdoll
+  type: vault
+  source:
+    url: ((vault/server.url))
+    role_id: ((vault/resource_credentials.role_id))
+    secret_id: ((vault/resource_credentials.secret_id))
+    path: concourse/common/infrastructure/bosh/drats-ragdoll
+    tarball: true
+
+- name: vault-drats-papillon
+  type: vault
+  source:
+    url: ((vault/server.url))
+    role_id: ((vault/resource_credentials.role_id))
+    secret_id: ((vault/resource_credentials.secret_id))
+    path: concourse/common/infrastructure/bosh/drats-papillon
+    tarball: true
+
+- name: vault-drats-cmanx
+  type: vault
+  source:
+    url: ((vault/server.url))
+    role_id: ((vault/resource_credentials.role_id))
+    secret_id: ((vault/resource_credentials.secret_id))
+    path: concourse/common/infrastructure/bosh/drats-cmanx
+    tarball: true
+
+- name: vault-maru
+  type: vault
+  source:
+    url: ((vault/server.url))
+    role_id: ((vault/resource_credentials.role_id))
+    secret_id: ((vault/resource_credentials.secret_id))
+    path: concourse/common/infrastructure/bosh/maru
+    tarball: true
+
 groups:
 - name: create
   jobs:
@@ -170,10 +215,14 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
     ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
+      do:
+      - put: bosh-backup-and-restore-meta
+        params:
+          repository: updated-bbl-state
+          rebase: true
+      - put: vault-aws-ec2
+        params:
+          data: updated-bbl-state/external-blobstore-directors/aws-ec2/
   - put: terraform
     params:
       terraform_source: bosh-backup-and-restore-meta/external-blobstore-directors/aws-ec2/iam-roles-terraform/
@@ -233,10 +282,14 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
     ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
+      do:
+      - put: bosh-backup-and-restore-meta
+        params:
+          repository: updated-bbl-state
+          rebase: true
+      - put: vault-aws-ec2
+        params:
+          data: updated-bbl-state/external-blobstore-directors/aws-ec2/
 
 - name: setup-infrastructure-drats-pr-ragdoll
   serial: true
@@ -259,10 +312,15 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
     ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
+      do:
+      - put: bosh-backup-and-restore-meta
+        params:
+          repository: updated-bbl-state
+          rebase: true
+      - put: vault-drats-ragdoll
+        params:
+          data: updated-bbl-state/drats-pr-ragdoll/
+
   - task: terraform-subdomain-record-set
     file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
     params:
@@ -334,10 +392,14 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
     ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
+      do:
+      - put: bosh-backup-and-restore-meta
+        params:
+          repository: updated-bbl-state
+          rebase: true
+      - put: vault-drats-ragdoll
+        params:
+          data: updated-bbl-state/drats-pr-ragdoll/
 
 - name: setup-infrastructure-drats-papillon
   serial: true
@@ -360,10 +422,15 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
     ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
+      do:
+      - put: bosh-backup-and-restore-meta
+        params:
+          repository: updated-bbl-state
+          rebase: true
+      - put: vault-drats-papillon
+        params:
+          data: updated-bbl-state/drats-papillon/
+
   - task: terraform-subdomain-record-set
     file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
     params:
@@ -434,10 +501,14 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
     ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
+      do:
+      - put: bosh-backup-and-restore-meta
+        params:
+          repository: updated-bbl-state
+          rebase: true
+      - put: vault-drats-papillon
+        params:
+          data: updated-bbl-state/drats-papillon/
 
 - name: setup-infrastructure-drats-with-config-manx
   serial: true
@@ -460,10 +531,15 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
     ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
+      do:
+      - put: bosh-backup-and-restore-meta
+        params:
+          repository: updated-bbl-state
+          rebase: true
+      - put: vault-drats-cmanx
+        params:
+          data: updated-bbl-state/drats-with-config-manx/
+
   - task: terraform-subdomain-record-set
     file: backup-and-restore-ci/tasks/terraform-subdomain-record-set/task.yml
     params:
@@ -534,10 +610,14 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
     ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
+      do:
+      - put: bosh-backup-and-restore-meta
+        params:
+          repository: updated-bbl-state
+          rebase: true
+      - put: vault-drats-cmanx
+        params:
+          data: updated-bbl-state/drats-with-config-manx/
 
 - name: setup-infrastructure-maru-lite
   serial: true
@@ -642,10 +722,14 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
     ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
+      do:
+      - put: bosh-backup-and-restore-meta
+        params:
+          repository: updated-bbl-state
+          rebase: true
+      - put: vault-maru-lite
+        params:
+          data: updated-bbl-state/maru-lite/
 
 - name: setup-infrastructure-maru
   serial: true
@@ -666,10 +750,14 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
     ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
+      do:
+      - put: bosh-backup-and-restore-meta
+        params:
+          repository: updated-bbl-state
+          rebase: true
+      - put: vault-maru
+        params:
+          data: updated-bbl-state/maru/
 
 - name: clean-up-maru
   serial: true
@@ -711,10 +799,14 @@ jobs:
       bbl-state: bosh-backup-and-restore-meta
       bbl-config: bosh-backup-and-restore-meta
     ensure:
-      put: bosh-backup-and-restore-meta
-      params:
-        repository: updated-bbl-state
-        rebase: true
+      do:
+      - put: bosh-backup-and-restore-meta
+        params:
+          repository: updated-bbl-state
+          rebase: true
+      - put: vault-maru
+        params:
+          data: updated-bbl-state/maru/
 
 - name: renew-environments
   plan:
