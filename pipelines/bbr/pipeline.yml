@@ -17,15 +17,6 @@ maru-lite-bosh-env: &maru-lite-bosh-env
   BOSH_GW_HOST: "((maru-lite-jumpbox-address)):22"
   BOSH_GW_PRIVATE_KEY: "((maru-lite-jumpbox-ssh-key))"
 
-maru-lite-bosh-team-creds: &maru-lite-bosh-team-creds
-  BOSH_ENVIRONMENT: "((maru-lite-bosh-director-url))"
-  BOSH_CLIENT: "((bosh-team-admin))"
-  BOSH_CLIENT_SECRET: "((bosh-team-admin-secret))"
-  BOSH_CA_CERT: "((maru-lite-bosh-director-ca-cert))"
-  BOSH_GW_USER: jumpbox
-  BOSH_GW_HOST: "((maru-lite-jumpbox-address)):22"
-  BOSH_GW_PRIVATE_KEY: "((maru-lite-jumpbox-ssh-key))"
-
 test-bosh-director-ip: &test-bosh-director-ip 10.0.255.5
 test-bosh-director-deployment: &test-bosh-director-deployment test-bosh-director
 
