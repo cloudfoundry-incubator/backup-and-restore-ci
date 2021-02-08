@@ -539,16 +539,16 @@ jobs:
   - task: enable-aws-s3-filestore
     file: backup-and-restore-ci/tasks/bbr-s3-config-validator-enable-aws-s3-filestore/task.yml
     params:
-      ENDPOINT: ((aws-endpoint))
-      BUILDPACKS_BUCKET: ((aws-live-bucket))
-      DROPLETS_BUCKET: ((aws-live-bucket))
-      PACKAGES_BUCKET: ((aws-live-bucket))
-      RESOURCES_BUCKET: ((aws-live-bucket))
-      BACKUP_BUCKET: ((aws-backup-bucket))
-      BACKUP_REGION: ((aws-backup-region))
-      ACCESS_KEY: ((aws-secret-key-id))
-      SECRET_KEY: ((aws-secret-key))
-      REGION: ((aws-region))
+      ENDPOINT: ((s3_validator_aws.endpoint))
+      BUILDPACKS_BUCKET: ((s3_validator_aws.live_bucket))
+      DROPLETS_BUCKET: ((s3_validator_aws.live_bucket))
+      PACKAGES_BUCKET: ((s3_validator_aws.live_bucket))
+      RESOURCES_BUCKET: ((s3_validator_aws.live_bucket))
+      BACKUP_BUCKET: ((s3_validator_aws.backup_bucket))
+      BACKUP_REGION: ((s3_validator_aws.backup_region))
+      ACCESS_KEY: ((s3_validator_aws.secret_key_id))
+      SECRET_KEY: ((s3_validator_aws.secret_key))
+      REGION: ((s3_validator_aws.region))
       SKIP_APPLY_CHANGES: false
 
 - name: validate-aws-s3-config
