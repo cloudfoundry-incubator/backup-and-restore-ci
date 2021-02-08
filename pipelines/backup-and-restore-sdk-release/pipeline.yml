@@ -1396,6 +1396,8 @@ jobs:
     params:
       VENDORED_PACKAGE_NAME: golang-1-linux
       VENDOR_UPDATES_BRANCH: golang-vendor-updates
+      COMMIT_USERNAME: bump-golang CI job
+      COMMIT_USEREMAIL: mapbu-cryogenics@groups.vmware.com
       AWS_ACCESS_KEY_ID: ((aws-access-key-id))
       AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
 

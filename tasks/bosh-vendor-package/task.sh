@@ -24,6 +24,14 @@ blobstore:
         echo "Pushing vendor updates to the configured branch '${VENDOR_UPDATES_BRANCH}'"
   fi
 
+  if [ -z "${COMMIT_USERNAME}" ] || [ -z "${COMMIT_USEREMAIL}" ]
+  then
+        echo "Unspecified user.name or user.email. Using defaults."
+  else
+        git config user.name "${COMMIT_USERNAME}"
+        git config user.email "${COMMIT_USEREMAIL}"
+  fi
+
   if git commit -m "Update vendored package ${VENDORED_PACKAGE_NAME}"; then
     echo "Updated vendored package ${VENDORED_PACKAGE_NAME}"
   else
