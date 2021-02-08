@@ -1405,14 +1405,22 @@ jobs:
     params:
       repository: release-with-updated-vendored-package
       branch: golang-vendor-updates
+      force: true
 
-- name: notify-bump-golang
-  plan:
-  - get: backup-and-restore-sdk-release-vendoring
-    trigger: true
-  - put: slack-cryo-notification
+  - task: create-golang-vendor-pull-request
+    file: backup-and-restore-ci/tasks/create-pr/task.yml
     params:
-      username: BBR-SDK Vendors Bot
-      text: |
-        A new <https://github.com/bosh-packages/golang-release.git|golang vendor> update is ready to be merged into <https://github.com/cloudfoundry-incubator/backup-and-restore-sdk-release|BBR-SDK>.
-        Please, manually create a new PR <https://github.com/cloudfoundry-incubator/backup-and-restore-sdk-release/compare/golang-vendor-updates...develop|here>.
+      GITHUB_TOKEN: ((github.access_token))
+      BASE: develop
+      BRANCH: golang-vendor-updates
+      TITLE: Update vendored package golang-1-linux
+      MESSAGE:
+        This is an automatically generated Pull Request from the Cryogenics CI Bot.
+
+        I have detected a new version of [golang-release](https://github.com/bosh-packages/golang-release) and automatically bumped
+        this package to benefit from the latest changes.
+
+        If this does not look right, please reach out to the [#mapbu-cryogenics](https://vmware.slack.com/archives/C01DXEYRKRU) team.
+
+    input_mapping:
+      repo: backup-and-restore-sdk-release-vendoring
