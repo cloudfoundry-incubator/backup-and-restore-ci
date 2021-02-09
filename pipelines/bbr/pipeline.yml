@@ -137,7 +137,7 @@ resources:
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: ((github.ssh_key))
-    git_crypt_key: ((git-crypt-key))
+    git_crypt_key: ((github-bbr.crypt_key))
     branch: master
 
 - name: backup-and-restore-ci
@@ -171,8 +171,8 @@ resources:
     bucket: bosh-backup-and-restore-builds
     region_name: eu-west-1
     regexp: bbr-(.*)\.tar
-    access_key_id: ((aws-access-key-id))
-    secret_access_key: ((aws-secret-access-key))
+    access_key_id: ((bbr_s3_release_bucket.access_key_id))
+    secret_access_key: ((bbr_s3_release_bucket.secret_access_key))
 
 - name: bbr-release
   type: github-release
