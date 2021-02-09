@@ -1302,13 +1302,13 @@ jobs:
       - s3-blobstore-backuper-system-tests
       - s3-blobstore-system-tests-with-iam-instance-profile
   - task: deliver-stories
-    file: cryogenics-meta/tasks/tracker-automation/deliver-stories/task.yml
+    file: backup-and-restore-sdk-release/ci/tasks/deliver-stories/task.yml
     params:
       TRACKER_API_TOKEN: ((tracker.api_token))
       TRACKER_PROJECT_ID: ((tracker.project_id))
       GIT_REPOSITORY: cloudfoundry-incubator/backup-and-restore-sdk-release
   - task: accept-stories
-    file: cryogenics-meta/tasks/tracker-automation/accept-stories/task.yml
+    file: backup-and-restore-sdk-release/ci/tasks/accept-stories/task.yml
     params:
       TRACKER_API_TOKEN: ((tracker.api_token))
       TRACKER_PROJECT_ID: ((tracker.project_id))
