@@ -35,6 +35,7 @@ groups:
   - build-rc
   - update-tracker
   - build-and-publish-final
+  - publish-ga
   - update-homebrew-formula
   - test-build-s3-config-validator
   - claim-env-pas-2-10
@@ -64,6 +65,7 @@ groups:
 - name: shipit
   jobs:
   - build-and-publish-final
+  - publish-ga
   - update-homebrew-formula
 
 resource_types:
@@ -695,6 +697,22 @@ jobs:
       - github-release-with-metadata/bbr*
   - put: bbr-final-release-version
     params: { file: bbr-final-release-version/number }
+
+- name: publish-ga
+  serial: true
+  plan:
+  - in_parallel:
+    - get: cryogenics-meta
+    - get: bbr-final-release-version
+      passed: [build-and-publish-final]
+  - load_var: version-number
+    file: bbr-final-release-version/number
+  - task: download-osl-file
+    file: cryogenics-meta/tasks/release-automation/download-osl-file/task.yml
+    params:
+      PRODUCT_NAME: *tanzunet_product_name
+      VERSION: ((.:version-number))
+      OSM_API_KEY: ((osm.api_key))
 
 - name: update-homebrew-formula
   serial: true
