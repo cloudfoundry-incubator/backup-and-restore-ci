@@ -1,12 +1,12 @@
 ---
 maru-bosh-env: &maru-bosh-env
-  BOSH_ENVIRONMENT: "((maru-bosh-director-url))"
-  BOSH_CLIENT: "((maru-bosh-director-username))"
-  BOSH_CLIENT_SECRET: "((maru-bosh-director-password))"
-  BOSH_CA_CERT: "((maru-bosh-director-ca-cert))"
-  BOSH_GW_HOST: "((maru-jumpbox-url)):22"
+  BOSH_ENVIRONMENT: "((infrastructure/bosh-director.director_url))"
+  BOSH_CLIENT: "((infrastructure/bosh-director.director_username))"
+  BOSH_CLIENT_SECRET: "((infrastructure/bosh-director.director_password))"
+  BOSH_CA_CERT: "((infrastructure/bosh-director.director_ca_cert))"
+  BOSH_GW_HOST: "((infrastructure/bosh-director.jumpbox_host)):22"
   BOSH_GW_USER: jumpbox
-  BOSH_GW_PRIVATE_KEY: "((maru-jumpbox-ssh-key))"
+  BOSH_GW_PRIVATE_KEY: "((infrastructure/bosh-director.jumpbox_ssh_key))"
 
 maru-lite-bosh-env: &maru-lite-bosh-env
   BOSH_ENVIRONMENT: "((maru-lite-bosh-director-url))"
@@ -419,10 +419,10 @@ jobs:
     file: backup-and-restore-ci/tasks/bbr-system-director/task.yml
     privileged: true
     params:
-      CREDHUB_SERVER: "((maru-credhub-server))"
-      CREDHUB_CLIENT: "((maru-credhub-client))"
-      CREDHUB_SECRET: "((maru-credhub-secret))"
-      CREDHUB_CA_CERT: "((maru-credhub-ca_cert))"
+      CREDHUB_SERVER: "((infrastructure/bosh-director.credhub_server))"
+      CREDHUB_CLIENT: "((infrastructure/bosh-director.credhub_client))"
+      CREDHUB_SECRET: "((infrastructure/bosh-director.credhub_secret))"
+      CREDHUB_CA_CERT: "((infrastructure/bosh-director.credhub_ca_cert))"
       DIRECTOR_HOST: *test-bosh-director-ip
       DIRECTOR_SSH_KEY: ((test_bosh_director.private_key))
       DIRECTOR_SSH_USERNAME: jumpbox
