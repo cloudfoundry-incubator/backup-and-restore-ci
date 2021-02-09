@@ -1,0 +1,14 @@
+---
+platform: linux
+
+image_resource:
+  type: registry-image
+  source: {repository: pcfplatformrecovery/backup-and-restore}
+
+params:
+  GITHUB_TOKEN:
+  URL:
+  METHOD: MERGE
+  DELETE: FALSE
+run:
+  path: backup-and-restore-ci/tasks/merge-pr/task.sh
