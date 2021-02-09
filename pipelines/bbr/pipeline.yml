@@ -173,8 +173,8 @@ resources:
     bucket: bosh-backup-and-restore-builds
     region_name: eu-west-1
     regexp: bbr-(.*)\.tar
-    access_key_id: ((bbr_s3_release_bucket.access_key_id))
-    secret_access_key: ((bbr_s3_release_bucket.secret_access_key))
+    access_key_id: ((aws_credentials.access_key_id))
+    secret_access_key: ((aws_credentials.secret_access_key))
 
 - name: bbr-release
   type: github-release
