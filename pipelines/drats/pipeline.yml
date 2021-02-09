@@ -26,21 +26,21 @@ resources:
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: ((github.ssh_key))
-    git_crypt_key: ((git-crypt-key))
+    git_crypt_key: ((github-bbr.crypt_key))
     branch: master
 
 - name: disaster-recovery-acceptance-tests-prs
   type: pull-request
   source:
     repo: cloudfoundry-incubator/disaster-recovery-acceptance-tests
-    access_token: ((github-access-token))
+    access_token: ((github.access_token))
 
 - name: bbr-binary-release
   type: github-release
   source:
     owner: cloudfoundry-incubator
     repository: bosh-backup-and-restore
-    access_token: ((github-access-token))
+    access_token: ((github.access_token))
 
 - name: disaster-recovery-acceptance-tests
   type: git
@@ -257,7 +257,7 @@ jobs:
     input_mapping:
       disaster-recovery-acceptance-tests: disaster-recovery-acceptance-tests-prs
     params:
-      GITHUB_SSH_KEY: ((github-ssh-key))
+      GITHUB_SSH_KEY: ((github.ssh_key))
     on_failure:
       put: disaster-recovery-acceptance-tests-prs
       params:
@@ -317,7 +317,7 @@ jobs:
   - task: unit-tests
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
     params:
-      GITHUB_SSH_KEY: ((github-ssh-key))
+      GITHUB_SSH_KEY: ((github.ssh_key))
   - task: create-integration-config
     file: disaster-recovery-acceptance-tests/ci/credhub-compatible/update-integration-config/task.yml
     input_mapping:
@@ -357,7 +357,7 @@ jobs:
   - task: unit-tests
     file: disaster-recovery-acceptance-tests/ci/unit-tests/task.yml
     params:
-      GITHUB_SSH_KEY: ((github-ssh-key))
+      GITHUB_SSH_KEY: ((github.ssh_key))
   - task: create-integration-config
     file: disaster-recovery-acceptance-tests/ci/credhub-compatible/update-integration-config/task.yml
     input_mapping:
