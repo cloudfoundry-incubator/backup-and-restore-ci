@@ -20,7 +20,7 @@ maru-lite-bosh-env: &maru-lite-bosh-env
 test-bosh-director-ip: &test-bosh-director-ip 10.0.255.5
 test-bosh-director-deployment: &test-bosh-director-deployment test-bosh-director
 
-toolsmiths_api_worker: &toolsmiths_api_worker vsphere-mapbu-cryogenics
+toolsmiths_api_worker: &toolsmiths_api_worker nimbus-worker
 tanzunet_product_name: &tanzunet_product_name p-bosh-backup-and-restore
 
 groups:
