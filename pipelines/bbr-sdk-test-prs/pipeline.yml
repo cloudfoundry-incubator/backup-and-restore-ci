@@ -1,0 +1,1214 @@
+---
+maru-lite-bosh-creds: &MARU_LITE_BOSH_CREDS
+  BOSH_ENVIRONMENT: "((maru-lite-bosh-director-url))"
+  BOSH_CLIENT: "((maru-lite-bosh-director-username))"
+  BOSH_CLIENT_SECRET: "((maru-lite-bosh-director-password))"
+  BOSH_CA_CERT: "((maru-lite-bosh-director-ca-cert))"
+  BOSH_GW_USER: jumpbox
+  BOSH_GW_HOST: "((maru-lite-jumpbox-address))"
+  BOSH_GW_PRIVATE_KEY: "((maru-lite-jumpbox-ssh-key))"
+
+aws-region: &aws-region eu-west-1
+aws-backup-region: &aws-backup-region eu-central-1
+
+mysql-deployment-name: &mysql-deployment-name mysql-dev
+mysql-host: &mysql-host 10.244.1.9
+mysql-port: &mysql-port 3306
+mysql-username: &mysql-username root
+mysql-password: &mysql-password mysql_password
+
+postgres-9-4-deployment-name: &postgres-9-4-deployment-name postgres-9-4-dev
+postgres-9-4-host: &postgres-9-4-host 10.244.1.10
+postgres-9-4-port: &postgres-9-4-port 5432
+postgres-9-4-username: &postgres-9-4-username test_user
+postgres-9-4-password: &postgres-9-4-password postgres_password
+
+postgres-9-6-deployment-name: &postgres-9-6-deployment-name postgres-9-6-dev
+postgres-9-6-host: &postgres-9-6-host 10.244.1.11
+postgres-9-6-port: &postgres-9-6-port 5432
+postgres-9-6-username: &postgres-9-6-username test_user
+postgres-9-6-password: &postgres-9-6-password postgres_password
+postgres-9-6-ssl-username: &postgres-9-6-ssl-username ssl_user
+postgres-9-6-ssl-password: &postgres-9-6-ssl-password postgres_password
+postgres-9-6-tls-username: &postgres-9-6-tls-username mutual_tls_user
+postgres-9-6-tls-common-name: &postgres-9-6-tls-common-name postgres96
+
+postgres-10-deployment-name: &postgres-10-deployment-name postgres-10-dev
+postgres-10-host: &postgres-10-host 10.244.1.12
+postgres-10-port: &postgres-10-port 5432
+postgres-10-username: &postgres-10-username test_user
+postgres-10-password: &postgres-10-password postgres_password
+
+postgres-11-deployment-name: &postgres-11-deployment-name postgres-11-dev
+postgres-11-host: &postgres-11-host 10.244.1.13
+postgres-11-port: &postgres-11-port 5432
+postgres-11-username: &postgres-11-username test_user
+postgres-11-password: &postgres-11-password postgres_password
+
+resource_types:
+- name: bosh-deployment
+  type: docker-image
+  source:
+    repository: cloudfoundry/bosh-deployment-resource
+
+- name: bosh-io-stemcell
+  type: docker-image
+  source:
+    repository: concourse/bosh-io-stemcell-resource
+
+- name: custom-terraform
+  type: docker-image
+  source:
+    repository: ljfranklin/terraform-resource
+    tag: 0.14.2
+
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+
+- name: pull-request
+  type: docker-image
+  source:
+    repository: teliaoss/github-pr-resource
+
+resources:
+- name: terraform
+  type: custom-terraform
+  source:
+    backend_type: s3
+    backend_config:
+      bucket: bbr-terraform-states
+      key: terraform-state.tfstate
+      access_key: ((aws-access-key-id))
+      secret_key: ((aws-secret-access-key))
+      region: *aws-region
+
+- name: backup-and-restore-sdk-release
+  type: pull-request
+  check_every: 1h
+  source:
+    repository: cloudfoundry-incubator/backup-and-restore-sdk-release
+    disable_forks: true
+    access_token: ((github.access_token))
+
+- name: bosh-backup-and-restore-meta
+  type: git
+  source:
+    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
+    private_key: ((github.ssh_key))
+    git_crypt_key: ((git-crypt-key))
+    branch: master
+
+- name: backup-and-restore-ci
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/backup-and-restore-ci.git
+    private_key: ((github.ssh_key))
+    branch: master
+
+- name: version
+  type: semver
+  source:
+    bucket: backup-and-restore-sdk-releases
+    region_name: *aws-region
+    key: current-dev-version
+    access_key_id: ((aws-access-key-id))
+    secret_access_key: ((aws-secret-access-key))
+
+- name: release
+  type: s3
+  source:
+    bucket: backup-and-restore-sdk-releases
+    regexp: backup-and-restore-sdk-(.*).tgz
+    region_name: *aws-region
+    access_key_id: ((aws-access-key-id))
+    secret_access_key: ((aws-secret-access-key))
+
+- name: s3-backuper-with-iam-instance-profile-deployment
+  type: bosh-deployment
+  source:
+    deployment: s3-backuper
+    skip_check: true
+
+- name: mysql-dev-deployment
+  type: bosh-deployment
+  source:
+    deployment: *mysql-deployment-name
+    skip_check: true
+
+- name: postgres-9.4-dev-deployment
+  type: bosh-deployment
+  source:
+    deployment: *postgres-9-4-deployment-name
+    skip_check: true
+
+- name: postgres-9.6-dev-deployment
+  type: bosh-deployment
+  source:
+    deployment: *postgres-9-6-deployment-name
+    skip_check: true
+
+- name: postgres-10-dev-deployment
+  type: bosh-deployment
+  source:
+    deployment: *postgres-10-deployment-name
+    skip_check: true
+
+- name: postgres-11-dev-deployment
+  type: bosh-deployment
+  source:
+    deployment: *postgres-11-deployment-name
+    skip_check: true
+
+- name: database-backup-restorer-deployment
+  type: bosh-deployment
+  source:
+    deployment: database-backup-restorer
+    skip_check: true
+
+- name: aws-blobstore-sdk-deployment
+  type: bosh-deployment
+  source:
+    deployment: s3-backuper
+    skip_check: true
+
+- name: gcs-blobstore-sdk-deployment
+  type: bosh-deployment
+  source:
+    deployment: gcs-backuper
+    skip_check: true
+
+- name: azure-blobstore-sdk-deployment
+  type: bosh-deployment
+  source:
+    deployment: azure-backuper
+    skip_check: true
+
+- name: xenial-stemcell-aws
+  type: bosh-io-stemcell
+  source:
+    name: bosh-aws-xen-hvm-ubuntu-xenial-go_agent
+
+- name: xenial-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-warden-boshlite-ubuntu-xenial-go_agent
+
+- name: slack-cryo-notification
+  type: slack-notification
+  source:
+    url: ((slack-webhook))
+
+jobs:
+- name: unit-tests
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-sdk-release
+      trigger: true
+    - get: backup-and-restore-ci
+    - get: bosh-backup-and-restore-meta
+  - in_parallel:
+    - task: sdk-template-unit-tests
+      file: backup-and-restore-ci/tasks/sdk-template-unit-tests/task.yml
+    - task: databases-unit-tests
+      file: backup-and-restore-ci/tasks/database-unit-tests/task.yml
+      privileged: true
+    - task: s3-blobstore-unit-tests
+      file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
+      params:
+        PACKAGE_NAME: s3-blobstore-backup-restore
+        GINKGO_EXTRA_FLAGS: -p --skipPackage s3bucket
+    - task: azure-blobstore-unit-tests
+      file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
+      params:
+        PACKAGE_NAME: azure-blobstore-backup-restore
+        GINKGO_EXTRA_FLAGS: -p --skipPackage contract_test
+    - task: gcs-blobstore-unit-tests
+      file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
+      params:
+        PACKAGE_NAME: gcs-blobstore-backup-restore
+        GINKGO_EXTRA_FLAGS: -p --skipPackage contract_test
+
+- name: contract-tests
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-sdk-release
+      trigger: true
+    - get: backup-and-restore-ci
+  - in_parallel:
+    - task: aws-s3-blobstore-contract-tests
+      file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
+      params:
+        PACKAGE_NAME: s3-blobstore-backup-restore/s3bucket
+        S3_LIVE_REGION: *aws-region
+        S3_BACKUP_REGION: *aws-backup-region
+        S3_ENDPOINT: ""
+        S3_ACCESS_KEY_ID: ((aws-access-key-id))
+        S3_SECRET_ACCESS_KEY: ((aws-secret-access-key))
+        S3_BIG_FILE_BUCKET: "large-blob-test-bucket-unversioned"
+    - task: gcs-blobstore-contract-tests
+      file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
+      params:
+        PACKAGE_NAME: gcs-blobstore-backup-restore/contract_test
+        GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
+        GCP_PROJECT_NAME: cf-backup-and-restore
+    - task: azure-blobstore-contract-tests
+      file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
+      params:
+        PACKAGE_NAME: azure-blobstore-backup-restore/contract_test
+        AZURE_STORAGE_ACCOUNT: ((azure-storage-account))
+        AZURE_STORAGE_KEY: ((azure-storage-key))
+        AZURE_STORAGE_ACCOUNT_NO_SOFT_DELETE: ((azure-storage-account-no-soft-delete))
+        AZURE_STORAGE_KEY_NO_SOFT_DELETE: ((azure-storage-key-no-soft-delete))
+        AZURE_DIFFERENT_STORAGE_ACCOUNT: ((azure-different-storage-account))
+        AZURE_DIFFERENT_STORAGE_KEY: ((azure-different-storage-key))
+        AZURE_CONTAINER_NAME_MANY_FILES: bbr-test-many-blobs-azure-container
+
+- name: create-release
+  serial: true
+  serial_groups: [version]
+  plan:
+  - in_parallel:
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed: [unit-tests]
+      trigger: true
+    - get: version
+      params: {pre: rc}
+  - task: create-dev-release
+    file: backup-and-restore-ci/tasks/create-dev-release/task.yml
+    params:
+      AWS_ACCESS_KEY_ID: ((aws-access-key-id))
+      AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
+  - put: release
+    params:
+      file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-*.tgz
+  - put: version
+    params: {file: version/number}
+
+- name: deploy-database-sdk
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed: [create-release]
+      trigger: true
+    - get: release-tarball
+      resource: release
+      passed: [create-release]
+    - get: bosh-backup-and-restore-meta
+    - get: xenial-stemcell
+  - task: generate-bosh-deployment-source-file
+    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    params:
+      BBL_STATE: maru-lite
+  - put: database-backup-restorer-deployment
+    params:
+      manifest: backup-and-restore-sdk-release/ci/manifests/database-backup-restorer.yml
+      stemcells:
+      - xenial-stemcell/*.tgz
+      releases:
+      - release-tarball/backup-and-restore-sdk-*.tgz
+      vars:
+        deployment-name: database-backup-restorer
+        availability_zone: z1
+      source_file: source-file/source-file.yml
+
+- name: deploy-postgres
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-sdk-release
+      passed: [create-release]
+      trigger: true
+    - get: release-tarball
+      resource: release
+      passed: [create-release]
+    - get: xenial-stemcell
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
+  - task: generate-bosh-deployment-source-file
+    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    params:
+      BBL_STATE: maru-lite
+  - in_parallel:
+    - put: postgres-9.4-dev-deployment
+      params:
+        manifest: backup-and-restore-sdk-release/ci/manifests/postgres-9.4.yml
+        stemcells:
+        - xenial-stemcell/*.tgz
+        vars:
+          deployment-name: *postgres-9-4-deployment-name
+          db_username: *postgres-9-4-username
+          db_password: *postgres-9-4-password
+          db_host: *postgres-9-4-host
+          availability_zone: z1
+        source_file: source-file/source-file.yml
+    - put: postgres-9.6-dev-deployment
+      params:
+        manifest: backup-and-restore-sdk-release/ci/manifests/postgres-9.6.yml
+        vars:
+          deployment-name: *postgres-9-6-deployment-name
+          db_username: *postgres-9-6-username
+          db_password: *postgres-9-6-password
+          ssl_username: *postgres-9-6-ssl-username
+          ssl_password: *postgres-9-6-ssl-password
+          tls_username: *postgres-9-6-tls-username
+          tls_common_name: *postgres-9-6-tls-common-name
+          db_host: *postgres-9-6-host
+          db_port: *postgres-9-6-port
+          availability_zone: z1
+        vars_files:
+        - bosh-backup-and-restore-meta/ci/backup-and-restore-sdk-release/vars/postgres-96-vars.yml
+        source_file: source-file/source-file.yml
+    - put: postgres-10-dev-deployment
+      params:
+        manifest: backup-and-restore-sdk-release/ci/manifests/postgres-10.yml
+        stemcells:
+        - xenial-stemcell/*.tgz
+        vars:
+          deployment-name: *postgres-10-deployment-name
+          db_username: *postgres-10-username
+          db_password: *postgres-10-password
+          db_host: *postgres-10-host
+          availability_zone: z1
+        source_file: source-file/source-file.yml
+    - put: postgres-11-dev-deployment
+      params:
+        manifest: backup-and-restore-sdk-release/ci/manifests/postgres-11.yml
+        stemcells:
+        - xenial-stemcell/*.tgz
+        vars:
+          deployment-name: *postgres-11-deployment-name
+          db_username: *postgres-11-username
+          db_password: *postgres-11-password
+          db_host: *postgres-11-host
+          availability_zone: z1
+        source_file: source-file/source-file.yml
+  - task: create-ssl-user
+    file: backup-and-restore-ci/tasks/create-ssl-user/task.yml
+    params:
+      <<: *MARU_LITE_BOSH_CREDS
+      BOSH_DEPLOYMENT: *postgres-9-6-deployment-name
+
+- name: deploy-mariadb
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed: [create-release]
+      trigger: true
+    - get: release-tarball
+      resource: release
+      passed: [create-release]
+    - get: bosh-backup-and-restore-meta
+    - get: xenial-stemcell
+  - task: generate-bosh-deployment-source-file
+    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    params:
+      BBL_STATE: maru-lite
+  - put: mysql-dev-deployment
+    attempts: 3
+    params:
+      manifest: backup-and-restore-sdk-release/ci/manifests/mysql.yml
+      stemcells:
+      - xenial-stemcell/*.tgz
+      vars:
+        deployment-name: *mysql-deployment-name
+        db_password: *mysql-password
+        db_host: *mysql-host
+        availability_zone: z1
+      vars_files:
+      - bosh-backup-and-restore-meta/ci/backup-and-restore-sdk-release/vars/mysql-vars.yml
+      source_file: source-file/source-file.yml
+
+- name: deploy-external-rds-dbs
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-sdk-release
+      passed: [create-release]
+      trigger: true
+    - get: release-tarball
+      resource: release
+      passed: [create-release]
+    - get: backup-and-restore-ci
+    - get: bosh-backup-and-restore-meta
+  - in_parallel:
+    - put: terraform
+      params:
+        terraform_source: bosh-backup-and-restore-meta/terraform/bbr-sdk-system-tests/aws/
+        env_name: bbr-sdk-external-rds-dbs
+        delete_on_failure: true
+        vars:
+          aws_access_key: ((aws-access-key-id))
+          aws_secret_key: ((aws-secret-access-key))
+          aws_region: *aws-region
+          mysql_5_6_password: ((rds-5-6-password))
+          mysql_5_7_password: ((rds-5-7-password))
+          postgres_9_6_password: ((rds-postgres-9-6-password))
+          postgres_10_password: ((rds-postgres-10-password))
+          postgres_11_password: ((rds-postgres-11-password))
+          mariadb_10_password: ((rds-mariadb-10-password))
+      get_params:
+        output_statefile: true
+    - task: get-latest-rds-ca-bundle
+      file: backup-and-restore-ci/tasks/get-latest-rds-ca-bundle/task.yml
+      params:
+        GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
+        GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
+      ensure:
+        put: bosh-backup-and-restore-meta
+        params:
+          repository: bosh-backup-and-restore-meta
+          rebase: true
+
+- name: deploy-external-gcp-dbs
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-sdk-release
+      passed: [create-release]
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
+  - put: terraform
+    params:
+      terraform_source: bosh-backup-and-restore-meta/terraform/bbr-sdk-system-tests/gcp/
+      env_name: bbr-sdk-external-gcp-dbs
+      delete_on_failure: true
+      vars:
+        mysql-5-6-password: ((gcp-mysql-5-6-password))
+        mysql-5-7-password: ((gcp-mysql-5-7-password))
+        postgres-9-6-password: ((gcp-postgres-9-6-password))
+        director-external-ip: ((maru-lite-jumpbox-address))
+        director-jumpbox-ip: ((maru-lite-bosh-director-external-ip))
+        gcp-key: ((gcp_service_account_key))
+    get_params:
+      output_statefile: true
+  - task: create-gcp-db-certs
+    file: backup-and-restore-ci/tasks/create-gcp-db-certs/task.yml
+    input_mapping:
+      terraform-state: terraform
+    params:
+      GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
+    ensure:
+      put: bosh-backup-and-restore-meta
+      params:
+        repository: bosh-backup-and-restore-meta
+        rebase: true
+
+- name: deploy-s3-blobstore-sdk
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-sdk-release
+      passed: [create-release]
+      trigger: true
+    - get: release-tarball
+      resource: release
+      passed: [create-release]
+    - get: xenial-stemcell
+    - get: backup-and-restore-ci
+    - get: bosh-backup-and-restore-meta
+  - task: generate-bosh-deployment-source-file
+    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    params:
+      BBL_STATE: maru-lite
+  - put: aws-blobstore-sdk-deployment
+    params:
+      manifest: backup-and-restore-sdk-release/ci/manifests/s3-backuper.yml
+      stemcells:
+      - xenial-stemcell/*.tgz
+      releases:
+      - release-tarball/backup-and-restore-sdk-*.tgz
+      vars:
+        deployment-name: s3-backuper
+        availability_zone: z1
+        aws-access-key-id: ((aws-access-key-id))
+        aws-secret-access-key: ((aws-secret-access-key))
+        s3-bucket-name: bbr-system-test-bucket
+        s3-cloned-bucket-name: bbr-system-test-bucket-clone
+        s3-region: *aws-region
+        s3-cloned-bucket-region: *aws-backup-region
+        s3-unversioned-bucket-name-for-versioned-backuper: bbr-system-test-bucket-unversioned
+        s3-unversioned-bucket-region-for-versioned-backuper: *aws-region
+        s3-unversioned-bucket-name: bbr-system-test-s3-unversioned-bucket
+        s3-unversioned-bucket-region: *aws-region
+        s3-unversioned-backup-bucket-name: bbr-system-test-s3-unversioned-backup-bucket
+        s3-unversioned-backup-bucket-region: us-east-1
+        minio-access-key: "((minio-access-key))"
+        minio-secret-key: "((minio-secret-key))"
+        s3-unversioned-bpm-bucket-name: sdk-system-test-unversioned-bpm
+        s3-unversioned-bpm-bucket-region: *aws-region
+        s3-unversioned-bpm-backup-bucket-name: sdk-system-test-unversioned-bpm-backup
+        s3-unversioned-bpm-backup-bucket-region: *aws-region
+        s3-unversioned-large-number-of-files-bucket-name: sdk-large-number-of-files
+        s3-unversioned-large-number-of-files-bucket-region: *aws-region
+        s3-unversioned-large-number-of-files-backup-bucket-name: sdk-large-number-of-files-backup
+        s3-unversioned-large-number-of-files-backup-bucket-region: *aws-region
+        s3-unversioned-clone-bucket-name: sdk-unversioned-clone
+        s3-unversioned-clone-bucket-region: us-east-1
+      source_file: source-file/source-file.yml
+
+- name: deploy-s3-blobstore-sdk-with-iam-instance-profile
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-sdk-release
+      passed: [create-release]
+      trigger: true
+    - get: release-tarball
+      resource: release
+      passed: [create-release]
+    - get: bosh-backup-and-restore-meta
+    - get: xenial-stemcell-aws
+    - get: backup-and-restore-ci
+  - task: generate-bosh-deployment-source-file
+    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    params:
+      BBL_STATE: external-blobstore-directors/aws-ec2
+  - put: s3-backuper-with-iam-instance-profile-deployment
+    params:
+      manifest: backup-and-restore-sdk-release/ci/manifests/s3-backuper-with-iam-instance-profile.yml
+      stemcells:
+      - xenial-stemcell-aws/*.tgz
+      releases:
+      - release-tarball/backup-and-restore-sdk-*.tgz
+      vars:
+        deployment-name: s3-backuper
+        s3-bucket-name: iam-instance-role-test
+        s3-region: *aws-region
+      source_file: source-file/source-file.yml
+
+- name: deploy-azure-blobstore-sdk
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-sdk-release
+      passed: [create-release]
+      trigger: true
+    - get: release-tarball
+      resource: release
+      passed: [create-release]
+    - get: bosh-backup-and-restore-meta
+    - get: xenial-stemcell
+    - get: backup-and-restore-ci
+  - task: generate-bosh-deployment-source-file
+    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    params:
+      BBL_STATE: maru-lite
+  - put: azure-blobstore-sdk-deployment
+    params:
+      manifest: backup-and-restore-sdk-release/ci/manifests/azure-backuper.yml
+      stemcells:
+      - xenial-stemcell/*.tgz
+      releases:
+      - release-tarball/backup-and-restore-sdk-*.tgz
+      vars:
+        deployment-name: azure-backuper
+        azure-container-name: bbr-system-test-azure-container
+        azure-storage-account: ((azure-storage-account))
+        azure-storage-key: ((azure-storage-key))
+        azure-different-storage-account: ((azure-different-storage-account))
+        azure-different-storage-key: ((azure-different-storage-key))
+        azure-different-container-name: bbr-system-test-azure-different-container
+      source_file: source-file/source-file.yml
+
+- name: postgres-system-tests
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-database-sdk
+      - deploy-postgres
+      trigger: true
+  - in_parallel:
+    - task: postgres-system-tests-9.4
+      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      params:
+        TEST_SUITE_NAME: postgresql
+        POSTGRES_PASSWORD: *postgres-9-4-password
+        POSTGRES_HOSTNAME: *postgres-9-4-host
+        POSTGRES_USERNAME: *postgres-9-4-username
+        POSTGRES_PORT: *postgres-9-4-port
+        <<: *MARU_LITE_BOSH_CREDS
+    - task: postgres-system-tests-9.6
+      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      params:
+        TEST_SUITE_NAME: postgresql
+        <<: *MARU_LITE_BOSH_CREDS
+        POSTGRES_PASSWORD: postgres_password
+        POSTGRES_HOSTNAME: *postgres-9-6-host
+        POSTGRES_USERNAME: test_user
+        POSTGRES_PORT: 5432
+    - task: postgres-system-tests-10
+      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      params:
+        TEST_SUITE_NAME: postgresql
+        POSTGRES_PASSWORD: *postgres-10-password
+        POSTGRES_HOSTNAME: *postgres-10-host
+        POSTGRES_USERNAME: *postgres-10-username
+        POSTGRES_PORT: *postgres-10-port
+        <<: *MARU_LITE_BOSH_CREDS
+    - task: postgres-system-tests-11
+      file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+      params:
+        TEST_SUITE_NAME: postgresql
+        POSTGRES_PASSWORD: *postgres-11-password
+        POSTGRES_HOSTNAME: *postgres-11-host
+        POSTGRES_USERNAME: *postgres-11-username
+        POSTGRES_PORT: *postgres-11-port
+        <<: *MARU_LITE_BOSH_CREDS
+  - task: postgres-tls-system-tests-9.6
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+    params:
+      TEST_SUITE_NAME: postgresql_tls
+      <<: *MARU_LITE_BOSH_CREDS
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_HOSTNAME: *postgres-9-6-host
+      POSTGRES_USERNAME: ssl_user
+      POSTGRES_PORT: 5432
+      POSTGRES_CA_CERT: ((postgres-96-ca-cert))
+      TEST_TLS_VERIFY_IDENTITY: false
+  - task: postgres-mutual-tls-system-tests-9.6
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+    params:
+      TEST_SUITE_NAME: postgresql_mutual_tls
+      <<: *MARU_LITE_BOSH_CREDS
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_HOSTNAME: *postgres-9-6-host
+      POSTGRES_USERNAME: mutual_tls_user
+      POSTGRES_PORT: 5432
+      POSTGRES_CA_CERT: ((postgres-96-ca-cert))
+      POSTGRES_CLIENT_CERT: ((postgres-96-client-cert))
+      POSTGRES_CLIENT_KEY: ((postgres-96-client-key))
+      TEST_TLS_VERIFY_IDENTITY: false
+
+- name: postgres-system-tests-gcp
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-ci
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-database-sdk
+      - deploy-external-gcp-dbs
+      trigger: true
+    - get: terraform-gcp
+      resource: terraform
+      passed:
+      - deploy-external-gcp-dbs
+      params:
+        env_name: bbr-sdk-external-gcp-dbs
+        output_statefile: true
+  - task: postgres-system-tests-9.6
+    file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+    input_mapping:
+      terraform-state: terraform-gcp
+    params:
+      TEST_SUITE_NAME: postgresql
+      <<: *MARU_LITE_BOSH_CREDS
+      POSTGRES_PASSWORD: ((gcp-postgres-9-6-password))
+      POSTGRES_USERNAME: root
+      POSTGRES_PORT: 5432
+      DB_TYPE: postgres
+      DB_PREFIX: postgres_9_6
+  - task: postgres-tls-system-tests-9.6
+    file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+    input_mapping:
+      terraform-state: terraform-gcp
+    params:
+      TEST_SUITE_NAME: postgresql_tls
+      <<: *MARU_LITE_BOSH_CREDS
+      POSTGRES_PASSWORD: ((gcp-postgres-9-6-password))
+      POSTGRES_USERNAME: root
+      POSTGRES_PORT: 5432
+      POSTGRES_CA_CERT_PATH: ((gcp-postgres-9-6-ca-cert-path))
+      TEST_TLS_VERIFY_IDENTITY: false
+      TEST_SSL_USER_REQUIRES_SSL: false
+      DB_TYPE: postgres
+      DB_PREFIX: postgres_9_6
+  - task: postgres-mutual-tls-system-tests-9.6
+    file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+    input_mapping:
+      terraform-state: terraform-gcp
+    params:
+      TEST_SUITE_NAME: postgresql_mutual_tls
+      <<: *MARU_LITE_BOSH_CREDS
+      POSTGRES_PASSWORD: ((gcp-postgres-9-6-password))
+      POSTGRES_USERNAME: root
+      POSTGRES_PORT: 5432
+      POSTGRES_CA_CERT_PATH: ((gcp-postgres-9-6-mutual-tls-ca-cert-path))
+      POSTGRES_CLIENT_CERT_PATH: ((gcp-postgres-9-6-mutual-tls-client-cert-path))
+      POSTGRES_CLIENT_KEY_PATH: ((gcp-postgres-9-6-mutual-tls-client-key-path))
+      TEST_TLS_VERIFY_IDENTITY: false
+      TEST_SSL_USER_REQUIRES_SSL: false
+      DB_TYPE: postgres
+      DB_PREFIX: postgres_9_6_mutual_tls
+
+- name: postgres-system-tests-rds
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      trigger: true
+      passed:
+      - deploy-database-sdk
+      - deploy-external-rds-dbs
+    - get: bosh-backup-and-restore-meta
+    - get: terraform-aws
+      resource: terraform
+      passed:
+      - deploy-external-rds-dbs
+      params:
+        env_name: bbr-sdk-external-rds-dbs
+        output_statefile: true
+  - in_parallel:
+    - task: postgres-system-tests-9.6
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-aws
+      params:
+        TEST_SUITE_NAME: postgresql
+        <<: *MARU_LITE_BOSH_CREDS
+        POSTGRES_PASSWORD: ((rds-postgres-9-6-password))
+        POSTGRES_USERNAME: root
+        POSTGRES_PORT: 5432
+        DB_TYPE: postgres
+        DB_PREFIX: postgres_9_6
+    - task: postgres-system-tests-10
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-aws
+      params:
+        TEST_SUITE_NAME: postgresql
+        <<: *MARU_LITE_BOSH_CREDS
+        POSTGRES_PASSWORD: ((rds-postgres-10-password))
+        POSTGRES_USERNAME: root
+        POSTGRES_PORT: 5432
+        DB_TYPE: postgres
+        DB_PREFIX: postgres_10
+    - task: postgres-system-tests-11
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-aws
+      params:
+        TEST_SUITE_NAME: postgresql
+        <<: *MARU_LITE_BOSH_CREDS
+        POSTGRES_PASSWORD: ((rds-postgres-11-password))
+        POSTGRES_USERNAME: root
+        POSTGRES_PORT: 5432
+        DB_TYPE: postgres
+        DB_PREFIX: postgres_11
+  - in_parallel:
+    - task: postgres-tls-system-tests-9.6
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-aws
+      params:
+        TEST_SUITE_NAME: postgresql_tls
+        <<: *MARU_LITE_BOSH_CREDS
+        POSTGRES_PASSWORD: ((rds-postgres-9-6-password))
+        POSTGRES_USERNAME: root
+        POSTGRES_PORT: 5432
+        POSTGRES_CA_CERT_PATH: ((rds-ca-cert-path))
+        TEST_SSL_USER_REQUIRES_SSL: false
+        DB_TYPE: postgres
+        DB_PREFIX: postgres_9_6
+    - task: postgres-tls-system-tests-10
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-aws
+      params:
+        TEST_SUITE_NAME: postgresql_tls
+        <<: *MARU_LITE_BOSH_CREDS
+        POSTGRES_PASSWORD: ((rds-postgres-10-password))
+        POSTGRES_USERNAME: root
+        POSTGRES_PORT: 5432
+        POSTGRES_CA_CERT_PATH: ((rds-ca-cert-path))
+        TEST_SSL_USER_REQUIRES_SSL: false
+        DB_TYPE: postgres
+        DB_PREFIX: postgres_10
+    - task: postgres-tls-system-tests-11
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-aws
+      params:
+        TEST_SUITE_NAME: postgresql_tls
+        <<: *MARU_LITE_BOSH_CREDS
+        POSTGRES_PASSWORD: ((rds-postgres-11-password))
+        POSTGRES_USERNAME: root
+        POSTGRES_PORT: 5432
+        POSTGRES_CA_CERT_PATH: ((rds-ca-cert-path))
+        TEST_SSL_USER_REQUIRES_SSL: false
+        DB_TYPE: postgres
+        DB_PREFIX: postgres_11
+
+- name: mariadb-system-tests
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-database-sdk
+      - deploy-mariadb
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+  - task: mariadb-system-tests
+    file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
+    params:
+      <<: *MARU_LITE_BOSH_CREDS
+      TEST_SUITE_NAME: mysql
+      MYSQL_HOSTNAME: *mysql-host
+      MYSQL_PORT: *mysql-port
+      MYSQL_USERNAME: *mysql-username
+      MYSQL_PASSWORD: *mysql-password
+      MYSQL_CA_CERT: ((mysql-ca-cert))
+      MYSQL_CLIENT_CERT: ((mysql-client-cert))
+      MYSQL_CLIENT_KEY: ((mysql-client-key))
+      TEST_TLS_VERIFY_IDENTITY: false
+      TEST_TLS_MUTUAL_TLS: false
+
+- name: mariadb-system-tests-rds
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-database-sdk
+      - deploy-external-rds-dbs
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+    - get: terraform-aws
+      resource: terraform
+      passed: [deploy-external-rds-dbs]
+      params:
+        env_name: bbr-sdk-external-rds-dbs
+        output_statefile: true
+  - in_parallel:
+    - task: maria-system-tests-10-2
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-aws
+      params:
+        <<: *MARU_LITE_BOSH_CREDS
+        TEST_SUITE_NAME: mysql
+        MYSQL_PASSWORD: ((rds-mariadb-10-password))
+        MYSQL_PORT: 3306
+        MYSQL_USERNAME: root
+        MYSQL_CA_CERT_PATH: ((rds-ca-cert-path))
+        TEST_TLS_MUTUAL_TLS: false
+        TEST_TLS_VERIFY_IDENTITY: false
+        DB_TYPE: mysql
+        DB_PREFIX: mariadb_10_2
+
+- name: mysql-system-tests-rds
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-database-sdk
+      - deploy-external-rds-dbs
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+    - get: terraform-aws
+      resource: terraform
+      passed:
+      - deploy-external-rds-dbs
+      params:
+        env_name: bbr-sdk-external-rds-dbs
+        output_statefile: true
+  - in_parallel:
+    - task: mysql-system-tests-5.6
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-aws
+      params:
+        <<: *MARU_LITE_BOSH_CREDS
+        TEST_SUITE_NAME: mysql
+        MYSQL_PASSWORD: ((rds-5-6-password))
+        MYSQL_PORT: 3306
+        MYSQL_USERNAME: root
+        MYSQL_CA_CERT_PATH: ((rds-ca-cert-path))
+        TEST_TLS_MUTUAL_TLS: false
+        DB_TYPE: mysql
+        DB_PREFIX: mysql_5_6
+    - task: mysql-system-tests-5.7
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-aws
+      params:
+        <<: *MARU_LITE_BOSH_CREDS
+        TEST_SUITE_NAME: mysql
+        MYSQL_PASSWORD: ((rds-5-7-password))
+        MYSQL_PORT: 3306
+        MYSQL_USERNAME: root
+        MYSQL_CA_CERT_PATH: ((rds-ca-cert-path))
+        TEST_TLS_MUTUAL_TLS: false
+        DB_TYPE: mysql
+        DB_PREFIX: mysql_5_7
+
+- name: mysql-system-tests-gcp
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-database-sdk
+      - deploy-external-gcp-dbs
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+    - get: terraform-gcp
+      resource: terraform
+      passed:
+      - deploy-external-gcp-dbs
+      params:
+        env_name: bbr-sdk-external-gcp-dbs
+        output_statefile: true
+  - in_parallel:
+    - task: mysql-system-tests-5.6
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-gcp
+      params:
+        <<: *MARU_LITE_BOSH_CREDS
+        TEST_SUITE_NAME: mysql
+        MYSQL_PASSWORD: ((gcp-mysql-5-6-password))
+        MYSQL_PORT: 3306
+        MYSQL_USERNAME: root
+        DB_TYPE: mysql
+        DB_PREFIX: mysql_5_6
+        MYSQL_CA_CERT_PATH: ((gcp-mysql-5-6-ca-cert-path))
+        MYSQL_CLIENT_CERT_PATH: ((gcp-mysql-5-6-client-cert-path))
+        MYSQL_CLIENT_KEY_PATH: ((gcp-mysql-5-6-client-key-path))
+        TEST_TLS_VERIFY_IDENTITY: false
+    - task: mysql-system-tests-5.7
+      file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
+      input_mapping:
+        terraform-state: terraform-gcp
+      params:
+        <<: *MARU_LITE_BOSH_CREDS
+        TEST_SUITE_NAME: mysql
+        MYSQL_PASSWORD: ((gcp-mysql-5-7-password))
+        MYSQL_PORT: 3306
+        MYSQL_USERNAME: root
+        DB_TYPE: mysql
+        DB_PREFIX: mysql_5_7
+        MYSQL_CA_CERT_PATH: ((gcp-mysql-5-7-ca-cert-path))
+        MYSQL_CLIENT_CERT_PATH: ((gcp-mysql-5-7-client-cert-path))
+        MYSQL_CLIENT_KEY_PATH: ((gcp-mysql-5-7-client-key-path))
+        TEST_TLS_VERIFY_IDENTITY: false
+
+- name: s3-blobstore-backuper-system-tests
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-s3-blobstore-sdk
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+  - task: s3-blobstore-backuper-system-tests
+    file: backup-and-restore-ci/tasks/sdk-system-blobstore/task.yml
+    params:
+      <<: *MARU_LITE_BOSH_CREDS
+      TEST_SUITE_NAME: s3
+      BOSH_DEPLOYMENT: s3-backuper
+      AWS_ACCESS_KEY_ID: ((aws-access-key-id))
+      AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
+      AWS_TEST_BUCKET_NAME: bbr-system-test-bucket
+      AWS_TEST_BUCKET_REGION: *aws-region
+      AWS_TEST_CLONE_BUCKET_NAME: bbr-system-test-bucket-clone
+      AWS_TEST_CLONE_BUCKET_REGION: *aws-backup-region
+      AWS_TEST_UNVERSIONED_BUCKET_NAME: bbr-system-test-bucket-unversioned
+      AWS_TEST_UNVERSIONED_BUCKET_REGION: *aws-region
+      S3_UNVERSIONED_BUCKET_NAME: bbr-system-test-s3-unversioned-bucket
+      S3_UNVERSIONED_BUCKET_REGION: *aws-region
+      S3_UNVERSIONED_BACKUP_BUCKET_NAME: bbr-system-test-s3-unversioned-backup-bucket
+      S3_UNVERSIONED_BACKUP_BUCKET_REGION: us-east-1
+      S3_UNVERSIONED_BPM_BUCKET_NAME: sdk-system-test-unversioned-bpm
+      S3_UNVERSIONED_BPM_BUCKET_REGION: *aws-region
+      S3_UNVERSIONED_BPM_BACKUP_BUCKET_NAME: sdk-system-test-unversioned-bpm-backup
+      S3_UNVERSIONED_BPM_BACKUP_BUCKET_REGION: *aws-region
+      S3_UNVERSIONED_LARGE_NUMBER_OF_FILES_BUCKET_NAME: sdk-large-number-of-files
+      S3_UNVERSIONED_LARGE_NUMBER_OF_FILES_BUCKET_REGION: *aws-region
+      S3_UNVERSIONED_LARGE_NUMBER_OF_FILES_BACKUP_BUCKET_NAME: sdk-large-number-of-files-backup
+      S3_UNVERSIONED_LARGE_NUMBER_OF_FILES_BACKUP_BUCKET_REGION: *aws-region
+      S3_UNVERSIONED_CLONE_BUCKET_NAME: sdk-unversioned-clone
+      S3_UNVERSIONED_CLONE_BUCKET_REGION: us-east-1
+
+- name: s3-blobstore-system-tests-with-iam-instance-profile
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-s3-blobstore-sdk-with-iam-instance-profile
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+  - task: s3-blobstore-backuper-system-tests
+    file: backup-and-restore-ci/tasks/sdk-system-blobstore/task.yml
+    params:
+      TEST_SUITE_NAME: s3
+      FOCUS_SPEC: backs up and restores in-place # focus on one it to avoid redundant testing
+      BOSH_ENVIRONMENT: "((ec2-bosh-director-url))"
+      BOSH_CLIENT_SECRET: "((ec2-bosh-director-password))"
+      BOSH_CLIENT: "((ec2-bosh-director-username))"
+      BOSH_DEPLOYMENT: s3-backuper
+      BOSH_CA_CERT: "((ec2-bosh-director-ca-cert))"
+      BOSH_GW_USER: jumpbox
+      BOSH_GW_HOST: "((ec2-jumpbox-url))"
+      BOSH_GW_PRIVATE_KEY: "((ec2-jumpbox-ssh-key))"
+      AWS_ACCESS_KEY_ID: ((aws-access-key-id))
+      AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
+      AWS_TEST_BUCKET_NAME: iam-instance-role-test
+      AWS_TEST_BUCKET_REGION: *aws-region
+      AWS_TEST_CLONE_BUCKET_NAME: iam-instance-role-test-clone
+      AWS_TEST_CLONE_BUCKET_REGION: *aws-region
+      AWS_TEST_UNVERSIONED_BUCKET_NAME: bbr-system-test-bucket-unversioned
+      AWS_TEST_UNVERSIONED_BUCKET_REGION: *aws-region
+
+- name: azure-blobstore-backuper-system-tests
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-azure-blobstore-sdk
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+  - task: azure-blobstore-backuper-system-tests
+    file: backup-and-restore-ci/tasks/sdk-system-blobstore/task.yml
+    params:
+      <<: *MARU_LITE_BOSH_CREDS
+      TEST_SUITE_NAME: azure
+      BOSH_DEPLOYMENT: azure-backuper
+      AZURE_STORAGE_ACCOUNT: ((azure-storage-account))
+      AZURE_STORAGE_KEY: ((azure-storage-key))
+      AZURE_CONTAINER_NAME: bbr-system-test-azure-container
+      AZURE_DIFFERENT_STORAGE_ACCOUNT: ((azure-different-storage-account))
+      AZURE_DIFFERENT_STORAGE_KEY: ((azure-different-storage-key))
+      AZURE_DIFFERENT_CONTAINER_NAME: bbr-system-test-azure-different-container
+
+- name: deploy-gcs-blobstore-sdk
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-sdk-release
+      passed:
+      - create-release
+      trigger: true
+    - get: release-tarball
+      resource: release
+      passed:
+      - create-release
+    - get: xenial-stemcell
+    - get: bosh-backup-and-restore-meta
+    - get: backup-and-restore-ci
+  - task: generate-bosh-deployment-source-file
+    file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    params:
+      BBL_STATE: maru-lite
+  - put: gcs-blobstore-sdk-deployment
+    params:
+      manifest: backup-and-restore-sdk-release/ci/manifests/gcs-backuper.yml
+      stemcells:
+      - xenial-stemcell/*.tgz
+      releases:
+      - release-tarball/backup-and-restore-sdk-*.tgz
+      vars:
+        deployment-name: gcs-backuper
+        gcp-service-account-key: ((gcp_service_account_key))
+        gcs-bucket-name: bbr-system-test-gcs-bucket
+        gcs-backup-bucket-name: bbr-system-test-gcs-backup-bucket
+      source_file: source-file/source-file.yml
+
+- name: gcs-blobstore-backuper-system-tests
+  serial: true
+  plan:
+  - in_parallel:
+    - get: backup-and-restore-ci
+    - get: backup-and-restore-sdk-release
+      passed:
+      - deploy-gcs-blobstore-sdk
+      trigger: true
+    - get: bosh-backup-and-restore-meta
+  - task: gcs-blobstore-backuper-system-tests
+    file: backup-and-restore-ci/tasks/sdk-system-blobstore/task.yml
+    params:
+      TEST_SUITE_NAME: gcs
+      GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
+      GCP_PROJECT_NAME: cf-backup-and-restore
+      GCS_BUCKET_NAME: bbr-system-test-gcs-bucket
+      GCS_BACKUP_BUCKET_NAME: bbr-system-test-gcs-backup-bucket
+      GCS_CLONE_BUCKET_NAME: bbr-system-test-gcs-clone-bucket
+      BOSH_DEPLOYMENT: gcs-backuper
+      <<: *MARU_LITE_BOSH_CREDS
+
+- name: merge-pull-request
+  serial: true
+  plan:
+  - get: backup-and-restore-ci
+  - get: backup-and-restore-sdk-release
+    trigger: true
+    passed:
+    - contract-tests
+    - postgres-system-tests
+    - postgres-system-tests-gcp
+    - postgres-system-tests-rds
+    - mariadb-system-tests
+    - mariadb-system-tests-rds
+    - mysql-system-tests-rds
+    - mysql-system-tests-gcp
+    - s3-blobstore-backuper-system-tests
+    - s3-blobstore-system-tests-with-iam-instance-profile
+    - azure-blobstore-backuper-system-tests
+    - gcs-blobstore-backuper-system-tests
+
+  - put: backup-and-restore-sdk-release
+    params:
+      path: backup-and-restore-sdk-release
+      status: success
+
+  - load_var: pr-url
+    file: backup-and-restore-sdk-release/.git/resource/url
+
+  - task: merge-golang-vendor-pull-request
+    file: backup-and-restore-ci/tasks/merge-pr/task.yml
+    params:
+      GITHUB_TOKEN: ((github.access_token))
+      URL: ((.:pr-url))
+      METHOD: SQUASH
+    on_failure:
+      put: slack-cryo-notification
+      params:
+        text: |
+          A new PR failed to be merged automatically.
+          All tests were passing successfully.
+          You can review it <((.:pr-url))|*here*>.
+    on_success:
+      put: slack-cryo-notification
+      params:
+        text: |
+          A new PR has been merged automatically.
+          All tests were passing successfully.
+          You can review it  <((.:pr-url))|*here*>.
