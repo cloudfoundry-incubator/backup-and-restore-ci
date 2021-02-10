@@ -664,7 +664,9 @@ jobs:
   - load_var: version-number
     file: bbr-final-release-version/number
   - task: create-osm-release
-    file: cryogenics-meta/tasks/release-automation/create-osm-release/task.yml
+    file: cryogenics-meta/ci/tasks/release-automation/create-osm-release/task.yml
+    tags:
+    - *toolsmiths_api_worker
     params:
       PRODUCT_NAME: *tanzunet_product_name
       VERSION: ((.:version-number))
@@ -708,7 +710,9 @@ jobs:
   - load_var: version-number
     file: bbr-final-release-version/number
   - task: download-osl-file
-    file: cryogenics-meta/tasks/release-automation/download-osl-file/task.yml
+    tags:
+    - *toolsmiths_api_worker
+    file: cryogenics-meta/ci/tasks/release-automation/download-osl-file/task.yml
     params:
       PRODUCT_NAME: *tanzunet_product_name
       VERSION: ((.:version-number))
