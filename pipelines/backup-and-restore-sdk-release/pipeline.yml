@@ -1,12 +1,13 @@
 ---
 maru-lite-bosh-creds: &MARU_LITE_BOSH_CREDS
-  BOSH_ENVIRONMENT: "((maru-lite-bosh-director-url))"
-  BOSH_CLIENT: "((maru-lite-bosh-director-username))"
-  BOSH_CLIENT_SECRET: "((maru-lite-bosh-director-password))"
-  BOSH_CA_CERT: "((maru-lite-bosh-director-ca-cert))"
+  BOSH_ENVIRONMENT: "((infrastructure/bosh-lite-director.director_url))"
+  BOSH_CLIENT: "((infrastructure/bosh-lite-director.director_username))"
+  BOSH_CLIENT_SECRET: "((infrastructure/bosh-lite-director.director_password))"
+  BOSH_CA_CERT: "((infrastructure/bosh-lite-director.director_ca_cert))"
   BOSH_GW_USER: jumpbox
-  BOSH_GW_HOST: "((maru-lite-jumpbox-address))"
-  BOSH_GW_PRIVATE_KEY: "((maru-lite-jumpbox-ssh-key))"
+  BOSH_GW_HOST: "((infrastructure/bosh-lite-director.jumpbox_host)):22"
+  BOSH_GW_PRIVATE_KEY: "((infrastructure/bosh-lite-director.jumpbox_ssh_key))"
+
 
 aws-region: &aws-region eu-west-1
 aws-backup-region: &aws-backup-region eu-central-1
@@ -1148,14 +1149,14 @@ jobs:
     params:
       TEST_SUITE_NAME: s3
       FOCUS_SPEC: backs up and restores in-place # focus on one it to avoid redundant testing
-      BOSH_ENVIRONMENT: "((ec2-bosh-director-url))"
-      BOSH_CLIENT_SECRET: "((ec2-bosh-director-password))"
-      BOSH_CLIENT: "((ec2-bosh-director-username))"
+      BOSH_ENVIRONMENT: "((infrastructure/director-with-iam-profile.director_url))"
+      BOSH_CLIENT_SECRET: "((infrastructure/director-with-iam-profile.director_password))"
+      BOSH_CLIENT: "((infrastructure/director-with-iam-profile.director_username))"
       BOSH_DEPLOYMENT: s3-backuper
-      BOSH_CA_CERT: "((ec2-bosh-director-ca-cert))"
+      BOSH_CA_CERT: "((infrastructure/director-with-iam-profile.director_ca_cert))"
       BOSH_GW_USER: jumpbox
-      BOSH_GW_HOST: "((ec2-jumpbox-url))"
-      BOSH_GW_PRIVATE_KEY: "((ec2-jumpbox-ssh-key))"
+      BOSH_GW_HOST: "((infrastructure/director-with-iam-profile.jumpbox_host)):22"
+      BOSH_GW_PRIVATE_KEY: "((infrastructure/director-with-iam-profile.jumpbox_ssh_key))"
       AWS_ACCESS_KEY_ID: ((aws-access-key-id))
       AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
       AWS_TEST_BUCKET_NAME: iam-instance-role-test
