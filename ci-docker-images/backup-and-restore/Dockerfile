@@ -7,6 +7,7 @@ ENV BBL_VERSION v8.2.12
 ENV VELERO_VERSION v1.3.2
 ENV KUBE_VERSION="v1.17.4"
 ENV GH_VERSION 1.4.0
+ENV PIVNET_VERSION 3.0.0
 
 # fixes error "Error response from daemon: client is newer than server"
 ENV DOCKER_API_VERSION 1.23
@@ -131,4 +132,7 @@ RUN chmod +x /usr/bin/kubectl
 
 RUN useradd --create-home --shell /bin/bash --home-dir /home/test test
 
+# Pivnet cli
+ADD https://github.com/pivotal-cf/pivnet-cli/releases/download/v${PIVNET_VERSION}/pivnet-linux-amd64-${PIVNET_VERSION} /usr/bin/pivnet
+RUN chmod +x /usr/bin/pivnet
 
