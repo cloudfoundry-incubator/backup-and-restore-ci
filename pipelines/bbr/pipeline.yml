@@ -707,7 +707,7 @@ jobs:
     - get: cryogenics-meta
     - get: bbr-final-release-version
       passed: [build-and-publish-final]
-  - load_var: version-number
+  - load_var: release-version-number
     file: bbr-final-release-version/number
   - task: download-osl-file
     tags:
@@ -715,8 +715,23 @@ jobs:
     file: cryogenics-meta/ci/tasks/release-automation/download-osl-file/task.yml
     params:
       PRODUCT_NAME: *tanzunet_product_name
-      VERSION: ((.:version-number))
+      VERSION: ((.:release-version-number))
       OSM_API_KEY: ((osm.api_key))
+      OUTPUT_DIR: osl
+  - load_var: osl-file-name
+    file: osl/name
+  - task: add-osl-file-to-release
+    file: cryogenics-meta/ci/tasks/release-automation/add-osl-file-to-pivnet/task.yml
+    params:
+      PRODUCT_NAME: *tanzunet_product_name
+      OSL_FILE_NAME: ((.:osl-file-name))
+      VERSION: ((.:release-version-number))
+      PIVNET_TOKEN: ((pivnet.api_token))
+      AWS_PIVNET_BUCKET_PATH: ((pivnet_bucket.bucket_name))
+      AWS_ACCESS_KEY_ID: ((pivnet_bucket.access_key_id))
+      AWS_SECRET_ACCESS_KEY: ((pivnet_bucket.secret_access_key))
+      AWS_PRODUCT_NAME: ((pivnet_bucket.user))
+
 
 - name: update-homebrew-formula
   serial: true
