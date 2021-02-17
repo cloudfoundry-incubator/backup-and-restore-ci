@@ -27,7 +27,6 @@ git config --global user.email "cf-lazarus@pivotal.io"
   gcloud config set project cf-backup-and-restore
 
   save_server_certs "mysql_5_7"
-  save_server_certs "mysql_8_0"
   save_server_certs "postgres_9_6"
   save_server_certs "postgres_9_6_mutual_tls"
 
