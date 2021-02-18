@@ -1,5 +1,5 @@
 ---
-maru-lite-bosh-creds: &MARU_LITE_BOSH_CREDS
+bosh-lite-creds: &bosh-lite-creds
   BOSH_ENVIRONMENT: ((infrastructure/bosh-lite-director.director_url))
   BOSH_CLIENT: ((infrastructure/bosh-lite-director.director_username))
   BOSH_CLIENT_SECRET: ((infrastructure/bosh-lite-director.director_password))
@@ -478,7 +478,7 @@ jobs:
   - task: create-ssl-user
     file: backup-and-restore-ci/tasks/create-ssl-user/task.yml
     params:
-      <<: *MARU_LITE_BOSH_CREDS
+      <<: *bosh-lite-creds
       BOSH_DEPLOYMENT: *postgres-9-6-deployment-name
 
 - name: deploy-mariadb
@@ -755,12 +755,12 @@ jobs:
         POSTGRES_HOSTNAME: *postgres-9-4-host
         POSTGRES_USERNAME: *postgres-9-4-username
         POSTGRES_PORT: *postgres-9-4-port
-        <<: *MARU_LITE_BOSH_CREDS
+        <<: *bosh-lite-creds
     - task: postgres-system-tests-9.6
       file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
       params:
         TEST_SUITE_NAME: postgresql
-        <<: *MARU_LITE_BOSH_CREDS
+        <<: *bosh-lite-creds
         POSTGRES_PASSWORD: postgres_password
         POSTGRES_HOSTNAME: *postgres-9-6-host
         POSTGRES_USERNAME: test_user
@@ -773,7 +773,7 @@ jobs:
         POSTGRES_HOSTNAME: *postgres-10-host
         POSTGRES_USERNAME: *postgres-10-username
         POSTGRES_PORT: *postgres-10-port
-        <<: *MARU_LITE_BOSH_CREDS
+        <<: *bosh-lite-creds
     - task: postgres-system-tests-11
       file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
       params:
@@ -782,12 +782,12 @@ jobs:
         POSTGRES_HOSTNAME: *postgres-11-host
         POSTGRES_USERNAME: *postgres-11-username
         POSTGRES_PORT: *postgres-11-port
-        <<: *MARU_LITE_BOSH_CREDS
+        <<: *bosh-lite-creds
   - task: postgres-tls-system-tests-9.6
     file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       TEST_SUITE_NAME: postgresql_tls
-      <<: *MARU_LITE_BOSH_CREDS
+      <<: *bosh-lite-creds
       POSTGRES_PASSWORD: postgres_password
       POSTGRES_HOSTNAME: *postgres-9-6-host
       POSTGRES_USERNAME: ssl_user
@@ -798,7 +798,7 @@ jobs:
     file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
       TEST_SUITE_NAME: postgresql_mutual_tls
-      <<: *MARU_LITE_BOSH_CREDS
+      <<: *bosh-lite-creds
       POSTGRES_PASSWORD: postgres_password
       POSTGRES_HOSTNAME: *postgres-9-6-host
       POSTGRES_USERNAME: mutual_tls_user
@@ -837,7 +837,7 @@ jobs:
       terraform-state: terraform-gcp
     params:
       TEST_SUITE_NAME: postgresql
-      <<: *MARU_LITE_BOSH_CREDS
+      <<: *bosh-lite-creds
       POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.gcp_postgres_9_6_password))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
@@ -849,7 +849,7 @@ jobs:
       terraform-state: terraform-gcp
     params:
       TEST_SUITE_NAME: postgresql_tls
-      <<: *MARU_LITE_BOSH_CREDS
+      <<: *bosh-lite-creds
       POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.gcp_postgres_9_6_password))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
@@ -864,7 +864,7 @@ jobs:
       terraform-state: terraform-gcp
     params:
       TEST_SUITE_NAME: postgresql_mutual_tls
-      <<: *MARU_LITE_BOSH_CREDS
+      <<: *bosh-lite-creds
       POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.gcp_postgres_9_6_password))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
@@ -906,7 +906,7 @@ jobs:
         terraform-state: terraform-aws
       params:
         TEST_SUITE_NAME: postgresql
-        <<: *MARU_LITE_BOSH_CREDS
+        <<: *bosh-lite-creds
         POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.rds_postgres_9_6_password))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
@@ -918,7 +918,7 @@ jobs:
         terraform-state: terraform-aws
       params:
         TEST_SUITE_NAME: postgresql
-        <<: *MARU_LITE_BOSH_CREDS
+        <<: *bosh-lite-creds
         POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.rds_postgres_10_password))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
@@ -930,7 +930,7 @@ jobs:
         terraform-state: terraform-aws
       params:
         TEST_SUITE_NAME: postgresql
-        <<: *MARU_LITE_BOSH_CREDS
+        <<: *bosh-lite-creds
         POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.rds_postgres_11_password))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
@@ -943,7 +943,7 @@ jobs:
         terraform-state: terraform-aws
       params:
         TEST_SUITE_NAME: postgresql_tls
-        <<: *MARU_LITE_BOSH_CREDS
+        <<: *bosh-lite-creds
         POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.rds_postgres_9_6_password))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
@@ -957,7 +957,7 @@ jobs:
         terraform-state: terraform-aws
       params:
         TEST_SUITE_NAME: postgresql_tls
-        <<: *MARU_LITE_BOSH_CREDS
+        <<: *bosh-lite-creds
         POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.rds_postgres_10_password))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
@@ -971,7 +971,7 @@ jobs:
         terraform-state: terraform-aws
       params:
         TEST_SUITE_NAME: postgresql_tls
-        <<: *MARU_LITE_BOSH_CREDS
+        <<: *bosh-lite-creds
         POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.rds_postgres_11_password))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
@@ -999,7 +999,7 @@ jobs:
   - task: mariadb-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
-      <<: *MARU_LITE_BOSH_CREDS
+      <<: *bosh-lite-creds
       TEST_SUITE_NAME: mysql
       MYSQL_HOSTNAME: *mysql-host
       MYSQL_PORT: *mysql-port
@@ -1039,7 +1039,7 @@ jobs:
       input_mapping:
         terraform-state: terraform-aws
       params:
-        <<: *MARU_LITE_BOSH_CREDS
+        <<: *bosh-lite-creds
         TEST_SUITE_NAME: mysql
         MYSQL_PASSWORD: ((backup-and-restore-sdk-release.rds_mariadb_10_password))
         MYSQL_PORT: 3306
@@ -1079,7 +1079,7 @@ jobs:
       input_mapping:
         terraform-state: terraform-aws
       params:
-        <<: *MARU_LITE_BOSH_CREDS
+        <<: *bosh-lite-creds
         TEST_SUITE_NAME: mysql
         MYSQL_PASSWORD: ((backup-and-restore-sdk-release.rds_5_7_password))
         MYSQL_PORT: 3306
@@ -1118,7 +1118,7 @@ jobs:
       input_mapping:
         terraform-state: terraform-gcp
       params:
-        <<: *MARU_LITE_BOSH_CREDS
+        <<: *bosh-lite-creds
         TEST_SUITE_NAME: mysql
         MYSQL_PASSWORD: ((backup-and-restore-sdk-release.gcp_mysql_5_7_password))
         MYSQL_PORT: 3306
@@ -1146,7 +1146,7 @@ jobs:
   - task: s3-blobstore-backuper-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-blobstore/task.yml
     params:
-      <<: *MARU_LITE_BOSH_CREDS
+      <<: *bosh-lite-creds
       TEST_SUITE_NAME: s3
       BOSH_DEPLOYMENT: s3-backuper
       AWS_ACCESS_KEY_ID: ((aws_credentials.access_key_id))
@@ -1223,7 +1223,7 @@ jobs:
   - task: azure-blobstore-backuper-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-blobstore/task.yml
     params:
-      <<: *MARU_LITE_BOSH_CREDS
+      <<: *bosh-lite-creds
       TEST_SUITE_NAME: azure
       BOSH_DEPLOYMENT: azure-backuper
       AZURE_STORAGE_ACCOUNT: ((azure_credentials.storage_account_1))
@@ -1295,7 +1295,7 @@ jobs:
       GCS_BACKUP_BUCKET_NAME: bbr-system-test-gcs-backup-bucket
       GCS_CLONE_BUCKET_NAME: bbr-system-test-gcs-clone-bucket
       BOSH_DEPLOYMENT: gcs-backuper
-      <<: *MARU_LITE_BOSH_CREDS
+      <<: *bosh-lite-creds
 
 - name: update-tracker
   plan:
