@@ -257,7 +257,7 @@ resources:
     private_key: ((github.ssh_key))
     branch: main
 
-- name: bbl-state
+- name: bbl-state-bosh-lite
   type: vault
   source:
     <<: *vault_creds
@@ -378,12 +378,12 @@ jobs:
       resource: release
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
-    - get: bbl-state
+    - get: bbl-state-bosh-lite
     - get: xenial-stemcell
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
     input_mapping:
-      bosh-backup-and-restore-meta: bbl-state
+      bosh-backup-and-restore-meta: bbl-state-bosh-lite
     params:
       BBL_STATE: .
   - put: database-backup-restorer-deployment
@@ -414,11 +414,11 @@ jobs:
     - get: xenial-stemcell
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-    - get: bbl-state
+    - get: bbl-state-bosh-lite
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
     input_mapping:
-      bosh-backup-and-restore-meta: bbl-state
+      bosh-backup-and-restore-meta: bbl-state-bosh-lite
     params:
       BBL_STATE: .
   - in_parallel:
@@ -497,11 +497,11 @@ jobs:
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
     - get: xenial-stemcell
-    - get: bbl-state
+    - get: bbl-state-bosh-lite
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
     input_mapping:
-      bosh-backup-and-restore-meta: bbl-state
+      bosh-backup-and-restore-meta: bbl-state-bosh-lite
     params:
       BBL_STATE: .
   - put: mysql-dev-deployment
@@ -615,11 +615,11 @@ jobs:
     - get: xenial-stemcell
     - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
-    - get: bbl-state
+    - get: bbl-state-bosh-lite
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
     input_mapping:
-      bosh-backup-and-restore-meta: bbl-state
+      bosh-backup-and-restore-meta: bbl-state-bosh-lite
     params:
       BBL_STATE: .
   - put: aws-blobstore-sdk-deployment
@@ -707,11 +707,11 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: xenial-stemcell
     - get: backup-and-restore-ci
-    - get: bbl-state
+    - get: bbl-state-bosh-lite
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
     input_mapping:
-      bosh-backup-and-restore-meta: bbl-state
+      bosh-backup-and-restore-meta: bbl-state-bosh-lite
     params:
       BBL_STATE: .
   - put: azure-blobstore-sdk-deployment
@@ -1251,11 +1251,11 @@ jobs:
     - get: xenial-stemcell
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
-    - get: bbl-state
+    - get: bbl-state-bosh-lite
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
     input_mapping:
-      bosh-backup-and-restore-meta: bbl-state
+      bosh-backup-and-restore-meta: bbl-state-bosh-lite
     params:
       BBL_STATE: .
   - put: gcs-blobstore-sdk-deployment
