@@ -1,13 +1,12 @@
 ---
 maru-lite-bosh-creds: &MARU_LITE_BOSH_CREDS
-  BOSH_ENVIRONMENT: "((infrastructure/bosh-lite-director.director_url))"
-  BOSH_CLIENT: "((infrastructure/bosh-lite-director.director_username))"
-  BOSH_CLIENT_SECRET: "((infrastructure/bosh-lite-director.director_password))"
-  BOSH_CA_CERT: "((infrastructure/bosh-lite-director.director_ca_cert))"
+  BOSH_ENVIRONMENT: ((infrastructure/bosh-lite-director.director_url))
+  BOSH_CLIENT: ((infrastructure/bosh-lite-director.director_username))
+  BOSH_CLIENT_SECRET: ((infrastructure/bosh-lite-director.director_password))
+  BOSH_CA_CERT: ((infrastructure/bosh-lite-director.director_ca_cert))
   BOSH_GW_USER: jumpbox
-  BOSH_GW_HOST: "((infrastructure/bosh-lite-director.jumpbox_host)):22"
-  BOSH_GW_PRIVATE_KEY: "((infrastructure/bosh-lite-director.jumpbox_ssh_key))"
-
+  BOSH_GW_HOST: ((infrastructure/bosh-lite-director.jumpbox_host))
+  BOSH_GW_PRIVATE_KEY: ((infrastructure/bosh-lite-director.jumpbox_ssh_key))
 
 aws-region: &aws-region eu-west-1
 aws-backup-region: &aws-backup-region eu-central-1
@@ -46,6 +45,20 @@ postgres-11-port: &postgres-11-port 5432
 postgres-11-username: &postgres-11-username test_user
 postgres-11-password: &postgres-11-password postgres_password
 
+rds-ca-cert-path: &rds-ca-cert-path "ci/backup-and-restore-sdk-release/certs/rds-combined-ca-bundle.pem"
+gcp-mysql-5-7-ca-cert-path: &gcp-mysql-5-7-ca-cert-path "ci/backup-and-restore-sdk-release/certs/gcp-mysql_5_7/test-server-cert.pem"
+gcp-mysql-5-7-client-cert-path: &gcp-mysql-5-7-client-cert-path "ci/backup-and-restore-sdk-release/certs/gcp-mysql_5_7/test-client-cert.pem"
+gcp-mysql-5-7-client-key-path: &gcp-mysql-5-7-client-key-path "ci/backup-and-restore-sdk-release/certs/gcp-mysql_5_7/test-client-key.pem"
+gcp-postgres-9-6-ca-cert-path: &gcp-postgres-9-6-ca-cert-path "ci/backup-and-restore-sdk-release/certs/gcp-postgres_9_6/test-server-cert.pem"
+gcp-postgres-9-6-mutual-tls-ca-cert-path: &gcp-postgres-9-6-mutual-tls-ca-cert-path "ci/backup-and-restore-sdk-release/certs/gcp-postgres_9_6_mutual_tls/test-server-cert.pem"
+gcp-postgres-9-6-mutual-tls-client-cert-path: &gcp-postgres-9-6-mutual-tls-client-cert-path "ci/backup-and-restore-sdk-release/certs/gcp-postgres_9_6_mutual_tls/test-client-cert.pem"
+gcp-postgres-9-6-mutual-tls-client-key-path: &gcp-postgres-9-6-mutual-tls-client-key-path "ci/backup-and-restore-sdk-release/certs/gcp-postgres_9_6_mutual_tls/test-client-key.pem"
+
+vault_creds: &vault_creds
+  url: ((vault/server.url))
+  role_id: ((vault/resource_credentials.role_id))
+  secret_id: ((vault/resource_credentials.secret_id))
+
 resource_types:
 - name: bosh-deployment
   type: docker-image
@@ -68,6 +81,12 @@ resource_types:
   source:
     repository: cfcommunity/slack-notification-resource
 
+- name: vault
+  type: docker-image
+  source:
+    repository: wfernandes/vault-resource
+    tag: latest
+
 resources:
 - name: terraform
   type: custom-terraform
@@ -76,8 +95,8 @@ resources:
     backend_config:
       bucket: bbr-terraform-states
       key: terraform-state.tfstate
-      access_key: ((aws-access-key-id))
-      secret_key: ((aws-secret-access-key))
+      access_key: ((aws_credentials.access_key_id))
+      secret_key: ((aws_credentials.secret_access_key))
       region: *aws-region
 
 - name: backup-and-restore-sdk-release
@@ -106,7 +125,7 @@ resources:
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: ((github.ssh_key))
-    git_crypt_key: ((git-crypt-key))
+    git_crypt_key: ((github-bbr.crypt_key))
     branch: master
 
 - name: backup-and-restore-ci
@@ -122,8 +141,8 @@ resources:
     bucket: backup-and-restore-sdk-releases
     region_name: *aws-region
     key: current-dev-version
-    access_key_id: ((aws-access-key-id))
-    secret_access_key: ((aws-secret-access-key))
+    access_key_id: ((aws_credentials.access_key_id))
+    secret_access_key: ((aws_credentials.secret_access_key))
 
 - name: release
   type: s3
@@ -131,8 +150,8 @@ resources:
     bucket: backup-and-restore-sdk-releases
     regexp: backup-and-restore-sdk-(.*).tgz
     region_name: *aws-region
-    access_key_id: ((aws-access-key-id))
-    secret_access_key: ((aws-secret-access-key))
+    access_key_id: ((aws_credentials.access_key_id))
+    secret_access_key: ((aws_credentials.secret_access_key))
 
 - name: github-release
   type: github-release
@@ -140,7 +159,7 @@ resources:
     user: cloudfoundry-incubator
     repository: backup-and-restore-sdk-release
     drafts: true
-    access_token: ((github-access-token))
+    access_token: ((github.ssh_key))
 
 - name: s3-backuper-with-iam-instance-profile-deployment
   type: bosh-deployment
@@ -229,14 +248,21 @@ resources:
 - name: slack-cryo-notification
   type: slack-notification
   source:
-    url: ((slack-webhook))
+    url: ((slack.webhook))
 
 - name: cryogenics-meta
   type: git
   source:
     uri: git@github.com:pivotal-cf/cryogenics-meta.git
-    private_key: ((github-cryo-ssh-key))
+    private_key: ((github.ssh_key))
     branch: main
+
+- name: bbl-state
+  type: vault
+  source:
+    <<: *vault_creds
+    path: /concourse/common/infrastructure/bosh/maru-lite
+    tarball: true
 
 jobs:
 - name: unit-tests
@@ -290,25 +316,25 @@ jobs:
         S3_LIVE_REGION: *aws-region
         S3_BACKUP_REGION: *aws-backup-region
         S3_ENDPOINT: ""
-        S3_ACCESS_KEY_ID: ((aws-access-key-id))
-        S3_SECRET_ACCESS_KEY: ((aws-secret-access-key))
+        S3_ACCESS_KEY_ID: ((aws_credentials.access_key_id))
+        S3_SECRET_ACCESS_KEY: ((aws_credentials.secret_access_key))
         S3_BIG_FILE_BUCKET: "large-blob-test-bucket-unversioned"
     - task: gcs-blobstore-contract-tests
       file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
       params:
         PACKAGE_NAME: gcs-blobstore-backup-restore/contract_test
-        GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
+        GCP_SERVICE_ACCOUNT_KEY: ((gcp/service_accounts/owner_role.json_key))
         GCP_PROJECT_NAME: cf-backup-and-restore
     - task: azure-blobstore-contract-tests
       file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
       params:
         PACKAGE_NAME: azure-blobstore-backup-restore/contract_test
-        AZURE_STORAGE_ACCOUNT: ((azure-storage-account))
-        AZURE_STORAGE_KEY: ((azure-storage-key))
-        AZURE_STORAGE_ACCOUNT_NO_SOFT_DELETE: ((azure-storage-account-no-soft-delete))
-        AZURE_STORAGE_KEY_NO_SOFT_DELETE: ((azure-storage-key-no-soft-delete))
-        AZURE_DIFFERENT_STORAGE_ACCOUNT: ((azure-different-storage-account))
-        AZURE_DIFFERENT_STORAGE_KEY: ((azure-different-storage-key))
+        AZURE_STORAGE_ACCOUNT: ((azure_credentials.storage_account_1))
+        AZURE_STORAGE_KEY: ((azure_credentials.storage_key_1))
+        AZURE_STORAGE_ACCOUNT_NO_SOFT_DELETE: ((azure_credentials.storage_account_no_soft_delete))
+        AZURE_STORAGE_KEY_NO_SOFT_DELETE: ((azure_credentials.storage_key_no_soft_delete))
+        AZURE_DIFFERENT_STORAGE_ACCOUNT: ((azure_credentials.storage_account_2))
+        AZURE_DIFFERENT_STORAGE_KEY: ((azure_credentials.storage_key_2))
         AZURE_CONTAINER_NAME_MANY_FILES: bbr-test-many-blobs-azure-container
 
 - name: create-release
@@ -329,8 +355,8 @@ jobs:
   - task: create-dev-release
     file: backup-and-restore-ci/tasks/create-dev-release/task.yml
     params:
-      AWS_ACCESS_KEY_ID: ((aws-access-key-id))
-      AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
+      AWS_ACCESS_KEY_ID: ((aws_credentials.access_key_id))
+      AWS_SECRET_ACCESS_KEY: ((aws_credentials.secret_access_key))
   - put: release
     params:
       file: backup-and-restore-sdk-release-build/backup-and-restore-sdk-*.tgz
@@ -352,11 +378,14 @@ jobs:
       resource: release
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
+    - get: bbl-state
     - get: xenial-stemcell
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    input_mapping:
+      bosh-backup-and-restore-meta: bbl-state
     params:
-      BBL_STATE: maru-lite
+      BBL_STATE: .
   - put: database-backup-restorer-deployment
     params:
       manifest: backup-and-restore-sdk-release/ci/manifests/database-backup-restorer.yml
@@ -385,10 +414,13 @@ jobs:
     - get: xenial-stemcell
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
+    - get: bbl-state
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    input_mapping:
+      bosh-backup-and-restore-meta: bbl-state
     params:
-      BBL_STATE: maru-lite
+      BBL_STATE: .
   - in_parallel:
     - put: postgres-9.4-dev-deployment
       params:
@@ -465,10 +497,13 @@ jobs:
       passed: [create-release]
     - get: bosh-backup-and-restore-meta
     - get: xenial-stemcell
+    - get: bbl-state
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    input_mapping:
+      bosh-backup-and-restore-meta: bbl-state
     params:
-      BBL_STATE: maru-lite
+      BBL_STATE: .
   - put: mysql-dev-deployment
     attempts: 3
     params:
@@ -506,14 +541,14 @@ jobs:
         env_name: bbr-sdk-external-rds-dbs
         delete_on_failure: true
         vars:
-          aws_access_key: ((aws-access-key-id))
-          aws_secret_key: ((aws-secret-access-key))
+          aws_access_key: ((aws_credentials.access_key_id))
+          aws_secret_key: ((aws_credentials.secret_access_key))
           aws_region: *aws-region
-          mysql_5_7_password: ((rds-5-7-password))
-          postgres_9_6_password: ((rds-postgres-9-6-password))
-          postgres_10_password: ((rds-postgres-10-password))
-          postgres_11_password: ((rds-postgres-11-password))
-          mariadb_10_password: ((rds-mariadb-10-password))
+          mysql_5_7_password: ((backup-and-restore-sdk-release.rds_5_7_password))
+          postgres_9_6_password: ((backup-and-restore-sdk-release.rds_postgres_9_6_password))
+          postgres_10_password: ((backup-and-restore-sdk-release.rds_postgres_10_password))
+          postgres_11_password: ((backup-and-restore-sdk-release.rds_postgres_11_password))
+          mariadb_10_password: ((backup-and-restore-sdk-release.rds_mariadb_10_password))
       get_params:
         output_statefile: true
     - task: get-latest-rds-ca-bundle
@@ -545,11 +580,11 @@ jobs:
       env_name: bbr-sdk-external-gcp-dbs
       delete_on_failure: true
       vars:
-        mysql-5-7-password: ((gcp-mysql-5-7-password))
-        postgres-9-6-password: ((gcp-postgres-9-6-password))
-        director-external-ip: ((maru-lite-jumpbox-address))
-        director-jumpbox-ip: ((maru-lite-bosh-director-external-ip))
-        gcp-key: ((gcp_service_account_key))
+        mysql-5-7-password: ((backup-and-restore-sdk-release.gcp_mysql_5_7_password))
+        postgres-9-6-password: ((backup-and-restore-sdk-release.gcp_postgres_9_6_password))
+        director-external-ip: ((infrastructure/bosh-lite-director.director_external_ip))
+        director-jumpbox-ip: ((infrastructure/bosh-lite-director.jumpbox_host))
+        gcp-key: ((gcp/service_accounts/owner_role.json_key))
     get_params:
       output_statefile: true
   - task: create-gcp-db-certs
@@ -557,7 +592,7 @@ jobs:
     input_mapping:
       terraform-state: terraform
     params:
-      GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
+      GCP_SERVICE_ACCOUNT_KEY: ((gcp/service_accounts/owner_role.json_key))
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -580,10 +615,13 @@ jobs:
     - get: xenial-stemcell
     - get: backup-and-restore-ci
     - get: bosh-backup-and-restore-meta
+    - get: bbl-state
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    input_mapping:
+      bosh-backup-and-restore-meta: bbl-state
     params:
-      BBL_STATE: maru-lite
+      BBL_STATE: .
   - put: aws-blobstore-sdk-deployment
     params:
       manifest: backup-and-restore-sdk-release/ci/manifests/s3-backuper.yml
@@ -594,8 +632,8 @@ jobs:
       vars:
         deployment-name: s3-backuper
         availability_zone: z1
-        aws-access-key-id: ((aws-access-key-id))
-        aws-secret-access-key: ((aws-secret-access-key))
+        aws-access-key-id: ((aws_credentials.access_key_id))
+        aws-secret-access-key: ((aws_credentials.secret_access_key))
         s3-bucket-name: bbr-system-test-bucket
         s3-cloned-bucket-name: bbr-system-test-bucket-clone
         s3-region: *aws-region
@@ -606,8 +644,8 @@ jobs:
         s3-unversioned-bucket-region: *aws-region
         s3-unversioned-backup-bucket-name: bbr-system-test-s3-unversioned-backup-bucket
         s3-unversioned-backup-bucket-region: us-east-1
-        minio-access-key: "((minio-access-key))"
-        minio-secret-key: "((minio-secret-key))"
+        minio-access-key: ((backup-and-restore-sdk-release.minio_access_key))
+        minio-secret-key: ((backup-and-restore-sdk-release.minio_secret_key))
         s3-unversioned-bpm-bucket-name: sdk-system-test-unversioned-bpm
         s3-unversioned-bpm-bucket-region: *aws-region
         s3-unversioned-bpm-backup-bucket-name: sdk-system-test-unversioned-bpm-backup
@@ -669,10 +707,13 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: xenial-stemcell
     - get: backup-and-restore-ci
+    - get: bbl-state
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    input_mapping:
+      bosh-backup-and-restore-meta: bbl-state
     params:
-      BBL_STATE: maru-lite
+      BBL_STATE: .
   - put: azure-blobstore-sdk-deployment
     params:
       manifest: backup-and-restore-sdk-release/ci/manifests/azure-backuper.yml
@@ -683,10 +724,10 @@ jobs:
       vars:
         deployment-name: azure-backuper
         azure-container-name: bbr-system-test-azure-container
-        azure-storage-account: ((azure-storage-account))
-        azure-storage-key: ((azure-storage-key))
-        azure-different-storage-account: ((azure-different-storage-account))
-        azure-different-storage-key: ((azure-different-storage-key))
+        azure-storage-account: ((azure_credentials.storage_account_1))
+        azure-storage-key: ((azure_credentials.storage_key_1))
+        azure-different-storage-account: ((azure_credentials.storage_account_2))
+        azure-different-storage-key: ((azure_credentials.storage_key_2))
         azure-different-container-name: bbr-system-test-azure-different-container
       source_file: source-file/source-file.yml
 
@@ -751,7 +792,7 @@ jobs:
       POSTGRES_HOSTNAME: *postgres-9-6-host
       POSTGRES_USERNAME: ssl_user
       POSTGRES_PORT: 5432
-      POSTGRES_CA_CERT: ((postgres-96-ca-cert))
+      POSTGRES_CA_CERT: ((backup-and-restore-sdk-release-db-certs.postgres_96_ca_cert))
       TEST_TLS_VERIFY_IDENTITY: false
   - task: postgres-mutual-tls-system-tests-9.6
     file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
@@ -762,9 +803,9 @@ jobs:
       POSTGRES_HOSTNAME: *postgres-9-6-host
       POSTGRES_USERNAME: mutual_tls_user
       POSTGRES_PORT: 5432
-      POSTGRES_CA_CERT: ((postgres-96-ca-cert))
-      POSTGRES_CLIENT_CERT: ((postgres-96-client-cert))
-      POSTGRES_CLIENT_KEY: ((postgres-96-client-key))
+      POSTGRES_CA_CERT: ((backup-and-restore-sdk-release-db-certs.postgres_96_ca_cert))
+      POSTGRES_CLIENT_CERT: ((backup-and-restore-sdk-release-db-certs.postgres_96_client_cert))
+      POSTGRES_CLIENT_KEY: ((backup-and-restore-sdk-release-db-certs.postgres_96_client_key))
       TEST_TLS_VERIFY_IDENTITY: false
 
 - name: postgres-system-tests-gcp
@@ -797,7 +838,7 @@ jobs:
     params:
       TEST_SUITE_NAME: postgresql
       <<: *MARU_LITE_BOSH_CREDS
-      POSTGRES_PASSWORD: ((gcp-postgres-9-6-password))
+      POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.gcp_postgres_9_6_password))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
       DB_TYPE: postgres
@@ -809,10 +850,10 @@ jobs:
     params:
       TEST_SUITE_NAME: postgresql_tls
       <<: *MARU_LITE_BOSH_CREDS
-      POSTGRES_PASSWORD: ((gcp-postgres-9-6-password))
+      POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.gcp_postgres_9_6_password))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
-      POSTGRES_CA_CERT_PATH: ((gcp-postgres-9-6-ca-cert-path))
+      POSTGRES_CA_CERT_PATH: *gcp-postgres-9-6-ca-cert-path
       TEST_TLS_VERIFY_IDENTITY: false
       TEST_SSL_USER_REQUIRES_SSL: false
       DB_TYPE: postgres
@@ -824,12 +865,12 @@ jobs:
     params:
       TEST_SUITE_NAME: postgresql_mutual_tls
       <<: *MARU_LITE_BOSH_CREDS
-      POSTGRES_PASSWORD: ((gcp-postgres-9-6-password))
+      POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.gcp_postgres_9_6_password))
       POSTGRES_USERNAME: root
       POSTGRES_PORT: 5432
-      POSTGRES_CA_CERT_PATH: ((gcp-postgres-9-6-mutual-tls-ca-cert-path))
-      POSTGRES_CLIENT_CERT_PATH: ((gcp-postgres-9-6-mutual-tls-client-cert-path))
-      POSTGRES_CLIENT_KEY_PATH: ((gcp-postgres-9-6-mutual-tls-client-key-path))
+      POSTGRES_CA_CERT_PATH: *gcp-postgres-9-6-mutual-tls-ca-cert-path
+      POSTGRES_CLIENT_CERT_PATH: *gcp-postgres-9-6-mutual-tls-client-cert-path
+      POSTGRES_CLIENT_KEY_PATH: *gcp-postgres-9-6-mutual-tls-client-key-path
       TEST_TLS_VERIFY_IDENTITY: false
       TEST_SSL_USER_REQUIRES_SSL: false
       DB_TYPE: postgres
@@ -866,7 +907,7 @@ jobs:
       params:
         TEST_SUITE_NAME: postgresql
         <<: *MARU_LITE_BOSH_CREDS
-        POSTGRES_PASSWORD: ((rds-postgres-9-6-password))
+        POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.rds_postgres_9_6_password))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
         DB_TYPE: postgres
@@ -878,7 +919,7 @@ jobs:
       params:
         TEST_SUITE_NAME: postgresql
         <<: *MARU_LITE_BOSH_CREDS
-        POSTGRES_PASSWORD: ((rds-postgres-10-password))
+        POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.rds_postgres_10_password))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
         DB_TYPE: postgres
@@ -890,7 +931,7 @@ jobs:
       params:
         TEST_SUITE_NAME: postgresql
         <<: *MARU_LITE_BOSH_CREDS
-        POSTGRES_PASSWORD: ((rds-postgres-11-password))
+        POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.rds_postgres_11_password))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
         DB_TYPE: postgres
@@ -903,10 +944,10 @@ jobs:
       params:
         TEST_SUITE_NAME: postgresql_tls
         <<: *MARU_LITE_BOSH_CREDS
-        POSTGRES_PASSWORD: ((rds-postgres-9-6-password))
+        POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.rds_postgres_9_6_password))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
-        POSTGRES_CA_CERT_PATH: ((rds-ca-cert-path))
+        POSTGRES_CA_CERT_PATH: *rds-ca-cert-path
         TEST_SSL_USER_REQUIRES_SSL: false
         DB_TYPE: postgres
         DB_PREFIX: postgres_9_6
@@ -917,10 +958,10 @@ jobs:
       params:
         TEST_SUITE_NAME: postgresql_tls
         <<: *MARU_LITE_BOSH_CREDS
-        POSTGRES_PASSWORD: ((rds-postgres-10-password))
+        POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.rds_postgres_10_password))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
-        POSTGRES_CA_CERT_PATH: ((rds-ca-cert-path))
+        POSTGRES_CA_CERT_PATH: *rds-ca-cert-path
         TEST_SSL_USER_REQUIRES_SSL: false
         DB_TYPE: postgres
         DB_PREFIX: postgres_10
@@ -931,10 +972,10 @@ jobs:
       params:
         TEST_SUITE_NAME: postgresql_tls
         <<: *MARU_LITE_BOSH_CREDS
-        POSTGRES_PASSWORD: ((rds-postgres-11-password))
+        POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.rds_postgres_11_password))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
-        POSTGRES_CA_CERT_PATH: ((rds-ca-cert-path))
+        POSTGRES_CA_CERT_PATH: *rds-ca-cert-path
         TEST_SSL_USER_REQUIRES_SSL: false
         DB_TYPE: postgres
         DB_PREFIX: postgres_11
@@ -964,9 +1005,9 @@ jobs:
       MYSQL_PORT: *mysql-port
       MYSQL_USERNAME: *mysql-username
       MYSQL_PASSWORD: *mysql-password
-      MYSQL_CA_CERT: ((mysql-ca-cert))
-      MYSQL_CLIENT_CERT: ((mysql-client-cert))
-      MYSQL_CLIENT_KEY: ((mysql-client-key))
+      MYSQL_CA_CERT: ((backup-and-restore-sdk-release-db-certs.mysql_ca_cert))
+      MYSQL_CLIENT_CERT: ((backup-and-restore-sdk-release-db-certs.mysql_client_cert))
+      MYSQL_CLIENT_KEY: ((backup-and-restore-sdk-release-db-certs.mysql_client_key))
       TEST_TLS_VERIFY_IDENTITY: false
       TEST_TLS_MUTUAL_TLS: false
 
@@ -1000,10 +1041,10 @@ jobs:
       params:
         <<: *MARU_LITE_BOSH_CREDS
         TEST_SUITE_NAME: mysql
-        MYSQL_PASSWORD: ((rds-mariadb-10-password))
+        MYSQL_PASSWORD: ((backup-and-restore-sdk-release.rds_mariadb_10_password))
         MYSQL_PORT: 3306
         MYSQL_USERNAME: root
-        MYSQL_CA_CERT_PATH: ((rds-ca-cert-path))
+        MYSQL_CA_CERT_PATH: *rds-ca-cert-path
         TEST_TLS_MUTUAL_TLS: false
         TEST_TLS_VERIFY_IDENTITY: false
         DB_TYPE: mysql
@@ -1040,10 +1081,10 @@ jobs:
       params:
         <<: *MARU_LITE_BOSH_CREDS
         TEST_SUITE_NAME: mysql
-        MYSQL_PASSWORD: ((rds-5-7-password))
+        MYSQL_PASSWORD: ((backup-and-restore-sdk-release.rds_5_7_password))
         MYSQL_PORT: 3306
         MYSQL_USERNAME: root
-        MYSQL_CA_CERT_PATH: ((rds-ca-cert-path))
+        MYSQL_CA_CERT_PATH: *rds-ca-cert-path
         TEST_TLS_MUTUAL_TLS: false
         DB_TYPE: mysql
         DB_PREFIX: mysql_5_7
@@ -1079,14 +1120,14 @@ jobs:
       params:
         <<: *MARU_LITE_BOSH_CREDS
         TEST_SUITE_NAME: mysql
-        MYSQL_PASSWORD: ((gcp-mysql-5-7-password))
+        MYSQL_PASSWORD: ((backup-and-restore-sdk-release.gcp_mysql_5_7_password))
         MYSQL_PORT: 3306
         MYSQL_USERNAME: root
         DB_TYPE: mysql
         DB_PREFIX: mysql_5_7
-        MYSQL_CA_CERT_PATH: ((gcp-mysql-5-7-ca-cert-path))
-        MYSQL_CLIENT_CERT_PATH: ((gcp-mysql-5-7-client-cert-path))
-        MYSQL_CLIENT_KEY_PATH: ((gcp-mysql-5-7-client-key-path))
+        MYSQL_CA_CERT_PATH: *gcp-mysql-5-7-ca-cert-path
+        MYSQL_CLIENT_CERT_PATH: *gcp-mysql-5-7-client-cert-path
+        MYSQL_CLIENT_KEY_PATH: *gcp-mysql-5-7-client-key-path
         TEST_TLS_VERIFY_IDENTITY: false
 
 - name: s3-blobstore-backuper-system-tests
@@ -1108,8 +1149,8 @@ jobs:
       <<: *MARU_LITE_BOSH_CREDS
       TEST_SUITE_NAME: s3
       BOSH_DEPLOYMENT: s3-backuper
-      AWS_ACCESS_KEY_ID: ((aws-access-key-id))
-      AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
+      AWS_ACCESS_KEY_ID: ((aws_credentials.access_key_id))
+      AWS_SECRET_ACCESS_KEY: ((aws_credentials.secret_access_key))
       AWS_TEST_BUCKET_NAME: bbr-system-test-bucket
       AWS_TEST_BUCKET_REGION: *aws-region
       AWS_TEST_CLONE_BUCKET_NAME: bbr-system-test-bucket-clone
@@ -1155,10 +1196,10 @@ jobs:
       BOSH_DEPLOYMENT: s3-backuper
       BOSH_CA_CERT: "((infrastructure/director-with-iam-profile.director_ca_cert))"
       BOSH_GW_USER: jumpbox
-      BOSH_GW_HOST: "((infrastructure/director-with-iam-profile.jumpbox_host)):22"
+      BOSH_GW_HOST: "((infrastructure/director-with-iam-profile.jumpbox_host))"
       BOSH_GW_PRIVATE_KEY: "((infrastructure/director-with-iam-profile.jumpbox_ssh_key))"
-      AWS_ACCESS_KEY_ID: ((aws-access-key-id))
-      AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
+      AWS_ACCESS_KEY_ID: ((aws_credentials.access_key_id))
+      AWS_SECRET_ACCESS_KEY: ((aws_credentials.secret_access_key))
       AWS_TEST_BUCKET_NAME: iam-instance-role-test
       AWS_TEST_BUCKET_REGION: *aws-region
       AWS_TEST_CLONE_BUCKET_NAME: iam-instance-role-test-clone
@@ -1185,11 +1226,11 @@ jobs:
       <<: *MARU_LITE_BOSH_CREDS
       TEST_SUITE_NAME: azure
       BOSH_DEPLOYMENT: azure-backuper
-      AZURE_STORAGE_ACCOUNT: ((azure-storage-account))
-      AZURE_STORAGE_KEY: ((azure-storage-key))
+      AZURE_STORAGE_ACCOUNT: ((azure_credentials.storage_account_1))
+      AZURE_STORAGE_KEY: ((azure_credentials.storage_key_1))
       AZURE_CONTAINER_NAME: bbr-system-test-azure-container
-      AZURE_DIFFERENT_STORAGE_ACCOUNT: ((azure-different-storage-account))
-      AZURE_DIFFERENT_STORAGE_KEY: ((azure-different-storage-key))
+      AZURE_DIFFERENT_STORAGE_ACCOUNT: ((azure_credentials.storage_account_2))
+      AZURE_DIFFERENT_STORAGE_KEY: ((azure_credentials.storage_key_2))
       AZURE_DIFFERENT_CONTAINER_NAME: bbr-system-test-azure-different-container
 
 - name: deploy-gcs-blobstore-sdk
@@ -1210,10 +1251,13 @@ jobs:
     - get: xenial-stemcell
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
+    - get: bbl-state
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    input_mapping:
+      bosh-backup-and-restore-meta: bbl-state
     params:
-      BBL_STATE: maru-lite
+      BBL_STATE: .
   - put: gcs-blobstore-sdk-deployment
     params:
       manifest: backup-and-restore-sdk-release/ci/manifests/gcs-backuper.yml
@@ -1223,7 +1267,7 @@ jobs:
       - release-tarball/backup-and-restore-sdk-*.tgz
       vars:
         deployment-name: gcs-backuper
-        gcp-service-account-key: ((gcp_service_account_key))
+        gcp-service-account-key: ((gcp/service_accounts/owner_role.json_key))
         gcs-bucket-name: bbr-system-test-gcs-bucket
         gcs-backup-bucket-name: bbr-system-test-gcs-backup-bucket
       source_file: source-file/source-file.yml
@@ -1245,7 +1289,7 @@ jobs:
     file: backup-and-restore-ci/tasks/sdk-system-blobstore/task.yml
     params:
       TEST_SUITE_NAME: gcs
-      GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
+      GCP_SERVICE_ACCOUNT_KEY: ((gcp/service_accounts/owner_role.json_key))
       GCP_PROJECT_NAME: cf-backup-and-restore
       GCS_BUCKET_NAME: bbr-system-test-gcs-bucket
       GCS_BACKUP_BUCKET_NAME: bbr-system-test-gcs-backup-bucket
@@ -1298,8 +1342,8 @@ jobs:
   - task: create-final-release
     file: backup-and-restore-ci/tasks/create-final-release/task.yml
     params:
-      AWS_ACCESS_KEY_ID: ((aws-access-key-id))
-      AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
+      AWS_ACCESS_KEY_ID: ((aws_credentials.access_key_id))
+      AWS_SECRET_ACCESS_KEY: ((aws_credentials.secret_access_key))
   - task: generate-release-notes
     file: backup-and-restore-ci/tasks/generate-release-notes/task.yml
     input_mapping:
@@ -1367,8 +1411,8 @@ jobs:
       VENDOR_UPDATES_BRANCH: golang-vendor-updates
       COMMIT_USERNAME: bump-golang CI job
       COMMIT_USEREMAIL: mapbu-cryogenics@groups.vmware.com
-      AWS_ACCESS_KEY_ID: ((aws-access-key-id))
-      AWS_SECRET_ACCESS_KEY: ((aws-secret-access-key))
+      AWS_ACCESS_KEY_ID: ((aws_credentials.access_key_id))
+      AWS_SECRET_ACCESS_KEY: ((aws_credentials.secret_access_key))
 
   - put: backup-and-restore-sdk-release-vendoring
     params:
