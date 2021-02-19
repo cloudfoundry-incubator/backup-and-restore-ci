@@ -6,12 +6,12 @@ image_resource:
   source: {repository: pcfplatformrecovery/backup-and-restore}
 
 inputs:
-- name: bosh-backup-and-restore-meta
 - name: backup-and-restore-ci
 - name: terraform-state
+- name: gcp-db-certs
 
 outputs:
-- name: bosh-backup-and-restore-meta
+- name: gcp-db-certs
 
 params:
   GCP_SERVICE_ACCOUNT_KEY:

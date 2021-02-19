@@ -26,30 +26,30 @@ if [ "$DB_TYPE" == "mysql" ]; then
   export MYSQL_HOSTNAME="$( terraform_output "${DB_PREFIX}_address" )"
 
   if [ ! -z "$MYSQL_CA_CERT_PATH" ]; then
-    export MYSQL_CA_CERT="$( cat "ca-cert-store/${MYSQL_CA_CERT_PATH}" )"
+    export MYSQL_CA_CERT="$( cat "cert-store/${MYSQL_CA_CERT_PATH}" )"
   fi
 
   if [ ! -z "$MYSQL_CLIENT_CERT_PATH" ]; then
-    export MYSQL_CLIENT_CERT="$( cat "bosh-backup-and-restore-meta/${MYSQL_CLIENT_CERT_PATH}" )"
+    export MYSQL_CLIENT_CERT="$( cat "cert-store/${MYSQL_CLIENT_CERT_PATH}" )"
   fi
 
   if [ ! -z "$MYSQL_CLIENT_KEY_PATH" ]; then
-    export MYSQL_CLIENT_KEY="$( cat "bosh-backup-and-restore-meta/${MYSQL_CLIENT_KEY_PATH}" )"
+    export MYSQL_CLIENT_KEY="$( cat "cert-store/${MYSQL_CLIENT_KEY_PATH}" )"
   fi
 
 elif [ "$DB_TYPE" == "postgres" ]; then
   export POSTGRES_HOSTNAME="$( terraform_output "${DB_PREFIX}_address" )"
 
   if [ ! -z "$POSTGRES_CA_CERT_PATH" ]; then
-    export POSTGRES_CA_CERT="$( cat "ca-cert-store/${POSTGRES_CA_CERT_PATH}" )"
+    export POSTGRES_CA_CERT="$( cat "cert-store/${POSTGRES_CA_CERT_PATH}" )"
   fi
 
   if [ ! -z "$POSTGRES_CLIENT_CERT_PATH" ]; then
-    export POSTGRES_CLIENT_CERT="$( cat "bosh-backup-and-restore-meta/${POSTGRES_CLIENT_CERT_PATH}" )"
+    export POSTGRES_CLIENT_CERT="$( cat "cert-store/${POSTGRES_CLIENT_CERT_PATH}" )"
   fi
 
   if [ ! -z "$POSTGRES_CLIENT_KEY_PATH" ]; then
-    export POSTGRES_CLIENT_KEY="$( cat "bosh-backup-and-restore-meta/${POSTGRES_CLIENT_KEY_PATH}" )"
+    export POSTGRES_CLIENT_KEY="$( cat "cert-store/${POSTGRES_CLIENT_KEY_PATH}" )"
   fi
 
 else
