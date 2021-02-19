@@ -45,7 +45,6 @@ postgres-11-port: &postgres-11-port 5432
 postgres-11-username: &postgres-11-username test_user
 postgres-11-password: &postgres-11-password postgres_password
 
-rds-ca-cert-path: &rds-ca-cert-path "ci/backup-and-restore-sdk-release/certs/rds-combined-ca-bundle.pem"
 gcp-mysql-5-7-ca-cert-path: &gcp-mysql-5-7-ca-cert-path "ci/backup-and-restore-sdk-release/certs/gcp-mysql_5_7/test-server-cert.pem"
 gcp-mysql-5-7-client-cert-path: &gcp-mysql-5-7-client-cert-path "ci/backup-and-restore-sdk-release/certs/gcp-mysql_5_7/test-client-cert.pem"
 gcp-mysql-5-7-client-key-path: &gcp-mysql-5-7-client-key-path "ci/backup-and-restore-sdk-release/certs/gcp-mysql_5_7/test-client-key.pem"
@@ -60,6 +59,12 @@ vault_creds: &vault_creds
   secret_id: ((vault/resource_credentials.secret_id))
 
 resource_types:
+- name: file-url
+  type: docker-image
+  source:
+    repository: pivotalservices/concourse-curl-resource
+    tag: latest
+
 - name: bosh-deployment
   type: docker-image
   source:
@@ -88,6 +93,12 @@ resource_types:
     tag: latest
 
 resources:
+- name: rds-ca-bundle
+  type: file-url
+  source:
+    url: https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+    filename: rds-combined-ca-bundle.pem
+
 - name: terraform
   type: custom-terraform
   source:
@@ -264,6 +275,13 @@ resources:
     path: /concourse/common/infrastructure/bosh/maru-lite
     tarball: true
 
+- name: bbl-state-director-with-iam-profile
+  type: vault
+  source:
+    <<: *vault_creds
+    path: /concourse/common/infrastructure/bosh/aws-ec2
+    tarball: true
+
 jobs:
 - name: unit-tests
   serial: true
@@ -274,7 +292,6 @@ jobs:
     - get: backup-and-restore-sdk-release
       trigger: true
     - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-meta
   - in_parallel:
     - task: sdk-template-unit-tests
       file: backup-and-restore-ci/tasks/sdk-template-unit-tests/task.yml
@@ -345,7 +362,6 @@ jobs:
     - get: every6h
       trigger: true
       passed: [contract-tests]
-    - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed: [contract-tests]
@@ -377,7 +393,6 @@ jobs:
     - get: release-tarball
       resource: release
       passed: [create-release]
-    - get: bosh-backup-and-restore-meta
     - get: bbl-state-bosh-lite
     - get: xenial-stemcell
   - task: generate-bosh-deployment-source-file
@@ -551,16 +566,6 @@ jobs:
           mariadb_10_password: ((backup-and-restore-sdk-release.rds_mariadb_10_password))
       get_params:
         output_statefile: true
-    - task: get-latest-rds-ca-bundle
-      file: backup-and-restore-ci/tasks/get-latest-rds-ca-bundle/task.yml
-      params:
-        GIT_COMMIT_EMAIL: cf-lazarus@pivotal.io
-        GIT_COMMIT_USERNAME: "Backup & Restore Concourse"
-      ensure:
-        put: bosh-backup-and-restore-meta
-        params:
-          repository: bosh-backup-and-restore-meta
-          rebase: true
 
 - name: deploy-external-gcp-dbs
   serial: true
@@ -674,10 +679,13 @@ jobs:
     - get: bosh-backup-and-restore-meta
     - get: xenial-stemcell-aws
     - get: backup-and-restore-ci
+    - get: bbl-state-director-with-iam-profile
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
+    input_mapping:
+      bosh-backup-and-restore-meta: bbl-state-director-with-iam-profile
     params:
-      BBL_STATE: external-blobstore-directors/aws-ec2
+      BBL_STATE: .
   - put: s3-backuper-with-iam-instance-profile-deployment
     params:
       manifest: backup-and-restore-sdk-release/ci/manifests/s3-backuper-with-iam-instance-profile.yml
@@ -835,6 +843,7 @@ jobs:
     file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
     input_mapping:
       terraform-state: terraform-gcp
+      ca-cert-store: bosh-backup-and-restore-meta
     params:
       TEST_SUITE_NAME: postgresql
       <<: *bosh-lite-creds
@@ -847,6 +856,7 @@ jobs:
     file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
     input_mapping:
       terraform-state: terraform-gcp
+      ca-cert-store: bosh-backup-and-restore-meta
     params:
       TEST_SUITE_NAME: postgresql_tls
       <<: *bosh-lite-creds
@@ -862,6 +872,7 @@ jobs:
     file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
     input_mapping:
       terraform-state: terraform-gcp
+      ca-cert-store: bosh-backup-and-restore-meta
     params:
       TEST_SUITE_NAME: postgresql_mutual_tls
       <<: *bosh-lite-creds
@@ -899,6 +910,7 @@ jobs:
       params:
         env_name: bbr-sdk-external-rds-dbs
         output_statefile: true
+    - get: rds-ca-bundle
   - in_parallel:
     - task: postgres-system-tests-9.6
       file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
@@ -941,13 +953,14 @@ jobs:
       file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
       input_mapping:
         terraform-state: terraform-aws
+        ca-cert-store: rds-ca-bundle
       params:
         TEST_SUITE_NAME: postgresql_tls
         <<: *bosh-lite-creds
         POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.rds_postgres_9_6_password))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
-        POSTGRES_CA_CERT_PATH: *rds-ca-cert-path
+        POSTGRES_CA_CERT_PATH: rds-combined-ca-bundle.pem
         TEST_SSL_USER_REQUIRES_SSL: false
         DB_TYPE: postgres
         DB_PREFIX: postgres_9_6
@@ -955,13 +968,14 @@ jobs:
       file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
       input_mapping:
         terraform-state: terraform-aws
+        ca-cert-store: rds-ca-bundle
       params:
         TEST_SUITE_NAME: postgresql_tls
         <<: *bosh-lite-creds
         POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.rds_postgres_10_password))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
-        POSTGRES_CA_CERT_PATH: *rds-ca-cert-path
+        POSTGRES_CA_CERT_PATH: rds-combined-ca-bundle.pem
         TEST_SSL_USER_REQUIRES_SSL: false
         DB_TYPE: postgres
         DB_PREFIX: postgres_10
@@ -969,13 +983,14 @@ jobs:
       file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
       input_mapping:
         terraform-state: terraform-aws
+        ca-cert-store: rds-ca-bundle
       params:
         TEST_SUITE_NAME: postgresql_tls
         <<: *bosh-lite-creds
         POSTGRES_PASSWORD: ((backup-and-restore-sdk-release.rds_postgres_11_password))
         POSTGRES_USERNAME: root
         POSTGRES_PORT: 5432
-        POSTGRES_CA_CERT_PATH: *rds-ca-cert-path
+        POSTGRES_CA_CERT_PATH: rds-combined-ca-bundle.pem
         TEST_SSL_USER_REQUIRES_SSL: false
         DB_TYPE: postgres
         DB_PREFIX: postgres_11
@@ -1033,18 +1048,20 @@ jobs:
       params:
         env_name: bbr-sdk-external-rds-dbs
         output_statefile: true
+    - get: rds-ca-bundle
   - in_parallel:
     - task: maria-system-tests-10-2
       file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
       input_mapping:
         terraform-state: terraform-aws
+        ca-cert-store: rds-ca-bundle
       params:
         <<: *bosh-lite-creds
         TEST_SUITE_NAME: mysql
         MYSQL_PASSWORD: ((backup-and-restore-sdk-release.rds_mariadb_10_password))
         MYSQL_PORT: 3306
         MYSQL_USERNAME: root
-        MYSQL_CA_CERT_PATH: *rds-ca-cert-path
+        MYSQL_CA_CERT_PATH: rds-combined-ca-bundle.pem
         TEST_TLS_MUTUAL_TLS: false
         TEST_TLS_VERIFY_IDENTITY: false
         DB_TYPE: mysql
@@ -1078,13 +1095,14 @@ jobs:
       file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
       input_mapping:
         terraform-state: terraform-aws
+        ca-cert-store: rds-ca-bundle
       params:
         <<: *bosh-lite-creds
         TEST_SUITE_NAME: mysql
         MYSQL_PASSWORD: ((backup-and-restore-sdk-release.rds_5_7_password))
         MYSQL_PORT: 3306
         MYSQL_USERNAME: root
-        MYSQL_CA_CERT_PATH: *rds-ca-cert-path
+        MYSQL_CA_CERT_PATH: rds-combined-ca-bundle.pem
         TEST_TLS_MUTUAL_TLS: false
         DB_TYPE: mysql
         DB_PREFIX: mysql_5_7
@@ -1117,6 +1135,7 @@ jobs:
       file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
       input_mapping:
         terraform-state: terraform-gcp
+        ca-cert-store: bosh-backup-and-restore-meta
       params:
         <<: *bosh-lite-creds
         TEST_SUITE_NAME: mysql

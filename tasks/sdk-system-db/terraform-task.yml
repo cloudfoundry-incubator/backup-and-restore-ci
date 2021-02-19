@@ -26,6 +26,7 @@ inputs:
 - name: backup-and-restore-sdk-release
 - name: terraform-state
 - name: bosh-backup-and-restore-meta
+- name: ca-cert-store
 
 run:
   path: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.sh
