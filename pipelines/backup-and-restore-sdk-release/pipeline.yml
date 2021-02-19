@@ -45,13 +45,13 @@ postgres-11-port: &postgres-11-port 5432
 postgres-11-username: &postgres-11-username test_user
 postgres-11-password: &postgres-11-password postgres_password
 
-gcp-mysql-5-7-ca-cert-path: &gcp-mysql-5-7-ca-cert-path "ci/backup-and-restore-sdk-release/certs/gcp-mysql_5_7/test-server-cert.pem"
-gcp-mysql-5-7-client-cert-path: &gcp-mysql-5-7-client-cert-path "ci/backup-and-restore-sdk-release/certs/gcp-mysql_5_7/test-client-cert.pem"
-gcp-mysql-5-7-client-key-path: &gcp-mysql-5-7-client-key-path "ci/backup-and-restore-sdk-release/certs/gcp-mysql_5_7/test-client-key.pem"
-gcp-postgres-9-6-ca-cert-path: &gcp-postgres-9-6-ca-cert-path "ci/backup-and-restore-sdk-release/certs/gcp-postgres_9_6/test-server-cert.pem"
-gcp-postgres-9-6-mutual-tls-ca-cert-path: &gcp-postgres-9-6-mutual-tls-ca-cert-path "ci/backup-and-restore-sdk-release/certs/gcp-postgres_9_6_mutual_tls/test-server-cert.pem"
-gcp-postgres-9-6-mutual-tls-client-cert-path: &gcp-postgres-9-6-mutual-tls-client-cert-path "ci/backup-and-restore-sdk-release/certs/gcp-postgres_9_6_mutual_tls/test-client-cert.pem"
-gcp-postgres-9-6-mutual-tls-client-key-path: &gcp-postgres-9-6-mutual-tls-client-key-path "ci/backup-and-restore-sdk-release/certs/gcp-postgres_9_6_mutual_tls/test-client-key.pem"
+gcp-mysql-5-7-ca-cert-path: &gcp-mysql-5-7-ca-cert-path "gcp-mysql_5_7-test-server-cert.pem"
+gcp-mysql-5-7-client-cert-path: &gcp-mysql-5-7-client-cert-path "gcp-mysql_5_7-test-client-cert.pem"
+gcp-mysql-5-7-client-key-path: &gcp-mysql-5-7-client-key-path "gcp-mysql_5_7-test-client-key.pem"
+gcp-postgres-9-6-ca-cert-path: &gcp-postgres-9-6-ca-cert-path "gcp-postgres_9_6-test-server-cert.pem"
+gcp-postgres-9-6-mutual-tls-ca-cert-path: &gcp-postgres-9-6-mutual-tls-ca-cert-path "gcp-postgres_9_6_mutual_tls-test-server-cert.pem"
+gcp-postgres-9-6-mutual-tls-client-cert-path: &gcp-postgres-9-6-mutual-tls-client-cert-path "gcp-postgres_9_6_mutual_tls-test-client-cert.pem"
+gcp-postgres-9-6-mutual-tls-client-key-path: &gcp-postgres-9-6-mutual-tls-client-key-path "gcp-postgres_9_6_mutual_tls-test-client-key.pem"
 
 vault_creds: &vault_creds
   url: ((vault/server.url))
@@ -282,6 +282,12 @@ resources:
     path: /concourse/common/infrastructure/bosh/aws-ec2
     tarball: true
 
+- name: gcp-db-certs
+  type: vault
+  source:
+    <<: *vault_creds
+    path: /concourse/bosh-backup-restore/gcp-db-certs
+
 jobs:
 - name: unit-tests
   serial: true
@@ -292,6 +298,7 @@ jobs:
     - get: backup-and-restore-sdk-release
       trigger: true
     - get: backup-and-restore-ci
+    - get: bosh-backup-and-restore-meta
   - in_parallel:
     - task: sdk-template-unit-tests
       file: backup-and-restore-ci/tasks/sdk-template-unit-tests/task.yml
@@ -579,6 +586,7 @@ jobs:
       trigger: true
     - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
+    - get: gcp-db-certs
   - put: terraform
     params:
       terraform_source: bosh-backup-and-restore-meta/terraform/bbr-sdk-system-tests/gcp/
@@ -599,10 +607,9 @@ jobs:
     params:
       GCP_SERVICE_ACCOUNT_KEY: ((gcp/service_accounts/owner_role.json_key))
     ensure:
-      put: bosh-backup-and-restore-meta
+      put: gcp-db-certs
       params:
-        repository: bosh-backup-and-restore-meta
-        rebase: true
+        data: gcp-db-certs
 
 - name: deploy-s3-blobstore-sdk
   serial: true
@@ -754,6 +761,8 @@ jobs:
       - deploy-database-sdk
       - deploy-postgres
       trigger: true
+    - get: cert-store
+      resource: gcp-db-certs
   - in_parallel:
     - task: postgres-system-tests-9.4
       file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
@@ -839,11 +848,12 @@ jobs:
       params:
         env_name: bbr-sdk-external-gcp-dbs
         output_statefile: true
+    - get: cert-store
+      resource: gcp-db-certs
   - task: postgres-system-tests-9.6
     file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
     input_mapping:
       terraform-state: terraform-gcp
-      ca-cert-store: bosh-backup-and-restore-meta
     params:
       TEST_SUITE_NAME: postgresql
       <<: *bosh-lite-creds
@@ -856,7 +866,6 @@ jobs:
     file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
     input_mapping:
       terraform-state: terraform-gcp
-      ca-cert-store: bosh-backup-and-restore-meta
     params:
       TEST_SUITE_NAME: postgresql_tls
       <<: *bosh-lite-creds
@@ -872,7 +881,6 @@ jobs:
     file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
     input_mapping:
       terraform-state: terraform-gcp
-      ca-cert-store: bosh-backup-and-restore-meta
     params:
       TEST_SUITE_NAME: postgresql_mutual_tls
       <<: *bosh-lite-creds
@@ -910,7 +918,8 @@ jobs:
       params:
         env_name: bbr-sdk-external-rds-dbs
         output_statefile: true
-    - get: rds-ca-bundle
+    - get: cert-store
+      resource: rds-ca-bundle
   - in_parallel:
     - task: postgres-system-tests-9.6
       file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
@@ -953,7 +962,6 @@ jobs:
       file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
       input_mapping:
         terraform-state: terraform-aws
-        ca-cert-store: rds-ca-bundle
       params:
         TEST_SUITE_NAME: postgresql_tls
         <<: *bosh-lite-creds
@@ -968,7 +976,6 @@ jobs:
       file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
       input_mapping:
         terraform-state: terraform-aws
-        ca-cert-store: rds-ca-bundle
       params:
         TEST_SUITE_NAME: postgresql_tls
         <<: *bosh-lite-creds
@@ -983,7 +990,6 @@ jobs:
       file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
       input_mapping:
         terraform-state: terraform-aws
-        ca-cert-store: rds-ca-bundle
       params:
         TEST_SUITE_NAME: postgresql_tls
         <<: *bosh-lite-creds
@@ -1048,13 +1054,13 @@ jobs:
       params:
         env_name: bbr-sdk-external-rds-dbs
         output_statefile: true
-    - get: rds-ca-bundle
+    - get: cert-store
+      resource: rds-ca-bundle
   - in_parallel:
     - task: maria-system-tests-10-2
       file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
       input_mapping:
         terraform-state: terraform-aws
-        ca-cert-store: rds-ca-bundle
       params:
         <<: *bosh-lite-creds
         TEST_SUITE_NAME: mysql
@@ -1090,12 +1096,13 @@ jobs:
       params:
         env_name: bbr-sdk-external-rds-dbs
         output_statefile: true
+    - get: cert-store
+      resource: rds-ca-bundle
   - in_parallel:    
     - task: mysql-system-tests-5.7
       file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
       input_mapping:
         terraform-state: terraform-aws
-        ca-cert-store: rds-ca-bundle
       params:
         <<: *bosh-lite-creds
         TEST_SUITE_NAME: mysql
@@ -1130,12 +1137,13 @@ jobs:
       params:
         env_name: bbr-sdk-external-gcp-dbs
         output_statefile: true
+    - get: cert-store
+      resource: gcp-db-certs
   - in_parallel:    
     - task: mysql-system-tests-5.7
       file: backup-and-restore-ci/tasks/sdk-system-db/terraform-task.yml
       input_mapping:
         terraform-state: terraform-gcp
-        ca-cert-store: bosh-backup-and-restore-meta
       params:
         <<: *bosh-lite-creds
         TEST_SUITE_NAME: mysql
