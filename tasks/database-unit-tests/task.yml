@@ -23,7 +23,7 @@ image_resource:
 
 inputs:
 - name: backup-and-restore-sdk-release
-- name: bosh-backup-and-restore-meta
+- name: github-sdk-key
 - name: backup-and-restore-ci
 
 run:

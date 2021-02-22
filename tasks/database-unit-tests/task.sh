@@ -19,8 +19,8 @@
 set -eu
 
 eval "$(ssh-agent)"
-chmod 400 bosh-backup-and-restore-meta/keys/github
-ssh-add bosh-backup-and-restore-meta/keys/github
+chmod 400 github-sdk-key/key
+ssh-add github-sdk-key/key
 
 export GOPATH="$PWD/backup-and-restore-sdk-release:$GOPATH"
 
