@@ -288,6 +288,12 @@ resources:
     <<: *vault_creds
     path: /concourse/bosh-backup-restore/gcp-db-certs
 
+- name: github-sdk-key
+  type: vault
+  source:
+    <<: *vault_creds
+    path: /concourse/bosh-backup-restore/github-sdk
+
 jobs:
 - name: unit-tests
   serial: true
@@ -298,7 +304,7 @@ jobs:
     - get: backup-and-restore-sdk-release
       trigger: true
     - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-meta
+    - get: github-sdk-key
   - in_parallel:
     - task: sdk-template-unit-tests
       file: backup-and-restore-ci/tasks/sdk-template-unit-tests/task.yml
