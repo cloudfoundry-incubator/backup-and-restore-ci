@@ -295,26 +295,25 @@ jobs:
       trigger: true
     - get: backup-and-restore-sdk-release
       trigger: true
-    - get: backup-and-restore-ci
     - get: github-sdk-key
   - in_parallel:
     - task: sdk-template-unit-tests
-      file: backup-and-restore-ci/tasks/sdk-template-unit-tests/task.yml
+      file: backup-and-restore-sdk-release/ci/tasks/sdk-template-unit-tests/task.yml
     - task: databases-unit-tests
-      file: backup-and-restore-ci/tasks/database-unit-tests/task.yml
+      file: backup-and-restore-sdk-release/ci/tasks/database-unit-tests/task.yml
       privileged: true
     - task: s3-blobstore-unit-tests
-      file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
+      file: backup-and-restore-sdk-release/ci/tasks/sdk-unit-blobstore/task.yml
       params:
         PACKAGE_NAME: s3-blobstore-backup-restore
         GINKGO_EXTRA_FLAGS: -p --skipPackage s3bucket
     - task: azure-blobstore-unit-tests
-      file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
+      file: backup-and-restore-sdk-release/ci/tasks/sdk-unit-blobstore/task.yml
       params:
         PACKAGE_NAME: azure-blobstore-backup-restore
         GINKGO_EXTRA_FLAGS: -p --skipPackage contract_test
     - task: gcs-blobstore-unit-tests
-      file: backup-and-restore-ci/tasks/sdk-unit-blobstore/task.yml
+      file: backup-and-restore-sdk-release/ci/tasks/sdk-unit-blobstore/task.yml
       params:
         PACKAGE_NAME: gcs-blobstore-backup-restore
         GINKGO_EXTRA_FLAGS: -p --skipPackage contract_test
