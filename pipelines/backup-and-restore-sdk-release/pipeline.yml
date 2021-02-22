@@ -131,14 +131,6 @@ resources:
     private_key: ((github.ssh_key))
     branch: golang-vendor-updates
 
-- name: bosh-backup-and-restore-meta
-  type: git
-  source:
-    uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
-    private_key: ((github.ssh_key))
-    git_crypt_key: ((github-bbr.crypt_key))
-    branch: master
-
 - name: backup-and-restore-ci
   type: git
   source:
@@ -410,8 +402,6 @@ jobs:
     - get: xenial-stemcell
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
-    input_mapping:
-      bosh-backup-and-restore-meta: bbl-state-bosh-lite
     params:
       BBL_STATE: .
   - put: database-backup-restorer-deployment
@@ -1341,13 +1331,13 @@ jobs:
   serial_groups: [version]
   plan:
   - in_parallel:
-    - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: backup-and-restore-sdk-release
       passed: [update-tracker]
     - get: backup-and-restore-sdk-release-master
     - get: version
       params: {bump: patch}
+    - get: cryogenics-meta
   - task: create-final-release
     file: backup-and-restore-ci/tasks/create-final-release/task.yml
     params:
@@ -1357,9 +1347,9 @@ jobs:
     file: backup-and-restore-ci/tasks/generate-release-notes/task.yml
     input_mapping:
       repo: backup-and-restore-sdk-release
-      template-folder: bosh-backup-and-restore-meta
+      template-folder: cryogenics-meta
     params:
-      TEMPLATE_PATH: templates/release-notes.md.erb
+      TEMPLATE_PATH: ci/release-templates/release-notes.md.erb
   - put: backup-and-restore-sdk-release-master
     params:
       repository: backup-and-restore-sdk-final-release
