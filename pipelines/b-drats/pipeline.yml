@@ -29,7 +29,7 @@ resources:
   type: pull-request
   source:
     repo: cloudfoundry-incubator/bosh-disaster-recovery-acceptance-tests
-    access_token: ((github-access-token))
+    access_token: ((github.access_token))
 
 - name: bosh-disaster-recovery-acceptance-tests
   type: git
@@ -42,7 +42,7 @@ resources:
   source:
     uri: git@github.com:pivotal-cf/bosh-backup-and-restore-meta.git
     private_key: ((github.ssh_key))
-    git_crypt_key: ((git-crypt-key))
+    git_crypt_key: ((github-bbr.crypt_key))
     branch: master
 
 - name: backup-and-restore-ci
@@ -57,7 +57,7 @@ resources:
   source:
     owner: cloudfoundry-incubator
     repository: bosh-backup-and-restore
-    access_token: ((github-access-token))
+    access_token: ((github.access_token))
 
 - name: terraform
   type: terraform
@@ -66,8 +66,8 @@ resources:
     backend_config:
       bucket: bbr-terraform-states
       key: terraform-state.tfstate
-      access_key: ((aws-access-key-id))
-      secret_key: ((aws-secret-access-key))
+      access_key: ((aws_credentials.access_key_id))
+      secret_key: ((aws_credentials.secret_access_key))
       region: eu-west-1
 
 - name: gcs-stemcell
@@ -105,7 +105,7 @@ jobs:
       delete_on_failure: true
       vars:
         environment_name: b-drats-master
-        gcp_service_account_key: ((terraform_service_account_key))
+        gcp_service_account_key: ((terraform.service_account_key))
     get_params:
       output_statefile: true
   - task: jumpbox-create-env
@@ -116,7 +116,7 @@ jobs:
     params:
       ENVIRONMENT_NAME: "b-drats-master/jumpbox"
       BOSH_OPERATION: "create-env"
-      GCP_SERVICE_ACCOUNT_KEY: ((director_service_account_key))
+      GCP_SERVICE_ACCOUNT_KEY: ((bosh_director.service_account_key))
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -133,7 +133,7 @@ jobs:
       JUMPBOX_ENVIRONMENT_NAME: "b-drats-master/jumpbox"
       DIRECTOR_NAME: "b-drats-master"
       BOSH_OPERATION: "create-env"
-      GCP_SERVICE_ACCOUNT_KEY: ((director_service_account_key))
+      GCP_SERVICE_ACCOUNT_KEY: ((bosh_director.service_account_key))
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -184,7 +184,7 @@ jobs:
       delete_on_failure: true
       vars:
         environment_name: b-drats-prs
-        gcp_service_account_key: ((terraform_service_account_key))
+        gcp_service_account_key: ((terraform.service_account_key))
     get_params:
       output_statefile: true
     on_failure:
@@ -201,7 +201,7 @@ jobs:
     params:
       ENVIRONMENT_NAME: "b-drats-prs/jumpbox"
       BOSH_OPERATION: "create-env"
-      GCP_SERVICE_ACCOUNT_KEY: ((director_service_account_key))
+      GCP_SERVICE_ACCOUNT_KEY: ((bosh_director.service_account_key))
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -224,7 +224,7 @@ jobs:
       JUMPBOX_ENVIRONMENT_NAME: "b-drats-prs/jumpbox"
       DIRECTOR_NAME: "b-drats-prs"
       BOSH_OPERATION: "create-env"
-      GCP_SERVICE_ACCOUNT_KEY: ((director_service_account_key))
+      GCP_SERVICE_ACCOUNT_KEY: ((bosh_director.service_account_key))
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -414,7 +414,7 @@ jobs:
       JUMPBOX_ENVIRONMENT_NAME: "b-drats-master/jumpbox"
       DIRECTOR_NAME: "b-drats-master"
       BOSH_OPERATION: "delete-env"
-      GCP_SERVICE_ACCOUNT_KEY: ((director_service_account_key))
+      GCP_SERVICE_ACCOUNT_KEY: ((bosh_director.service_account_key))
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -428,7 +428,7 @@ jobs:
     params:
       ENVIRONMENT_NAME: "b-drats-master/jumpbox"
       BOSH_OPERATION: "delete-env"
-      GCP_SERVICE_ACCOUNT_KEY: ((director_service_account_key))
+      GCP_SERVICE_ACCOUNT_KEY: ((bosh_director.service_account_key))
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -441,7 +441,7 @@ jobs:
       action: destroy
       vars:
         environment_name: b-drats-master
-        gcp_service_account_key: ((terraform_service_account_key))
+        gcp_service_account_key: ((terraform.service_account_key))
     get_params:
       action: destroy
 
@@ -478,7 +478,7 @@ jobs:
       JUMPBOX_ENVIRONMENT_NAME: "b-drats-prs/jumpbox"
       DIRECTOR_NAME: "b-drats-prs"
       BOSH_OPERATION: "delete-env"
-      GCP_SERVICE_ACCOUNT_KEY: ((director_service_account_key))
+      GCP_SERVICE_ACCOUNT_KEY: ((bosh_director.service_account_key))
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -498,7 +498,7 @@ jobs:
     params:
       ENVIRONMENT_NAME: "b-drats-prs/jumpbox"
       BOSH_OPERATION: "delete-env"
-      GCP_SERVICE_ACCOUNT_KEY: ((director_service_account_key))
+      GCP_SERVICE_ACCOUNT_KEY: ((bosh_director.service_account_key))
     ensure:
       put: bosh-backup-and-restore-meta
       params:
@@ -517,7 +517,7 @@ jobs:
       action: destroy
       vars:
         environment_name: b-drats-prs
-        gcp_service_account_key: ((terraform_service_account_key))
+        gcp_service_account_key: ((terraform.service_account_key))
     get_params:
       action: destroy
     on_failure:
