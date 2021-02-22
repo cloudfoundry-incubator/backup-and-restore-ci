@@ -440,13 +440,10 @@ jobs:
       resource: release
       passed: [create-release]
     - get: xenial-stemcell
-    - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: bbl-state-bosh-lite
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
-    input_mapping:
-      bosh-backup-and-restore-meta: bbl-state-bosh-lite
     params:
       BBL_STATE: .
   - in_parallel:
@@ -523,13 +520,10 @@ jobs:
     - get: release-tarball
       resource: release
       passed: [create-release]
-    - get: bosh-backup-and-restore-meta
     - get: xenial-stemcell
     - get: bbl-state-bosh-lite
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
-    input_mapping:
-      bosh-backup-and-restore-meta: bbl-state-bosh-lite
     params:
       BBL_STATE: .
   - put: mysql-dev-deployment
@@ -632,12 +626,9 @@ jobs:
       passed: [create-release]
     - get: xenial-stemcell
     - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-meta
     - get: bbl-state-bosh-lite
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
-    input_mapping:
-      bosh-backup-and-restore-meta: bbl-state-bosh-lite
     params:
       BBL_STATE: .
   - put: aws-blobstore-sdk-deployment
