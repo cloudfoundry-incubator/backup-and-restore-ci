@@ -557,11 +557,11 @@ jobs:
       resource: release
       passed: [create-release]
     - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-meta
+    - get: cryogenics-meta
   - in_parallel:
     - put: terraform
       params:
-        terraform_source: bosh-backup-and-restore-meta/terraform/bbr-sdk-system-tests/aws/
+        terraform_source: cryogenics-meta/ci/pipelines/backup-and-restore-sdk-release/terraform/bbr-sdk-system-tests/aws/
         env_name: bbr-sdk-external-rds-dbs
         delete_on_failure: true
         vars:
@@ -586,12 +586,12 @@ jobs:
     - get: backup-and-restore-sdk-release
       passed: [create-release]
       trigger: true
-    - get: bosh-backup-and-restore-meta
+    - get: cryogenics-meta
     - get: backup-and-restore-ci
     - get: gcp-db-certs
   - put: terraform
     params:
-      terraform_source: bosh-backup-and-restore-meta/terraform/bbr-sdk-system-tests/gcp/
+      terraform_source: cryogenics-meta/ci/pipelines/backup-and-restore-sdk-release/terraform/bbr-sdk-system-tests/gcp/
       env_name: bbr-sdk-external-gcp-dbs
       delete_on_failure: true
       vars:
