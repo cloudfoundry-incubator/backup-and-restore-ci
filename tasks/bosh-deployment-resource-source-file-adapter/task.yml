@@ -6,7 +6,7 @@ image_resource:
   source: {repository: pcfplatformrecovery/backup-and-restore}
 
 inputs:
-- name: bosh-backup-and-restore-meta
+- name: bbl-state-bosh-lite
 - name: backup-and-restore-ci
 
 outputs:

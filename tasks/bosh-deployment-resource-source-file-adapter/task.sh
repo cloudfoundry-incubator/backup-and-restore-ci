@@ -7,7 +7,7 @@ function get_ip_port() {
   grep -o '[0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}:[0-9]\{1,\}' <<< "$1"
 }
 
-eval "$( bbl --state-dir "bosh-backup-and-restore-meta/$BBL_STATE" print-env )"
+eval "$( bbl --state-dir "bbl-state-bosh-lite/$BBL_STATE" print-env )"
 
 yq write <( cat <<EOF
 ---
