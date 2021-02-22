@@ -682,14 +682,13 @@ jobs:
     - get: release-tarball
       resource: release
       passed: [create-release]
-    - get: bosh-backup-and-restore-meta
     - get: xenial-stemcell-aws
     - get: backup-and-restore-ci
     - get: bbl-state-director-with-iam-profile
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
     input_mapping:
-      bosh-backup-and-restore-meta: bbl-state-director-with-iam-profile
+      bbl-state-bosh-lite: bbl-state-director-with-iam-profile
     params:
       BBL_STATE: .
   - put: s3-backuper-with-iam-instance-profile-deployment
@@ -718,14 +717,11 @@ jobs:
     - get: release-tarball
       resource: release
       passed: [create-release]
-    - get: bosh-backup-and-restore-meta
     - get: xenial-stemcell
     - get: backup-and-restore-ci
     - get: bbl-state-bosh-lite
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
-    input_mapping:
-      bosh-backup-and-restore-meta: bbl-state-bosh-lite
     params:
       BBL_STATE: .
   - put: azure-blobstore-sdk-deployment
@@ -834,7 +830,6 @@ jobs:
       - deploy-database-sdk
       - deploy-external-gcp-dbs
     - get: backup-and-restore-ci
-    - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-sdk-release
       passed:
       - deploy-database-sdk
@@ -909,7 +904,6 @@ jobs:
       passed:
       - deploy-database-sdk
       - deploy-external-rds-dbs
-    - get: bosh-backup-and-restore-meta
     - get: terraform-aws
       resource: terraform
       passed:
@@ -1015,7 +1009,6 @@ jobs:
       - deploy-database-sdk
       - deploy-mariadb
       trigger: true
-    - get: bosh-backup-and-restore-meta
   - task: mariadb-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-db/task.yml
     params:
@@ -1046,7 +1039,6 @@ jobs:
       - deploy-database-sdk
       - deploy-external-rds-dbs
       trigger: true
-    - get: bosh-backup-and-restore-meta
     - get: terraform-aws
       resource: terraform
       passed: [deploy-external-rds-dbs]
@@ -1087,7 +1079,6 @@ jobs:
       - deploy-database-sdk
       - deploy-external-rds-dbs
       trigger: true
-    - get: bosh-backup-and-restore-meta
     - get: terraform-aws
       resource: terraform
       passed:
@@ -1128,7 +1119,6 @@ jobs:
       - deploy-database-sdk
       - deploy-external-gcp-dbs
       trigger: true
-    - get: bosh-backup-and-restore-meta
     - get: terraform-gcp
       resource: terraform
       passed:
@@ -1168,7 +1158,6 @@ jobs:
       passed:
       - deploy-s3-blobstore-sdk
       trigger: true
-    - get: bosh-backup-and-restore-meta
   - task: s3-blobstore-backuper-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-blobstore/task.yml
     params:
@@ -1210,7 +1199,6 @@ jobs:
       passed:
       - deploy-s3-blobstore-sdk-with-iam-instance-profile
       trigger: true
-    - get: bosh-backup-and-restore-meta
   - task: s3-blobstore-backuper-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-blobstore/task.yml
     params:
@@ -1245,7 +1233,6 @@ jobs:
       passed:
       - deploy-azure-blobstore-sdk
       trigger: true
-    - get: bosh-backup-and-restore-meta
   - task: azure-blobstore-backuper-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-blobstore/task.yml
     params:
@@ -1275,13 +1262,10 @@ jobs:
       passed:
       - create-release
     - get: xenial-stemcell
-    - get: bosh-backup-and-restore-meta
     - get: backup-and-restore-ci
     - get: bbl-state-bosh-lite
   - task: generate-bosh-deployment-source-file
     file: backup-and-restore-ci/tasks/bosh-deployment-resource-source-file-adapter/task.yml
-    input_mapping:
-      bosh-backup-and-restore-meta: bbl-state-bosh-lite
     params:
       BBL_STATE: .
   - put: gcs-blobstore-sdk-deployment
@@ -1310,7 +1294,6 @@ jobs:
       passed:
       - deploy-gcs-blobstore-sdk
       trigger: true
-    - get: bosh-backup-and-restore-meta
   - task: gcs-blobstore-backuper-system-tests
     file: backup-and-restore-ci/tasks/sdk-system-blobstore/task.yml
     params:
