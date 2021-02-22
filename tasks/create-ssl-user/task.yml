@@ -23,7 +23,6 @@ image_resource:
 
 inputs:
 - name: backup-and-restore-ci
-- name: bosh-backup-and-restore-meta
 
 run:
   path: backup-and-restore-ci/tasks/create-ssl-user/task.sh
