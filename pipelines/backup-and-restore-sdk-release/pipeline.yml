@@ -473,8 +473,9 @@ jobs:
           db_host: *postgres-9-6-host
           db_port: *postgres-9-6-port
           availability_zone: z1
-        vars_files:
-        - bosh-backup-and-restore-meta/ci/backup-and-restore-sdk-release/vars/postgres-96-vars.yml
+          databases.ca: ((backup-and-restore-sdk-release-db-certs.postgres_96_ca_cert))
+          databases.certificate: ((backup-and-restore-sdk-release-db-certs.postgres_96_client_cert))
+          databases.private_key: ((backup-and-restore-sdk-release-db-certs.postgres_96_client_key))
         source_file: source-file/source-file.yml
     - put: postgres-10-dev-deployment
       params:
@@ -537,8 +538,9 @@ jobs:
         db_password: *mysql-password
         db_host: *mysql-host
         availability_zone: z1
-      vars_files:
-      - bosh-backup-and-restore-meta/ci/backup-and-restore-sdk-release/vars/mysql-vars.yml
+        databases.ca: ((backup-and-restore-sdk-release-db-certs.mysql_ca_cert))
+        databases.certificate: ((backup-and-restore-sdk-release-db-certs.mysql_client_cert))
+        databases.private_key: ((backup-and-restore-sdk-release-db-certs.mysql_client_key))
       source_file: source-file/source-file.yml
 
 - name: deploy-external-rds-dbs
